@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment configuration (Supabase keys) — copy env.example.json to env.json
+env.json
+
+# Android signing secrets
+android/key.properties
+*.jks
+*.keystore
+
+# Coverage reports
+lcov.info
