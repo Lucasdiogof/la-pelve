@@ -8,7 +8,7 @@ class EnvConfig {
   const EnvConfig._();
 
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  static const String supabasePublishableKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const String supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 
   static void validate() {
     if (supabaseUrl.isEmpty) {
@@ -19,7 +19,7 @@ class EnvConfig {
     }
     if (supabasePublishableKey.isEmpty) {
       throw StateError(
-        'SUPABASE_ANON_KEY ausente. Rode com --dart-define-from-file=env.json '
+        'SUPABASE_PUBLISHABLE_KEY ausente. Rode com --dart-define-from-file=env.json '
         '(copie env.example.json para env.json e preencha as chaves).',
       );
     }
