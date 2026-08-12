@@ -39,9 +39,9 @@ class PatientPickerSheet extends StatelessWidget {
               Text(
                 'Selecionar paciente',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: context.colors.primaryButton,
                   fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
