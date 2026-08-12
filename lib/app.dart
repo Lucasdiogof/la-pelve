@@ -41,7 +41,17 @@ class App extends StatelessWidget {
                         body: const Center(child: PulsingLogo(size: 140)),
                       );
                     }
-                    return AppLockGate(child: child ?? const SizedBox.shrink());
+                    return ColoredBox(
+                      color: context.colors.background,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          child: AppLockGate(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
               );
