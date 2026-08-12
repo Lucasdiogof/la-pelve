@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/pages/agenda_form_page.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_cubit.dart';
@@ -116,9 +117,22 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/agenda/novo',
-      builder: (context, state) => BlocProvider.value(
-        value: sl<AgendaCubit>(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: sl<AgendaCubit>()),
+          BlocProvider.value(value: sl<PatientsCubit>()),
+        ],
         child: const AgendaFormPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/agenda/:id/editar',
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: sl<AgendaCubit>()),
+          BlocProvider.value(value: sl<PatientsCubit>()),
+        ],
+        child: AgendaFormPage(existingAppointment: state.extra! as Appointment),
       ),
     ),
   ],
