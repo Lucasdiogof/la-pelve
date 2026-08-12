@@ -122,59 +122,67 @@ class _MonthlyReportTabState extends State<MonthlyReportTab> {
                 ),
               )
             else
-              for (final entry in inMonth)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.patientName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              AppDateField.format(entry.data),
-                              style: TextStyle(
-                                color: context.colors.textSecondary,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              entry.status.label,
-                              style: TextStyle(
-                                color: entry.status == StatusPagamento.pago
-                                    ? context.colors.success
-                                    : context.colors.primaryButton,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        'R\$ ${entry.valor.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              for (final entry in inMonth) _MonthlyReportEntryTile(entry),
           ],
         );
       },
+    );
+  }
+}
+
+class _MonthlyReportEntryTile extends StatelessWidget {
+  const _MonthlyReportEntryTile(this.entry);
+
+  final FinancialEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.patientName,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  AppDateField.format(entry.data),
+                  style: TextStyle(
+                    color: context.colors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  entry.status.label,
+                  style: TextStyle(
+                    color: entry.status == StatusPagamento.pago
+                        ? context.colors.success
+                        : context.colors.primaryButton,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            'R\$ ${entry.valor.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: context.colors.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
