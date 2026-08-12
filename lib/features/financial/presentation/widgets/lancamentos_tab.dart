@@ -9,6 +9,7 @@ import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/finan
 import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/patient_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart';
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
@@ -49,7 +50,7 @@ class _LancamentosTabState extends State<LancamentosTab> {
   bool get _canSave =>
       _patientNameController.text.trim().isNotEmpty &&
       _data != null &&
-      double.tryParse(_valorController.text) != null &&
+      CurrencyInputFormatter.parse(_valorController.text) > 0 &&
       (_formaPagamento != FormaPagamento.outro ||
           _formaPagamentoOutroController.text.trim().isNotEmpty) &&
       (_status != StatusPagamento.outro ||
@@ -80,7 +81,7 @@ class _LancamentosTabState extends State<LancamentosTab> {
         patientId: _patient?.id,
         patientName: _patientNameController.text.trim(),
         data: _data!,
-        valor: double.parse(_valorController.text),
+        valor: CurrencyInputFormatter.parse(_valorController.text),
         observacoes: _observacoesController.text.trim(),
         formaPagamento: _formaPagamento,
         formaPagamentoOutraDescricao: _formaPagamento == FormaPagamento.outro
@@ -149,7 +150,8 @@ class _LancamentosTabState extends State<LancamentosTab> {
           controller: _valorController,
           icon: Icons.attach_money,
           hintText: 'Valor pago',
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          keyboardType: TextInputType.number,
+          inputFormatters: [CurrencyInputFormatter()],
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 12),
