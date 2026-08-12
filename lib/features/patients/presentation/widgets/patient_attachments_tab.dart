@@ -31,7 +31,9 @@ class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
   bool _uploading = false;
 
   Future<void> _reload() async {
-    setState(() => _future = _repository.getForPatient(widget.patientId));
+    setState(() {
+      _future = _repository.getForPatient(widget.patientId);
+    });
   }
 
   Future<void> _addAttachment() async {

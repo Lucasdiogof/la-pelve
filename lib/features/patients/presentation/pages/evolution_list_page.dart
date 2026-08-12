@@ -25,7 +25,9 @@ class _EvolutionListPageState extends State<EvolutionListPage> {
   );
 
   Future<void> _reload() async {
-    setState(() => _future = _repository.getEvolutions(widget.patient.id));
+    setState(() {
+      _future = _repository.getEvolutions(widget.patient.id);
+    });
   }
 
   @override
