@@ -1,0 +1,5 @@
+name = "fisioterapia-pelvica"
+compatibility_date = "2026-01-01"
+
+[assets]
+directory = "build/web"
