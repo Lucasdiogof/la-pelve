@@ -6,6 +6,7 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/agenda_view_models.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
@@ -35,6 +36,15 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
   late String? _patientId = widget.existingAppointment?.patientId;
 
   bool get _isEditing => widget.existingAppointment != null;
+
+  DateTime get _firstSelectableDate {
+    final today = dateOnly(DateTime.now());
+    final existingData = widget.existingAppointment?.data;
+    if (existingData != null && existingData.isBefore(today)) {
+      return dateOnly(existingData);
+    }
+    return today;
+  }
 
   @override
   void dispose() {
@@ -124,6 +134,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                 AppDateField(
                   hintText: 'Data',
                   value: _data,
+                  firstDate: _firstSelectableDate,
                   onChanged: (value) => setState(() => _data = value),
                 ),
                 const SizedBox(height: 12),
