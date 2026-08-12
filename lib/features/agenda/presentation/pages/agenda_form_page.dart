@@ -213,7 +213,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                       minimumSize: const Size.fromHeight(56),
                       shape: const StadiumBorder(),
                     ),
-                    child: const Text('Excluir agendamento'),
+                    child: const Text('Excluir'),
                   ),
                   const SizedBox(height: 12),
                 ],
