@@ -1,0 +1,100 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart' show TimeOfDay;
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:fisioterapia_pelvica/core/error/failures.dart';
+import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_repository.dart';
+import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
+
+class _MockAgendaRepository extends Mock implements AgendaRepository {}
+
+void main() {
+  late _MockAgendaRepository repository;
+
+  final appointment = Appointment(
+    id: 'a1',
+    data: DateTime.utc(2026, 3, 5),
+    hora: const TimeOfDay(hour: 10, minute: 0),
+    nomePaciente: 'Maria',
+  );
+
+  setUp(() {
+    repository = _MockAgendaRepository();
+  });
+
+  group('AgendaCubit initial load', () {
+    blocTest<AgendaCubit, List<Appointment>>(
+      'emits the loaded appointments on start',
+      setUp: () {
+        when(() => repository.getAll()).thenAnswer(
+          (_) async => Success([appointment]),
+        );
+      },
+      build: () => AgendaCubit(repository),
+      expect: () => [
+        [appointment],
+      ],
+    );
+
+    blocTest<AgendaCubit, List<Appointment>>(
+      'keeps the previous state when the initial load fails',
+      setUp: () {
+        when(() => repository.getAll()).thenAnswer(
+          (_) async => const Error(ServerFailure()),
+        );
+      },
+      build: () => AgendaCubit(repository),
+      expect: () => <List<Appointment>>[],
+    );
+  });
+
+  group('AgendaCubit.updateStatus', () {
+    test('reloads the list after a successful status update', () async {
+      when(() => repository.getAll()).thenAnswer(
+        (_) async => Success([appointment]),
+      );
+      when(
+        () => repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+      ).thenAnswer((_) async => const Success(null));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      when(() => repository.getAll()).thenAnswer(
+        (_) async => Success([
+          appointment.copyWith(status: AppointmentStatus.atendido),
+        ]),
+      );
+      final result = await cubit.updateStatus(
+        appointment.id,
+        AppointmentStatus.atendido,
+      );
+
+      expect(result, isA<Success<void>>());
+      expect(cubit.state.single.status, AppointmentStatus.atendido);
+      await cubit.close();
+    });
+
+    test('does not reload the list when the update fails', () async {
+      when(() => repository.getAll()).thenAnswer(
+        (_) async => Success([appointment]),
+      );
+      when(
+        () => repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      final result = await cubit.updateStatus(
+        appointment.id,
+        AppointmentStatus.atendido,
+      );
+
+      expect(result, isA<Error<void>>());
+      expect(cubit.state.single.status, AppointmentStatus.agendado);
+      await cubit.close();
+    });
+  });
+}
