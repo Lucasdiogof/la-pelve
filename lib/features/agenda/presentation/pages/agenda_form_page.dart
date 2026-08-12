@@ -16,6 +16,7 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_select_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/patient_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
@@ -152,19 +153,15 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
     final hasPatients = context.watch<PatientsCubit>().state.isNotEmpty;
     return Scaffold(
       backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar agendamento' : 'Criar agendamento'),
-        actions: [
-          if (_isEditing)
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: context.colors.error),
-              tooltip: 'Excluir agendamento',
-              onPressed: _delete,
-            ),
-        ],
-      ),
       body: Column(
         children: [
+          ModernAppBar(
+            title: _isEditing ? 'Editar agendamento' : 'Criar agendamento',
+            subtitle: _isEditing
+                ? 'Atualize os dados do atendimento'
+                : 'Novo atendimento na agenda',
+            showBackButton: true,
+          ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(24),
@@ -205,10 +202,27 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
             ),
           ),
           AppBottomActionBar(
-            child: PrimaryButton(
-              label: 'Salvar',
-              isLoading: _saving,
-              onPressed: _canSave ? _save : null,
+            child: Column(
+              children: [
+                if (_isEditing) ...[
+                  OutlinedButton(
+                    onPressed: _delete,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: context.colors.error,
+                      side: BorderSide(color: context.colors.error),
+                      minimumSize: const Size.fromHeight(56),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: const Text('Excluir agendamento'),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                PrimaryButton(
+                  label: 'Salvar',
+                  isLoading: _saving,
+                  onPressed: _canSave ? _save : null,
+                ),
+              ],
             ),
           ),
         ],
