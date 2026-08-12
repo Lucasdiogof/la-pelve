@@ -9,6 +9,7 @@ class ModernAppBar extends StatelessWidget {
     this.actionIcon,
     this.onAction,
     this.showBackButton = false,
+    this.onBack,
   });
 
   final String title;
@@ -16,6 +17,7 @@ class ModernAppBar extends StatelessWidget {
   final IconData? actionIcon;
   final VoidCallback? onAction;
   final bool showBackButton;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class ModernAppBar extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  onTap: () => Navigator.of(context).maybePop(),
+                  onTap: onBack ?? () => Navigator.of(context).maybePop(),
                   child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Icon(
