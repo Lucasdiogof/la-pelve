@@ -6,7 +6,6 @@ import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/patient_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart';
@@ -15,6 +14,7 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/patient_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
 class LancamentosTab extends StatefulWidget {
