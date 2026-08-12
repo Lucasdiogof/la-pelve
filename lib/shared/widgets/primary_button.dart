@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Full-width pill button with a loading state. Uses the app's
-/// [ElevatedButtonThemeData] for color/shape, so it stays consistent with
-/// [AppTheme] without redefining styling here.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     required this.label,
@@ -25,16 +22,16 @@ class PrimaryButton extends StatelessWidget {
           ? const SizedBox(
               width: 22,
               height: 22,
-              child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: Colors.white,
+              ),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(label),
-                if (icon != null) ...[
-                  const SizedBox(width: 8),
-                  icon!,
-                ],
+                if (icon != null) ...[const SizedBox(width: 8), icon!],
               ],
             ),
     );

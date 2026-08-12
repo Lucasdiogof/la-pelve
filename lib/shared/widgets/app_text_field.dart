@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 
-/// Pill-shaped text field with a circled leading icon, matching the login
-/// screen design. Reused across the app wherever a form field is needed.
 class AppTextField extends StatelessWidget {
   const AppTextField({
     required this.icon,
@@ -12,7 +11,13 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
-    this.validator,
+    this.errorText,
+    this.readOnly = false,
+    this.onTap,
+    this.maxLines = 1,
+    this.onChanged,
+    this.inputFormatters,
+    this.iconColor,
   });
 
   final IconData icon;
@@ -21,29 +26,55 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
+  final String? errorText;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final int? maxLines;
+  final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: const TextStyle(color: AppColors.textPrimary),
-      decoration: InputDecoration(
-        hintText: hintText,
-        suffixIcon: suffixIcon,
-        prefixIconConstraints: const BoxConstraints(minWidth: 54, minHeight: 54),
-        prefixIcon: Container(
-          margin: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.border),
+    return Stack(
+      children: [
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          readOnly: readOnly,
+          onTap: onTap,
+          maxLines: obscureText ? 1 : maxLines,
+          onChanged: onChanged,
+          inputFormatters: inputFormatters,
+          style: TextStyle(color: context.colors.textPrimary),
+          decoration: InputDecoration(
+            hintText: hintText,
+            errorText: errorText,
+            suffixIcon: suffixIcon,
+            contentPadding: const EdgeInsets.fromLTRB(58, 18, 20, 18),
           ),
-          child: Icon(icon, size: 16, color: AppColors.textSecondary),
         ),
-      ),
+        Positioned(
+          left: 10,
+          top: 11,
+          child: IgnorePointer(
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: iconColor ?? context.colors.primary),
+              ),
+              child: Icon(
+                icon,
+                size: 16,
+                color: iconColor ?? context.colors.primary,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
