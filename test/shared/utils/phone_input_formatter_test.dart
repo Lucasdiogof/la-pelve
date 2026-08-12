@@ -16,21 +16,21 @@ void main() {
     });
 
     test('formats a mobile number in progress', () {
-      expect(PhoneInputFormatter.format('119333'), '(11) 9 333');
+      expect(PhoneInputFormatter.format('119333'), '(11) 9333');
     });
 
     test('formats a complete 11-digit mobile number', () {
-      expect(PhoneInputFormatter.format('11933334444'), '(11) 9 3333-4444');
+      expect(PhoneInputFormatter.format('11933334444'), '(11) 93333-4444');
     });
 
     test('formats a complete 10-digit landline number', () {
-      expect(PhoneInputFormatter.format('1133334444'), '(11) 3 3334-444');
+      expect(PhoneInputFormatter.format('1133334444'), '(11) 3333-4444');
     });
 
     test('truncates input beyond 11 digits', () {
       expect(
         PhoneInputFormatter.format('119333344445555'),
-        '(11) 9 3333-4444',
+        '(11) 93333-4444',
       );
     });
   });
