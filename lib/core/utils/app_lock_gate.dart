@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/services/biometric_service.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/core/utils/app_lock_cubit.dart';
 import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
@@ -18,7 +20,7 @@ class AppLockGate extends StatefulWidget {
 }
 
 class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
-  bool _locked = false;
+  final _lockCubit = AppLockCubit();
   bool _wasBackgrounded = false;
   bool _unlocking = false;
 
@@ -32,6 +34,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _lockCubit.close();
     super.dispose();
   }
 
@@ -51,7 +54,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
     if (!hasSession) return;
     final enabled = await BiometricPreference.isEnabled();
     if (enabled && mounted) {
-      setState(() => _locked = true);
+      _lockCubit.lock();
       unawaited(_unlock());
     }
   }
@@ -63,42 +66,47 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
       'Desbloqueie para continuar',
     );
     _unlocking = false;
-    if (ok && mounted) setState(() => _locked = false);
+    if (ok && mounted) _lockCubit.unlock();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        widget.child,
-        if (_locked)
-          ColoredBox(
-            color: context.colors.background,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 48,
-                    color: context.colors.primary,
+    return BlocProvider.value(
+      value: _lockCubit,
+      child: BlocBuilder<AppLockCubit, bool>(
+        builder: (context, locked) => Stack(
+          children: [
+            widget.child,
+            if (locked)
+              ColoredBox(
+                color: context.colors.background,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 48,
+                        color: context.colors.primary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'App bloqueado',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      PrimaryButton(label: 'Desbloquear', onPressed: _unlock),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'App bloqueado',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  PrimaryButton(label: 'Desbloquear', onPressed: _unlock),
-                ],
+                ),
               ),
-            ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 }
