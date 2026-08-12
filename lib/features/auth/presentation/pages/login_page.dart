@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
             if (_isSigningIn)
               Container(
                 color: context.colors.background,
-                child: const Center(child: PulsingLogo(size: 140)),
+                child: const Center(child: PulsingLogo(size: 100)),
               ),
           ],
         ),
