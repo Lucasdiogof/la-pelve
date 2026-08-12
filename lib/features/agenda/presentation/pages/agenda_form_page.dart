@@ -13,6 +13,7 @@ import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_select_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/patient_picker_sheet.dart';
@@ -81,6 +82,35 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
 
   bool _saving = false;
 
+  Future<void> _delete() async {
+    final existing = widget.existingAppointment;
+    if (existing == null) return;
+    final confirmed = await AppConfirmSheet.show(
+      context,
+      title: 'Excluir agendamento',
+      description:
+          'Tem certeza que deseja excluir este agendamento? Essa ação não pode ser desfeita.',
+      confirmLabel: 'Excluir',
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+    showAppLoading();
+    final result = await context.read<AgendaCubit>().deleteAppointment(
+      existing.id,
+    );
+    hideAppLoading();
+    if (!mounted) return;
+    switch (result) {
+      case Success():
+        context.pop();
+      case Error(:final failure):
+        await AppInfoBottomSheet.showError(
+          context,
+          description: failure.message,
+        );
+    }
+  }
+
   Future<void> _save() async {
     setState(() => _saving = true);
     showAppLoading();
@@ -124,6 +154,14 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
       backgroundColor: context.colors.background,
       appBar: AppBar(
         title: Text(_isEditing ? 'Editar agendamento' : 'Criar agendamento'),
+        actions: [
+          if (_isEditing)
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: context.colors.error),
+              tooltip: 'Excluir agendamento',
+              onPressed: _delete,
+            ),
+        ],
       ),
       body: Column(
         children: [
