@@ -11,6 +11,7 @@ import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/password_visibility_toggle.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -208,13 +209,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             icon: Icons.lock_outline,
                             hintText: 'Senha',
                             obscureText: _obscurePassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: context.colors.textSecondary,
-                              ),
+                            suffixIcon: PasswordVisibilityToggle(
+                              obscured: _obscurePassword,
+                              color: context.colors.textSecondary,
                               onPressed: () => setState(
                                 () => _obscurePassword = !_obscurePassword,
                               ),
@@ -227,13 +224,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             icon: Icons.lock_outline,
                             hintText: 'Confirmar senha',
                             obscureText: _obscureConfirmPassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: context.colors.textSecondary,
-                              ),
+                            suffixIcon: PasswordVisibilityToggle(
+                              obscured: _obscureConfirmPassword,
+                              color: context.colors.textSecondary,
                               onPressed: () => setState(
                                 () => _obscureConfirmPassword =
                                     !_obscureConfirmPassword,
