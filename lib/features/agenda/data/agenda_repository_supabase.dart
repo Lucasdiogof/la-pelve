@@ -48,6 +48,25 @@ class AgendaRepositorySupabase implements AgendaRepository {
   }
 
   @override
+  Future<Result<void>> update(Appointment appointment) async {
+    try {
+      await _client
+          .from('appointments')
+          .update(appointment.toJson())
+          .eq('id', appointment.id);
+      return const Success(null);
+    } on PostgrestException catch (e, st) {
+      debugPrint(
+        '[AgendaRepositorySupabase.update] code=${e.code} msg=${e.message}\n$st',
+      );
+      return const Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint('[AgendaRepositorySupabase.update] $e\n$st');
+      return const Error(UnexpectedFailure());
+    }
+  }
+
+  @override
   Future<Result<void>> updateStatus(String id, AppointmentStatus status) async {
     try {
       await _client

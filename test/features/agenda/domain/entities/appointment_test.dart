@@ -41,6 +41,33 @@ void main() {
 
       expect(Appointment.fromJson(json).status, AppointmentStatus.agendado);
     });
+
+    test('round-trips a linked patientId', () {
+      final appointment = Appointment(
+        id: 'a1',
+        data: DateTime(2026, 3, 5),
+        hora: const TimeOfDay(hour: 9, minute: 0),
+        nomePaciente: 'Maria',
+        patientId: 'p1',
+      );
+
+      final restored = Appointment.fromJson(appointment.toJson());
+
+      expect(restored.patientId, 'p1');
+    });
+
+    test('leaves patientId null for a free-text appointment', () {
+      final appointment = Appointment(
+        id: 'a1',
+        data: DateTime(2026, 3, 5),
+        hora: const TimeOfDay(hour: 9, minute: 0),
+        nomePaciente: 'Maria',
+      );
+
+      final restored = Appointment.fromJson(appointment.toJson());
+
+      expect(restored.patientId, isNull);
+    });
   });
 
   group('Appointment.copyWith', () {
@@ -59,6 +86,56 @@ void main() {
       expect(updated.data, appointment.data);
       expect(updated.hora, appointment.hora);
       expect(updated.nomePaciente, appointment.nomePaciente);
+    });
+
+    test('replaces date, time, name and patientId together', () {
+      final appointment = Appointment(
+        id: 'a1',
+        data: DateTime(2026, 3, 5),
+        hora: const TimeOfDay(hour: 9, minute: 0),
+        nomePaciente: 'Maria',
+        patientId: 'p1',
+      );
+
+      final updated = appointment.copyWith(
+        data: DateTime(2026, 3, 6),
+        hora: const TimeOfDay(hour: 14, minute: 0),
+        nomePaciente: 'Joana',
+        patientId: 'p2',
+      );
+
+      expect(updated.data, DateTime(2026, 3, 6));
+      expect(updated.hora, const TimeOfDay(hour: 14, minute: 0));
+      expect(updated.nomePaciente, 'Joana');
+      expect(updated.patientId, 'p2');
+    });
+
+    test('clears patientId when explicitly passed null', () {
+      final appointment = Appointment(
+        id: 'a1',
+        data: DateTime(2026, 3, 5),
+        hora: const TimeOfDay(hour: 9, minute: 0),
+        nomePaciente: 'Maria',
+        patientId: 'p1',
+      );
+
+      final updated = appointment.copyWith(patientId: null);
+
+      expect(updated.patientId, isNull);
+    });
+
+    test('keeps patientId when the argument is omitted', () {
+      final appointment = Appointment(
+        id: 'a1',
+        data: DateTime(2026, 3, 5),
+        hora: const TimeOfDay(hour: 9, minute: 0),
+        nomePaciente: 'Maria',
+        patientId: 'p1',
+      );
+
+      final updated = appointment.copyWith(nomePaciente: 'Joana');
+
+      expect(updated.patientId, 'p1');
     });
   });
 }

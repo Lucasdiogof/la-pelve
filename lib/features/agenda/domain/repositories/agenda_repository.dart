@@ -7,5 +7,7 @@ abstract class AgendaRepository {
 
   Future<Result<void>> add(Appointment appointment);
 
+  Future<Result<void>> update(Appointment appointment);
+
   Future<Result<void>> updateStatus(String id, AppointmentStatus status);
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
 import 'package:fisioterapia_pelvica/shared/utils/date_only.dart';
 import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
+import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 
 class Appointment extends Equatable {
   const Appointment({
@@ -10,6 +11,7 @@ class Appointment extends Equatable {
     required this.data,
     required this.hora,
     required this.nomePaciente,
+    this.patientId,
     this.status = AppointmentStatus.agendado,
   });
 
@@ -17,14 +19,22 @@ class Appointment extends Equatable {
   final DateTime data;
   final TimeOfDay hora;
   final String nomePaciente;
+  final String? patientId;
   final AppointmentStatus status;
 
-  Appointment copyWith({AppointmentStatus? status}) {
+  Appointment copyWith({
+    DateTime? data,
+    TimeOfDay? hora,
+    String? nomePaciente,
+    Object? patientId = kUnset,
+    AppointmentStatus? status,
+  }) {
     return Appointment(
       id: id,
-      data: data,
-      hora: hora,
-      nomePaciente: nomePaciente,
+      data: data ?? this.data,
+      hora: hora ?? this.hora,
+      nomePaciente: nomePaciente ?? this.nomePaciente,
+      patientId: unsetOr(patientId, this.patientId),
       status: status ?? this.status,
     );
   }
@@ -35,6 +45,7 @@ class Appointment extends Equatable {
     'hora':
         '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}:00',
     'nome_paciente': nomePaciente,
+    'patient_id': patientId,
     'status': status.name,
   };
 
@@ -43,6 +54,7 @@ class Appointment extends Equatable {
     data: DateTime.parse(json['data'] as String),
     hora: _parseTime(json['hora'] as String),
     nomePaciente: json['nome_paciente'] as String? ?? '',
+    patientId: json['patient_id'] as String?,
     status:
         enumFromName(AppointmentStatus.values, json['status']) ??
         AppointmentStatus.agendado,
@@ -54,5 +66,5 @@ class Appointment extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, data, hora, nomePaciente, status];
+  List<Object?> get props => [id, data, hora, nomePaciente, patientId, status];
 }

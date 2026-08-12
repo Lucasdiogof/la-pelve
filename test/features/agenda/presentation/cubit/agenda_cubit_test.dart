@@ -29,9 +29,9 @@ void main() {
     blocTest<AgendaCubit, List<Appointment>>(
       'emits the loaded appointments on start',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => Success([appointment]),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => Success([appointment]));
       },
       build: () => AgendaCubit(repository),
       expect: () => [
@@ -42,9 +42,9 @@ void main() {
     blocTest<AgendaCubit, List<Appointment>>(
       'keeps the previous state when the initial load fails',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => const Error(ServerFailure()),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => const Error(ServerFailure()));
       },
       build: () => AgendaCubit(repository),
       expect: () => <List<Appointment>>[],
@@ -53,19 +53,19 @@ void main() {
 
   group('AgendaCubit.updateStatus', () {
     test('reloads the list after a successful status update', () async {
-      when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([appointment]),
-      );
       when(
-        () => repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () =>
+            repository.updateStatus(appointment.id, AppointmentStatus.atendido),
       ).thenAnswer((_) async => const Success(null));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
       when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([
-          appointment.copyWith(status: AppointmentStatus.atendido),
-        ]),
+        (_) async =>
+            Success([appointment.copyWith(status: AppointmentStatus.atendido)]),
       );
       final result = await cubit.updateStatus(
         appointment.id,
@@ -78,11 +78,12 @@ void main() {
     });
 
     test('does not reload the list when the update fails', () async {
-      when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([appointment]),
-      );
       when(
-        () => repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () =>
+            repository.updateStatus(appointment.id, AppointmentStatus.atendido),
       ).thenAnswer((_) async => const Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
@@ -94,6 +95,47 @@ void main() {
 
       expect(result, isA<Error<void>>());
       expect(cubit.state.single.status, AppointmentStatus.agendado);
+      await cubit.close();
+    });
+  });
+
+  group('AgendaCubit.updateAppointment', () {
+    test('reloads the list after a successful update', () async {
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      final updated = appointment.copyWith(nomePaciente: 'Joana');
+      when(
+        () => repository.update(updated),
+      ).thenAnswer((_) async => const Success(null));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([updated]));
+      final result = await cubit.updateAppointment(updated);
+
+      expect(result, isA<Success<void>>());
+      expect(cubit.state.single.nomePaciente, 'Joana');
+      await cubit.close();
+    });
+
+    test('does not reload the list when the update fails', () async {
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      final updated = appointment.copyWith(nomePaciente: 'Joana');
+      when(
+        () => repository.update(updated),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      final result = await cubit.updateAppointment(updated);
+
+      expect(result, isA<Error<void>>());
+      expect(cubit.state.single.nomePaciente, 'Maria');
       await cubit.close();
     });
   });
