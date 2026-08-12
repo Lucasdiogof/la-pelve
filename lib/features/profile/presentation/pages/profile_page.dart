@@ -11,7 +11,9 @@ import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/entities/profile.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_avatar_section.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_photo_picker_sheet.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_row.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
@@ -165,7 +167,75 @@ class _ProfilePageState extends State<ProfilePage> {
             subtitle: 'Gerencie seu perfil',
             showBackButton: true,
           ),
-          Expanded(child: _buildBody(context)),
+          Expanded(
+            child: _loading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: context.colors.primary,
+                    ),
+                  )
+                : ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      ProfileAvatarSection(
+                        photoUrl: _photoUrl,
+                        initial: (_profile?.nome.isNotEmpty ?? false)
+                            ? _profile!.nome[0].toUpperCase()
+                            : '?',
+                        isSaving: _savingPhoto,
+                        onTap: _pickPhoto,
+                      ),
+                      const SizedBox(height: 32),
+                      ProfileRow(
+                        icon: Icons.person_outline,
+                        label: 'Nome',
+                        value: _profile?.nome ?? '',
+                        trailing: Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: context.colors.primary,
+                        ),
+                        onTap: _editNome,
+                      ),
+                      const SizedBox(height: 8),
+                      ProfileRow(
+                        icon: Icons.email_outlined,
+                        label: 'E-mail',
+                        value: _profile?.email ?? '',
+                      ),
+                      const SizedBox(height: 8),
+                      ProfileRow(
+                        icon: Icons.verified_user_outlined,
+                        label: 'Crefito',
+                        value: _profile?.crefito ?? '',
+                      ),
+                      const SizedBox(height: 8),
+                      ProfileRow(
+                        icon: Icons.fingerprint,
+                        label: 'Biometria',
+                        value: _biometriaEnabled ? 'Ativada' : 'Desativada',
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: context.colors.textSecondary,
+                        ),
+                        onTap: _openBiometria,
+                      ),
+                      const SizedBox(height: 8),
+                      BlocBuilder<ThemeCubit, ThemeMode>(
+                        builder: (context, mode) => ProfileRow(
+                          icon: Icons.palette_outlined,
+                          label: 'Tema',
+                          value: themeModeLabel(mode),
+                          trailing: Icon(
+                            Icons.chevron_right,
+                            color: context.colors.textSecondary,
+                          ),
+                          onTap: () => context.push('/perfil/tema'),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
           if (!_loading)
             AppBottomActionBar(
               child: Column(
@@ -190,186 +260,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
-    return _loading
-        ? Center(
-            child: CircularProgressIndicator(color: context.colors.primary),
-          )
-        : ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 48,
-                      backgroundColor: context.colors.primary.withValues(
-                        alpha: 0.15,
-                      ),
-                      backgroundImage: _photoUrl != null
-                          ? NetworkImage(_photoUrl!)
-                          : null,
-                      child: _photoUrl == null
-                          ? Text(
-                              (_profile?.nome.isNotEmpty ?? false)
-                                  ? _profile!.nome[0].toUpperCase()
-                                  : '?',
-                              style: TextStyle(
-                                color: context.colors.primary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 32,
-                              ),
-                            )
-                          : null,
-                    ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Material(
-                        color: context.colors.primary,
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: _savingPhoto ? null : _pickPhoto,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: _savingPhoto
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.camera_alt_outlined,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              _ProfileRow(
-                icon: Icons.person_outline,
-                label: 'Nome',
-                value: _profile?.nome ?? '',
-                trailing: Icon(
-                  Icons.edit_outlined,
-                  size: 18,
-                  color: context.colors.primary,
-                ),
-                onTap: _editNome,
-              ),
-              const SizedBox(height: 8),
-              _ProfileRow(
-                icon: Icons.email_outlined,
-                label: 'E-mail',
-                value: _profile?.email ?? '',
-              ),
-              const SizedBox(height: 8),
-              _ProfileRow(
-                icon: Icons.verified_user_outlined,
-                label: 'Crefito',
-                value: _profile?.crefito ?? '',
-              ),
-              const SizedBox(height: 8),
-              _ProfileRow(
-                icon: Icons.fingerprint,
-                label: 'Biometria',
-                value: _biometriaEnabled ? 'Ativada' : 'Desativada',
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: context.colors.textSecondary,
-                ),
-                onTap: _openBiometria,
-              ),
-              const SizedBox(height: 8),
-              BlocBuilder<ThemeCubit, ThemeMode>(
-                builder: (context, mode) => _ProfileRow(
-                  icon: Icons.palette_outlined,
-                  label: 'Tema',
-                  value: themeModeLabel(mode),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: context.colors.textSecondary,
-                  ),
-                  onTap: () => context.push('/perfil/tema'),
-                ),
-              ),
-            ],
-          );
-  }
-}
-
-class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.trailing,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: context.colors.surface,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.colors.border),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 20, color: context.colors.textSecondary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textSecondary,
-                      ),
-                    ),
-                    Text(
-                      value.isEmpty ? 'Não informado' : value,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-            ],
-          ),
-        ),
       ),
     );
   }
