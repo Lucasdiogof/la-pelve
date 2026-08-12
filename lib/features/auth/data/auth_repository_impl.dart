@@ -48,7 +48,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _client.auth.signUp(
         email: email,
         password: password,
-        emailRedirectTo: 'fisioterapiapelvica://confirm-signup',
+        emailRedirectTo: kIsWeb
+            ? '${Uri.base.origin}/'
+            : 'fisioterapiapelvica://confirm-signup',
         data: {'nome': nome, 'crefito': crefito, 'telefone': telefone},
       );
       final user = response.user;
@@ -107,7 +109,9 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _client.auth.resetPasswordForEmail(
         email,
-        redirectTo: 'fisioterapiapelvica://reset-password',
+        redirectTo: kIsWeb
+            ? '${Uri.base.origin}/redefinir-senha'
+            : 'fisioterapiapelvica://reset-password',
       );
       return const Success(null);
     } on AuthException catch (e, st) {
