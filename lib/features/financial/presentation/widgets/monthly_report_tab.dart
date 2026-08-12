@@ -4,6 +4,7 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 
 const _monthNames = [
@@ -135,6 +136,19 @@ class _MonthlyReportEntryTile extends StatelessWidget {
 
   final FinancialEntry entry;
 
+  Future<void> _delete(BuildContext context) async {
+    final confirmed = await AppConfirmSheet.show(
+      context,
+      title: 'Excluir lançamento',
+      description:
+          'Tem certeza que deseja excluir este lançamento? Essa ação não pode ser desfeita.',
+      confirmLabel: 'Excluir',
+      isDestructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+    await context.read<FinancialCubit>().deleteEntry(entry.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,6 +194,11 @@ class _MonthlyReportEntryTile extends StatelessWidget {
               fontWeight: FontWeight.w700,
               color: context.colors.primary,
             ),
+          ),
+          IconButton(
+            icon: Icon(Icons.delete_outline, color: context.colors.error),
+            tooltip: 'Excluir lançamento',
+            onPressed: () => _delete(context),
           ),
         ],
       ),
