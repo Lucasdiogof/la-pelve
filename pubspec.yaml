@@ -40,8 +40,15 @@ dependencies:
   equatable: ^2.0.8 # Value equality for entities, states and failures
   get_it: ^8.0.3 # Dependency injection / service locator
   supabase_flutter: ^2.9.0 # Supabase client (auth + database)
+  http: ^1.6.0 # Custom logging client wrapped around Supabase's requests
   go_router: ^15.1.2 # Declarative routing
   google_fonts: ^6.2.1 # App typography
+  loader_overlay: ^5.0.0 # Global blocking loading overlay (showAppLoading/hideAppLoading)
+  image_picker: ^1.1.2 # Camera/gallery capture for patient attachments
+  file_picker: ^10.3.10 # Pick PDF/other files for patient attachments
+  url_launcher: ^6.3.1 # Opens PDFs externally in the device's own viewer
+  local_auth: ^2.3.0 # Biometric authentication (Perfil toggle + app lock)
+  shared_preferences: ^2.3.3 # Persists the device-local biometria preference
 
 dev_dependencies:
   flutter_test:
@@ -64,16 +71,20 @@ flutter_launcher_icons:
   image_path: "lib/assets/app_icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
-  background_color_ios: "#F9F4F1"
-  adaptive_icon_background: "#F9F4F1"
-  adaptive_icon_foreground: "lib/assets/app_icon.png"
+  background_color_ios: "#F8F3F6"
+  adaptive_icon_background: "#F8F3F6"
+  adaptive_icon_foreground: "lib/assets/icon_foreground.png"
 
 flutter_native_splash:
-  color: "#F9F4F1"
-  image: lib/assets/app_icon.png
+  color: "#F8F3F6"
+  image: lib/assets/splash_icon.png
+  color_dark: "#1C1418"
+  image_dark: lib/assets/splash_icon.png
   android_12:
-    image: lib/assets/app_icon.png
-    color: "#F9F4F1"
+    image: lib/assets/splash_icon.png
+    color: "#F8F3F6"
+    image_dark: lib/assets/splash_icon.png
+    color_dark: "#1C1418"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,7 +99,10 @@ flutter:
 
   assets:
     - lib/assets/app_icon.png
-    - lib/assets/login.png
+    - lib/assets/icon_foreground.png
+    - lib/assets/splash_icon.png
+    - lib/assets/background.png
+    - lib/assets/dark_background.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
