@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/app.dart';
@@ -15,6 +16,13 @@ void main() {
   EnvConfig.validate();
 
   sl.registerLazySingleton<ThemeCubit>(ThemeCubit.new);
+
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString(
+      'lib/assets/google_fonts/OFL.txt',
+    );
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 
   runApp(App(bootstrap: _bootstrap()));
 }
