@@ -44,4 +44,20 @@ class FinancialRepositorySupabase implements FinancialRepository {
       return const Error(UnexpectedFailure());
     }
   }
+
+  @override
+  Future<Result<void>> delete(String id) async {
+    try {
+      await _client.from('financial_entries').delete().eq('id', id);
+      return const Success(null);
+    } on PostgrestException catch (e, st) {
+      debugPrint(
+        '[FinancialRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
+      );
+      return const Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint('[FinancialRepositorySupabase.delete] $e\n$st');
+      return const Error(UnexpectedFailure());
+    }
+  }
 }

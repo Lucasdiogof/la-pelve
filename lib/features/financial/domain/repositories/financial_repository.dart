@@ -5,4 +5,6 @@ abstract class FinancialRepository {
   Future<Result<List<FinancialEntry>>> getAll();
 
   Future<Result<void>> add(FinancialEntry entry);
+
+  Future<Result<void>> delete(String id);
 }

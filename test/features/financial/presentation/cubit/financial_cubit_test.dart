@@ -27,9 +27,9 @@ void main() {
     blocTest<FinancialCubit, List<FinancialEntry>>(
       'emits the loaded entries on start',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => Success([entry]),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => Success([entry]));
       },
       build: () => FinancialCubit(repository),
       expect: () => [
@@ -40,9 +40,9 @@ void main() {
     blocTest<FinancialCubit, List<FinancialEntry>>(
       'keeps the previous state when the initial load fails',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => const Error(ServerFailure()),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => const Error(ServerFailure()));
       },
       build: () => FinancialCubit(repository),
       expect: () => <List<FinancialEntry>>[],
@@ -51,16 +51,16 @@ void main() {
 
   group('FinancialCubit.addEntry', () {
     test('reloads the list after a successful add', () async {
-      when(() => repository.getAll()).thenAnswer((_) async => const Success([]));
-      when(() => repository.add(entry)).thenAnswer(
-        (_) async => const Success(null),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.add(entry),
+      ).thenAnswer((_) async => const Success(null));
       final cubit = FinancialCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
-      when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([entry]),
-      );
+      when(() => repository.getAll()).thenAnswer((_) async => Success([entry]));
       final result = await cubit.addEntry(entry);
 
       expect(result, isA<Success<void>>());
@@ -69,10 +69,12 @@ void main() {
     });
 
     test('does not reload the list when the add fails', () async {
-      when(() => repository.getAll()).thenAnswer((_) async => const Success([]));
-      when(() => repository.add(entry)).thenAnswer(
-        (_) async => const Error(ServerFailure()),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.add(entry),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
       final cubit = FinancialCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
@@ -80,6 +82,41 @@ void main() {
 
       expect(result, isA<Error<void>>());
       expect(cubit.state, isEmpty);
+      await cubit.close();
+    });
+  });
+
+  group('FinancialCubit.deleteEntry', () {
+    test('reloads the list after a successful delete', () async {
+      when(() => repository.getAll()).thenAnswer((_) async => Success([entry]));
+      when(
+        () => repository.delete(entry.id),
+      ).thenAnswer((_) async => const Success(null));
+      final cubit = FinancialCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      final result = await cubit.deleteEntry(entry.id);
+
+      expect(result, isA<Success<void>>());
+      expect(cubit.state, isEmpty);
+      await cubit.close();
+    });
+
+    test('does not reload the list when the delete fails', () async {
+      when(() => repository.getAll()).thenAnswer((_) async => Success([entry]));
+      when(
+        () => repository.delete(entry.id),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
+      final cubit = FinancialCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      final result = await cubit.deleteEntry(entry.id);
+
+      expect(result, isA<Error<void>>());
+      expect(cubit.state, [entry]);
       await cubit.close();
     });
   });
