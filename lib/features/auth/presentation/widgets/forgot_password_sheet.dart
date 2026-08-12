@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_cubit.dart';
+import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_state.dart';
 import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
@@ -26,11 +29,20 @@ class _ForgotPasswordSheet extends StatefulWidget {
 
 class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
   final _emailController = TextEditingController();
-  bool _sending = false;
+  final _formCubit = ForgotPasswordCubit();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_formCubit.notifyFieldChanged);
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _emailController
+      ..removeListener(_formCubit.notifyFieldChanged)
+      ..dispose();
+    _formCubit.close();
     super.dispose();
   }
 
@@ -41,12 +53,12 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
   }
 
   Future<void> _send() async {
-    setState(() => _sending = true);
+    _formCubit.setSending(true);
     final result = await sl<AuthRepository>().sendPasswordResetEmail(
       _emailController.text.trim(),
     );
     if (!mounted) return;
-    setState(() => _sending = false);
+    _formCubit.setSending(false);
     switch (result) {
       case Success():
         Navigator.of(context).pop(true);
@@ -60,64 +72,72 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 42,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: context.colors.border,
-                      borderRadius: BorderRadius.circular(100),
+    return BlocProvider.value(
+      value: _formCubit,
+      child: BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
+        builder: (context, formState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: context.colors.border,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Esqueci minha senha',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: context.colors.primaryButton,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Informe seu e-mail para receber um link de redefinição de senha.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: context.colors.textSecondary),
+                    ),
+                    const SizedBox(height: 20),
+                    AppTextField(
+                      controller: _emailController,
+                      icon: Icons.email_outlined,
+                      hintText: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      errorText: _emailError,
+                    ),
+                    const SizedBox(height: 20),
+                    PrimaryButton(
+                      label: 'Enviar link',
+                      isLoading: formState.sending,
+                      onPressed: isValidEmail(_emailController.text)
+                          ? _send
+                          : null,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  'Esqueci minha senha',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.primaryButton,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Informe seu e-mail para receber um link de redefinição de senha.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: context.colors.textSecondary),
-                ),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _emailController,
-                  icon: Icons.email_outlined,
-                  hintText: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  errorText: _emailError,
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 20),
-                PrimaryButton(
-                  label: 'Enviar link',
-                  isLoading: _sending,
-                  onPressed: isValidEmail(_emailController.text) ? _send : null,
-                ),
-              ],
+              ),
             ),
           ),
         ),
