@@ -67,6 +67,22 @@ class AgendaRepositorySupabase implements AgendaRepository {
   }
 
   @override
+  Future<Result<void>> delete(String id) async {
+    try {
+      await _client.from('appointments').delete().eq('id', id);
+      return const Success(null);
+    } on PostgrestException catch (e, st) {
+      debugPrint(
+        '[AgendaRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
+      );
+      return const Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint('[AgendaRepositorySupabase.delete] $e\n$st');
+      return const Error(UnexpectedFailure());
+    }
+  }
+
+  @override
   Future<Result<void>> updateStatus(String id, AppointmentStatus status) async {
     try {
       await _client

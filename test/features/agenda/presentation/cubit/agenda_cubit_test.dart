@@ -139,4 +139,43 @@ void main() {
       await cubit.close();
     });
   });
+
+  group('AgendaCubit.deleteAppointment', () {
+    test('reloads the list after a successful delete', () async {
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () => repository.delete(appointment.id),
+      ).thenAnswer((_) async => const Success(null));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      final result = await cubit.deleteAppointment(appointment.id);
+
+      expect(result, isA<Success<void>>());
+      expect(cubit.state, isEmpty);
+      await cubit.close();
+    });
+
+    test('does not reload the list when the delete fails', () async {
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () => repository.delete(appointment.id),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
+      final cubit = AgendaCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      final result = await cubit.deleteAppointment(appointment.id);
+
+      expect(result, isA<Error<void>>());
+      expect(cubit.state, [appointment]);
+      await cubit.close();
+    });
+  });
 }

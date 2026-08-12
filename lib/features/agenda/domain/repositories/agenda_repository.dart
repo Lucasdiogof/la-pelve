@@ -9,5 +9,7 @@ abstract class AgendaRepository {
 
   Future<Result<void>> update(Appointment appointment);
 
+  Future<Result<void>> delete(String id);
+
   Future<Result<void>> updateStatus(String id, AppointmentStatus status);
 }

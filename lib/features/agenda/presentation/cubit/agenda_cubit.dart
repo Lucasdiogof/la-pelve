@@ -28,6 +28,12 @@ class AgendaCubit extends Cubit<List<Appointment>> {
     return result;
   }
 
+  Future<Result<void>> deleteAppointment(String id) async {
+    final result = await _repository.delete(id);
+    if (result case Success()) await _load();
+    return result;
+  }
+
   Future<Result<void>> updateStatus(String id, AppointmentStatus status) async {
     final result = await _repository.updateStatus(id, status);
     if (result case Success()) await _load();
