@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -209,17 +210,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         label: 'Crefito',
                         value: _profile?.crefito ?? '',
                       ),
-                      const SizedBox(height: 8),
-                      ProfileRow(
-                        icon: Icons.fingerprint,
-                        label: 'Biometria',
-                        value: _biometriaEnabled ? 'Ativada' : 'Desativada',
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: context.colors.textSecondary,
+                      if (!kIsWeb) ...[
+                        const SizedBox(height: 8),
+                        ProfileRow(
+                          icon: Icons.fingerprint,
+                          label: 'Biometria',
+                          value: _biometriaEnabled ? 'Ativada' : 'Desativada',
+                          trailing: Icon(
+                            Icons.chevron_right,
+                            color: context.colors.textSecondary,
+                          ),
+                          onTap: _openBiometria,
                         ),
-                        onTap: _openBiometria,
-                      ),
+                      ],
                       const SizedBox(height: 8),
                       BlocBuilder<ThemeCubit, ThemeMode>(
                         builder: (context, mode) => ProfileRow(
