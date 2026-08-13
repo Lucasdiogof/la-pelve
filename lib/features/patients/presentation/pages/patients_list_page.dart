@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
@@ -13,28 +15,26 @@ class PatientsListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return Scaffold(
       backgroundColor: context.colors.background,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'patients-fab',
         onPressed: () => context.push('/pacientes/novo'),
         icon: const Icon(Icons.add),
-        label: const Text('Novo paciente'),
+        label: Text(t.newPatientButton),
       ),
       body: Column(
         children: [
-          const ModernAppBar(
-            title: 'Pacientes',
-            subtitle: 'Gerencie seus pacientes',
-          ),
+          ModernAppBar(title: t.listTitle, subtitle: t.listSubtitle),
           Expanded(
             child: BlocBuilder<PatientsCubit, List<Patient>>(
               builder: (context, patients) {
                 if (patients.isEmpty) {
-                  return const AppEmptyState(
+                  return AppEmptyState(
                     icon: Icons.people_outline,
-                    title: 'Nenhum paciente cadastrado',
-                    message: 'Toque em "Novo paciente" para começar.',
+                    title: t.emptyPatientsTitle,
+                    message: t.emptyPatientsMessage,
                   );
                 }
                 final sorted = [
@@ -66,6 +66,7 @@ class _PatientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -98,7 +99,7 @@ class _PatientTile extends StatelessWidget {
                         Flexible(
                           child: Text(
                             patient.personalInfo.name.isEmpty
-                                ? 'Sem nome'
+                                ? t.noNamePlaceholder
                                 : patient.personalInfo.name,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.w600),
@@ -118,7 +119,7 @@ class _PatientTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Text(
-                              patient.discharge!.reason.label,
+                              patient.discharge!.reason.label(t.language),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,

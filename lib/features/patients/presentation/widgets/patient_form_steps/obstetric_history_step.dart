@@ -12,8 +12,8 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class HistoricoObstetricoStep extends StatefulWidget {
-  const HistoricoObstetricoStep({
+class ObstetricHistoryStep extends StatefulWidget {
+  const ObstetricHistoryStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -23,11 +23,10 @@ class HistoricoObstetricoStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<HistoricoObstetricoStep> createState() =>
-      _HistoricoObstetricoStepState();
+  State<ObstetricHistoryStep> createState() => _ObstetricHistoryStepState();
 }
 
-class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
+class _ObstetricHistoryStepState extends State<ObstetricHistoryStep> {
   late final _numeroController = TextEditingController(
     text: widget.patient.obstetricHistory.pregnancyCount?.toString() ?? '',
   );
@@ -54,7 +53,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
     );
   }
 
-  void _setNumeroGestacoes(String value) {
+  void _setPregnancyCount(String value) {
     final numero = int.tryParse(value);
     _update((h) {
       if (numero == null || numero < 1) {
@@ -70,7 +69,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
     });
   }
 
-  void _updateGestacao(int index, Pregnancy pregnancy) {
+  void _updatePregnancy(int index, Pregnancy pregnancy) {
     _update((h) {
       final pregnancies = List<Pregnancy>.from(h.pregnancies);
       pregnancies[index] = pregnancy;
@@ -105,7 +104,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
           const SizedBox(height: 8),
           AppChipSelect<DeliveryMethod>(
             options: DeliveryMethod.values,
-            labelBuilder: (option) => option.label,
+            labelBuilder: (option) => option.label(t.language),
             selected: historico.desiredDeliveryMethod == null
                 ? {}
                 : {historico.desiredDeliveryMethod!},
@@ -177,14 +176,14 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(2),
             ],
-            onChanged: _setNumeroGestacoes,
+            onChanged: _setPregnancyCount,
           ),
           for (var i = 0; i < historico.pregnancies.length; i++) ...[
             const SizedBox(height: 20),
-            _GestacaoCard(
+            _PregnancyCard(
               index: i,
               pregnancy: historico.pregnancies[i],
-              onChanged: (pregnancy) => _updateGestacao(i, pregnancy),
+              onChanged: (pregnancy) => _updatePregnancy(i, pregnancy),
             ),
           ],
         ],
@@ -193,8 +192,8 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
   }
 }
 
-class _GestacaoCard extends StatefulWidget {
-  const _GestacaoCard({
+class _PregnancyCard extends StatefulWidget {
+  const _PregnancyCard({
     required this.index,
     required this.pregnancy,
     required this.onChanged,
@@ -205,10 +204,10 @@ class _GestacaoCard extends StatefulWidget {
   final ValueChanged<Pregnancy> onChanged;
 
   @override
-  State<_GestacaoCard> createState() => _GestacaoCardState();
+  State<_PregnancyCard> createState() => _PregnancyCardState();
 }
 
-class _GestacaoCardState extends State<_GestacaoCard> {
+class _PregnancyCardState extends State<_PregnancyCard> {
   late final _perdaController = TextEditingController(
     text: widget.pregnancy.lossDescription ?? '',
   );
@@ -229,6 +228,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     final pregnancy = widget.pregnancy;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -241,7 +241,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Gestação ${widget.index + 1}',
+            t.pregnancyCardTitle(widget.index + 1),
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: context.colors.primary,
@@ -249,7 +249,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Perda gestacional?',
+            label: t.pregnancyLossLabel,
             value: pregnancy.pregnancyLoss,
             onChanged: (value) => widget.onChanged(
               widget.pregnancy.copyWith(pregnancyLoss: value),
@@ -260,7 +260,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
             AppTextField(
               controller: _perdaController,
               icon: Icons.description_outlined,
-              hintText: 'Detalhe a perda gestacional',
+              hintText: t.pregnancyLossDetailHint,
               onChanged: (value) => widget.onChanged(
                 widget.pregnancy.copyWith(lossDescription: value),
               ),
@@ -269,7 +269,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
             const SizedBox(height: 12),
             AppChipSelect<DeliveryMethod>(
               options: DeliveryMethod.values,
-              labelBuilder: (option) => option.label,
+              labelBuilder: (option) => option.label(t.language),
               selected: pregnancy.deliveryMethod == null
                   ? {}
                   : {pregnancy.deliveryMethod!},
@@ -283,7 +283,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
               const SizedBox(height: 12),
               AppChipSelect<DeliveryComplication>(
                 options: DeliveryComplication.values,
-                labelBuilder: (option) => option.label,
+                labelBuilder: (option) => option.label(t.language),
                 selected: pregnancy.deliveryComplication == null
                     ? {}
                     : {pregnancy.deliveryComplication!},
@@ -297,7 +297,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
               ),
               const SizedBox(height: 12),
               AppYesNoToggle(
-                label: 'Uso de fórceps ou vácuo?',
+                label: t.forcepsOrVacuumUseLabel,
                 value: pregnancy.forcepsOrVacuumUse,
                 onChanged: (value) => widget.onChanged(
                   widget.pregnancy.copyWith(forcepsOrVacuumUse: value),
@@ -308,14 +308,14 @@ class _GestacaoCardState extends State<_GestacaoCard> {
             AppTextField(
               controller: _pesoBebeController,
               icon: Icons.monitor_weight_outlined,
-              hintText: 'Peso aproximado do bebê',
+              hintText: t.approximateBabyWeightHint,
               onChanged: (value) => widget.onChanged(
                 widget.pregnancy.copyWith(approximateBabyWeight: value),
               ),
             ),
             const SizedBox(height: 12),
             AppYesNoToggle(
-              label: 'Teve complicações?',
+              label: t.hadComplicationsLabel,
               value: pregnancy.hadComplications,
               onChanged: (value) => widget.onChanged(
                 widget.pregnancy.copyWith(hadComplications: value),
@@ -326,7 +326,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
               AppTextField(
                 controller: _complicacaoController,
                 icon: Icons.description_outlined,
-                hintText: 'Detalhe as complicações',
+                hintText: t.complicationsDetailHint,
                 onChanged: (value) => widget.onChanged(
                   widget.pregnancy.copyWith(complicationDescription: value),
                 ),

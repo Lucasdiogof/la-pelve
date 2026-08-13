@@ -152,6 +152,7 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<LocaleCubit>().state;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -160,7 +161,7 @@ class _StatusChip extends StatelessWidget {
         border: Border.all(color: context.colors.border),
       ),
       child: Text(
-        '${status.label}: $count',
+        '${status.label(language)}: $count',
         style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
       ),
     );
@@ -209,7 +210,7 @@ class _MonthlyReportAppointmentTile extends StatelessWidget {
             ),
           ),
           Text(
-            appointment.status.label,
+            appointment.status.label(t.language),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,

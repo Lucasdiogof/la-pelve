@@ -44,10 +44,10 @@ class ProfileRepositorySupabase implements ProfileRepository {
       debugPrint(
         '[ProfileRepositorySupabase.getCurrent] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[ProfileRepositorySupabase.getCurrent] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -62,10 +62,10 @@ class ProfileRepositorySupabase implements ProfileRepository {
       debugPrint(
         '[ProfileRepositorySupabase.updateName] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[ProfileRepositorySupabase.updateName] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -97,15 +97,15 @@ class ProfileRepositorySupabase implements ProfileRepository {
       debugPrint(
         '[ProfileRepositorySupabase.uploadPhoto] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } on PostgrestException catch (e, st) {
       debugPrint(
         '[ProfileRepositorySupabase.uploadPhoto] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[ProfileRepositorySupabase.uploadPhoto] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -125,10 +125,10 @@ class ProfileRepositorySupabase implements ProfileRepository {
       debugPrint(
         '[ProfileRepositorySupabase.getPhotoUrl] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[ProfileRepositorySupabase.getPhotoUrl] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 }

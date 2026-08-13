@@ -156,6 +156,11 @@ class PatientsStrings {
     AppLanguage.english => 'Consultation fee',
   };
 
+  String get sectionAssessmentForm => switch (language) {
+    AppLanguage.portuguese => 'Ficha de avaliação física',
+    AppLanguage.english => 'Physical assessment form',
+  };
+
   String get fieldFirstConsultationFee => switch (language) {
     AppLanguage.portuguese => 'Valor da 1ª consulta',
     AppLanguage.english => 'First consultation fee',

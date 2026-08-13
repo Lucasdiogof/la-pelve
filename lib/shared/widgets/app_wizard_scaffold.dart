@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
@@ -13,7 +14,7 @@ class AppWizardScaffold extends StatelessWidget {
     required this.onNext,
     required this.onBack,
     super.key,
-    this.nextLabel = 'Próximo',
+    this.nextLabel,
     this.isLoading = false,
     this.showSaveButton = false,
     this.onSave,
@@ -25,20 +26,21 @@ class AppWizardScaffold extends StatelessWidget {
   final Widget body;
   final VoidCallback? onNext;
   final VoidCallback onBack;
-  final String nextLabel;
+  final String? nextLabel;
   final bool isLoading;
   final bool showSaveButton;
   final VoidCallback? onSave;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.strings.shared;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: Column(
         children: [
           ModernAppBar(
             title: title,
-            subtitle: 'Etapa ${stepIndex + 1} de $stepCount',
+            subtitle: t.stepOf(stepIndex + 1, stepCount),
             showBackButton: true,
             onBack: onBack,
           ),
@@ -75,13 +77,13 @@ class AppWizardScaffold extends StatelessWidget {
                         shape: const StadiumBorder(),
                         side: BorderSide(color: context.colors.border),
                       ),
-                      child: const Text('Salvar edição'),
+                      child: Text(t.saveEditButton),
                     ),
                   ),
                   const SizedBox(height: 12),
                 ],
                 PrimaryButton(
-                  label: nextLabel,
+                  label: nextLabel ?? t.nextButton,
                   isLoading: isLoading,
                   onPressed: onNext,
                 ),

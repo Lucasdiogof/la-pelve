@@ -9,8 +9,8 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class FuncaoUrinariaStep extends StatefulWidget {
-  const FuncaoUrinariaStep({
+class UrinaryFunctionStep extends StatefulWidget {
+  const UrinaryFunctionStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -20,10 +20,10 @@ class FuncaoUrinariaStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<FuncaoUrinariaStep> createState() => _FuncaoUrinariaStepState();
+  State<UrinaryFunctionStep> createState() => _UrinaryFunctionStepState();
 }
 
-class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
+class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
   final Map<String, TextEditingController> _controllers = {};
 
   TextEditingController _controllerFor(String key, String? initial) {
@@ -83,7 +83,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
           const SizedBox(height: 8),
           AppChipSelect<IncontinenceTrigger>(
             options: IncontinenceTrigger.values,
-            labelBuilder: (option) => option.label,
+            labelBuilder: (option) => option.label(t.language),
             selected: funcao.incontinenceTriggers,
             multiSelect: true,
             onChanged: (selected) =>
@@ -110,7 +110,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
           const SizedBox(height: 12),
           AppChipSelect<LeakageAmount>(
             options: LeakageAmount.values,
-            labelBuilder: (option) => option.label,
+            labelBuilder: (option) => option.label(t.language),
             selected: funcao.leakageAmount == null
                 ? {}
                 : {funcao.leakageAmount!},

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
-class FichaAvaliacaoStep extends StatelessWidget {
-  const FichaAvaliacaoStep({
+class AssessmentFormStep extends StatelessWidget {
+  const AssessmentFormStep({
     required this.files,
     required this.onAdd,
     required this.onRemove,
@@ -22,13 +25,12 @@ class FichaAvaliacaoStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Anexe a ficha de avaliação física do paciente, como fotos ou PDFs. '
-          'Você pode adicionar mais de um arquivo. Esse passo é opcional e pode '
-          'ser feito depois, pela aba Anexos.',
+          t.assessmentFormDescription,
           style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 20),
@@ -37,7 +39,7 @@ class FichaAvaliacaoStep extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                'Nenhum arquivo selecionado.',
+                t.noFileSelected,
                 style: TextStyle(color: context.colors.textSecondary),
               ),
             ),
@@ -49,9 +51,7 @@ class FichaAvaliacaoStep extends StatelessWidget {
           ],
         const SizedBox(height: 16),
         PrimaryButton(
-          label: files.isEmpty
-              ? 'Selecionar arquivo'
-              : 'Adicionar outro arquivo',
+          label: files.isEmpty ? t.selectFileButton : t.addAnotherFileButton,
           onPressed: () => _pick(context),
         ),
       ],
@@ -67,6 +67,7 @@ class _FileRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -91,11 +92,11 @@ class _FileRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Avaliação Física',
+              t.physicalAssessmentFileLabel,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           IconButton(

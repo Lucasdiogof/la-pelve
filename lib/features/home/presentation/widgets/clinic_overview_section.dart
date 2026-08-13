@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
 
@@ -10,13 +13,14 @@ class ClinicOverviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = HomeStrings(context.watch<LocaleCubit>().state);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Visão geral da clínica',
+            t.clinicOverviewTitle,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
               color: context.colors.textPrimary,
@@ -38,7 +42,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       icon: Icons.groups_outlined,
                       iconColor: context.colors.logoTeal,
                       value: '${overview.activePatients}',
-                      label: 'Pacientes ativos',
+                      label: t.activePatientsLabel,
                     ),
                   ),
                   VerticalDivider(
@@ -52,7 +56,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       icon: Icons.calendar_month_outlined,
                       iconColor: context.colors.primary,
                       value: '${overview.appointmentsThisWeek}',
-                      label: 'Atendimentos\nesta semana',
+                      label: t.appointmentsThisWeekLabel,
                     ),
                   ),
                   VerticalDivider(
@@ -67,7 +71,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       iconColor: context.colors.success,
                       value:
                           'R\$ ${overview.receivedThisMonth.toStringAsFixed(0)}',
-                      label: 'Recebido\neste mês',
+                      label: t.receivedThisMonthLabel,
                     ),
                   ),
                 ],

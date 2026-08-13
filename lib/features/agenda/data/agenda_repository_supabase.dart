@@ -24,10 +24,10 @@ class AgendaRepositorySupabase implements AgendaRepository {
       debugPrint(
         '[AgendaRepositorySupabase.getAll] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.getAll] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -40,10 +40,10 @@ class AgendaRepositorySupabase implements AgendaRepository {
       debugPrint(
         '[AgendaRepositorySupabase.add] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.add] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -59,10 +59,10 @@ class AgendaRepositorySupabase implements AgendaRepository {
       debugPrint(
         '[AgendaRepositorySupabase.update] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.update] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -75,10 +75,10 @@ class AgendaRepositorySupabase implements AgendaRepository {
       debugPrint(
         '[AgendaRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.delete] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -94,10 +94,10 @@ class AgendaRepositorySupabase implements AgendaRepository {
       debugPrint(
         '[AgendaRepositorySupabase.updateStatus] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.updateStatus] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 }

@@ -1,14 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 
-class EncerramentoSheetState extends Equatable {
-  const EncerramentoSheetState({this.date, this.reason});
+class DischargeSheetState extends Equatable {
+  const DischargeSheetState({this.date, this.reason});
 
   final DateTime? date;
   final DischargeReason? reason;
 
-  EncerramentoSheetState copyWith({DateTime? date, DischargeReason? reason}) {
-    return EncerramentoSheetState(
+  DischargeSheetState copyWith({DateTime? date, DischargeReason? reason}) {
+    return DischargeSheetState(
       date: date ?? this.date,
       reason: reason ?? this.reason,
     );

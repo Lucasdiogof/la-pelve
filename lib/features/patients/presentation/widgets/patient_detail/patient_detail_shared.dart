@@ -130,16 +130,16 @@ class InfoRow extends StatelessWidget {
   }
 }
 
-class EncerramentoBanner extends StatelessWidget {
-  const EncerramentoBanner({
+class DischargeBanner extends StatelessWidget {
+  const DischargeBanner({
     required this.discharge,
-    required this.onReabrir,
+    required this.onReopen,
     required this.language,
     super.key,
   });
 
   final Discharge discharge;
-  final VoidCallback onReabrir;
+  final VoidCallback onReopen;
   final AppLanguage language;
 
   @override
@@ -165,7 +165,7 @@ class EncerramentoBanner extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  t.reasonLabel(discharge.reason.label),
+                  t.reasonLabel(discharge.reason.label(language)),
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
                 if ((discharge.finalNote ?? '').isNotEmpty) ...[
@@ -178,15 +178,15 @@ class EncerramentoBanner extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(onPressed: onReabrir, child: Text(t.reopenLabel)),
+          TextButton(onPressed: onReopen, child: Text(t.reopenLabel)),
         ],
       ),
     );
   }
 }
 
-class GestacaoCard extends StatelessWidget {
-  const GestacaoCard({
+class PregnancyCard extends StatelessWidget {
+  const PregnancyCard({
     required this.index,
     required this.pregnancy,
     required this.language,
@@ -241,7 +241,7 @@ class GestacaoCard extends StatelessWidget {
               t.fieldDeliveryMethod,
               PatientDetailFormat.enumValue(
                 pregnancy.deliveryMethod,
-                (v) => v.label,
+                (v) => v.label(language),
                 language: language,
               ),
               language: language,
@@ -251,7 +251,7 @@ class GestacaoCard extends StatelessWidget {
                 t.fieldDeliveryComplication,
                 PatientDetailFormat.enumValue(
                   pregnancy.deliveryComplication,
-                  (v) => v.label,
+                  (v) => v.label(language),
                   language: language,
                 ),
                 language: language,

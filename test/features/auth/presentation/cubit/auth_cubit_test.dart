@@ -42,9 +42,7 @@ void main() {
         when(
           () =>
               repository.signIn(email: 'lucas@example.com', password: 'wrong'),
-        ).thenAnswer(
-          (_) async => const Error(ServerFailure('Erro no servidor.')),
-        );
+        ).thenAnswer((_) async => Error(ServerFailure('Erro no servidor.')));
       },
       build: () => AuthCubit(repository),
       act: (cubit) =>
@@ -59,7 +57,7 @@ void main() {
           () =>
               repository.signIn(email: 'lucas@example.com', password: 'wrong'),
         ).thenAnswer(
-          (_) async => const Error(AuthFailure('Credenciais inválidas.', true)),
+          (_) async => Error(AuthFailure('Credenciais inválidas.', true)),
         );
       },
       build: () => AuthCubit(repository),

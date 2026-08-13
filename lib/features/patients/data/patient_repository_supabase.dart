@@ -24,10 +24,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.getAll] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.getAll] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -40,10 +40,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.add] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.add] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -59,10 +59,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.update] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.update] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -78,10 +78,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.delete] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -98,10 +98,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.getEvolutions] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.getEvolutions] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -114,10 +114,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.addEvolution] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.addEvolution] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -133,10 +133,10 @@ class PatientRepositorySupabase implements PatientRepository {
       debugPrint(
         '[PatientRepositorySupabase.updateEvolution] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.updateEvolution] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 }

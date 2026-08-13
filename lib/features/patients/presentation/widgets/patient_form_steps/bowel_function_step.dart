@@ -10,8 +10,8 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class FuncaoIntestinalStep extends StatefulWidget {
-  const FuncaoIntestinalStep({
+class BowelFunctionStep extends StatefulWidget {
+  const BowelFunctionStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -21,10 +21,10 @@ class FuncaoIntestinalStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<FuncaoIntestinalStep> createState() => _FuncaoIntestinalStepState();
+  State<BowelFunctionStep> createState() => _BowelFunctionStepState();
 }
 
-class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
+class _BowelFunctionStepState extends State<BowelFunctionStep> {
   late final _frequenciaPersonalizadaController = TextEditingController(
     text: widget.patient.bowelFunction.customFrequencyValue?.toString() ?? '',
   );
@@ -66,7 +66,7 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
         const SizedBox(height: 12),
         AppChipSelect<BowelFrequency>(
           options: BowelFrequency.values,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: funcao.bowelFrequency == null
               ? {}
               : {funcao.bowelFrequency!},
@@ -175,7 +175,7 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
         const SizedBox(height: 12),
         AppChipSelect<BristolScale>(
           options: BristolScale.values,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: funcao.bristolScale == null ? {} : {funcao.bristolScale!},
           onChanged: (selected) => _update(
             (f) => f.copyWith(

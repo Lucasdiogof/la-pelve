@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_a.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 
-class HistoricoCirurgicoStep extends StatefulWidget {
-  const HistoricoCirurgicoStep({
+class SurgicalHistoryStep extends StatefulWidget {
+  const SurgicalHistoryStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -15,10 +18,10 @@ class HistoricoCirurgicoStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<HistoricoCirurgicoStep> createState() => _HistoricoCirurgicoStepState();
+  State<SurgicalHistoryStep> createState() => _SurgicalHistoryStepState();
 }
 
-class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
+class _SurgicalHistoryStepState extends State<SurgicalHistoryStep> {
   late final _outraController = TextEditingController(
     text: widget.patient.surgicalHistory.otherSurgeryDescription ?? '',
   );
@@ -45,6 +48,7 @@ class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     final historico = widget.patient.surgicalHistory;
     final isFeminino = widget.patient.personalInfo.gender == Gender.female;
     final opcoes = isFeminino
@@ -57,7 +61,7 @@ class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
       children: [
         AppChipSelect<GynecologicalSurgery>(
           options: opcoes,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: historico.surgeries,
           multiSelect: true,
           onChanged: (selected) {
@@ -75,7 +79,7 @@ class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
           AppTextField(
             controller: _outraController,
             icon: Icons.description_outlined,
-            hintText: 'Qual cirurgia?',
+            hintText: t.otherSurgeryDetailHint,
             onChanged: (value) =>
                 _update((h) => h.copyWith(otherSurgeryDescription: value)),
           ),

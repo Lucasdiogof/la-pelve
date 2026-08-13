@@ -175,7 +175,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  entry.status.label,
+                  entry.status.label(t.language),
                   style: TextStyle(
                     color: entry.status == PaymentStatus.paid
                         ? context.colors.success

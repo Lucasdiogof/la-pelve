@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_theme.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_repository.dart';
@@ -47,6 +48,7 @@ void main() {
             BlocProvider(create: (_) => PatientsCubit(patientRepository)),
             BlocProvider(create: (_) => AgendaCubit(agendaRepository)),
             BlocProvider(create: (_) => FinancialCubit(financialRepository)),
+            BlocProvider(create: (_) => LocaleCubit()),
           ],
           child: HomePage(onNavigateToTab: (_) {}),
         ),

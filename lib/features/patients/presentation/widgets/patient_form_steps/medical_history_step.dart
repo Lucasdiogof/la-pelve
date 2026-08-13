@@ -7,8 +7,8 @@ import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_stri
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class AnamneseStep extends StatefulWidget {
-  const AnamneseStep({
+class MedicalHistoryStep extends StatefulWidget {
+  const MedicalHistoryStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -18,10 +18,10 @@ class AnamneseStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<AnamneseStep> createState() => _AnamneseStepState();
+  State<MedicalHistoryStep> createState() => _MedicalHistoryStepState();
 }
 
-class _AnamneseStepState extends State<AnamneseStep> {
+class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
   late final _queixaController = TextEditingController(
     text: widget.patient.medicalHistory.chiefComplaint,
   );

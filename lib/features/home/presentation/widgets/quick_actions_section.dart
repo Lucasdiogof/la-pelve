@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
 
 class QuickActionsSection extends StatelessWidget {
@@ -10,6 +13,7 @@ class QuickActionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = HomeStrings(context.watch<LocaleCubit>().state);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
@@ -18,7 +22,7 @@ class QuickActionsSection extends StatelessWidget {
             child: _QuickActionCard(
               icon: Icons.person_add_alt_outlined,
               iconColor: context.colors.logoTeal,
-              label: 'Novo\npaciente',
+              label: t.newPatientAction,
               onTap: () => context.push('/pacientes/novo'),
             ),
           ),
@@ -27,7 +31,7 @@ class QuickActionsSection extends StatelessWidget {
             child: _QuickActionCard(
               icon: Icons.event_available_outlined,
               iconColor: context.colors.primary,
-              label: 'Agendar\nconsulta',
+              label: t.scheduleAppointmentAction,
               onTap: () => context.push('/agenda/novo'),
             ),
           ),
@@ -36,7 +40,7 @@ class QuickActionsSection extends StatelessWidget {
             child: _QuickActionCard(
               icon: Icons.note_add_outlined,
               iconColor: context.colors.logoPurple,
-              label: 'Registrar\nevolução',
+              label: t.addProgressNoteAction,
               onTap: () => onNavigateToTab(1),
             ),
           ),
@@ -45,7 +49,7 @@ class QuickActionsSection extends StatelessWidget {
             child: _QuickActionCard(
               icon: Icons.attach_money_outlined,
               iconColor: context.colors.success,
-              label: 'Lançar\nreceita',
+              label: t.addPaymentAction,
               onTap: () => onNavigateToTab(3),
             ),
           ),

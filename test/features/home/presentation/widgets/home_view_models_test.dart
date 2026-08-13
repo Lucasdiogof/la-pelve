@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
@@ -30,7 +31,7 @@ void main() {
     test('excludes appointments before today', () {
       final result = buildUpcomingSchedule([
         appointmentOn(today.subtract(const Duration(days: 1))),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result, isEmpty);
     });
@@ -40,7 +41,7 @@ void main() {
         appointmentOn(today, id: 'today'),
         appointmentOn(today.add(const Duration(days: 7)), id: 'day7'),
         appointmentOn(today.add(const Duration(days: 8)), id: 'day8'),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.map((e) => e.dayLabel), containsAll(['Hoje']));
       expect(result.length, 2);
@@ -60,7 +61,7 @@ void main() {
           time: const TimeOfDay(hour: 20, minute: 0),
           patientName: 'A',
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.map((e) => e.patientName).toList(), ['A', 'B']);
     });
@@ -72,7 +73,7 @@ void main() {
           time: const TimeOfDay(hour: 23, minute: 59),
           status: AppointmentStatus.fulfilled,
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.single.status, ScheduleStatus.completed);
     });
@@ -89,7 +90,7 @@ void main() {
           id: 'c2',
           status: AppointmentStatus.noShow,
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.every((e) => e.status == ScheduleStatus.cancelled), isTrue);
     });
@@ -101,7 +102,7 @@ void main() {
           time: const TimeOfDay(hour: 0, minute: 1),
           status: AppointmentStatus.scheduled,
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.single.status, ScheduleStatus.completed);
     });
@@ -118,7 +119,7 @@ void main() {
           id: 'second',
           status: AppointmentStatus.confirmed,
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result[0].status, ScheduleStatus.next);
       expect(result[1].status, ScheduleStatus.waiting);
@@ -136,7 +137,7 @@ void main() {
           id: 'next',
           status: AppointmentStatus.scheduled,
         ),
-      ]);
+      ], AppLanguage.portuguese);
 
       final next = result.firstWhere(
         (e) => e.status != ScheduleStatus.cancelled,
@@ -152,7 +153,7 @@ void main() {
         appointmentOn(today, id: 'today'),
         appointmentOn(today.add(const Duration(days: 1)), id: 'tomorrow'),
         appointmentOn(farDay, id: 'far'),
-      ]);
+      ], AppLanguage.portuguese);
 
       final byId = {
         'today': result.firstWhere(
@@ -170,7 +171,7 @@ void main() {
     test('falls back to Sem nome for a blank patient name', () {
       final result = buildUpcomingSchedule([
         appointmentOn(today, patientName: '   '),
-      ]);
+      ], AppLanguage.portuguese);
 
       expect(result.single.patientName, 'Sem nome');
     });

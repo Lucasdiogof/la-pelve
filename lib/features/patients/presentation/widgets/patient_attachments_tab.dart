@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_attachments_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_attachments_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/image_viewer_page.dart';
@@ -36,6 +38,7 @@ class _PatientAttachmentsView extends StatelessWidget {
   const _PatientAttachmentsView();
 
   Future<void> _addAttachment(BuildContext context) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     final cubit = context.read<PatientAttachmentsCubit>();
     final picked = await pickAttachment(context);
     if (picked == null || !context.mounted) return;
@@ -54,7 +57,7 @@ class _PatientAttachmentsView extends StatelessWidget {
       case Success():
         await AppInfoBottomSheet.showSuccess(
           context,
-          description: 'Anexo adicionado com sucesso.',
+          description: t.attachmentAddedSuccess,
         );
       case Error(:final failure):
         await AppInfoBottomSheet.showError(
@@ -65,6 +68,7 @@ class _PatientAttachmentsView extends StatelessWidget {
   }
 
   Future<void> _open(BuildContext context, Attachment attachment) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     showAppLoading();
     final result = await sl<AttachmentRepository>().getViewUrl(attachment);
     if (result case Success(
@@ -81,8 +85,10 @@ class _PatientAttachmentsView extends StatelessWidget {
         if (attachment.isImage) {
           await Navigator.of(context).push(
             MaterialPageRoute<void>(
-              builder: (_) =>
-                  ImageViewerPage(url: data, title: attachment.category.label),
+              builder: (_) => ImageViewerPage(
+                url: data,
+                title: attachment.category.label(t.language),
+              ),
             ),
           );
         } else {
@@ -93,7 +99,7 @@ class _PatientAttachmentsView extends StatelessWidget {
           if (!opened && context.mounted) {
             await AppInfoBottomSheet.showError(
               context,
-              description: 'Não foi possível abrir o arquivo.',
+              description: t.cannotOpenFileError,
             );
           }
         }
@@ -106,13 +112,15 @@ class _PatientAttachmentsView extends StatelessWidget {
   }
 
   Future<void> _delete(BuildContext context, Attachment attachment) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     final cubit = context.read<PatientAttachmentsCubit>();
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Excluir anexo',
-      description:
-          'Excluir este ${attachment.category.label.toLowerCase()}? Essa ação não pode ser desfeita.',
-      confirmLabel: 'Excluir',
+      title: t.deleteAttachmentTitle,
+      description: t.deleteAttachmentDescription(
+        attachment.category.label(t.language).toLowerCase(),
+      ),
+      confirmLabel: t.deleteLabel,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -127,13 +135,14 @@ class _PatientAttachmentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return BlocBuilder<PatientAttachmentsCubit, PatientAttachmentsState>(
       builder: (context, state) {
         return ListView(
           padding: const EdgeInsets.all(24),
           children: [
             PrimaryButton(
-              label: 'Adicionar anexo',
+              label: t.addAttachmentButton,
               icon: const Icon(Icons.add, color: Colors.white),
               isLoading: state.uploading,
               onPressed: () => _addAttachment(context),
@@ -155,10 +164,10 @@ class _PatientAttachmentsView extends StatelessWidget {
                   );
                 }
                 if (attachments.isEmpty) {
-                  return const AppEmptyState(
+                  return AppEmptyState(
                     icon: Icons.attach_file,
-                    title: 'Nenhum anexo ainda',
-                    message: 'Anexe fotos ou arquivos do paciente.',
+                    title: t.attachmentsEmptyTitle,
+                    message: t.attachmentsEmptyMessage,
                   );
                 }
                 return Column(
@@ -196,6 +205,7 @@ class _AttachmentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<LocaleCubit>().state;
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -230,7 +240,7 @@ class _AttachmentRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      attachment.category.label,
+                      attachment.category.label(language),
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),

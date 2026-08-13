@@ -2,8 +2,11 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 
 class PickedAttachmentFile {
   const PickedAttachmentFile({
@@ -75,6 +78,7 @@ class _AttachmentSourceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -98,7 +102,7 @@ class _AttachmentSourceSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Adicionar anexo',
+                t.addAttachmentButton,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
@@ -112,7 +116,7 @@ class _AttachmentSourceSheet extends StatelessWidget {
                   Icons.photo_camera_outlined,
                   color: context.colors.primary,
                 ),
-                title: const Text('Tirar foto'),
+                title: Text(t.takePhotoOption),
               ),
               ListTile(
                 onTap: () => Navigator.of(context).pop(_PickSource.gallery),
@@ -120,7 +124,7 @@ class _AttachmentSourceSheet extends StatelessWidget {
                   Icons.photo_library_outlined,
                   color: context.colors.primary,
                 ),
-                title: const Text('Escolher da galeria'),
+                title: Text(t.chooseFromGalleryOption),
               ),
               ListTile(
                 onTap: () => Navigator.of(context).pop(_PickSource.file),
@@ -128,7 +132,7 @@ class _AttachmentSourceSheet extends StatelessWidget {
                   Icons.picture_as_pdf_outlined,
                   color: context.colors.primary,
                 ),
-                title: const Text('Escolher arquivo (PDF)'),
+                title: Text(t.chooseFileOption),
               ),
             ],
           ),

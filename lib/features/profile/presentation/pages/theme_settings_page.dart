@@ -98,7 +98,7 @@ class _ThemeOptionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      themeModeLabel(mode),
+                      themeModeLabel(mode, t.language),
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary,

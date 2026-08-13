@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 
-class ValorConsultaStep extends StatefulWidget {
-  const ValorConsultaStep({
+class ConsultationFeeStep extends StatefulWidget {
+  const ConsultationFeeStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -15,10 +18,10 @@ class ValorConsultaStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<ValorConsultaStep> createState() => _ValorConsultaStepState();
+  State<ConsultationFeeStep> createState() => _ConsultationFeeStepState();
 }
 
-class _ValorConsultaStepState extends State<ValorConsultaStep> {
+class _ConsultationFeeStepState extends State<ConsultationFeeStep> {
   late final _valorController = TextEditingController(
     text: widget.patient.consultationFee == null
         ? ''
@@ -33,19 +36,19 @@ class _ValorConsultaStepState extends State<ValorConsultaStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Valor cobrado nesta primeira consulta. Campo apenas informativo — '
-          'não entra no controle financeiro.',
+          t.consultationFeeDescription,
           style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: _valorController,
           icon: Icons.attach_money,
-          hintText: 'Valor da consulta',
+          hintText: t.consultationFeeHint,
           keyboardType: TextInputType.number,
           inputFormatters: [CurrencyInputFormatter()],
           onChanged: (value) => widget.onChanged(

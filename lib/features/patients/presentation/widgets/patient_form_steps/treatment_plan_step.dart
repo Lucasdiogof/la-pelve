@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 
-class PlanoTratamentoStep extends StatefulWidget {
-  const PlanoTratamentoStep({
+class TreatmentPlanStep extends StatefulWidget {
+  const TreatmentPlanStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -13,10 +16,10 @@ class PlanoTratamentoStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<PlanoTratamentoStep> createState() => _PlanoTratamentoStepState();
+  State<TreatmentPlanStep> createState() => _TreatmentPlanStepState();
 }
 
-class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
+class _TreatmentPlanStepState extends State<TreatmentPlanStep> {
   late final _diagnosticoController = TextEditingController(
     text: widget.patient.treatmentPlan.physiotherapyDiagnosis ?? '',
   );
@@ -49,13 +52,14 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextField(
           controller: _diagnosticoController,
           icon: Icons.fact_check_outlined,
-          hintText: 'Diagnóstico fisioterapêutico',
+          hintText: t.physiotherapyDiagnosisHint,
           maxLines: 4,
           onChanged: (value) =>
               _update((p) => p.copyWith(physiotherapyDiagnosis: value)),
@@ -64,7 +68,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
         AppTextField(
           controller: _objetivoController,
           icon: Icons.flag_outlined,
-          hintText: 'Objetivo do tratamento',
+          hintText: t.treatmentGoalHint,
           maxLines: 4,
           onChanged: (value) =>
               _update((p) => p.copyWith(treatmentGoal: value)),
@@ -73,7 +77,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
         AppTextField(
           controller: _condutaController,
           icon: Icons.checklist_outlined,
-          hintText: 'Conduta / plano de tratamento',
+          hintText: t.treatmentApproachHint,
           maxLines: 4,
           onChanged: (value) =>
               _update((p) => p.copyWith(treatmentApproach: value)),
@@ -82,7 +86,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
         AppTextField(
           controller: _frequenciaController,
           icon: Icons.event_repeat_outlined,
-          hintText: 'Frequência sugerida (opcional)',
+          hintText: t.suggestedFrequencyHint,
           onChanged: (value) =>
               _update((p) => p.copyWith(suggestedFrequency: value)),
         ),

@@ -26,10 +26,10 @@ class AttachmentRepositorySupabase implements AttachmentRepository {
       debugPrint(
         '[AttachmentRepositorySupabase.getForPatient] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AttachmentRepositorySupabase.getForPatient] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -67,15 +67,15 @@ class AttachmentRepositorySupabase implements AttachmentRepository {
       debugPrint(
         '[AttachmentRepositorySupabase.upload] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } on PostgrestException catch (e, st) {
       debugPrint(
         '[AttachmentRepositorySupabase.upload] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AttachmentRepositorySupabase.upload] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -89,15 +89,15 @@ class AttachmentRepositorySupabase implements AttachmentRepository {
       debugPrint(
         '[AttachmentRepositorySupabase.delete] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } on PostgrestException catch (e, st) {
       debugPrint(
         '[AttachmentRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AttachmentRepositorySupabase.delete] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -112,10 +112,10 @@ class AttachmentRepositorySupabase implements AttachmentRepository {
       debugPrint(
         '[AttachmentRepositorySupabase.getViewUrl] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AttachmentRepositorySupabase.getViewUrl] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 }

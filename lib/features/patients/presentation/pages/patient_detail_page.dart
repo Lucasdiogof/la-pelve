@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/encerramento_sheet.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/discharge_sheet.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_attachments_tab.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/anamnese_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/funcao_intestinal_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/funcao_sexual_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/funcao_urinaria_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/historico_cirurgico_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/historico_ginecologico_info_section.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/historico_obstetrico_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/bowel_function_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/gynecological_history_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/medical_history_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/obstetric_history_info_section.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/plano_tratamento_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/sexual_function_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/surgical_history_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/treatment_plan_info_section.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/urinary_function_info_section.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
@@ -30,13 +31,16 @@ class PatientDetailPage extends StatelessWidget {
   final Patient patient;
 
   Future<void> _confirmDelete(BuildContext context, Patient current) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Excluir paciente',
-      description:
-          'Tem certeza que deseja excluir ${current.personalInfo.name.isEmpty ? 'este paciente' : current.personalInfo.name}? '
-          'Essa ação não pode ser desfeita e também apaga as evoluções registradas.',
-      confirmLabel: 'Excluir',
+      title: t.deletePatientTitle,
+      description: t.deletePatientDescription(
+        current.personalInfo.name.isEmpty
+            ? t.patientFallbackTitle
+            : current.personalInfo.name,
+      ),
+      confirmLabel: t.deleteLabel,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -58,38 +62,36 @@ class PatientDetailPage extends StatelessWidget {
     }
   }
 
-  Future<void> _encerrarTratamento(
-    BuildContext context,
-    Patient current,
-  ) async {
-    final discharge = await showEncerramentoSheet(context);
+  Future<void> _closeTreatment(BuildContext context, Patient current) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
+    final discharge = await showDischargeSheet(context);
     if (discharge == null || !context.mounted) return;
-    await _saveEncerramento(
+    await _saveDischarge(
       context,
       current,
       discharge,
-      successMessage: 'Tratamento encerrado com sucesso.',
+      successMessage: t.treatmentClosedSuccess,
     );
   }
 
-  Future<void> _reabrirTratamento(BuildContext context, Patient current) async {
+  Future<void> _reopenTreatment(BuildContext context, Patient current) async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Reabrir tratamento',
-      description:
-          'Isso remove o encerramento atual e volta o tratamento para em andamento.',
-      confirmLabel: 'Reabrir',
+      title: t.reopenTreatmentTitle,
+      description: t.reopenTreatmentDescription,
+      confirmLabel: t.reopenLabel,
     );
     if (!confirmed || !context.mounted) return;
-    await _saveEncerramento(
+    await _saveDischarge(
       context,
       current,
       null,
-      successMessage: 'Tratamento reaberto com sucesso.',
+      successMessage: t.treatmentReopenedSuccess,
     );
   }
 
-  Future<void> _saveEncerramento(
+  Future<void> _saveDischarge(
     BuildContext context,
     Patient current,
     Discharge? discharge, {
@@ -117,6 +119,7 @@ class PatientDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final patients = context.watch<PatientsCubit>().state;
     final current = patients.firstWhere(
       (p) => p.id == patient.id,
@@ -133,7 +136,9 @@ class PatientDetailPage extends StatelessWidget {
           return Scaffold(
             backgroundColor: context.colors.background,
             appBar: AppBar(
-              title: Text(dados.name.isEmpty ? 'Paciente' : dados.name),
+              title: Text(
+                dados.name.isEmpty ? t.patientFallbackTitle : dados.name,
+              ),
               actions: [
                 AnimatedBuilder(
                   animation: tabController,
@@ -145,7 +150,7 @@ class PatientDetailPage extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_outlined),
-                          tooltip: 'Editar paciente',
+                          tooltip: t.editPatientTooltip,
                           onPressed: () => context.push(
                             '/pacientes/${current.id}/editar',
                             extra: current,
@@ -156,7 +161,7 @@ class PatientDetailPage extends StatelessWidget {
                             Icons.delete_outline,
                             color: context.colors.error,
                           ),
-                          tooltip: 'Excluir paciente',
+                          tooltip: t.deletePatientTooltip,
                           onPressed: () => _confirmDelete(context, current),
                         ),
                       ],
@@ -168,19 +173,19 @@ class PatientDetailPage extends StatelessWidget {
                 labelColor: context.colors.textPrimary,
                 unselectedLabelColor: context.colors.textSecondary,
                 indicatorColor: context.colors.primaryButton,
-                tabs: const [
-                  Tab(text: 'Informações'),
-                  Tab(text: 'Anexos'),
+                tabs: [
+                  Tab(text: t.tabInformation),
+                  Tab(text: t.tabAttachments),
                 ],
               ),
             ),
             body: Column(
               children: [
                 if (current.discharge != null)
-                  EncerramentoBanner(
+                  DischargeBanner(
                     discharge: current.discharge!,
-                    onReabrir: () => _reabrirTratamento(context, current),
-                    language: AppLanguage.portuguese,
+                    onReopen: () => _reopenTreatment(context, current),
+                    language: t.language,
                   ),
                 Expanded(
                   child: TabBarView(
@@ -188,46 +193,62 @@ class PatientDetailPage extends StatelessWidget {
                       ListView(
                         padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
                         children: [
-                          const SectionTitle('Dados pessoais'),
+                          SectionTitle(t.sectionPersonalData),
                           InfoRow(
-                            'Sexo',
+                            t.fieldSex,
                             PatientDetailFormat.enumValue(
                               dados.gender,
-                              (v) => v.label,
+                              (v) => v.label(t.language),
+                              language: t.language,
                             ),
+                            language: t.language,
                           ),
                           InfoRow(
-                            'Idade',
-                            PatientDetailFormat.intValue(dados.age),
+                            t.fieldAge,
+                            PatientDetailFormat.intValue(
+                              dados.age,
+                              language: t.language,
+                            ),
+                            language: t.language,
                           ),
                           InfoRow(
-                            'Telefone',
-                            PatientDetailFormat.text(dados.phone),
+                            t.fieldPhone,
+                            PatientDetailFormat.text(
+                              dados.phone,
+                              language: t.language,
+                            ),
+                            language: t.language,
                           ),
                           InfoRow(
-                            'Profissão',
-                            PatientDetailFormat.text(dados.occupation),
+                            t.fieldOccupation,
+                            PatientDetailFormat.text(
+                              dados.occupation,
+                              language: t.language,
+                            ),
+                            language: t.language,
                           ),
-                          AnamneseInfoSection(current.medicalHistory),
+                          MedicalHistoryInfoSection(current.medicalHistory),
                           if (isFeminino)
-                            HistoricoGinecologicoInfoSection(
+                            GynecologicalHistoryInfoSection(
                               current.gynecologicalHistory,
                             ),
                           if (isFeminino)
-                            HistoricoObstetricoInfoSection(
+                            ObstetricHistoryInfoSection(
                               current.obstetricHistory,
                             ),
-                          HistoricoCirurgicoInfoSection(
-                            current.surgicalHistory,
-                          ),
-                          FuncaoUrinariaInfoSection(current.urinaryFunction),
-                          FuncaoSexualInfoSection(current.sexualFunction),
-                          FuncaoIntestinalInfoSection(current.bowelFunction),
-                          PlanoTratamentoInfoSection(current.treatmentPlan),
-                          const SectionTitle('Valor da consulta'),
+                          SurgicalHistoryInfoSection(current.surgicalHistory),
+                          UrinaryFunctionInfoSection(current.urinaryFunction),
+                          SexualFunctionInfoSection(current.sexualFunction),
+                          BowelFunctionInfoSection(current.bowelFunction),
+                          TreatmentPlanInfoSection(current.treatmentPlan),
+                          SectionTitle(t.sectionConsultationFee),
                           InfoRow(
-                            'Valor da 1ª consulta',
-                            PatientDetailFormat.money(current.consultationFee),
+                            t.fieldFirstConsultationFee,
+                            PatientDetailFormat.money(
+                              current.consultationFee,
+                              language: t.language,
+                            ),
+                            language: t.language,
                           ),
                         ],
                       ),
@@ -240,8 +261,7 @@ class PatientDetailPage extends StatelessWidget {
                     children: [
                       if (current.discharge == null) ...[
                         OutlinedButton.icon(
-                          onPressed: () =>
-                              _encerrarTratamento(context, current),
+                          onPressed: () => _closeTreatment(context, current),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: context.colors.primaryButton,
                             side: BorderSide(
@@ -251,12 +271,12 @@ class PatientDetailPage extends StatelessWidget {
                             shape: const StadiumBorder(),
                           ),
                           icon: const Icon(Icons.event_busy_outlined),
-                          label: const Text('Encerrar tratamento'),
+                          label: Text(t.closeTreatmentButton),
                         ),
                         const SizedBox(height: 12),
                       ],
                       PrimaryButton(
-                        label: 'Ver evolução',
+                        label: t.viewEvolutionButton,
                         onPressed: () => context.push(
                           '/pacientes/${current.id}/evolucao',
                           extra: current,

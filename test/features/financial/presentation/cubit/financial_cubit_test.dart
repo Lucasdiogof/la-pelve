@@ -42,7 +42,7 @@ void main() {
       setUp: () {
         when(
           () => repository.getAll(),
-        ).thenAnswer((_) async => const Error(ServerFailure()));
+        ).thenAnswer((_) async => Error(ServerFailure()));
       },
       build: () => FinancialCubit(repository),
       expect: () => <List<FinancialEntry>>[],
@@ -74,7 +74,7 @@ void main() {
       ).thenAnswer((_) async => const Success([]));
       when(
         () => repository.add(entry),
-      ).thenAnswer((_) async => const Error(ServerFailure()));
+      ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = FinancialCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
@@ -109,7 +109,7 @@ void main() {
       when(() => repository.getAll()).thenAnswer((_) async => Success([entry]));
       when(
         () => repository.delete(entry.id),
-      ).thenAnswer((_) async => const Error(ServerFailure()));
+      ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = FinancialCubit(repository);
       await Future<void>.delayed(Duration.zero);
 

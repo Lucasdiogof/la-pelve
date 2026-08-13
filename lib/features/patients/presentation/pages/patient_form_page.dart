@@ -3,25 +3,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_form_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_form_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/anamnese_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/dados_pessoais_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/ficha_avaliacao_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/funcao_intestinal_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/funcao_sexual_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/funcao_urinaria_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/historico_cirurgico_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/historico_ginecologico_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/historico_obstetrico_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/plano_tratamento_step.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/valor_consulta_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/assessment_form_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/bowel_function_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/consultation_fee_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/gynecological_history_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/medical_history_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/obstetric_history_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/personal_info_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/sexual_function_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/surgical_history_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/treatment_plan_step.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_form_steps/urinary_function_step.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_wizard_scaffold.dart';
 
@@ -64,14 +66,15 @@ class _PatientFormPageState extends State<PatientFormPage> {
     hideAppLoading();
     if (!mounted) return;
     final isEditing = _formCubit.isEditing;
+    final t = PatientsWizardStringsB(context.read<LocaleCubit>().state);
     switch (result) {
       case Success():
         context.pop();
         await AppInfoBottomSheet.showSuccess(
           context,
           description: isEditing
-              ? 'Paciente atualizado com sucesso.'
-              : 'Paciente cadastrado com sucesso.',
+              ? t.patientUpdatedSuccessMessage
+              : t.patientCreatedSuccessMessage,
         );
       case Error(:final failure):
         await AppInfoBottomSheet.showError(
@@ -83,17 +86,18 @@ class _PatientFormPageState extends State<PatientFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<PatientFormCubit, PatientFormState>(
         builder: (context, state) {
           return AppWizardScaffold(
-            title: _formCubit.currentStepTitle,
+            title: _formCubit.currentStepTitle(t.language),
             stepIndex: state.stepIndex,
             stepCount: _formCubit.stepCount,
             nextLabel: _formCubit.isLastStep
-                ? (_formCubit.isEditing ? 'Salvar alterações' : 'Salvar')
-                : 'Próximo',
+                ? (_formCubit.isEditing ? t.saveChangesButton : t.saveButton)
+                : t.nextButton,
             onBack: () {
               if (state.stepIndex == 0) {
                 context.pop();
@@ -145,48 +149,48 @@ class _StepBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final patient = state.patient;
     return switch (step) {
-      PatientFormStep.personalInfo => DadosPessoaisStep(
+      PatientFormStep.personalInfo => PersonalInfoStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.medicalHistory => AnamneseStep(
+      PatientFormStep.medicalHistory => MedicalHistoryStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.gynecologicalHistory => HistoricoGinecologicoStep(
+      PatientFormStep.gynecologicalHistory => GynecologicalHistoryStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.obstetricHistory => HistoricoObstetricoStep(
+      PatientFormStep.obstetricHistory => ObstetricHistoryStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.surgicalHistory => HistoricoCirurgicoStep(
+      PatientFormStep.surgicalHistory => SurgicalHistoryStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.urinaryFunction => FuncaoUrinariaStep(
+      PatientFormStep.urinaryFunction => UrinaryFunctionStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.sexualFunction => FuncaoSexualStep(
+      PatientFormStep.sexualFunction => SexualFunctionStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.bowelFunction => FuncaoIntestinalStep(
+      PatientFormStep.bowelFunction => BowelFunctionStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.treatmentPlan => PlanoTratamentoStep(
+      PatientFormStep.treatmentPlan => TreatmentPlanStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.assessmentForm => FichaAvaliacaoStep(
+      PatientFormStep.assessmentForm => AssessmentFormStep(
         files: state.assessmentFiles,
         onAdd: onAssessmentFileAdd,
         onRemove: onAssessmentFileRemove,
       ),
-      PatientFormStep.consultationFee => ValorConsultaStep(
+      PatientFormStep.consultationFee => ConsultationFeeStep(
         patient: patient,
         onChanged: onChanged,
       ),

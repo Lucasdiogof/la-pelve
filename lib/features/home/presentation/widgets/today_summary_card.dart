@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
 
@@ -15,6 +18,7 @@ class TodaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = HomeStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(kHomeCardRadius + 2),
@@ -42,9 +46,9 @@ class TodaySummaryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Próximos atendimentos',
-                style: TextStyle(
+              Text(
+                t.upcomingAppointmentsTitle,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -56,7 +60,7 @@ class TodaySummaryCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Center(
                     child: Text(
-                      'Nenhum atendimento nos próximos 7 dias.',
+                      t.noUpcomingAppointmentsMessage,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.85),
@@ -83,6 +87,7 @@ class _ScheduleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<LocaleCubit>().state;
     return Column(
       children: [
         if (showDivider)
@@ -142,7 +147,7 @@ class _ScheduleRow extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(100)),
                 ),
                 child: Text(
-                  item.status.label,
+                  item.status.label(language),
                   style: TextStyle(
                     color: item.status.foreground(context.colors),
                     fontSize: 11,

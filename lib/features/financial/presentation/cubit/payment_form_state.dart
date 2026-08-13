@@ -3,8 +3,8 @@ import 'package:fisioterapia_pelvica/features/financial/domain/entities/financia
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 
-class LancamentosFormState extends Equatable {
-  const LancamentosFormState({
+class PaymentFormState extends Equatable {
+  const PaymentFormState({
     this.patient,
     this.date,
     this.paymentMethod,
@@ -20,7 +20,7 @@ class LancamentosFormState extends Equatable {
   final bool saving;
   final int revision;
 
-  LancamentosFormState copyWith({
+  PaymentFormState copyWith({
     Object? patient = kUnset,
     DateTime? date,
     Object? paymentMethod = kUnset,
@@ -28,7 +28,7 @@ class LancamentosFormState extends Equatable {
     bool? saving,
     int? revision,
   }) {
-    return LancamentosFormState(
+    return PaymentFormState(
       patient: unsetOr(patient, this.patient),
       date: date ?? this.date,
       paymentMethod: unsetOr(paymentMethod, this.paymentMethod),

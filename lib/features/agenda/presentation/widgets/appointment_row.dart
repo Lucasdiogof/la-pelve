@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
@@ -25,6 +26,7 @@ class AppointmentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<LocaleCubit>().state;
     final foreground = appointment.status.foreground(context.colors);
     return Material(
       color: context.colors.surface,
@@ -78,7 +80,7 @@ class AppointmentRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(
-                    appointment.status.label,
+                    appointment.status.label(language),
                     style: TextStyle(
                       color: foreground,
                       fontSize: 11,

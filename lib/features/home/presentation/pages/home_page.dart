@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
@@ -34,12 +35,13 @@ class _HomePageState extends State<HomePage> {
     final patientCount = context.watch<PatientsCubit>().state.length;
     final appointments = context.watch<AgendaCubit>().state;
     final financialEntries = context.watch<FinancialCubit>().state;
+    final language = context.watch<LocaleCubit>().state;
 
     return BlocProvider.value(
       value: _clockCubit,
       child: BlocBuilder<HomeClockCubit, int>(
         builder: (context, _) {
-          final schedule = buildUpcomingSchedule(appointments);
+          final schedule = buildUpcomingSchedule(appointments, language);
           final overview = buildClinicOverview(
             patientCount: patientCount,
             appointments: appointments,

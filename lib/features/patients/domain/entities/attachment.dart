@@ -1,14 +1,21 @@
 import 'package:equatable/equatable.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
 
 enum AttachmentCategory { assessmentForm, document, image, other }
 
 extension AttachmentCategoryLabel on AttachmentCategory {
-  String get label => switch (this) {
-    AttachmentCategory.assessmentForm => 'Ficha de avaliação física',
-    AttachmentCategory.document => 'Documento',
-    AttachmentCategory.image => 'Imagem',
-    AttachmentCategory.other => 'Anexo',
+  String label(AppLanguage language) => switch ((this, language)) {
+    (AttachmentCategory.assessmentForm, AppLanguage.portuguese) =>
+      'Ficha de avaliação física',
+    (AttachmentCategory.assessmentForm, AppLanguage.english) =>
+      'Physical assessment form',
+    (AttachmentCategory.document, AppLanguage.portuguese) => 'Documento',
+    (AttachmentCategory.document, AppLanguage.english) => 'Document',
+    (AttachmentCategory.image, AppLanguage.portuguese) => 'Imagem',
+    (AttachmentCategory.image, AppLanguage.english) => 'Image',
+    (AttachmentCategory.other, AppLanguage.portuguese) => 'Anexo',
+    (AttachmentCategory.other, AppLanguage.english) => 'Attachment',
   };
 }
 

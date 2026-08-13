@@ -44,7 +44,7 @@ void main() {
       setUp: () {
         when(
           () => repository.getAll(),
-        ).thenAnswer((_) async => const Error(ServerFailure()));
+        ).thenAnswer((_) async => Error(ServerFailure()));
       },
       build: () => AgendaCubit(repository),
       expect: () => <List<Appointment>>[],
@@ -89,7 +89,7 @@ void main() {
           appointment.id,
           AppointmentStatus.fulfilled,
         ),
-      ).thenAnswer((_) async => const Error(ServerFailure()));
+      ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
@@ -133,7 +133,7 @@ void main() {
       final updated = appointment.copyWith(patientName: 'Joana');
       when(
         () => repository.update(updated),
-      ).thenAnswer((_) async => const Error(ServerFailure()));
+      ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
@@ -172,7 +172,7 @@ void main() {
       ).thenAnswer((_) async => Success([appointment]));
       when(
         () => repository.delete(appointment.id),
-      ).thenAnswer((_) async => const Error(ServerFailure()));
+      ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 

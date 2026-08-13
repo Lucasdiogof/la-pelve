@@ -5,8 +5,8 @@ import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.d
 import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
 
-class AnamneseInfoSection extends StatelessWidget {
-  const AnamneseInfoSection(this.medicalHistory, {super.key});
+class MedicalHistoryInfoSection extends StatelessWidget {
+  const MedicalHistoryInfoSection(this.medicalHistory, {super.key});
 
   final MedicalHistory medicalHistory;
 

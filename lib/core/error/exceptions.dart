@@ -1,19 +1,43 @@
+import 'package:get_it/get_it.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
+
+AppLanguage _currentLanguage() {
+  if (!GetIt.instance.isRegistered<LocaleCubit>()) {
+    return AppLanguage.portuguese;
+  }
+  return GetIt.instance<LocaleCubit>().state;
+}
+
 class ServerException implements Exception {
-  const ServerException([this.message = 'Erro no servidor.']);
+  ServerException([String? message]) : message = message ?? _defaultMessage();
 
   final String message;
+
+  static String _defaultMessage() => switch (_currentLanguage()) {
+    AppLanguage.portuguese => 'Erro no servidor.',
+    AppLanguage.english => 'Server error.',
+  };
 }
 
 class CacheException implements Exception {
-  const CacheException([
-    this.message = 'Erro ao ler os dados salvos localmente.',
-  ]);
+  CacheException([String? message]) : message = message ?? _defaultMessage();
 
   final String message;
+
+  static String _defaultMessage() => switch (_currentLanguage()) {
+    AppLanguage.portuguese => 'Erro ao ler os dados salvos localmente.',
+    AppLanguage.english => 'Error reading locally saved data.',
+  };
 }
 
 class AuthException implements Exception {
-  const AuthException([this.message = 'Falha de autenticação.']);
+  AuthException([String? message]) : message = message ?? _defaultMessage();
 
   final String message;
+
+  static String _defaultMessage() => switch (_currentLanguage()) {
+    AppLanguage.portuguese => 'Falha de autenticação.',
+    AppLanguage.english => 'Authentication failed.',
+  };
 }

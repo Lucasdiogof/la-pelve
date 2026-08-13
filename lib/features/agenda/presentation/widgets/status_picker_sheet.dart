@@ -55,7 +55,7 @@ class StatusPickerSheet extends StatelessWidget {
                         ? context.colors.primary
                         : context.colors.textSecondary,
                   ),
-                  title: Text(status.label),
+                  title: Text(status.label(t.language)),
                 ),
             ],
           ),

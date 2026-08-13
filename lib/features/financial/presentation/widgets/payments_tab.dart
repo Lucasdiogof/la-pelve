@@ -7,8 +7,8 @@ import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/finan
 import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/financial_entry_row.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
 
-class LancamentosTab extends StatelessWidget {
-  const LancamentosTab({super.key});
+class PaymentsTab extends StatelessWidget {
+  const PaymentsTab({super.key});
 
   @override
   Widget build(BuildContext context) {

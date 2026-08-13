@@ -22,10 +22,10 @@ class FinancialRepositorySupabase implements FinancialRepository {
       debugPrint(
         '[FinancialRepositorySupabase.getAll] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[FinancialRepositorySupabase.getAll] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -38,10 +38,10 @@ class FinancialRepositorySupabase implements FinancialRepository {
       debugPrint(
         '[FinancialRepositorySupabase.add] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[FinancialRepositorySupabase.add] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -54,10 +54,10 @@ class FinancialRepositorySupabase implements FinancialRepository {
       debugPrint(
         '[FinancialRepositorySupabase.delete] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[FinancialRepositorySupabase.delete] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 
 class AppYesNoToggle extends StatelessWidget {
   const AppYesNoToggle({
@@ -15,6 +16,7 @@ class AppYesNoToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.strings.shared;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -26,13 +28,13 @@ class AppYesNoToggle extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _Segment(
-          label: 'Sim',
+          label: t.yes,
           selected: value == true,
           onTap: () => onChanged(value == true ? null : true),
         ),
         const SizedBox(width: 8),
         _Segment(
-          label: 'Não',
+          label: t.no,
           selected: value == false,
           onTap: () => onChanged(value == false ? null : false),
         ),

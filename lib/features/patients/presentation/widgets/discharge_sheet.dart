@@ -1,50 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/encerramento_sheet_cubit.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/encerramento_sheet_state.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/discharge_sheet_cubit.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/discharge_sheet_state.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
-Future<Discharge?> showEncerramentoSheet(BuildContext context) {
+Future<Discharge?> showDischargeSheet(BuildContext context) {
   return showModalBottomSheet<Discharge>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => const _EncerramentoSheet(),
+    builder: (_) => const _DischargeSheet(),
   );
 }
 
-class _EncerramentoSheet extends StatefulWidget {
-  const _EncerramentoSheet();
+class _DischargeSheet extends StatefulWidget {
+  const _DischargeSheet();
 
   @override
-  State<_EncerramentoSheet> createState() => _EncerramentoSheetState();
+  State<_DischargeSheet> createState() => _DischargeSheetState();
 }
 
-class _EncerramentoSheetState extends State<_EncerramentoSheet> {
-  final _observacaoController = TextEditingController();
-  final _formCubit = EncerramentoSheetCubit();
+class _DischargeSheetState extends State<_DischargeSheet> {
+  final _noteController = TextEditingController();
+  final _formCubit = DischargeSheetCubit();
 
   @override
   void dispose() {
-    _observacaoController.dispose();
+    _noteController.dispose();
     _formCubit.close();
     super.dispose();
   }
 
-  bool _canSave(EncerramentoSheetState state) =>
+  bool _canSave(DischargeSheetState state) =>
       state.date != null && state.reason != null;
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
-      child: BlocBuilder<EncerramentoSheetCubit, EncerramentoSheetState>(
+      child: BlocBuilder<DischargeSheetCubit, DischargeSheetState>(
         builder: (context, formState) => Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -76,7 +79,7 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Encerrar tratamento',
+                      t.closeTreatmentButton,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -85,14 +88,14 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
                     ),
                     const SizedBox(height: 20),
                     AppDateField(
-                      hintText: 'Data',
+                      hintText: t.dateHint,
                       value: formState.date,
                       onChanged: _formCubit.setData,
                     ),
                     const SizedBox(height: 16),
                     AppChipSelect<DischargeReason>(
                       options: DischargeReason.values,
-                      labelBuilder: (v) => v.label,
+                      labelBuilder: (v) => v.label(t.language),
                       selected: formState.reason == null
                           ? {}
                           : {formState.reason!},
@@ -102,23 +105,22 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
-                      controller: _observacaoController,
+                      controller: _noteController,
                       icon: Icons.notes_outlined,
-                      hintText: 'Observação final (opcional)',
+                      hintText: t.finalNoteHint,
                       maxLines: 4,
                     ),
                     const SizedBox(height: 20),
                     PrimaryButton(
-                      label: 'Confirmar encerramento',
+                      label: t.confirmCloseTreatmentButton,
                       onPressed: _canSave(formState)
                           ? () => Navigator.of(context).pop(
                               Discharge(
                                 date: formState.date!,
                                 reason: formState.reason!,
-                                finalNote:
-                                    _observacaoController.text.trim().isEmpty
+                                finalNote: _noteController.text.trim().isEmpty
                                     ? null
-                                    : _observacaoController.text.trim(),
+                                    : _noteController.text.trim(),
                               ),
                             )
                           : null,

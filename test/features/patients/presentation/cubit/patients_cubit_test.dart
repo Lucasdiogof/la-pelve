@@ -37,7 +37,7 @@ void main() {
       setUp: () {
         when(
           () => repository.getAll(),
-        ).thenAnswer((_) async => const Error(ServerFailure()));
+        ).thenAnswer((_) async => Error(ServerFailure()));
       },
       build: () => PatientsCubit(repository),
       expect: () => <List<Patient>>[],
@@ -72,7 +72,7 @@ void main() {
       ).thenAnswer((_) async => const Success([]));
       when(
         () => repository.add(patient),
-      ).thenAnswer((_) async => const Error(ServerFailure('boom')));
+      ).thenAnswer((_) async => Error(ServerFailure('boom')));
       final cubit = PatientsCubit(repository);
       await Future<void>.delayed(Duration.zero);
 

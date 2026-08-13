@@ -13,8 +13,8 @@ import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class HistoricoGinecologicoStep extends StatefulWidget {
-  const HistoricoGinecologicoStep({
+class GynecologicalHistoryStep extends StatefulWidget {
+  const GynecologicalHistoryStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -24,11 +24,11 @@ class HistoricoGinecologicoStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<HistoricoGinecologicoStep> createState() =>
-      _HistoricoGinecologicoStepState();
+  State<GynecologicalHistoryStep> createState() =>
+      _GynecologicalHistoryStepState();
 }
 
-class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
+class _GynecologicalHistoryStepState extends State<GynecologicalHistoryStep> {
   late final _idadeMenstruacaoController = TextEditingController(
     text: widget.patient.gynecologicalHistory.ageAtMenarche?.toString() ?? '',
   );
@@ -82,7 +82,7 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
         const SizedBox(height: 16),
         AppChipSelect<MenstrualFlow>(
           options: MenstrualFlow.values,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: historico.menstrualFlow == null
               ? {}
               : {historico.menstrualFlow!},
@@ -166,7 +166,7 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
         const SizedBox(height: 12),
         AppChipSelect<ContraceptiveMethod>(
           options: ContraceptiveMethod.values,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: historico.contraceptiveMethod == null
               ? {}
               : {historico.contraceptiveMethod!},

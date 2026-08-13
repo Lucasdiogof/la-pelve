@@ -9,8 +9,8 @@ import 'package:fisioterapia_pelvica/features/financial/domain/entities/financia
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
 import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/lancamentos_form_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/lancamentos_form_state.dart';
+import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/payment_form_cubit.dart';
+import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/payment_form_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart';
@@ -37,7 +37,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
   final _observacoesController = TextEditingController();
   final _formaPagamentoOutroController = TextEditingController();
   final _statusOutroController = TextEditingController();
-  final _formCubit = LancamentosFormCubit();
+  final _formCubit = PaymentFormCubit();
 
   @override
   void dispose() {
@@ -50,7 +50,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     super.dispose();
   }
 
-  bool _canSave(LancamentosFormState state) =>
+  bool _canSave(PaymentFormState state) =>
       _patientNameController.text.trim().isNotEmpty &&
       state.date != null &&
       CurrencyInputFormatter.parse(_valorController.text) > 0 &&
@@ -121,7 +121,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     final t = FinancialStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
-      child: BlocBuilder<LancamentosFormCubit, LancamentosFormState>(
+      child: BlocBuilder<PaymentFormCubit, PaymentFormState>(
         builder: (context, formState) => Scaffold(
           backgroundColor: context.colors.background,
           body: Column(
@@ -186,7 +186,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                     const SizedBox(height: 12),
                     AppChipSelect<PaymentMethod>(
                       options: PaymentMethod.values,
-                      labelBuilder: (option) => option.label,
+                      labelBuilder: (option) => option.label(t.language),
                       selected: formState.paymentMethod == null
                           ? {}
                           : {formState.paymentMethod!},
@@ -216,7 +216,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                     const SizedBox(height: 12),
                     AppChipSelect<PaymentStatus>(
                       options: PaymentStatus.values,
-                      labelBuilder: (option) => option.label,
+                      labelBuilder: (option) => option.label(t.language),
                       selected: {formState.status},
                       onChanged: (selected) => _formCubit.setStatus(
                         selected.isEmpty ? PaymentStatus.paid : selected.first,

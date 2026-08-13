@@ -11,8 +11,8 @@ import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 
-class DadosPessoaisStep extends StatefulWidget {
-  const DadosPessoaisStep({
+class PersonalInfoStep extends StatefulWidget {
+  const PersonalInfoStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -22,10 +22,10 @@ class DadosPessoaisStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<DadosPessoaisStep> createState() => _DadosPessoaisStepState();
+  State<PersonalInfoStep> createState() => _PersonalInfoStepState();
 }
 
-class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
+class _PersonalInfoStepState extends State<PersonalInfoStep> {
   late final _nomeController = TextEditingController(
     text: widget.patient.personalInfo.name,
   );
@@ -125,7 +125,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
         const SizedBox(height: 12),
         AppChipSelect<Gender>(
           options: Gender.values,
-          labelBuilder: (option) => option.label,
+          labelBuilder: (option) => option.label(t.language),
           selected: widget.patient.personalInfo.gender == null
               ? {}
               : {widget.patient.personalInfo.gender!},

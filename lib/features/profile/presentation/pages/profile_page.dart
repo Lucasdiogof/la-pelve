@@ -183,7 +183,7 @@ class ProfilePage extends StatelessWidget {
                               builder: (context, mode) => ProfileRow(
                                 icon: Icons.palette_outlined,
                                 label: t.themeRowLabel,
-                                value: themeModeLabel(mode),
+                                value: themeModeLabel(mode, t.language),
                                 trailing: Icon(
                                   Icons.chevron_right,
                                   color: context.colors.textSecondary,

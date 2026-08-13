@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patient_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_form_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_form_state.dart';
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
@@ -61,6 +63,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
       state.date != null && _descricaoController.text.trim().isNotEmpty;
 
   Future<void> _save() async {
+    final t = PatientsStrings(context.read<LocaleCubit>().state);
     _formCubit.setSaving(true);
     final date = _formCubit.state.date;
     final result = _isEditing
@@ -86,8 +89,8 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
         await AppInfoBottomSheet.showSuccess(
           context,
           description: _isEditing
-              ? 'Evolução atualizada com sucesso.'
-              : 'Evolução registrada com sucesso.',
+              ? t.evolutionUpdatedSuccess
+              : t.evolutionCreatedSuccess,
         );
       case Error(:final failure):
         _formCubit.setSaving(false);
@@ -100,13 +103,16 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<EvolutionFormCubit, EvolutionFormState>(
         builder: (context, formState) => Scaffold(
           backgroundColor: context.colors.background,
           appBar: AppBar(
-            title: Text(_isEditing ? 'Editar evolução' : 'Nova evolução'),
+            title: Text(
+              _isEditing ? t.editEvolutionTitle : t.newEvolutionTitle,
+            ),
           ),
           body: Column(
             children: [
@@ -115,7 +121,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
                   padding: const EdgeInsets.all(24),
                   children: [
                     AppDateField(
-                      hintText: 'Data',
+                      hintText: t.dateHint,
                       value: formState.date,
                       lastDate: _today,
                       onChanged: _formCubit.setData,
@@ -124,7 +130,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
                     AppTextField(
                       controller: _descricaoController,
                       icon: Icons.description_outlined,
-                      hintText: 'O que foi feito no atendimento',
+                      hintText: t.evolutionDescriptionHint,
                       maxLines: 6,
                     ),
                   ],
@@ -132,7 +138,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
               ),
               AppBottomActionBar(
                 child: PrimaryButton(
-                  label: _isEditing ? 'Salvar alterações' : 'Salvar',
+                  label: _isEditing ? t.saveChangesLabel : t.saveLabel,
                   isLoading: formState.saving,
                   onPressed: _canSave(formState) ? _save : null,
                 ),

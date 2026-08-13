@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/core/error/failures.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/entities/app_user.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
 
@@ -9,6 +12,13 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._client);
 
   final SupabaseClient _client;
+
+  AppLanguage get _language {
+    if (!GetIt.instance.isRegistered<LocaleCubit>()) {
+      return AppLanguage.portuguese;
+    }
+    return GetIt.instance<LocaleCubit>().state;
+  }
 
   @override
   Future<Result<AppUser>> signIn({
@@ -21,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       final user = response.user;
-      if (user == null) return const Error(AuthFailure());
+      if (user == null) return Error(AuthFailure());
       return Success(AppUser(id: user.id, email: user.email ?? email));
     } on AuthException catch (e, st) {
       debugPrint(
@@ -32,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     } catch (e, st) {
       debugPrint('[AuthRepository.signIn] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -54,12 +64,10 @@ class AuthRepositoryImpl implements AuthRepository {
         data: {'nome': nome, 'crefito': crefito, 'telefone': telefone},
       );
       final user = response.user;
-      if (user == null) return const Error(AuthFailure());
+      if (user == null) return Error(AuthFailure());
 
       if (response.session == null) {
-        return const Error(
-          AuthFailure('Confirme o e-mail enviado para concluir o cadastro.'),
-        );
+        return Error(AuthFailure(_confirmEmailMessage()));
       }
 
       return Success(AppUser(id: user.id, email: user.email ?? email));
@@ -70,7 +78,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Error(AuthFailure(_mapAuthError(e)));
     } catch (e, st) {
       debugPrint('[AuthRepository.signUp] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -81,7 +89,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Success(null);
     } catch (e, st) {
       debugPrint('[AuthRepository.signOut] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -97,10 +105,10 @@ class AuthRepositoryImpl implements AuthRepository {
       debugPrint(
         '[AuthRepository.deleteAccount] code=${e.code} msg=${e.message}\n$st',
       );
-      return const Error(ServerFailure());
+      return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AuthRepository.deleteAccount] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -121,7 +129,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Error(AuthFailure(_mapAuthError(e)));
     } catch (e, st) {
       debugPrint('[AuthRepository.sendPasswordResetEmail] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -137,7 +145,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Error(AuthFailure(_mapAuthError(e)));
     } catch (e, st) {
       debugPrint('[AuthRepository.updatePassword] $e\n$st');
-      return const Error(UnexpectedFailure());
+      return Error(UnexpectedFailure());
     }
   }
 
@@ -180,19 +188,47 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  String _confirmEmailMessage() => switch (_language) {
+    AppLanguage.portuguese =>
+      'Confirme o e-mail enviado para concluir o cadastro.',
+    AppLanguage.english => 'Confirm the email we sent to finish signing up.',
+  };
+
   String _mapAuthError(AuthException e) {
     final code = e.code ?? '';
-    return switch (code) {
-      'invalid_credentials' => 'E-mail ou senha incorretos.',
-      'email_address_invalid' =>
+    return switch ((code, _language)) {
+      ('invalid_credentials', AppLanguage.portuguese) =>
+        'E-mail ou senha incorretos.',
+      ('invalid_credentials', AppLanguage.english) =>
+        'Incorrect email or password.',
+      ('email_address_invalid', AppLanguage.portuguese) =>
         'Endereço de e-mail inválido. Verifique e tente novamente.',
-      'email_already_in_use' ||
-      'user_already_registered' ||
-      'user_already_exists' => 'Já existe uma conta com este e-mail.',
-      'weak_password' => 'A senha deve ter no mínimo 8 caracteres.',
-      'over_email_send_rate_limit' =>
+      ('email_address_invalid', AppLanguage.english) =>
+        'Invalid email address. Check it and try again.',
+      (
+        'email_already_in_use' ||
+            'user_already_registered' ||
+            'user_already_exists',
+        AppLanguage.portuguese,
+      ) =>
+        'Já existe uma conta com este e-mail.',
+      (
+        'email_already_in_use' ||
+            'user_already_registered' ||
+            'user_already_exists',
+        AppLanguage.english,
+      ) =>
+        'An account with this email already exists.',
+      ('weak_password', AppLanguage.portuguese) =>
+        'A senha deve ter no mínimo 8 caracteres.',
+      ('weak_password', AppLanguage.english) =>
+        'The password must be at least 8 characters long.',
+      ('over_email_send_rate_limit', AppLanguage.portuguese) =>
         'Muitos cadastros em pouco tempo. Aguarde alguns minutos e tente novamente.',
-      _ => 'Erro de autenticação. Tente novamente.',
+      ('over_email_send_rate_limit', AppLanguage.english) =>
+        'Too many attempts in a short time. Wait a few minutes and try again.',
+      (_, AppLanguage.portuguese) => 'Erro de autenticação. Tente novamente.',
+      (_, AppLanguage.english) => 'Authentication error. Please try again.',
     };
   }
 }

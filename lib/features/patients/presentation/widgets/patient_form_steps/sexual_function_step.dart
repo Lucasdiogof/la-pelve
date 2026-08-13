@@ -10,8 +10,8 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_scale_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
-class FuncaoSexualStep extends StatefulWidget {
-  const FuncaoSexualStep({
+class SexualFunctionStep extends StatefulWidget {
+  const SexualFunctionStep({
     required this.patient,
     required this.onChanged,
     super.key,
@@ -21,10 +21,10 @@ class FuncaoSexualStep extends StatefulWidget {
   final ValueChanged<Patient> onChanged;
 
   @override
-  State<FuncaoSexualStep> createState() => _FuncaoSexualStepState();
+  State<SexualFunctionStep> createState() => _SexualFunctionStepState();
 }
 
-class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
+class _SexualFunctionStepState extends State<SexualFunctionStep> {
   late final _dificuldadeController = TextEditingController(
     text: widget.patient.sexualFunction.orgasmDifficultyDescription ?? '',
   );
@@ -121,7 +121,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
             const SizedBox(height: 8),
             AppChipSelect<PenetrationPainType>(
               options: PenetrationPainType.values,
-              labelBuilder: (option) => option.label,
+              labelBuilder: (option) => option.label(t.language),
               selected: funcao.penetrationPainType == null
                   ? {}
                   : {funcao.penetrationPainType!},
@@ -162,7 +162,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           const SizedBox(height: 12),
           AppChipSelect<SexualDesire>(
             options: SexualDesire.values,
-            labelBuilder: (option) => option.label,
+            labelBuilder: (option) => option.label(t.language),
             selected: funcao.sexualDesire == null ? {} : {funcao.sexualDesire!},
             onChanged: (selected) => _update(
               (f) => f.copyWith(

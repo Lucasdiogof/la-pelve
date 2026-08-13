@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
+import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
 
 enum ScheduleStatus { completed, next, waiting, cancelled }
 
 extension ScheduleStatusLabel on ScheduleStatus {
-  String get label => switch (this) {
-    ScheduleStatus.completed => 'Finalizado',
-    ScheduleStatus.next => 'Próximo',
-    ScheduleStatus.waiting => 'Aguardando',
-    ScheduleStatus.cancelled => 'Cancelado',
-  };
+  String label(AppLanguage language) {
+    final t = HomeStrings(language);
+    return switch (this) {
+      ScheduleStatus.completed => t.scheduleStatusCompleted,
+      ScheduleStatus.next => t.scheduleStatusNext,
+      ScheduleStatus.waiting => t.scheduleStatusWaiting,
+      ScheduleStatus.cancelled => t.scheduleStatusCancelled,
+    };
+  }
 }
 
 class ScheduleItem {
@@ -42,8 +47,6 @@ class ClinicOverview {
   final double receivedThisMonth;
 }
 
-const _weekdaysShort = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-
 DateTime _dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
 bool _isSameDay(DateTime a, DateTime b) =>
@@ -55,11 +58,11 @@ String _formatTime(TimeOfDay time) =>
     '${time.hour.toString().padLeft(2, '0')}:'
     '${time.minute.toString().padLeft(2, '0')}';
 
-String _dayLabel(DateTime day, DateTime today) {
+String _dayLabel(DateTime day, DateTime today, HomeStrings t) {
   final diff = day.difference(today).inDays;
-  if (diff == 0) return 'Hoje';
-  if (diff == 1) return 'Amanhã';
-  return _weekdaysShort[day.weekday - 1];
+  if (diff == 0) return t.today;
+  if (diff == 1) return t.tomorrow;
+  return t.weekdayShortName(day.weekday);
 }
 
 ScheduleStatus _statusFor(
@@ -84,7 +87,11 @@ ScheduleStatus _statusFor(
   }
 }
 
-List<ScheduleItem> buildUpcomingSchedule(List<Appointment> appointments) {
+List<ScheduleItem> buildUpcomingSchedule(
+  List<Appointment> appointments,
+  AppLanguage language,
+) {
+  final t = HomeStrings(language);
   final now = DateTime.now();
   final today = _dateOnly(now);
   final endDate = today.add(const Duration(days: 7));
@@ -107,10 +114,10 @@ List<ScheduleItem> buildUpcomingSchedule(List<Appointment> appointments) {
     if (status == ScheduleStatus.next) nextAssigned = true;
     result.add(
       ScheduleItem(
-        dayLabel: _dayLabel(_dateOnly(appointment.date), today),
+        dayLabel: _dayLabel(_dateOnly(appointment.date), today, t),
         time: _formatTime(appointment.time),
         patientName: appointment.patientName.trim().isEmpty
-            ? 'Sem nome'
+            ? t.noNamePatient
             : appointment.patientName,
         status: status,
       ),

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/lancamentos_tab.dart';
+import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/payments_tab.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/monthly_report_tab.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
@@ -40,9 +40,7 @@ class FinancialPage extends StatelessWidget {
               ),
             ),
             const Expanded(
-              child: TabBarView(
-                children: [LancamentosTab(), MonthlyReportTab()],
-              ),
+              child: TabBarView(children: [PaymentsTab(), MonthlyReportTab()]),
             ),
           ],
         ),

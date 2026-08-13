@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_form_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
@@ -21,19 +23,22 @@ enum PatientFormStep {
 }
 
 extension PatientFormStepTitle on PatientFormStep {
-  String get title => switch (this) {
-    PatientFormStep.personalInfo => 'Dados pessoais',
-    PatientFormStep.medicalHistory => 'Anamnese',
-    PatientFormStep.gynecologicalHistory => 'Histórico ginecológico',
-    PatientFormStep.obstetricHistory => 'Histórico obstétrico',
-    PatientFormStep.surgicalHistory => 'Histórico cirúrgico',
-    PatientFormStep.urinaryFunction => 'Função urinária',
-    PatientFormStep.sexualFunction => 'Função sexual',
-    PatientFormStep.bowelFunction => 'Função intestinal',
-    PatientFormStep.treatmentPlan => 'Plano de tratamento',
-    PatientFormStep.assessmentForm => 'Ficha de avaliação física',
-    PatientFormStep.consultationFee => 'Valor da consulta',
-  };
+  String title(AppLanguage language) {
+    final t = PatientsStrings(language);
+    return switch (this) {
+      PatientFormStep.personalInfo => t.sectionPersonalData,
+      PatientFormStep.medicalHistory => t.sectionAnamnesis,
+      PatientFormStep.gynecologicalHistory => t.sectionGynecologicalHistory,
+      PatientFormStep.obstetricHistory => t.sectionObstetricHistory,
+      PatientFormStep.surgicalHistory => t.sectionSurgicalHistory,
+      PatientFormStep.urinaryFunction => t.sectionUrinaryFunction,
+      PatientFormStep.sexualFunction => t.sectionSexualFunction,
+      PatientFormStep.bowelFunction => t.sectionBowelFunction,
+      PatientFormStep.treatmentPlan => t.sectionTreatmentPlan,
+      PatientFormStep.assessmentForm => t.sectionAssessmentForm,
+      PatientFormStep.consultationFee => t.sectionConsultationFee,
+    };
+  }
 }
 
 class PatientFormCubit extends Cubit<PatientFormState> {
@@ -70,7 +75,7 @@ class PatientFormCubit extends Cubit<PatientFormState> {
 
   PatientFormStep get currentStep => _visibleSteps[state.stepIndex];
 
-  String get currentStepTitle => currentStep.title;
+  String currentStepTitle(AppLanguage language) => currentStep.title(language);
 
   void updatePatient(Patient patient) => emit(state.copyWith(patient: patient));
 
