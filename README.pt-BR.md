@@ -1,6 +1,10 @@
 # Fisioterapia Pélvica
 
-[🇺🇸 English](README.md) | 🇧🇷 Português
+<p>
+  <a href="README.md">🇺🇸 English</a>
+  &nbsp;|&nbsp;
+  <strong>🇧🇷 Português</strong>
+</p>
 
 Aplicativo de gestão multiplataforma para clínicas de fisioterapia pélvica, feito com Flutter e Supabase. Roda nativamente em Android e iOS, e também é instalável como Progressive Web App (PWA), compartilhando uma única base de código e backend entre as três plataformas.
 
