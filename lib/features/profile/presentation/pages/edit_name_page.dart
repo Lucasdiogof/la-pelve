@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 import 'package:fisioterapia_pelvica/shared/cubit/ticker_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
@@ -59,6 +61,7 @@ class _EditNamePageState extends State<EditNamePage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _tickerCubit,
       child: BlocBuilder<TickerCubit, int>(
@@ -66,9 +69,9 @@ class _EditNamePageState extends State<EditNamePage> {
           backgroundColor: context.colors.background,
           body: Column(
             children: [
-              const ModernAppBar(
-                title: 'Editar nome',
-                subtitle: 'Atualize seu nome de exibição',
+              ModernAppBar(
+                title: t.editNamePageTitle,
+                subtitle: t.editNamePageSubtitle,
                 showBackButton: true,
               ),
               Expanded(
@@ -80,11 +83,11 @@ class _EditNamePageState extends State<EditNamePage> {
                       AppTextField(
                         controller: _controller,
                         icon: Icons.person_outline,
-                        hintText: 'Nome completo',
+                        hintText: t.editNameHint,
                       ),
                       const SizedBox(height: 20),
                       PrimaryButton(
-                        label: 'Salvar',
+                        label: t.saveButtonLabel,
                         onPressed: _canSave ? _save : null,
                       ),
                     ],

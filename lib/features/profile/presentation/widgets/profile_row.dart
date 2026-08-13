@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 
 class ProfileRow extends StatelessWidget {
   const ProfileRow({
@@ -19,6 +22,7 @@ class ProfileRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -48,7 +52,7 @@ class ProfileRow extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      value.isEmpty ? 'Não informado' : value,
+                      value.isEmpty ? t.notInformedLabel : value,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: context.colors.textPrimary,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/services/biometric_service.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/biometric_settings_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/biometric_settings_state.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
@@ -14,20 +16,20 @@ class BiometricSettingsPage extends StatelessWidget {
   Future<void> _toggle(BuildContext context, bool value) async {
     final cubit = context.read<BiometricSettingsCubit>();
     final biometricService = sl<BiometricService>();
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
     if (value) {
       final supported = await biometricService.isDeviceSupported();
       if (!supported) {
         if (context.mounted) {
           await AppInfoBottomSheet.showError(
             context,
-            description:
-                'Este dispositivo não oferece suporte à biometria ou não possui um bloqueio de tela configurado.',
+            description: t.biometricUnsupportedDescription,
           );
         }
         return;
       }
       final authenticated = await biometricService.authenticate(
-        'Confirme sua identidade para ativar a biometria',
+        t.biometricAuthReason,
       );
       if (!authenticated) return;
     }
@@ -36,6 +38,7 @@ class BiometricSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
     return BlocProvider(
       create: (_) => BiometricSettingsCubit(),
       child: BlocBuilder<BiometricSettingsCubit, BiometricSettingsState>(
@@ -43,9 +46,9 @@ class BiometricSettingsPage extends StatelessWidget {
           backgroundColor: context.colors.background,
           body: Column(
             children: [
-              const ModernAppBar(
-                title: 'Biometria',
-                subtitle: 'Proteja o acesso ao app',
+              ModernAppBar(
+                title: t.biometricPageTitle,
+                subtitle: t.biometricPageSubtitle,
                 showBackButton: true,
               ),
               Expanded(
@@ -65,10 +68,8 @@ class BiometricSettingsPage extends StatelessWidget {
                               value: state.enabled,
                               onChanged: (value) => _toggle(context, value),
                               activeThumbColor: context.colors.primary,
-                              title: const Text('Entrar com biometria'),
-                              subtitle: const Text(
-                                'Exige biometria para reabrir o app depois de minimizado.',
-                              ),
+                              title: Text(t.biometricSwitchTitle),
+                              subtitle: Text(t.biometricSwitchSubtitle),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),

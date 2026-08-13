@@ -4,17 +4,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_mode_label.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_state.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_avatar_section.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_photo_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_row.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
@@ -46,9 +50,10 @@ class ProfilePage extends StatelessWidget {
     );
     if (updated == null || !context.mounted) return;
     cubit.applyNome(updated);
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
     await AppInfoBottomSheet.showSuccess(
       context,
-      description: 'Nome atualizado com sucesso.',
+      description: t.nameUpdatedSuccessMessage,
     );
   }
 
@@ -59,11 +64,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Future<void> _signOut(BuildContext context) async {
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Sair',
-      description: 'Deseja sair da sua conta?',
-      confirmLabel: 'Sair',
+      title: t.signOutTitle,
+      description: t.signOutConfirmDescription,
+      confirmLabel: t.signOutTitle,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -74,14 +80,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Future<void> _deleteAccount(BuildContext context) async {
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Excluir minha conta',
-      description:
-          'Tem certeza que deseja excluir sua conta? Isso apaga permanentemente '
-          'todos os pacientes, evoluções, lançamentos, agendamentos e anexos. '
-          'Essa ação não pode ser desfeita.',
-      confirmLabel: 'Excluir conta',
+      title: t.deleteAccountLabel,
+      description: t.deleteAccountConfirmDescription,
+      confirmLabel: t.deleteAccountConfirmLabel,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -102,6 +106,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.strings.profile;
     return BlocProvider(
       create: (_) => ProfileCubit(sl<ProfileRepository>()),
       child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -110,9 +115,9 @@ class ProfilePage extends StatelessWidget {
             backgroundColor: context.colors.background,
             body: Column(
               children: [
-                const ModernAppBar(
-                  title: 'Perfil',
-                  subtitle: 'Gerencie seu perfil',
+                ModernAppBar(
+                  title: t.profilePageTitle,
+                  subtitle: t.profilePageSubtitle,
                   showBackButton: true,
                 ),
                 Expanded(
@@ -136,7 +141,7 @@ class ProfilePage extends StatelessWidget {
                             const SizedBox(height: 32),
                             ProfileRow(
                               icon: Icons.person_outline,
-                              label: 'Nome',
+                              label: t.nameRowLabel,
                               value: state.profile?.name ?? '',
                               trailing: Icon(
                                 Icons.edit_outlined,
@@ -149,23 +154,23 @@ class ProfilePage extends StatelessWidget {
                             const SizedBox(height: 8),
                             ProfileRow(
                               icon: Icons.email_outlined,
-                              label: 'E-mail',
+                              label: t.emailRowLabel,
                               value: state.profile?.email ?? '',
                             ),
                             const SizedBox(height: 8),
                             ProfileRow(
                               icon: Icons.verified_user_outlined,
-                              label: 'Crefito',
+                              label: t.crefitoRowLabel,
                               value: state.profile?.crefito ?? '',
                             ),
                             if (!kIsWeb) ...[
                               const SizedBox(height: 8),
                               ProfileRow(
                                 icon: Icons.fingerprint,
-                                label: 'Biometria',
+                                label: t.biometricsRowLabel,
                                 value: state.biometriaEnabled
-                                    ? 'Ativada'
-                                    : 'Desativada',
+                                    ? t.statusEnabled
+                                    : t.statusDisabled,
                                 trailing: Icon(
                                   Icons.chevron_right,
                                   color: context.colors.textSecondary,
@@ -177,13 +182,26 @@ class ProfilePage extends StatelessWidget {
                             BlocBuilder<ThemeCubit, ThemeMode>(
                               builder: (context, mode) => ProfileRow(
                                 icon: Icons.palette_outlined,
-                                label: 'Tema',
+                                label: t.themeRowLabel,
                                 value: themeModeLabel(mode),
                                 trailing: Icon(
                                   Icons.chevron_right,
                                   color: context.colors.textSecondary,
                                 ),
                                 onTap: () => context.push('/perfil/tema'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            BlocBuilder<LocaleCubit, AppLanguage>(
+                              builder: (context, language) => ProfileRow(
+                                icon: Icons.translate,
+                                label: context.strings.profile.languageRowLabel,
+                                value: language.label,
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: context.colors.textSecondary,
+                                ),
+                                onTap: () => context.push('/perfil/idioma'),
                               ),
                             ),
                           ],
@@ -199,7 +217,7 @@ class ProfilePage extends StatelessWidget {
                             foregroundColor: context.colors.error,
                             side: BorderSide(color: context.colors.error),
                           ),
-                          child: const Text('Sair da conta'),
+                          child: Text(t.signOutButtonLabel),
                         ),
                         const SizedBox(height: 12),
                         TextButton(
@@ -207,7 +225,7 @@ class ProfilePage extends StatelessWidget {
                           style: TextButton.styleFrom(
                             foregroundColor: context.colors.error,
                           ),
-                          child: const Text('Excluir minha conta'),
+                          child: Text(t.deleteAccountLabel),
                         ),
                       ],
                     ),

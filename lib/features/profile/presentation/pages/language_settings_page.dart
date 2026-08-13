@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/theme_mode_label.dart';
-import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
-class ThemeSettingsPage extends StatelessWidget {
-  const ThemeSettingsPage({super.key});
+class LanguageSettingsPage extends StatelessWidget {
+  const LanguageSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final t = ProfileStrings(context.watch<LocaleCubit>().state);
+    final t = context.strings.profile;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: Column(
         children: [
           ModernAppBar(
-            title: t.themePageTitle,
-            subtitle: t.themePageSubtitle,
+            title: t.languagePageTitle,
+            subtitle: t.languagePageSubtitle,
             showBackButton: true,
           ),
           Expanded(
-            child: BlocBuilder<ThemeCubit, ThemeMode>(
-              builder: (context, mode) => ListView(
+            child: BlocBuilder<LocaleCubit, AppLanguage>(
+              builder: (context, language) => ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  for (final option in ThemeMode.values)
+                  for (final option in AppLanguage.values)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: _ThemeOptionTile(
-                        mode: option,
-                        selected: mode == option,
-                        onTap: () => context.read<ThemeCubit>().setMode(option),
+                      child: _LanguageOptionTile(
+                        option: option,
+                        selected: language == option,
+                        onTap: () =>
+                            context.read<LocaleCubit>().setLanguage(option),
                       ),
                     ),
                 ],
@@ -46,26 +46,20 @@ class ThemeSettingsPage extends StatelessWidget {
   }
 }
 
-class _ThemeOptionTile extends StatelessWidget {
-  const _ThemeOptionTile({
-    required this.mode,
+class _LanguageOptionTile extends StatelessWidget {
+  const _LanguageOptionTile({
+    required this.option,
     required this.selected,
     required this.onTap,
   });
 
-  final ThemeMode mode;
+  final AppLanguage option;
   final bool selected;
   final VoidCallback onTap;
 
-  IconData get _icon => switch (mode) {
-    ThemeMode.system => Icons.brightness_auto_outlined,
-    ThemeMode.light => Icons.light_mode_outlined,
-    ThemeMode.dark => Icons.dark_mode_outlined,
-  };
-
   @override
   Widget build(BuildContext context) {
-    final t = ProfileStrings(context.watch<LocaleCubit>().state);
+    final t = context.strings.profile;
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -90,7 +84,11 @@ class _ThemeOptionTile extends StatelessWidget {
                   color: context.colors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(_icon, color: context.colors.primary, size: 20),
+                child: Icon(
+                  Icons.translate,
+                  color: context.colors.primary,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -98,7 +96,7 @@ class _ThemeOptionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      themeModeLabel(mode),
+                      option.label,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: context.colors.textPrimary,
@@ -106,7 +104,7 @@ class _ThemeOptionTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      t.themeOptionDescription(mode),
+                      t.languageOptionDescription(option),
                       style: TextStyle(
                         fontSize: 12,
                         color: context.colors.textSecondary,

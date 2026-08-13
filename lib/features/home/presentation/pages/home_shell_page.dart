@@ -7,6 +7,7 @@ import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_shell
 import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_shell_state.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/pages/home_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patients_list_page.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 
 class HomeShellPage extends StatefulWidget {
   const HomeShellPage({super.key});
@@ -26,6 +27,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.strings.home;
     return BlocProvider.value(
       value: _shellCubit,
       child: BlocBuilder<HomeShellCubit, HomeShellState>(
@@ -71,7 +73,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
                         Icons.home,
                         color: context.colors.primary,
                       ),
-                      label: 'Início',
+                      label: t.navHome,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.people_outline),
@@ -79,7 +81,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
                         Icons.people,
                         color: context.colors.primary,
                       ),
-                      label: 'Pacientes',
+                      label: t.navPatients,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.calendar_month_outlined),
@@ -87,7 +89,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
                         Icons.calendar_month,
                         color: context.colors.primary,
                       ),
-                      label: 'Agenda',
+                      label: t.navAgenda,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.attach_money_outlined),
@@ -95,7 +97,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
                         Icons.attach_money,
                         color: context.colors.primary,
                       ),
-                      label: 'Financeiro',
+                      label: t.navFinancial,
                     ),
                   ],
                 ),

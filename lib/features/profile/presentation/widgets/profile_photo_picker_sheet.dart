@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
+import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 
 String _mimeFromName(String name) {
   final ext = name.split('.').last.toLowerCase();
@@ -35,6 +38,7 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -58,7 +62,7 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Foto de perfil',
+                t.photoPickerTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
@@ -72,7 +76,7 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
                   Icons.photo_camera_outlined,
                   color: context.colors.primary,
                 ),
-                title: const Text('Tirar foto'),
+                title: Text(t.takePhotoLabel),
               ),
               ListTile(
                 onTap: () => Navigator.of(context).pop(ImageSource.gallery),
@@ -80,7 +84,7 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
                   Icons.photo_library_outlined,
                   color: context.colors.primary,
                 ),
-                title: const Text('Escolher da galeria'),
+                title: Text(t.chooseFromGalleryLabel),
               ),
             ],
           ),

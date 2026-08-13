@@ -10,6 +10,7 @@ import 'package:fisioterapia_pelvica/features/auth/presentation/pages/login_page
 import 'package:fisioterapia_pelvica/features/auth/presentation/pages/register_page.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:fisioterapia_pelvica/features/financial/presentation/pages/financial_form_page.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/pages/home_shell_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
@@ -20,6 +21,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patien
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patient_form_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/biometric_settings_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/edit_name_page.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/pages/language_settings_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/profile_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/theme_settings_page.dart';
 
@@ -112,8 +114,22 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ThemeSettingsPage(),
     ),
     GoRoute(
+      path: '/perfil/idioma',
+      builder: (context, state) => const LanguageSettingsPage(),
+    ),
+    GoRoute(
       path: '/perfil/biometria',
       builder: (context, state) => const BiometricSettingsPage(),
+    ),
+    GoRoute(
+      path: '/financeiro/novo',
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: sl<FinancialCubit>()),
+          BlocProvider.value(value: sl<PatientsCubit>()),
+        ],
+        child: const FinancialFormPage(),
+      ),
     ),
     GoRoute(
       path: '/agenda/novo',
