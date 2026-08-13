@@ -62,25 +62,26 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 <table>
 <tr>
 <td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Login screen"><br>Login</td>
+<td align="center"><img src="docs/screenshots/light_signup.png" width="220" alt="Sign up screen"><br>Sign up</td>
 <td align="center"><img src="docs/screenshots/light_home.png" width="220" alt="Home dashboard"><br>Home</td>
-<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Patients list"><br>Patients</td>
 </tr>
 <tr>
+<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Patients list"><br>Patients</td>
 <td align="center"><img src="docs/screenshots/light_new_appointment.png" width="220" alt="New appointment form"><br>New appointment</td>
 <td align="center"><img src="docs/screenshots/light_patient_wizard.png" width="220" alt="Patient intake wizard"><br>Patient intake wizard</td>
-<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Patient record"><br>Patient record</td>
 </tr>
 <tr>
+<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Patient record"><br>Patient record</td>
 <td align="center"><img src="docs/screenshots/light_attachments.png" width="220" alt="Attachments tab"><br>Attachments</td>
 <td align="center"><img src="docs/screenshots/light_evolution.png" width="220" alt="Evolution log"><br>Evolution log</td>
-<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Upcoming appointments"><br>Agenda</td>
 </tr>
 <tr>
+<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Upcoming appointments"><br>Agenda</td>
 <td align="center"><img src="docs/screenshots/light_agenda_report.png" width="220" alt="Monthly appointment report"><br>Agenda report</td>
 <td align="center"><img src="docs/screenshots/light_financial.png" width="220" alt="Payment entries"><br>Financial</td>
-<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Monthly financial report"><br>Financial report</td>
 </tr>
 <tr>
+<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Monthly financial report"><br>Financial report</td>
 <td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Profile screen"><br>Profile</td>
 </tr>
 </table>
