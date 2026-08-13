@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
+import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/agenda_monthly_report_tab.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/agenda_view_models.dart';
@@ -11,21 +13,12 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
-const _weekdays = [
-  'Segunda-feira',
-  'Terça-feira',
-  'Quarta-feira',
-  'Quinta-feira',
-  'Sexta-feira',
-  'Sábado',
-  'Domingo',
-];
-
 class AgendaPage extends StatelessWidget {
   const AgendaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AgendaStrings(context.watch<LocaleCubit>().state);
     final today = dateOnly(DateTime.now());
     return DefaultTabController(
       length: 2,
@@ -35,23 +28,20 @@ class AgendaPage extends StatelessWidget {
           heroTag: 'agenda-fab',
           onPressed: () => context.push('/agenda/novo'),
           icon: const Icon(Icons.add),
-          label: const Text('Criar agendamento'),
+          label: Text(t.createAppointment),
         ),
         body: Column(
           children: [
-            const ModernAppBar(
-              title: 'Agenda',
-              subtitle: 'Seus próximos atendimentos',
-            ),
+            ModernAppBar(title: t.pageTitle, subtitle: t.pageSubtitle),
             Material(
               color: context.colors.surface,
               child: TabBar(
                 labelColor: context.colors.textPrimary,
                 unselectedLabelColor: context.colors.textSecondary,
                 indicatorColor: context.colors.primaryButton,
-                tabs: const [
-                  Tab(text: 'Próximos'),
-                  Tab(text: 'Relatório'),
+                tabs: [
+                  Tab(text: t.upcomingTab),
+                  Tab(text: t.reportTab),
                 ],
               ),
             ),
@@ -66,10 +56,10 @@ class AgendaPage extends StatelessWidget {
                       );
 
                       if (porDia.isEmpty) {
-                        return const AppEmptyState(
+                        return AppEmptyState(
                           icon: Icons.calendar_month_outlined,
-                          title: 'Nenhum agendamento',
-                          message: 'Nada marcado para os próximos 7 dias.',
+                          title: t.emptyTitle,
+                          message: t.emptyMessage,
                         );
                       }
 
@@ -87,7 +77,7 @@ class AgendaPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _dayLabel(dia, today),
+                                  _dayLabel(dia, today, t),
                                   style: TextStyle(
                                     color: context.colors.textSecondary,
                                     fontSize: 12,
@@ -120,11 +110,11 @@ class AgendaPage extends StatelessWidget {
     );
   }
 
-  String _dayLabel(DateTime day, DateTime today) {
+  String _dayLabel(DateTime day, DateTime today, AgendaStrings t) {
     final diff = day.difference(today).inDays;
-    if (diff == 0) return 'HOJE';
-    if (diff == 1) return 'AMANHÃ';
-    final weekday = _weekdays[day.weekday - 1].toUpperCase();
+    if (diff == 0) return t.today;
+    if (diff == 1) return t.tomorrow;
+    final weekday = t.weekdayLabel(day.weekday).toUpperCase();
     return '$weekday, ${AppDateField.format(day)}';
   }
 }

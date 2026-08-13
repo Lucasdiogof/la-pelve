@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
+import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_form_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_form_state.dart';
@@ -75,12 +77,12 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
   Future<void> _delete() async {
     final existing = widget.existingAppointment;
     if (existing == null) return;
+    final t = AgendaStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Excluir agendamento',
-      description:
-          'Tem certeza que deseja excluir este agendamento? Essa ação não pode ser desfeita.',
-      confirmLabel: 'Excluir',
+      title: t.deleteAppointmentTitle,
+      description: t.deleteAppointmentDescription,
+      confirmLabel: t.delete,
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
@@ -102,6 +104,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
   }
 
   Future<void> _save() async {
+    final t = AgendaStrings(context.read<LocaleCubit>().state);
     _formCubit.setSaving(true);
     showAppLoading();
     final state = _formCubit.state;
@@ -132,8 +135,8 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
         await AppInfoBottomSheet.showSuccess(
           context,
           description: existing == null
-              ? 'Agendamento criado com sucesso.'
-              : 'Agendamento atualizado com sucesso.',
+              ? t.appointmentCreatedSuccess
+              : t.appointmentUpdatedSuccess,
         );
       case Error(:final failure):
         _formCubit.setSaving(false);
@@ -146,6 +149,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AgendaStrings(context.watch<LocaleCubit>().state);
     final hasPatients = context.watch<PatientsCubit>().state.isNotEmpty;
     return BlocProvider.value(
       value: _formCubit,
@@ -155,10 +159,10 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
           body: Column(
             children: [
               ModernAppBar(
-                title: _isEditing ? 'Editar agendamento' : 'Criar agendamento',
+                title: _isEditing ? t.editAppointment : t.createAppointment,
                 subtitle: _isEditing
-                    ? 'Atualize os dados do atendimento'
-                    : 'Novo atendimento na agenda',
+                    ? t.editAppointmentSubtitle
+                    : t.createAppointmentSubtitle,
                 showBackButton: true,
               ),
               Expanded(
@@ -166,14 +170,14 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                   padding: const EdgeInsets.all(24),
                   children: [
                     AppDateField(
-                      hintText: 'Data',
+                      hintText: t.dateHint,
                       value: formState.date,
                       onChanged: _formCubit.setData,
                     ),
                     const SizedBox(height: 12),
                     AppSelectField(
                       icon: Icons.access_time_outlined,
-                      hintText: 'Horário',
+                      hintText: t.timeHint,
                       displayText: formState.time == null
                           ? ''
                           : formState.time!.format(context),
@@ -183,14 +187,14 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                     AppTextField(
                       controller: _nomeController,
                       icon: Icons.person_outline,
-                      hintText: 'Nome do paciente',
+                      hintText: t.patientNameHint,
                       suffixIcon: hasPatients
                           ? IconButton(
                               icon: Icon(
                                 Icons.list_alt_outlined,
                                 color: context.colors.textSecondary,
                               ),
-                              tooltip: 'Selecionar paciente cadastrado',
+                              tooltip: t.selectRegisteredPatient,
                               onPressed: _selectPatient,
                             )
                           : null,
@@ -211,12 +215,12 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                           minimumSize: const Size.fromHeight(56),
                           shape: const StadiumBorder(),
                         ),
-                        child: const Text('Excluir'),
+                        child: Text(t.delete),
                       ),
                       const SizedBox(height: 12),
                     ],
                     PrimaryButton(
-                      label: 'Salvar',
+                      label: t.save,
                       isLoading: formState.saving,
                       onPressed: _canSave(formState) ? _save : null,
                     ),

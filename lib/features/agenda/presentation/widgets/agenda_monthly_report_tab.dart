@@ -1,26 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
+import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
-
-const _monthNames = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-];
 
 class AgendaMonthlyReportTab extends StatelessWidget {
   const AgendaMonthlyReportTab({super.key});
@@ -43,6 +30,7 @@ class _AgendaMonthlyReportView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AgendaStrings(context.watch<LocaleCubit>().state);
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
     final monthCubit = context.read<AgendaReportMonthCubit>();
@@ -76,7 +64,7 @@ class _AgendaMonthlyReportView extends StatelessWidget {
                   onPressed: () => monthCubit.shift(-1),
                 ),
                 Text(
-                  '${_monthNames[month.month - 1]} ${month.year}',
+                  '${t.monthName(month.month)} ${month.year}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
@@ -89,7 +77,10 @@ class _AgendaMonthlyReportView extends StatelessWidget {
               ],
             ),
             Text(
-              'Período: ${AppDateField.format(firstDay)} a ${AppDateField.format(lastDay)}',
+              t.periodRange(
+                AppDateField.format(firstDay),
+                AppDateField.format(lastDay),
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.colors.textSecondary,
@@ -105,9 +96,9 @@ class _AgendaMonthlyReportView extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Agendamentos no mês',
-                    style: TextStyle(color: Colors.white70),
+                  Text(
+                    t.appointmentsInMonth,
+                    style: const TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -138,14 +129,14 @@ class _AgendaMonthlyReportView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Nenhum agendamento neste mês.',
+                  t.noAppointmentsInMonth,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
               )
             else
               for (final appointment in inMonth)
-                _MonthlyReportAppointmentTile(appointment),
+                _MonthlyReportAppointmentTile(appointment: appointment, t: t),
           ],
         );
       },
@@ -177,9 +168,13 @@ class _StatusChip extends StatelessWidget {
 }
 
 class _MonthlyReportAppointmentTile extends StatelessWidget {
-  const _MonthlyReportAppointmentTile(this.appointment);
+  const _MonthlyReportAppointmentTile({
+    required this.appointment,
+    required this.t,
+  });
 
   final Appointment appointment;
+  final AgendaStrings t;
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +196,10 @@ class _MonthlyReportAppointmentTile extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  '${AppDateField.format(appointment.date)} às ${appointment.time.format(context)}',
+                  t.appointmentDateTime(
+                    AppDateField.format(appointment.date),
+                    appointment.time.format(context),
+                  ),
                   style: TextStyle(
                     color: context.colors.textSecondary,
                     fontSize: 12,

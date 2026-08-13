@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
+import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
 
 class StatusPickerSheet extends StatelessWidget {
   const StatusPickerSheet({required this.current, super.key});
@@ -9,6 +12,7 @@ class StatusPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AgendaStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -32,7 +36,7 @@ class StatusPickerSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Status do agendamento',
+                t.statusPickerTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: context.colors.primaryButton,
