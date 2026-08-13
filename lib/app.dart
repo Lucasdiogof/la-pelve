@@ -61,7 +61,9 @@ class App extends StatelessWidget {
                               ConnectionState.done) {
                             return Scaffold(
                               backgroundColor: context.colors.background,
-                              body: const Center(child: PulsingLogo(size: 88)),
+                              body: const Center(
+                                child: PulsingLogo(size: 64, animate: false),
+                              ),
                             );
                           }
                           return ColoredBox(
