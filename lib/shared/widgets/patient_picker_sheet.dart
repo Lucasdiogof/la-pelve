@@ -63,9 +63,9 @@ class PatientPickerSheet extends StatelessWidget {
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final patient = patients[index];
-                      final nome = patient.dadosPessoais.nome.trim().isEmpty
+                      final nome = patient.personalInfo.name.trim().isEmpty
                           ? 'Sem nome'
-                          : patient.dadosPessoais.nome.trim();
+                          : patient.personalInfo.name.trim();
                       return InkWell(
                         borderRadius: BorderRadius.circular(16),
                         onTap: () => Navigator.of(context).pop(patient),
@@ -100,11 +100,11 @@ class PatientPickerSheet extends StatelessWidget {
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    if (patient.dadosPessoais.telefone
+                                    if (patient.personalInfo.phone
                                         .trim()
                                         .isNotEmpty)
                                       Text(
-                                        patient.dadosPessoais.telefone,
+                                        patient.personalInfo.phone,
                                         style: TextStyle(
                                           color: context.colors.textSecondary,
                                           fontSize: 12,
