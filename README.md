@@ -1,5 +1,7 @@
 # Fisioterapia Pélvica
 
+🇺🇸 English | [🇧🇷 Português](README.pt-BR.md)
+
 A cross-platform practice management app for pelvic physiotherapy clinics, built with Flutter and Supabase. It runs natively on Android and iOS and is also installable as a Progressive Web App (PWA), sharing a single codebase and backend across all three.
 
 ## Overview
