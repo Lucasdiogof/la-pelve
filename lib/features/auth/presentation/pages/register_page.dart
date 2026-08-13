@@ -115,6 +115,10 @@ class _RegisterPageState extends State<RegisterPage> {
           case AuthSuccess():
             hideAppLoading();
             context.go('/home');
+            AppInfoBottomSheet.showSuccess(
+              context,
+              description: 'Conta criada com sucesso.',
+            );
           case AuthError(:final message):
             hideAppLoading();
             AppInfoBottomSheet.showError(context, description: message);
