@@ -59,3 +59,6 @@ lcov.info
 # Supabase CLI local state and rollout artifacts generated from production snapshots
 supabase/.temp/
 supabase/rollout-*/03_postcheck.sql
+
+# Local editor/tooling config
+.claude/
