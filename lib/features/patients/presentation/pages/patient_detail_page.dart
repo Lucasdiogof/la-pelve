@@ -175,25 +175,16 @@ class PatientDetailPage extends StatelessWidget {
             ),
             body: Column(
               children: [
-                current.discharge == null
-                    ? Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _encerrarTratamento(context, current),
-                          icon: const Icon(Icons.event_busy_outlined),
-                          label: const Text('Encerrar tratamento'),
-                        ),
-                      )
-                    : EncerramentoBanner(
-                        discharge: current.discharge!,
-                        onReabrir: () => _reabrirTratamento(context, current),
-                      ),
+                if (current.discharge != null)
+                  EncerramentoBanner(
+                    discharge: current.discharge!,
+                    onReabrir: () => _reabrirTratamento(context, current),
+                  ),
                 Expanded(
                   child: TabBarView(
                     children: [
                       ListView(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
                         children: [
                           const SectionTitle('Dados pessoais'),
                           InfoRow(
@@ -243,12 +234,33 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 ),
                 AppBottomActionBar(
-                  child: PrimaryButton(
-                    label: 'Ver evolução',
-                    onPressed: () => context.push(
-                      '/pacientes/${current.id}/evolucao',
-                      extra: current,
-                    ),
+                  child: Column(
+                    children: [
+                      if (current.discharge == null) ...[
+                        OutlinedButton.icon(
+                          onPressed: () =>
+                              _encerrarTratamento(context, current),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: context.colors.primaryButton,
+                            side: BorderSide(
+                              color: context.colors.primaryButton,
+                            ),
+                            minimumSize: const Size.fromHeight(56),
+                            shape: const StadiumBorder(),
+                          ),
+                          icon: const Icon(Icons.event_busy_outlined),
+                          label: const Text('Encerrar tratamento'),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      PrimaryButton(
+                        label: 'Ver evolução',
+                        onPressed: () => context.push(
+                          '/pacientes/${current.id}/evolucao',
+                          extra: current,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
