@@ -95,11 +95,23 @@ void main() {
 
   group('isValidCrefito', () {
     test('accepts the documented format', () {
-      expect(isValidCrefito('123456-F3'), isTrue);
+      expect(isValidCrefito('123456-F'), isTrue);
+    });
+
+    test('accepts a region prefix', () {
+      expect(isValidCrefito('11/338376-F'), isTrue);
+    });
+
+    test('accepts occupational therapy category', () {
+      expect(isValidCrefito('123456-TO'), isTrue);
+    });
+
+    test('accepts shorter, older registration numbers', () {
+      expect(isValidCrefito('9596-F'), isTrue);
     });
 
     test('accepts lowercase and without a separator', () {
-      expect(isValidCrefito('123456f3'), isTrue);
+      expect(isValidCrefito('123456f'), isTrue);
     });
 
     test('rejects a value without the category letter', () {
@@ -117,7 +129,7 @@ void main() {
     });
 
     test('returns null for a valid Crefito', () {
-      expect(crefitoErrorText('123456-F3'), isNull);
+      expect(crefitoErrorText('11/338376-F'), isNull);
     });
 
     test('returns an error for an invalid Crefito', () {

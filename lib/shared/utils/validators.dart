@@ -45,7 +45,10 @@ String? phoneErrorText(
   return SharedStrings(language).invalidPhone;
 }
 
-final _crefitoRegExp = RegExp(r'^\d{3,7}[-/\s]?[FfTt]\d{1,2}$');
+final _crefitoRegExp = RegExp(
+  r'^(?:\d{2}[-/\s]?)?\d{4,7}[-/\s]?(?:F|TO)$',
+  caseSensitive: false,
+);
 
 bool isValidCrefito(String value) => _crefitoRegExp.hasMatch(value.trim());
 

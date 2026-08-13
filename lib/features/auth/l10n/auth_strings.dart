@@ -67,8 +67,8 @@ class AuthStrings {
   };
 
   String get crefitoHint => switch (language) {
-    AppLanguage.portuguese => 'Crefito (ex: 123456-F3)',
-    AppLanguage.english => 'Crefito (e.g. 123456-F3)',
+    AppLanguage.portuguese => 'Crefito (ex: 11/338376-F)',
+    AppLanguage.english => 'Crefito (e.g. 11/338376-F)',
   };
 
   String get emailHint => switch (language) {
