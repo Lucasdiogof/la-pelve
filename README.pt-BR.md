@@ -57,6 +57,54 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 - Builds nativos para Android e iOS
 - Progressive Web App: instalável em Android, iOS (Safari "Adicionar à Tela de Início") e desktop, abre em modo standalone, funciona offline para os assets estáticos, e os links de redefinição de senha/confirmação de e-mail se adaptam automaticamente entre o esquema de URL nativo e a origem web
 
+## Screenshots
+
+### Tema claro — Inglês
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Tela de login"><br>Login</td>
+<td align="center"><img src="docs/screenshots/light_home.png" width="220" alt="Painel inicial"><br>Início</td>
+<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Lista de pacientes"><br>Pacientes</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
+<td align="center"><img src="docs/screenshots/light_patient_wizard.png" width="220" alt="Wizard de cadastro de paciente"><br>Wizard de cadastro</td>
+<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_attachments.png" width="220" alt="Aba de anexos"><br>Anexos</td>
+<td align="center"><img src="docs/screenshots/light_evolution.png" width="220" alt="Registros de evolução"><br>Evolução</td>
+<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_agenda_report.png" width="220" alt="Relatório mensal de agendamentos"><br>Relatório da agenda</td>
+<td align="center"><img src="docs/screenshots/light_financial.png" width="220" alt="Lançamentos de pagamento"><br>Financeiro</td>
+<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Relatório financeiro mensal"><br>Relatório financeiro</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Tela de perfil"><br>Perfil</td>
+</tr>
+</table>
+
+### Tema escuro — Português
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_home.png" width="220" alt="Painel inicial"><br>Início</td>
+<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Agenda"><br>Agenda</td>
+<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório da agenda"><br>Relatório da agenda</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Financeiro"><br>Financeiro</td>
+<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro"><br>Relatório financeiro</td>
+<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro"><br>Wizard de cadastro</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
+</tr>
+</table>
+
 ## Stack técnica
 
 | Camada | Escolha |
@@ -92,37 +140,6 @@ lib/
 Cada feature só tem as camadas que realmente precisa — features simples pulam a cerimônia que uma camada de use-case adicionaria sem benefício real. Erros são modelados explicitamente com um tipo `Result<T>` (`Success` / `Error`) em vez de exceções lançadas atravessando os limites das camadas, então a UI sempre trata os estados de falha de forma deliberada.
 
 Lógica de negócio que não pertence a um widget — como agrupar agendamentos por dia, ou calcular se um horário é "o próximo" ou "já passou" — vive em funções pequenas, puras e testadas unitariamente, em vez de inline dentro de métodos `build()`.
-
-## Como começar
-
-### Pré-requisitos
-- Flutter SDK (canal stable)
-- Um projeto Supabase (veja `supabase/migrations` para o schema)
-
-### Configuração
-
-```bash
-git clone https://github.com/Lucasdiogof/fisioterapia_pelvica.git
-cd fisioterapia_pelvica
-flutter pub get
-cp env.example.json env.json   # depois preencha com a URL e a publishable key do seu Supabase
-```
-
-### Executar
-
-```bash
-# Mobile (dispositivo ou emulador)
-flutter run --dart-define-from-file=env.json
-
-# Web
-flutter run -d chrome --dart-define-from-file=env.json
-```
-
-### Testar
-
-```bash
-flutter test
-```
 
 ## Deploy
 

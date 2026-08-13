@@ -57,6 +57,54 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 - Native Android and iOS builds
 - Progressive Web App: installable on Android, iOS (Safari "Add to Home Screen") and desktop, opens in standalone mode, works offline for static assets, deep links to password reset/email confirmation adapt automatically between the native URL scheme and the web origin
 
+## Screenshots
+
+### Light theme — English
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Login screen"><br>Login</td>
+<td align="center"><img src="docs/screenshots/light_home.png" width="220" alt="Home dashboard"><br>Home</td>
+<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Patients list"><br>Patients</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_new_appointment.png" width="220" alt="New appointment form"><br>New appointment</td>
+<td align="center"><img src="docs/screenshots/light_patient_wizard.png" width="220" alt="Patient intake wizard"><br>Patient intake wizard</td>
+<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Patient record"><br>Patient record</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_attachments.png" width="220" alt="Attachments tab"><br>Attachments</td>
+<td align="center"><img src="docs/screenshots/light_evolution.png" width="220" alt="Evolution log"><br>Evolution log</td>
+<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Upcoming appointments"><br>Agenda</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_agenda_report.png" width="220" alt="Monthly appointment report"><br>Agenda report</td>
+<td align="center"><img src="docs/screenshots/light_financial.png" width="220" alt="Payment entries"><br>Financial</td>
+<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Monthly financial report"><br>Financial report</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Profile screen"><br>Profile</td>
+</tr>
+</table>
+
+### Dark theme — Portuguese
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_home.png" width="220" alt="Painel inicial"><br>Home</td>
+<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Agenda"><br>Agenda</td>
+<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório da agenda"><br>Agenda report</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Financeiro"><br>Financial</td>
+<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro"><br>Financial report</td>
+<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro"><br>Patient intake wizard</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Patient record</td>
+</tr>
+</table>
+
 ## Tech stack
 
 | Layer | Choice |
@@ -92,37 +140,6 @@ lib/
 Each feature only has the layers it actually needs — simple features skip the ceremony a use-case layer would add without real benefit. Errors are modeled explicitly with a `Result<T>` (`Success` / `Error`) type rather than thrown exceptions crossing layer boundaries, so the UI always handles failure states deliberately.
 
 Business logic that doesn't belong in a widget — like grouping appointments by day, or computing whether a slot is "next" vs. "already happened" — lives in small, pure, unit-tested functions instead of inline in `build()` methods.
-
-## Getting started
-
-### Prerequisites
-- Flutter SDK (stable channel)
-- A Supabase project (see `supabase/migrations` for the schema)
-
-### Setup
-
-```bash
-git clone https://github.com/Lucasdiogof/fisioterapia_pelvica.git
-cd fisioterapia_pelvica
-flutter pub get
-cp env.example.json env.json   # then fill in your Supabase URL and publishable key
-```
-
-### Run
-
-```bash
-# Mobile (device or emulator)
-flutter run --dart-define-from-file=env.json
-
-# Web
-flutter run -d chrome --dart-define-from-file=env.json
-```
-
-### Test
-
-```bash
-flutter test
-```
 
 ## Deployment
 
