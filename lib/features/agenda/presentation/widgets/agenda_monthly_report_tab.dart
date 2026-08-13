@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
 import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
@@ -37,21 +36,13 @@ class _AgendaMonthlyReportView extends StatelessWidget {
 
     return BlocBuilder<AgendaCubit, List<Appointment>>(
       builder: (context, appointments) {
-        final inMonth =
-            appointments
-                .where(
-                  (appointment) =>
-                      appointment.date.year == month.year &&
-                      appointment.date.month == month.month,
-                )
-                .toList()
-              ..sort((a, b) => a.date.compareTo(b.date));
-
-        final porStatus = <AppointmentStatus, int>{};
-        for (final appointment in inMonth) {
-          porStatus[appointment.status] =
-              (porStatus[appointment.status] ?? 0) + 1;
-        }
+        final inMonth = appointments
+            .where(
+              (appointment) =>
+                  appointment.date.year == month.year &&
+                  appointment.date.month == month.month,
+            )
+            .toList();
 
         return ListView(
           padding: const EdgeInsets.all(24),
@@ -112,113 +103,9 @@ class _AgendaMonthlyReportView extends StatelessWidget {
                 ],
               ),
             ),
-            if (porStatus.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final status in AppointmentStatus.values)
-                    if (porStatus[status] != null)
-                      _StatusChip(status: status, count: porStatus[status]!),
-                ],
-              ),
-            ],
-            const SizedBox(height: 24),
-            if (inMonth.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(
-                  t.noAppointmentsInMonth,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: context.colors.textSecondary),
-                ),
-              )
-            else
-              for (final appointment in inMonth)
-                _MonthlyReportAppointmentTile(appointment: appointment, t: t),
           ],
         );
       },
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status, required this.count});
-
-  final AppointmentStatus status;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final language = context.watch<LocaleCubit>().state;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Text(
-        '${status.label(language)}: $count',
-        style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
-      ),
-    );
-  }
-}
-
-class _MonthlyReportAppointmentTile extends StatelessWidget {
-  const _MonthlyReportAppointmentTile({
-    required this.appointment,
-    required this.t,
-  });
-
-  final Appointment appointment;
-  final AgendaStrings t;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  appointment.patientName,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  t.appointmentDateTime(
-                    AppDateField.format(appointment.date),
-                    appointment.time.format(context),
-                  ),
-                  style: TextStyle(
-                    color: context.colors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            appointment.status.label(t.language),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: context.colors.primaryButton,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

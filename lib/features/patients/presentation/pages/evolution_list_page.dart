@@ -10,14 +10,37 @@ import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.d
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patient_repository.dart';
 import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_list_cubit.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
 class EvolutionListPage extends StatelessWidget {
   const EvolutionListPage({required this.patient, super.key});
 
   final Patient patient;
+
+  Future<void> _delete(
+    BuildContext context,
+    EvolutionListCubit cubit,
+    PatientsStrings t,
+    String entryId,
+  ) async {
+    final confirmed = await AppConfirmSheet.show(
+      context,
+      title: t.deleteEvolutionTitle,
+      description: t.deleteEvolutionDescription,
+      confirmLabel: t.deleteLabel,
+      isDestructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+    final result = await cubit.delete(entryId);
+    if (!context.mounted) return;
+    if (result case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(context, description: failure.message);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,34 +119,56 @@ class EvolutionListPage extends StatelessWidget {
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
-                                    child: Column(
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          AppDateField.format(entry.date),
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: context.colors.primary,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                AppDateField.format(entry.date),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: context.colors.primary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(entry.description),
+                                              if (entry.updatedAt != null) ...[
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  t.editedOn(
+                                                    AppDateField.format(
+                                                      entry.updatedAt!,
+                                                    ),
+                                                  ),
+                                                  style: TextStyle(
+                                                    color: context
+                                                        .colors
+                                                        .textSecondary,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
                                           ),
                                         ),
-                                        const SizedBox(height: 6),
-                                        Text(entry.description),
-                                        if (entry.updatedAt != null) ...[
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            t.editedOn(
-                                              AppDateField.format(
-                                                entry.updatedAt!,
-                                              ),
-                                            ),
-                                            style: TextStyle(
-                                              color:
-                                                  context.colors.textSecondary,
-                                              fontSize: 12,
-                                            ),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.delete_outline,
+                                            color: context.colors.error,
                                           ),
-                                        ],
+                                          tooltip: t.deleteEvolutionTooltip,
+                                          onPressed: () => _delete(
+                                            context,
+                                            cubit,
+                                            t,
+                                            entry.id,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),

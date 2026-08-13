@@ -15,4 +15,10 @@ class EvolutionListCubit extends Cubit<Result<List<EvolutionEntry>>?> {
     emit(null);
     emit(await _repository.getEvolutions(_patientId));
   }
+
+  Future<Result<void>> delete(String id) async {
+    final result = await _repository.deleteEvolution(id);
+    if (result is Success) await reload();
+    return result;
+  }
 }

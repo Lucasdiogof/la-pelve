@@ -45,33 +45,41 @@ class App extends StatelessWidget {
                 supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
                 routerConfig: appRouter,
                 builder: (context, child) {
-                  return GlobalLoaderOverlay(
-                    overlayColor: context.colors.background.withValues(
-                      alpha: 0.7,
-                    ),
-                    overlayWidgetBuilder: (progress) =>
-                        const AppLoadingWidget(),
-                    child: FutureBuilder<void>(
-                      future: bootstrap,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState != ConnectionState.done) {
-                          return Scaffold(
-                            backgroundColor: context.colors.background,
-                            body: const Center(child: PulsingLogo(size: 140)),
-                          );
-                        }
-                        return ColoredBox(
-                          color: context.colors.background,
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 480),
-                              child: AppLockGate(
-                                child: child ?? const SizedBox.shrink(),
+                  return MediaQuery(
+                    data: MediaQuery.of(
+                      context,
+                    ).copyWith(alwaysUse24HourFormat: true),
+                    child: GlobalLoaderOverlay(
+                      overlayColor: context.colors.background.withValues(
+                        alpha: 0.7,
+                      ),
+                      overlayWidgetBuilder: (progress) =>
+                          const AppLoadingWidget(),
+                      child: FutureBuilder<void>(
+                        future: bootstrap,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState !=
+                              ConnectionState.done) {
+                            return Scaffold(
+                              backgroundColor: context.colors.background,
+                              body: const Center(child: PulsingLogo(size: 140)),
+                            );
+                          }
+                          return ColoredBox(
+                            color: context.colors.background,
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 480,
+                                ),
+                                child: AppLockGate(
+                                  child: child ?? const SizedBox.shrink(),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   );
                 },

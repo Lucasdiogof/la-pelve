@@ -23,6 +23,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
 class PatientDetailPage extends StatelessWidget {
@@ -135,52 +136,55 @@ class PatientDetailPage extends StatelessWidget {
           final tabController = DefaultTabController.of(context);
           return Scaffold(
             backgroundColor: context.colors.background,
-            appBar: AppBar(
-              title: Text(
-                dados.name.isEmpty ? t.patientFallbackTitle : dados.name,
-              ),
-              actions: [
-                AnimatedBuilder(
-                  animation: tabController,
-                  builder: (context, _) {
-                    if (tabController.index != 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          tooltip: t.editPatientTooltip,
-                          onPressed: () => context.push(
-                            '/pacientes/${current.id}/editar',
-                            extra: current,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: context.colors.error,
-                          ),
-                          tooltip: t.deletePatientTooltip,
-                          onPressed: () => _confirmDelete(context, current),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-              bottom: TabBar(
-                labelColor: context.colors.textPrimary,
-                unselectedLabelColor: context.colors.textSecondary,
-                indicatorColor: context.colors.primaryButton,
-                tabs: [
-                  Tab(text: t.tabInformation),
-                  Tab(text: t.tabAttachments),
-                ],
-              ),
-            ),
             body: Column(
               children: [
+                ModernAppBar(
+                  title: dados.name.isEmpty
+                      ? t.patientFallbackTitle
+                      : dados.name,
+                  showBackButton: true,
+                  trailing: AnimatedBuilder(
+                    animation: tabController,
+                    builder: (context, _) {
+                      if (tabController.index != 0) {
+                        return const SizedBox.shrink();
+                      }
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            tooltip: t.editPatientTooltip,
+                            onPressed: () => context.push(
+                              '/pacientes/${current.id}/editar',
+                              extra: current,
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: context.colors.error,
+                            ),
+                            tooltip: t.deletePatientTooltip,
+                            onPressed: () => _confirmDelete(context, current),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Material(
+                  color: context.colors.surface,
+                  child: TabBar(
+                    labelColor: context.colors.textPrimary,
+                    unselectedLabelColor: context.colors.textSecondary,
+                    indicatorColor: context.colors.primaryButton,
+                    tabs: [
+                      Tab(text: t.tabInformation),
+                      Tab(text: t.tabAttachments),
+                    ],
+                  ),
+                ),
                 if (current.discharge != null)
                   DischargeBanner(
                     discharge: current.discharge!,

@@ -7,7 +7,6 @@ import 'package:fisioterapia_pelvica/features/financial/domain/entities/financia
 import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_report_month_cubit.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 
 class MonthlyReportTab extends StatelessWidget {
@@ -110,97 +109,9 @@ class _MonthlyReportView extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            if (inMonth.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(
-                  t.noPaymentsThisMonth,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: context.colors.textSecondary),
-                ),
-              )
-            else
-              for (final entry in inMonth) _MonthlyReportEntryTile(entry),
           ],
         );
       },
-    );
-  }
-}
-
-class _MonthlyReportEntryTile extends StatelessWidget {
-  const _MonthlyReportEntryTile(this.entry);
-
-  final FinancialEntry entry;
-
-  Future<void> _delete(BuildContext context) async {
-    final t = FinancialStrings(context.read<LocaleCubit>().state);
-    final confirmed = await AppConfirmSheet.show(
-      context,
-      title: t.deletePaymentTitle,
-      description: t.deletePaymentDescription,
-      confirmLabel: t.deleteLabel,
-      isDestructive: true,
-    );
-    if (!confirmed || !context.mounted) return;
-    await context.read<FinancialCubit>().deleteEntry(entry.id);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = FinancialStrings(context.watch<LocaleCubit>().state);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.patientName,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  AppDateField.format(entry.date),
-                  style: TextStyle(
-                    color: context.colors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  entry.status.label(t.language),
-                  style: TextStyle(
-                    color: entry.status == PaymentStatus.paid
-                        ? context.colors.success
-                        : context.colors.primaryButton,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            'R\$ ${entry.amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: context.colors.primary,
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.delete_outline, color: context.colors.error),
-            tooltip: t.deletePaymentTooltip,
-            onPressed: () => _delete(context),
-          ),
-        ],
-      ),
     );
   }
 }

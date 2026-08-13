@@ -16,4 +16,6 @@ abstract class PatientRepository {
   Future<Result<void>> addEvolution(EvolutionEntry entry);
 
   Future<Result<void>> updateEvolution(EvolutionEntry entry);
+
+  Future<Result<void>> deleteEvolution(String id);
 }

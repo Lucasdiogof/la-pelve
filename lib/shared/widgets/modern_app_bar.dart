@@ -8,6 +8,7 @@ class ModernAppBar extends StatelessWidget {
     this.subtitle,
     this.actionIcon,
     this.onAction,
+    this.trailing,
     this.showBackButton = false,
     this.onBack,
   });
@@ -16,6 +17,7 @@ class ModernAppBar extends StatelessWidget {
   final String? subtitle;
   final IconData? actionIcon;
   final VoidCallback? onAction;
+  final Widget? trailing;
   final bool showBackButton;
   final VoidCallback? onBack;
 
@@ -98,6 +100,7 @@ class ModernAppBar extends StatelessWidget {
                   ),
                 ),
               ),
+            ?trailing,
           ],
         ),
       ),

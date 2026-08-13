@@ -209,16 +209,6 @@ class AgendaStrings {
     AppLanguage.english => 'Appointments this month',
   };
 
-  String get noAppointmentsInMonth => switch (language) {
-    AppLanguage.portuguese => 'Nenhum agendamento neste mês.',
-    AppLanguage.english => 'No appointments this month.',
-  };
-
-  String appointmentDateTime(String date, String time) => switch (language) {
-    AppLanguage.portuguese => '$date às $time',
-    AppLanguage.english => '$date at $time',
-  };
-
   String get statusPickerTitle => switch (language) {
     AppLanguage.portuguese => 'Status do agendamento',
     AppLanguage.english => 'Appointment status',

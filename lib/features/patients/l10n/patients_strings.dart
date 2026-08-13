@@ -256,6 +256,23 @@ class PatientsStrings {
     AppLanguage.english => 'Tap "New evolution" to get started.',
   };
 
+  String get deleteEvolutionTitle => switch (language) {
+    AppLanguage.portuguese => 'Excluir evolução',
+    AppLanguage.english => 'Delete evolution',
+  };
+
+  String get deleteEvolutionDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'Tem certeza que deseja excluir esta evolução? Essa ação não pode ser desfeita.',
+    AppLanguage.english =>
+      "Are you sure you want to delete this evolution entry? This can't be undone.",
+  };
+
+  String get deleteEvolutionTooltip => switch (language) {
+    AppLanguage.portuguese => 'Excluir evolução',
+    AppLanguage.english => 'Delete evolution',
+  };
+
   String editedOn(String date) => switch (language) {
     AppLanguage.portuguese => 'Editado em $date',
     AppLanguage.english => 'Edited on $date',

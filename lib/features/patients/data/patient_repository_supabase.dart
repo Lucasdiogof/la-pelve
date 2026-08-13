@@ -139,4 +139,20 @@ class PatientRepositorySupabase implements PatientRepository {
       return Error(UnexpectedFailure());
     }
   }
+
+  @override
+  Future<Result<void>> deleteEvolution(String id) async {
+    try {
+      await _client.from('evolution_entries').delete().eq('id', id);
+      return const Success(null);
+    } on PostgrestException catch (e, st) {
+      debugPrint(
+        '[PatientRepositorySupabase.deleteEvolution] code=${e.code} msg=${e.message}\n$st',
+      );
+      return Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint('[PatientRepositorySupabase.deleteEvolution] $e\n$st');
+      return Error(UnexpectedFailure());
+    }
+  }
 }

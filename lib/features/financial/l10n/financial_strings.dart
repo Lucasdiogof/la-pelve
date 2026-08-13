@@ -147,11 +147,6 @@ class FinancialStrings {
     AppLanguage.english => 'Total received',
   };
 
-  String get noPaymentsThisMonth => switch (language) {
-    AppLanguage.portuguese => 'Nenhum lançamento neste mês.',
-    AppLanguage.english => 'No payments this month.',
-  };
-
   String monthName(int month) => switch (language) {
     AppLanguage.portuguese => switch (month) {
       1 => 'Janeiro',
