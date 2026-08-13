@@ -18,16 +18,16 @@ class PlanoTratamentoStep extends StatefulWidget {
 
 class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
   late final _diagnosticoController = TextEditingController(
-    text: widget.patient.planoTratamento.diagnosticoFisioterapeutico ?? '',
+    text: widget.patient.treatmentPlan.physiotherapyDiagnosis ?? '',
   );
   late final _objetivoController = TextEditingController(
-    text: widget.patient.planoTratamento.objetivoTratamento ?? '',
+    text: widget.patient.treatmentPlan.treatmentGoal ?? '',
   );
   late final _condutaController = TextEditingController(
-    text: widget.patient.planoTratamento.condutaTratamento ?? '',
+    text: widget.patient.treatmentPlan.treatmentApproach ?? '',
   );
   late final _frequenciaController = TextEditingController(
-    text: widget.patient.planoTratamento.frequenciaSugerida ?? '',
+    text: widget.patient.treatmentPlan.suggestedFrequency ?? '',
   );
 
   @override
@@ -39,10 +39,10 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
     super.dispose();
   }
 
-  void _update(PlanoTratamento Function(PlanoTratamento) update) {
+  void _update(TreatmentPlan Function(TreatmentPlan) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        planoTratamento: update(widget.patient.planoTratamento),
+        treatmentPlan: update(widget.patient.treatmentPlan),
       ),
     );
   }
@@ -58,7 +58,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
           hintText: 'Diagnóstico fisioterapêutico',
           maxLines: 4,
           onChanged: (value) =>
-              _update((p) => p.copyWith(diagnosticoFisioterapeutico: value)),
+              _update((p) => p.copyWith(physiotherapyDiagnosis: value)),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -67,7 +67,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
           hintText: 'Objetivo do tratamento',
           maxLines: 4,
           onChanged: (value) =>
-              _update((p) => p.copyWith(objetivoTratamento: value)),
+              _update((p) => p.copyWith(treatmentGoal: value)),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -76,7 +76,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
           hintText: 'Conduta / plano de tratamento',
           maxLines: 4,
           onChanged: (value) =>
-              _update((p) => p.copyWith(condutaTratamento: value)),
+              _update((p) => p.copyWith(treatmentApproach: value)),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -84,7 +84,7 @@ class _PlanoTratamentoStepState extends State<PlanoTratamentoStep> {
           icon: Icons.event_repeat_outlined,
           hintText: 'Frequência sugerida (opcional)',
           onChanged: (value) =>
-              _update((p) => p.copyWith(frequenciaSugerida: value)),
+              _update((p) => p.copyWith(suggestedFrequency: value)),
         ),
       ],
     );

@@ -7,22 +7,22 @@ void main() {
       final entry = EvolutionEntry(
         id: 'e1',
         patientId: 'p1',
-        data: DateTime(2026, 3, 5),
-        descricao: 'Paciente relatou melhora',
+        date: DateTime(2026, 3, 5),
+        description: 'Paciente relatou melhora',
         updatedAt: DateTime.utc(2026, 3, 6, 10),
       );
 
       final json = entry.toJson();
       final restored = EvolutionEntry.fromJson({
         ...json,
-        'fisioterapeuta_id': 'therapist-1',
+        'physiotherapist_id': 'therapist-1',
         'created_at': DateTime.utc(2026, 3, 5, 9).toIso8601String(),
       });
 
       expect(restored.id, entry.id);
       expect(restored.patientId, entry.patientId);
-      expect(restored.data, entry.data);
-      expect(restored.descricao, entry.descricao);
+      expect(restored.date, entry.date);
+      expect(restored.description, entry.description);
       expect(restored.updatedAt, entry.updatedAt);
       expect(restored.createdBy, 'therapist-1');
     });
@@ -31,15 +31,15 @@ void main() {
       final entry = EvolutionEntry(
         id: 'e1',
         patientId: 'p1',
-        data: DateTime.utc(2026, 3, 5),
-        descricao: 'Nota',
+        date: DateTime.utc(2026, 3, 5),
+        description: 'Nota',
         createdBy: 'therapist-1',
         createdAt: DateTime.utc(2026, 3, 5),
       );
 
       final json = entry.toJson();
 
-      expect(json.containsKey('fisioterapeuta_id'), isFalse);
+      expect(json.containsKey('physiotherapist_id'), isFalse);
       expect(json.containsKey('created_at'), isFalse);
     });
   });
@@ -49,19 +49,19 @@ void main() {
       final original = EvolutionEntry(
         id: 'e1',
         patientId: 'p1',
-        data: DateTime.utc(2026, 3, 5),
-        descricao: 'Original',
+        date: DateTime.utc(2026, 3, 5),
+        description: 'Original',
         createdBy: 'therapist-1',
         createdAt: DateTime.utc(2026, 3, 5),
       );
 
-      final updated = original.copyWith(descricao: 'Editada');
+      final updated = original.copyWith(description: 'Editada');
 
       expect(updated.id, original.id);
       expect(updated.patientId, original.patientId);
       expect(updated.createdBy, original.createdBy);
       expect(updated.createdAt, original.createdAt);
-      expect(updated.descricao, 'Editada');
+      expect(updated.description, 'Editada');
     });
   });
 }

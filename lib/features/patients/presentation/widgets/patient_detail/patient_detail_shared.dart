@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/gestacao.dart';
+import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
@@ -98,12 +98,12 @@ class InfoRow extends StatelessWidget {
 
 class EncerramentoBanner extends StatelessWidget {
   const EncerramentoBanner({
-    required this.encerramento,
+    required this.discharge,
     required this.onReabrir,
     super.key,
   });
 
-  final Encerramento encerramento;
+  final Discharge discharge;
   final VoidCallback onReabrir;
 
   @override
@@ -124,17 +124,17 @@ class EncerramentoBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tratamento encerrado em ${AppDateField.format(encerramento.data)}',
+                  'Tratamento encerrado em ${AppDateField.format(discharge.date)}',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Motivo: ${encerramento.motivo.label}',
+                  'Motivo: ${discharge.reason.label}',
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
-                if ((encerramento.observacaoFinal ?? '').isNotEmpty) ...[
+                if ((discharge.finalNote ?? '').isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
-                    encerramento.observacaoFinal!,
+                    discharge.finalNote!,
                     style: TextStyle(color: context.colors.textSecondary),
                   ),
                 ],
@@ -149,10 +149,10 @@ class EncerramentoBanner extends StatelessWidget {
 }
 
 class GestacaoCard extends StatelessWidget {
-  const GestacaoCard({required this.index, required this.gestacao, super.key});
+  const GestacaoCard({required this.index, required this.pregnancy, super.key});
 
   final int index;
-  final Gestacao gestacao;
+  final Pregnancy pregnancy;
 
   @override
   Widget build(BuildContext context) {
@@ -177,46 +177,46 @@ class GestacaoCard extends StatelessWidget {
           const SizedBox(height: 8),
           InfoRow(
             'Perda gestacional',
-            PatientDetailFormat.yesNo(gestacao.perdaGestacional),
+            PatientDetailFormat.yesNo(pregnancy.pregnancyLoss),
           ),
-          if (gestacao.perdaGestacional == true)
+          if (pregnancy.pregnancyLoss == true)
             InfoRow(
               'Detalhe da perda',
-              PatientDetailFormat.text(gestacao.descricaoPerda),
+              PatientDetailFormat.text(pregnancy.lossDescription),
             )
-          else if (gestacao.perdaGestacional == false) ...[
+          else if (pregnancy.pregnancyLoss == false) ...[
             InfoRow(
               'Via de parto',
               PatientDetailFormat.enumValue(
-                gestacao.viaDeParto,
+                pregnancy.deliveryMethod,
                 (v) => v.label,
               ),
             ),
-            if (gestacao.viaDeParto == ViaDeParto.normal)
+            if (pregnancy.deliveryMethod == DeliveryMethod.vaginal)
               InfoRow(
                 'Complicação no parto',
                 PatientDetailFormat.enumValue(
-                  gestacao.complicacaoParto,
+                  pregnancy.deliveryComplication,
                   (v) => v.label,
                 ),
               ),
-            if (gestacao.viaDeParto == ViaDeParto.normal)
+            if (pregnancy.deliveryMethod == DeliveryMethod.vaginal)
               InfoRow(
                 'Uso de fórceps ou vácuo',
-                PatientDetailFormat.yesNo(gestacao.usoForcepsOuVacuo),
+                PatientDetailFormat.yesNo(pregnancy.forcepsOrVacuumUse),
               ),
             InfoRow(
               'Peso aproximado do bebê',
-              PatientDetailFormat.text(gestacao.pesoAproximadoBebe),
+              PatientDetailFormat.text(pregnancy.approximateBabyWeight),
             ),
             InfoRow(
               'Teve complicações',
-              PatientDetailFormat.yesNo(gestacao.teveComplicacoes),
+              PatientDetailFormat.yesNo(pregnancy.hadComplications),
             ),
-            if (gestacao.teveComplicacoes == true)
+            if (pregnancy.hadComplications == true)
               InfoRow(
                 'Detalhe das complicações',
-                PatientDetailFormat.text(gestacao.descricaoComplicacao),
+                PatientDetailFormat.text(pregnancy.complicationDescription),
               ),
           ],
         ],

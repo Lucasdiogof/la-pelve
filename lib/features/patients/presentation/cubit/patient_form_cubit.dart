@@ -7,32 +7,32 @@ import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
 import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 
 enum PatientFormStep {
-  dadosPessoais,
-  anamnese,
-  historicoGinecologico,
-  historicoObstetrico,
-  historicoCirurgico,
-  funcaoUrinaria,
-  funcaoSexual,
-  funcaoIntestinal,
-  planoTratamento,
-  fichaAvaliacao,
-  valorConsulta,
+  personalInfo,
+  medicalHistory,
+  gynecologicalHistory,
+  obstetricHistory,
+  surgicalHistory,
+  urinaryFunction,
+  sexualFunction,
+  bowelFunction,
+  treatmentPlan,
+  assessmentForm,
+  consultationFee,
 }
 
 extension PatientFormStepTitle on PatientFormStep {
   String get title => switch (this) {
-    PatientFormStep.dadosPessoais => 'Dados pessoais',
-    PatientFormStep.anamnese => 'Anamnese',
-    PatientFormStep.historicoGinecologico => 'Histórico ginecológico',
-    PatientFormStep.historicoObstetrico => 'Histórico obstétrico',
-    PatientFormStep.historicoCirurgico => 'Histórico cirúrgico',
-    PatientFormStep.funcaoUrinaria => 'Função urinária',
-    PatientFormStep.funcaoSexual => 'Função sexual',
-    PatientFormStep.funcaoIntestinal => 'Função intestinal',
-    PatientFormStep.planoTratamento => 'Plano de tratamento',
-    PatientFormStep.fichaAvaliacao => 'Ficha de avaliação física',
-    PatientFormStep.valorConsulta => 'Valor da consulta',
+    PatientFormStep.personalInfo => 'Dados pessoais',
+    PatientFormStep.medicalHistory => 'Anamnese',
+    PatientFormStep.gynecologicalHistory => 'Histórico ginecológico',
+    PatientFormStep.obstetricHistory => 'Histórico obstétrico',
+    PatientFormStep.surgicalHistory => 'Histórico cirúrgico',
+    PatientFormStep.urinaryFunction => 'Função urinária',
+    PatientFormStep.sexualFunction => 'Função sexual',
+    PatientFormStep.bowelFunction => 'Função intestinal',
+    PatientFormStep.treatmentPlan => 'Plano de tratamento',
+    PatientFormStep.assessmentForm => 'Ficha de avaliação física',
+    PatientFormStep.consultationFee => 'Valor da consulta',
   };
 }
 
@@ -50,19 +50,19 @@ class PatientFormCubit extends Cubit<PatientFormState> {
   final bool isEditing;
 
   List<PatientFormStep> get _visibleSteps {
-    final isFeminino = state.patient.dadosPessoais.sexo == Sexo.feminino;
+    final isFemale = state.patient.personalInfo.gender == Gender.female;
     return [
-      PatientFormStep.dadosPessoais,
-      PatientFormStep.anamnese,
-      if (isFeminino) PatientFormStep.historicoGinecologico,
-      if (isFeminino) PatientFormStep.historicoObstetrico,
-      PatientFormStep.historicoCirurgico,
-      PatientFormStep.funcaoUrinaria,
-      PatientFormStep.funcaoSexual,
-      PatientFormStep.funcaoIntestinal,
-      PatientFormStep.planoTratamento,
-      PatientFormStep.fichaAvaliacao,
-      PatientFormStep.valorConsulta,
+      PatientFormStep.personalInfo,
+      PatientFormStep.medicalHistory,
+      if (isFemale) PatientFormStep.gynecologicalHistory,
+      if (isFemale) PatientFormStep.obstetricHistory,
+      PatientFormStep.surgicalHistory,
+      PatientFormStep.urinaryFunction,
+      PatientFormStep.sexualFunction,
+      PatientFormStep.bowelFunction,
+      PatientFormStep.treatmentPlan,
+      PatientFormStep.assessmentForm,
+      PatientFormStep.consultationFee,
     ];
   }
 
@@ -74,13 +74,13 @@ class PatientFormCubit extends Cubit<PatientFormState> {
 
   void updatePatient(Patient patient) => emit(state.copyWith(patient: patient));
 
-  void addFichaAvaliacao(PickedAttachmentFile file) {
-    emit(state.copyWith(fichasAvaliacao: [...state.fichasAvaliacao, file]));
+  void addAssessmentFile(PickedAttachmentFile file) {
+    emit(state.copyWith(assessmentFiles: [...state.assessmentFiles, file]));
   }
 
-  void removeFichaAvaliacao(int index) {
-    final files = [...state.fichasAvaliacao]..removeAt(index);
-    emit(state.copyWith(fichasAvaliacao: files));
+  void removeAssessmentFile(int index) {
+    final files = [...state.assessmentFiles]..removeAt(index);
+    emit(state.copyWith(assessmentFiles: files));
   }
 
   void nextStep() {
@@ -96,17 +96,17 @@ class PatientFormCubit extends Cubit<PatientFormState> {
 
   bool get isLastStep => state.stepIndex == stepCount - 1;
 
-  bool get _dadosPessoaisValid {
-    final dados = state.patient.dadosPessoais;
-    return dados.nome.trim().length > 2 &&
-        dados.sexo != null &&
-        isValidPhone(dados.telefone);
+  bool get _personalInfoValid {
+    final personalInfo = state.patient.personalInfo;
+    return personalInfo.name.trim().length > 2 &&
+        personalInfo.gender != null &&
+        isValidPhone(personalInfo.phone);
   }
 
   bool get canProceed {
-    if (currentStep != PatientFormStep.dadosPessoais) return true;
-    return _dadosPessoaisValid;
+    if (currentStep != PatientFormStep.personalInfo) return true;
+    return _personalInfoValid;
   }
 
-  bool get canSave => isEditing && _dadosPessoaisValid;
+  bool get canSave => isEditing && _personalInfoValid;
 }

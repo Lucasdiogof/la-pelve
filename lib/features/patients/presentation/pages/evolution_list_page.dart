@@ -67,7 +67,7 @@ class EvolutionListPage extends StatelessWidget {
                         );
                       }
                       final sorted = [...entries]
-                        ..sort((a, b) => b.data.compareTo(a.data));
+                        ..sort((a, b) => b.date.compareTo(a.date));
                       return ListView.separated(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
                         itemCount: sorted.length,
@@ -92,14 +92,14 @@ class EvolutionListPage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppDateField.format(entry.data),
+                                      AppDateField.format(entry.date),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         color: context.colors.primary,
                                       ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(entry.descricao),
+                                    Text(entry.description),
                                     if (entry.updatedAt != null) ...[
                                       const SizedBox(height: 6),
                                       Text(

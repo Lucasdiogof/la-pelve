@@ -1,165 +1,165 @@
-enum Sexo { feminino, masculino }
+enum Gender { female, male }
 
-extension SexoLabel on Sexo {
+extension GenderLabel on Gender {
   String get label => switch (this) {
-    Sexo.feminino => 'Feminino',
-    Sexo.masculino => 'Masculino',
+    Gender.female => 'Feminino',
+    Gender.male => 'Masculino',
   };
 }
 
-enum MetodoContraceptivo { pilula, injecao, diu, implanon, camisinha, nenhum }
+enum ContraceptiveMethod { pill, injection, iud, implant, condom, none }
 
-extension MetodoContraceptivoLabel on MetodoContraceptivo {
+extension ContraceptiveMethodLabel on ContraceptiveMethod {
   String get label => switch (this) {
-    MetodoContraceptivo.pilula => 'Pílula',
-    MetodoContraceptivo.injecao => 'Injeção',
-    MetodoContraceptivo.diu => 'DIU',
-    MetodoContraceptivo.implanon => 'Implanon',
-    MetodoContraceptivo.camisinha => 'Camisinha',
-    MetodoContraceptivo.nenhum => 'Nenhum',
+    ContraceptiveMethod.pill => 'Pílula',
+    ContraceptiveMethod.injection => 'Injeção',
+    ContraceptiveMethod.iud => 'DIU',
+    ContraceptiveMethod.implant => 'Implanon',
+    ContraceptiveMethod.condom => 'Camisinha',
+    ContraceptiveMethod.none => 'Nenhum',
   };
 }
 
-enum ViaDeParto { normal, cesarea }
+enum DeliveryMethod { vaginal, cesarean }
 
-extension ViaDePartoLabel on ViaDeParto {
+extension DeliveryMethodLabel on DeliveryMethod {
   String get label => switch (this) {
-    ViaDeParto.normal => 'Normal',
-    ViaDeParto.cesarea => 'Cesárea',
+    DeliveryMethod.vaginal => 'Normal',
+    DeliveryMethod.cesarean => 'Cesárea',
   };
 }
 
-enum MotivoEncerramento { alta, abandono, encaminhamento, outro }
+enum DischargeReason { completed, dropOut, referred, other }
 
-extension MotivoEncerramentoLabel on MotivoEncerramento {
+extension DischargeReasonLabel on DischargeReason {
   String get label => switch (this) {
-    MotivoEncerramento.alta => 'Alta',
-    MotivoEncerramento.abandono => 'Abandono',
-    MotivoEncerramento.encaminhamento => 'Encaminhamento',
-    MotivoEncerramento.outro => 'Outro',
+    DischargeReason.completed => 'Alta',
+    DischargeReason.dropOut => 'Abandono',
+    DischargeReason.referred => 'Encaminhamento',
+    DischargeReason.other => 'Outro',
   };
 }
 
-enum ComplicacaoParto { nenhuma, laceracao, episiotomia }
+enum DeliveryComplication { none, laceration, episiotomy }
 
-extension ComplicacaoPartoLabel on ComplicacaoParto {
+extension DeliveryComplicationLabel on DeliveryComplication {
   String get label => switch (this) {
-    ComplicacaoParto.nenhuma => 'Nenhuma',
-    ComplicacaoParto.laceracao => 'Laceração',
-    ComplicacaoParto.episiotomia => 'Episiotomia',
+    DeliveryComplication.none => 'Nenhuma',
+    DeliveryComplication.laceration => 'Laceração',
+    DeliveryComplication.episiotomy => 'Episiotomia',
   };
 }
 
-enum CirurgiaGinecologica {
-  histerectomia,
-  laqueadura,
-  perineoplastia,
+enum GynecologicalSurgery {
+  hysterectomy,
+  tubalLigation,
+  perineoplasty,
   sling,
-  outro,
-  nenhum,
+  other,
+  none,
 }
 
-extension CirurgiaGinecologicaLabel on CirurgiaGinecologica {
+extension GynecologicalSurgeryLabel on GynecologicalSurgery {
   String get label => switch (this) {
-    CirurgiaGinecologica.histerectomia => 'Histerectomia',
-    CirurgiaGinecologica.laqueadura => 'Laqueadura',
-    CirurgiaGinecologica.perineoplastia => 'Perineoplastia',
-    CirurgiaGinecologica.sling => 'Sling',
-    CirurgiaGinecologica.outro => 'Outro',
-    CirurgiaGinecologica.nenhum => 'Nenhum',
+    GynecologicalSurgery.hysterectomy => 'Histerectomia',
+    GynecologicalSurgery.tubalLigation => 'Laqueadura',
+    GynecologicalSurgery.perineoplasty => 'Perineoplastia',
+    GynecologicalSurgery.sling => 'Sling',
+    GynecologicalSurgery.other => 'Outro',
+    GynecologicalSurgery.none => 'Nenhum',
   };
 }
 
-enum GatilhoIncontinencia {
-  tosse,
-  espirro,
-  peso,
-  agachar,
-  caminhando,
-  mudandoDePosicao,
-  outros,
+enum IncontinenceTrigger {
+  cough,
+  sneeze,
+  liftingWeight,
+  squatting,
+  walking,
+  changingPosition,
+  other,
 }
 
-extension GatilhoIncontinenciaLabel on GatilhoIncontinencia {
+extension IncontinenceTriggerLabel on IncontinenceTrigger {
   String get label => switch (this) {
-    GatilhoIncontinencia.tosse => 'Tosse',
-    GatilhoIncontinencia.espirro => 'Espirro',
-    GatilhoIncontinencia.peso => 'Peso',
-    GatilhoIncontinencia.agachar => 'Agachar',
-    GatilhoIncontinencia.caminhando => 'Caminhando',
-    GatilhoIncontinencia.mudandoDePosicao => 'Mudando de posição',
-    GatilhoIncontinencia.outros => 'Outros',
+    IncontinenceTrigger.cough => 'Tosse',
+    IncontinenceTrigger.sneeze => 'Espirro',
+    IncontinenceTrigger.liftingWeight => 'Peso',
+    IncontinenceTrigger.squatting => 'Agachar',
+    IncontinenceTrigger.walking => 'Caminhando',
+    IncontinenceTrigger.changingPosition => 'Mudando de posição',
+    IncontinenceTrigger.other => 'Outros',
   };
 }
 
-enum FrequenciaEvacuatoria {
-  umaVezAoDia,
-  algumasVezesPorSemana,
-  menosDeTresVezesPorSemana,
-  personalizado,
+enum BowelFrequency {
+  onceDaily,
+  afewTimesPerWeek,
+  fewerThanThreeTimesPerWeek,
+  custom,
 }
 
-extension FrequenciaEvacuatoriaLabel on FrequenciaEvacuatoria {
+extension BowelFrequencyLabel on BowelFrequency {
   String get label => switch (this) {
-    FrequenciaEvacuatoria.umaVezAoDia => 'Uma vez ao dia',
-    FrequenciaEvacuatoria.algumasVezesPorSemana => 'Algumas vezes por semana',
-    FrequenciaEvacuatoria.menosDeTresVezesPorSemana =>
+    BowelFrequency.onceDaily => 'Uma vez ao dia',
+    BowelFrequency.afewTimesPerWeek => 'Algumas vezes por semana',
+    BowelFrequency.fewerThanThreeTimesPerWeek =>
       'Menos de três vezes por semana',
-    FrequenciaEvacuatoria.personalizado => 'Personalizado',
+    BowelFrequency.custom => 'Personalizado',
   };
 }
 
-enum FluxoMenstrual { leve, moderado, intenso }
+enum MenstrualFlow { light, moderate, heavy }
 
-extension FluxoMenstrualLabel on FluxoMenstrual {
+extension MenstrualFlowLabel on MenstrualFlow {
   String get label => switch (this) {
-    FluxoMenstrual.leve => 'Leve',
-    FluxoMenstrual.moderado => 'Moderado',
-    FluxoMenstrual.intenso => 'Intenso',
+    MenstrualFlow.light => 'Leve',
+    MenstrualFlow.moderate => 'Moderado',
+    MenstrualFlow.heavy => 'Intenso',
   };
 }
 
-enum QuantidadePerda { gotas, pequena, moderada, grande }
+enum LeakageAmount { drops, small, moderate, large }
 
-extension QuantidadePerdaLabel on QuantidadePerda {
+extension LeakageAmountLabel on LeakageAmount {
   String get label => switch (this) {
-    QuantidadePerda.gotas => 'Gotas',
-    QuantidadePerda.pequena => 'Pequena',
-    QuantidadePerda.moderada => 'Moderada',
-    QuantidadePerda.grande => 'Grande',
+    LeakageAmount.drops => 'Gotas',
+    LeakageAmount.small => 'Pequena',
+    LeakageAmount.moderate => 'Moderada',
+    LeakageAmount.large => 'Grande',
   };
 }
 
-enum TipoDorPenetracao { superficial, profunda }
+enum PenetrationPainType { superficial, deep }
 
-extension TipoDorPenetracaoLabel on TipoDorPenetracao {
+extension PenetrationPainTypeLabel on PenetrationPainType {
   String get label => switch (this) {
-    TipoDorPenetracao.superficial => 'Superficial',
-    TipoDorPenetracao.profunda => 'Profunda',
+    PenetrationPainType.superficial => 'Superficial',
+    PenetrationPainType.deep => 'Profunda',
   };
 }
 
-enum DesejoSexual { preservado, reduzido, ausente, aumentado }
+enum SexualDesire { preserved, reduced, absent, increased }
 
-extension DesejoSexualLabel on DesejoSexual {
+extension SexualDesireLabel on SexualDesire {
   String get label => switch (this) {
-    DesejoSexual.preservado => 'Preservado',
-    DesejoSexual.reduzido => 'Reduzido',
-    DesejoSexual.ausente => 'Ausente',
-    DesejoSexual.aumentado => 'Aumentado',
+    SexualDesire.preserved => 'Preservado',
+    SexualDesire.reduced => 'Reduzido',
+    SexualDesire.absent => 'Ausente',
+    SexualDesire.increased => 'Aumentado',
   };
 }
 
-enum EscalaBristol { tipo1, tipo2, tipo3, tipo4, tipo5, tipo6, tipo7 }
+enum BristolScale { type1, type2, type3, type4, type5, type6, type7 }
 
-extension EscalaBristolLabel on EscalaBristol {
+extension BristolScaleLabel on BristolScale {
   String get label => switch (this) {
-    EscalaBristol.tipo1 => 'Tipo 1',
-    EscalaBristol.tipo2 => 'Tipo 2',
-    EscalaBristol.tipo3 => 'Tipo 3',
-    EscalaBristol.tipo4 => 'Tipo 4',
-    EscalaBristol.tipo5 => 'Tipo 5',
-    EscalaBristol.tipo6 => 'Tipo 6',
-    EscalaBristol.tipo7 => 'Tipo 7',
+    BristolScale.type1 => 'Tipo 1',
+    BristolScale.type2 => 'Tipo 2',
+    BristolScale.type3 => 'Tipo 3',
+    BristolScale.type4 => 'Tipo 4',
+    BristolScale.type5 => 'Tipo 5',
+    BristolScale.type6 => 'Tipo 6',
+    BristolScale.type7 => 'Tipo 7',
   };
 }

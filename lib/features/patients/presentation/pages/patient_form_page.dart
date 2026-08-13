@@ -49,12 +49,12 @@ class _PatientFormPageState extends State<PatientFormPage> {
     final result = _formCubit.isEditing
         ? await patientsCubit.updatePatient(state.patient)
         : await patientsCubit.addPatient(state.patient);
-    if (result case Success() when state.fichasAvaliacao.isNotEmpty) {
+    if (result case Success() when state.assessmentFiles.isNotEmpty) {
       final attachmentRepository = sl<AttachmentRepository>();
-      for (final file in state.fichasAvaliacao) {
+      for (final file in state.assessmentFiles) {
         await attachmentRepository.upload(
           patientId: state.patient.id,
-          category: AttachmentCategory.fichaAvaliacao,
+          category: AttachmentCategory.assessmentForm,
           bytes: file.bytes,
           fileName: file.fileName,
           contentType: file.contentType,
@@ -63,9 +63,16 @@ class _PatientFormPageState extends State<PatientFormPage> {
     }
     hideAppLoading();
     if (!mounted) return;
+    final isEditing = _formCubit.isEditing;
     switch (result) {
       case Success():
         context.pop();
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          description: isEditing
+              ? 'Paciente atualizado com sucesso.'
+              : 'Paciente cadastrado com sucesso.',
+        );
       case Error(:final failure):
         await AppInfoBottomSheet.showError(
           context,
@@ -109,8 +116,8 @@ class _PatientFormPageState extends State<PatientFormPage> {
               step: _formCubit.currentStep,
               state: state,
               onChanged: _formCubit.updatePatient,
-              onFichaAvaliacaoAdd: _formCubit.addFichaAvaliacao,
-              onFichaAvaliacaoRemove: _formCubit.removeFichaAvaliacao,
+              onAssessmentFileAdd: _formCubit.addAssessmentFile,
+              onAssessmentFileRemove: _formCubit.removeAssessmentFile,
             ),
           );
         },
@@ -124,62 +131,62 @@ class _StepBody extends StatelessWidget {
     required this.step,
     required this.state,
     required this.onChanged,
-    required this.onFichaAvaliacaoAdd,
-    required this.onFichaAvaliacaoRemove,
+    required this.onAssessmentFileAdd,
+    required this.onAssessmentFileRemove,
   });
 
   final PatientFormStep step;
   final PatientFormState state;
   final ValueChanged<Patient> onChanged;
-  final ValueChanged<PickedAttachmentFile> onFichaAvaliacaoAdd;
-  final ValueChanged<int> onFichaAvaliacaoRemove;
+  final ValueChanged<PickedAttachmentFile> onAssessmentFileAdd;
+  final ValueChanged<int> onAssessmentFileRemove;
 
   @override
   Widget build(BuildContext context) {
     final patient = state.patient;
     return switch (step) {
-      PatientFormStep.dadosPessoais => DadosPessoaisStep(
+      PatientFormStep.personalInfo => DadosPessoaisStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.anamnese => AnamneseStep(
+      PatientFormStep.medicalHistory => AnamneseStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.historicoGinecologico => HistoricoGinecologicoStep(
+      PatientFormStep.gynecologicalHistory => HistoricoGinecologicoStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.historicoObstetrico => HistoricoObstetricoStep(
+      PatientFormStep.obstetricHistory => HistoricoObstetricoStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.historicoCirurgico => HistoricoCirurgicoStep(
+      PatientFormStep.surgicalHistory => HistoricoCirurgicoStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.funcaoUrinaria => FuncaoUrinariaStep(
+      PatientFormStep.urinaryFunction => FuncaoUrinariaStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.funcaoSexual => FuncaoSexualStep(
+      PatientFormStep.sexualFunction => FuncaoSexualStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.funcaoIntestinal => FuncaoIntestinalStep(
+      PatientFormStep.bowelFunction => FuncaoIntestinalStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.planoTratamento => PlanoTratamentoStep(
+      PatientFormStep.treatmentPlan => PlanoTratamentoStep(
         patient: patient,
         onChanged: onChanged,
       ),
-      PatientFormStep.fichaAvaliacao => FichaAvaliacaoStep(
-        files: state.fichasAvaliacao,
-        onAdd: onFichaAvaliacaoAdd,
-        onRemove: onFichaAvaliacaoRemove,
+      PatientFormStep.assessmentForm => FichaAvaliacaoStep(
+        files: state.assessmentFiles,
+        onAdd: onAssessmentFileAdd,
+        onRemove: onAssessmentFileRemove,
       ),
-      PatientFormStep.valorConsulta => ValorConsultaStep(
+      PatientFormStep.consultationFee => ValorConsultaStep(
         patient: patient,
         onChanged: onChanged,
       ),

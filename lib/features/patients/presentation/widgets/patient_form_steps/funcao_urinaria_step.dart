@@ -38,80 +38,80 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
     super.dispose();
   }
 
-  void _update(FuncaoUrinaria Function(FuncaoUrinaria) update) {
+  void _update(UrinaryFunction Function(UrinaryFunction) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        funcaoUrinaria: update(widget.patient.funcaoUrinaria),
+        urinaryFunction: update(widget.patient.urinaryFunction),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final funcao = widget.patient.funcaoUrinaria;
+    final funcao = widget.patient.urinaryFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _YesNoWithText(
           label: 'Urgência?',
-          value: funcao.urgencia,
-          controller: _controllerFor('urgencia', funcao.descricaoUrgencia),
-          onToggle: (value) => _update((f) => f.copyWith(urgencia: value)),
+          value: funcao.urgency,
+          controller: _controllerFor('urgencia', funcao.urgencyDescription),
+          onToggle: (value) => _update((f) => f.copyWith(urgency: value)),
           onText: (value) =>
-              _update((f) => f.copyWith(descricaoUrgencia: value)),
+              _update((f) => f.copyWith(urgencyDescription: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Perda associada à urgência?',
-          value: funcao.perdaAssociadaUrgencia,
+          value: funcao.urgencyAssociatedLeakage,
           onChanged: (value) =>
-              _update((f) => f.copyWith(perdaAssociadaUrgencia: value)),
+              _update((f) => f.copyWith(urgencyAssociatedLeakage: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Incontinência de esforço?',
-          value: funcao.incontinenciaEsforco,
+          value: funcao.stressIncontinence,
           onChanged: (value) =>
-              _update((f) => f.copyWith(incontinenciaEsforco: value)),
+              _update((f) => f.copyWith(stressIncontinence: value)),
         ),
-        if (funcao.incontinenciaEsforco == true) ...[
+        if (funcao.stressIncontinence == true) ...[
           const SizedBox(height: 8),
-          AppChipSelect<GatilhoIncontinencia>(
-            options: GatilhoIncontinencia.values,
+          AppChipSelect<IncontinenceTrigger>(
+            options: IncontinenceTrigger.values,
             labelBuilder: (option) => option.label,
-            selected: funcao.gatilhosIncontinencia,
+            selected: funcao.incontinenceTriggers,
             multiSelect: true,
             onChanged: (selected) =>
-                _update((f) => f.copyWith(gatilhosIncontinencia: selected)),
+                _update((f) => f.copyWith(incontinenceTriggers: selected)),
           ),
-          if (funcao.gatilhosIncontinencia.contains(
-            GatilhoIncontinencia.outros,
+          if (funcao.incontinenceTriggers.contains(
+            IncontinenceTrigger.other,
           )) ...[
             const SizedBox(height: 8),
             AppTextField(
               controller: _controllerFor(
                 'outroGatilho',
-                funcao.descricaoOutroGatilho,
+                funcao.otherTriggerDescription,
               ),
               icon: Icons.description_outlined,
               hintText: 'Qual outro gatilho?',
               onChanged: (value) =>
-                  _update((f) => f.copyWith(descricaoOutroGatilho: value)),
+                  _update((f) => f.copyWith(otherTriggerDescription: value)),
             ),
           ],
         ],
-        if (funcao.perdaAssociadaUrgencia == true ||
-            funcao.incontinenciaEsforco == true) ...[
+        if (funcao.urgencyAssociatedLeakage == true ||
+            funcao.stressIncontinence == true) ...[
           const SizedBox(height: 12),
-          AppChipSelect<QuantidadePerda>(
-            options: QuantidadePerda.values,
+          AppChipSelect<LeakageAmount>(
+            options: LeakageAmount.values,
             labelBuilder: (option) => option.label,
-            selected: funcao.quantidadePerda == null
+            selected: funcao.leakageAmount == null
                 ? {}
-                : {funcao.quantidadePerda!},
+                : {funcao.leakageAmount!},
             onChanged: (selected) => _update(
               (f) => f.copyWith(
-                quantidadePerda: selected.isEmpty ? null : selected.first,
+                leakageAmount: selected.isEmpty ? null : selected.first,
               ),
             ),
           ),
@@ -119,16 +119,15 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Utiliza absorvente ou protetor?',
-          value: funcao.utilizaAbsorvente,
-          onChanged: (value) =>
-              _update((f) => f.copyWith(utilizaAbsorvente: value)),
+          value: funcao.usesPads,
+          onChanged: (value) => _update((f) => f.copyWith(usesPads: value)),
         ),
-        if (funcao.utilizaAbsorvente == true) ...[
+        if (funcao.usesPads == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _controllerFor(
               'quantosAbsorventes',
-              funcao.quantosAbsorventes?.toString(),
+              funcao.padsPerDay?.toString(),
             ),
             icon: Icons.numbers_outlined,
             hintText: 'Quantos por dia?',
@@ -137,83 +136,81 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(2),
             ],
-            onChanged: (value) => _update(
-              (f) => f.copyWith(quantosAbsorventes: int.tryParse(value)),
-            ),
+            onChanged: (value) =>
+                _update((f) => f.copyWith(padsPerDay: int.tryParse(value))),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Dor ou ardência ao urinar?',
-          value: funcao.dorArdenciaAoUrinar,
+          value: funcao.painOrBurningWhenUrinating,
           onChanged: (value) =>
-              _update((f) => f.copyWith(dorArdenciaAoUrinar: value)),
+              _update((f) => f.copyWith(painOrBurningWhenUrinating: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Jato urinário fraco?',
-          value: funcao.jatoUrinarioFraco,
+          value: funcao.weakUrinaryStream,
           onChanged: (value) =>
-              _update((f) => f.copyWith(jatoUrinarioFraco: value)),
+              _update((f) => f.copyWith(weakUrinaryStream: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
           label: 'Enurese noturna?',
-          value: funcao.enureseNoturna,
-          controller: _controllerFor('enurese', funcao.descricaoEnurese),
+          value: funcao.nocturnalEnuresis,
+          controller: _controllerFor('enurese', funcao.enuresisDescription),
           onToggle: (value) =>
-              _update((f) => f.copyWith(enureseNoturna: value)),
+              _update((f) => f.copyWith(nocturnalEnuresis: value)),
           onText: (value) =>
-              _update((f) => f.copyWith(descricaoEnurese: value)),
+              _update((f) => f.copyWith(enuresisDescription: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
           label: 'Hesitação?',
-          value: funcao.hesitacao,
-          controller: _controllerFor('hesitacao', funcao.descricaoHesitacao),
-          onToggle: (value) => _update((f) => f.copyWith(hesitacao: value)),
+          value: funcao.hesitancy,
+          controller: _controllerFor('hesitacao', funcao.hesitancyDescription),
+          onToggle: (value) => _update((f) => f.copyWith(hesitancy: value)),
           onText: (value) =>
-              _update((f) => f.copyWith(descricaoHesitacao: value)),
+              _update((f) => f.copyWith(hesitancyDescription: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
           label: 'Esforço miccional?',
-          value: funcao.esforcoMiccional,
+          value: funcao.urinaryStraining,
           controller: _controllerFor(
             'esforco',
-            funcao.descricaoEsforcoMiccional,
+            funcao.urinaryStrainingDescription,
           ),
           onToggle: (value) =>
-              _update((f) => f.copyWith(esforcoMiccional: value)),
+              _update((f) => f.copyWith(urinaryStraining: value)),
           onText: (value) =>
-              _update((f) => f.copyWith(descricaoEsforcoMiccional: value)),
+              _update((f) => f.copyWith(urinaryStrainingDescription: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
           label: 'Gotejamento pós miccional?',
-          value: funcao.gotejamentoPosMiccional,
+          value: funcao.postVoidDribbling,
           controller: _controllerFor(
             'gotejamento',
-            funcao.descricaoGotejamento,
+            funcao.dribblingDescription,
           ),
           onToggle: (value) =>
-              _update((f) => f.copyWith(gotejamentoPosMiccional: value)),
+              _update((f) => f.copyWith(postVoidDribbling: value)),
           onText: (value) =>
-              _update((f) => f.copyWith(descricaoGotejamento: value)),
+              _update((f) => f.copyWith(dribblingDescription: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
           label: 'Esvaziamento incompleto?',
-          value: funcao.esvaziamentoIncompleto,
+          value: funcao.incompleteEmptying,
           controller: _controllerFor(
             'esvaziamento',
-            funcao.descricaoEsvaziamentoIncompleto,
+            funcao.incompleteEmptyingDescription,
           ),
           onToggle: (value) =>
-              _update((f) => f.copyWith(esvaziamentoIncompleto: value)),
-          onText: (value) => _update(
-            (f) => f.copyWith(descricaoEsvaziamentoIncompleto: value),
-          ),
+              _update((f) => f.copyWith(incompleteEmptying: value)),
+          onText: (value) =>
+              _update((f) => f.copyWith(incompleteEmptyingDescription: value)),
         ),
       ],
     );

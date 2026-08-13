@@ -23,10 +23,10 @@ class FuncaoSexualStep extends StatefulWidget {
 
 class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
   late final _dificuldadeController = TextEditingController(
-    text: widget.patient.funcaoSexual.descricaoDificuldadeOrgasmo ?? '',
+    text: widget.patient.sexualFunction.orgasmDifficultyDescription ?? '',
   );
   late final _frequenciaController = TextEditingController(
-    text: widget.patient.funcaoSexual.frequenciaAtividadeSexual ?? '',
+    text: widget.patient.sexualFunction.sexualActivityFrequency ?? '',
   );
 
   @override
@@ -36,64 +36,63 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
     super.dispose();
   }
 
-  void _update(FuncaoSexual Function(FuncaoSexual) update) {
+  void _update(SexualFunction Function(SexualFunction) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        funcaoSexual: update(widget.patient.funcaoSexual),
+        sexualFunction: update(widget.patient.sexualFunction),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final funcao = widget.patient.funcaoSexual;
+    final funcao = widget.patient.sexualFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppYesNoToggle(
           label: 'Vida sexual ativa?',
-          value: funcao.vidaSexualAtiva,
+          value: funcao.sexuallyActive,
           onChanged: (value) =>
-              _update((f) => f.copyWith(vidaSexualAtiva: value)),
+              _update((f) => f.copyWith(sexuallyActive: value)),
         ),
-        if (funcao.vidaSexualAtiva == true) ...[
+        if (funcao.sexuallyActive == true) ...[
           const SizedBox(height: 12),
           AppTextField(
             controller: _frequenciaController,
             icon: Icons.calendar_today_outlined,
             hintText: 'Frequência de atividade sexual',
             onChanged: (value) =>
-                _update((f) => f.copyWith(frequenciaAtividadeSexual: value)),
+                _update((f) => f.copyWith(sexualActivityFrequency: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Precisa usar lubrificante?',
-            value: funcao.precisaLubrificante,
+            value: funcao.needsLubricant,
             onChanged: (value) =>
-                _update((f) => f.copyWith(precisaLubrificante: value)),
+                _update((f) => f.copyWith(needsLubricant: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Sensação de ressecamento?',
-            value: funcao.ressecamento,
-            onChanged: (value) =>
-                _update((f) => f.copyWith(ressecamento: value)),
+            value: funcao.dryness,
+            onChanged: (value) => _update((f) => f.copyWith(dryness: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Dificuldade para atingir o orgasmo?',
-            value: funcao.dificuldadeOrgasmo,
+            value: funcao.orgasmDifficulty,
             onChanged: (value) =>
-                _update((f) => f.copyWith(dificuldadeOrgasmo: value)),
+                _update((f) => f.copyWith(orgasmDifficulty: value)),
           ),
-          if (funcao.dificuldadeOrgasmo == true) ...[
+          if (funcao.orgasmDifficulty == true) ...[
             const SizedBox(height: 8),
             AppTextField(
               controller: _dificuldadeController,
               icon: Icons.description_outlined,
               hintText: 'Detalhe',
               onChanged: (value) => _update(
-                (f) => f.copyWith(descricaoDificuldadeOrgasmo: value),
+                (f) => f.copyWith(orgasmDifficultyDescription: value),
               ),
             ),
           ],
@@ -110,21 +109,21 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Dor na penetração?',
-            value: funcao.dorNaPenetracao,
+            value: funcao.painDuringPenetration,
             onChanged: (value) =>
-                _update((f) => f.copyWith(dorNaPenetracao: value)),
+                _update((f) => f.copyWith(painDuringPenetration: value)),
           ),
-          if (funcao.dorNaPenetracao == true) ...[
+          if (funcao.painDuringPenetration == true) ...[
             const SizedBox(height: 8),
-            AppChipSelect<TipoDorPenetracao>(
-              options: TipoDorPenetracao.values,
+            AppChipSelect<PenetrationPainType>(
+              options: PenetrationPainType.values,
               labelBuilder: (option) => option.label,
-              selected: funcao.tipoDorPenetracao == null
+              selected: funcao.penetrationPainType == null
                   ? {}
-                  : {funcao.tipoDorPenetracao!},
+                  : {funcao.penetrationPainType!},
               onChanged: (selected) => _update(
                 (f) => f.copyWith(
-                  tipoDorPenetracao: selected.isEmpty ? null : selected.first,
+                  penetrationPainType: selected.isEmpty ? null : selected.first,
                 ),
               ),
             ),
@@ -132,18 +131,18 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Dor durante ou depois da relação?',
-            value: funcao.dorDuranteOuDepoisRelacao,
+            value: funcao.painDuringOrAfterIntercourse,
             onChanged: (value) =>
-                _update((f) => f.copyWith(dorDuranteOuDepoisRelacao: value)),
+                _update((f) => f.copyWith(painDuringOrAfterIntercourse: value)),
           ),
-          if (funcao.dorNaPenetracao == true ||
-              funcao.dorDuranteOuDepoisRelacao == true) ...[
+          if (funcao.painDuringPenetration == true ||
+              funcao.painDuringOrAfterIntercourse == true) ...[
             const SizedBox(height: 12),
             AppScaleField(
               label: 'Intensidade da dor',
-              value: funcao.intensidadeDor0a10,
+              value: funcao.painIntensity0to10,
               onChanged: (value) =>
-                  _update((f) => f.copyWith(intensidadeDor0a10: value)),
+                  _update((f) => f.copyWith(painIntensity0to10: value)),
             ),
           ],
           const SizedBox(height: 20),
@@ -157,13 +156,13 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
             ),
           ),
           const SizedBox(height: 12),
-          AppChipSelect<DesejoSexual>(
-            options: DesejoSexual.values,
+          AppChipSelect<SexualDesire>(
+            options: SexualDesire.values,
             labelBuilder: (option) => option.label,
-            selected: funcao.desejoSexual == null ? {} : {funcao.desejoSexual!},
+            selected: funcao.sexualDesire == null ? {} : {funcao.sexualDesire!},
             onChanged: (selected) => _update(
               (f) => f.copyWith(
-                desejoSexual: selected.isEmpty ? null : selected.first,
+                sexualDesire: selected.isEmpty ? null : selected.first,
               ),
             ),
           ),

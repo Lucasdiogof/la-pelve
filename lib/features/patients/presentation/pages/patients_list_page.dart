@@ -38,8 +38,8 @@ class PatientsListPage extends StatelessWidget {
                   );
                 }
                 final sorted = [
-                  ...patients.where((p) => p.encerramento == null),
-                  ...patients.where((p) => p.encerramento != null),
+                  ...patients.where((p) => p.discharge == null),
+                  ...patients.where((p) => p.discharge != null),
                 ];
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
@@ -79,9 +79,9 @@ class _PatientTile extends StatelessWidget {
               CircleAvatar(
                 backgroundColor: context.colors.primary.withValues(alpha: 0.15),
                 child: Text(
-                  patient.dadosPessoais.nome.isEmpty
+                  patient.personalInfo.name.isEmpty
                       ? '?'
-                      : patient.dadosPessoais.nome[0].toUpperCase(),
+                      : patient.personalInfo.name[0].toUpperCase(),
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w700,
@@ -97,14 +97,14 @@ class _PatientTile extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            patient.dadosPessoais.nome.isEmpty
+                            patient.personalInfo.name.isEmpty
                                 ? 'Sem nome'
-                                : patient.dadosPessoais.nome,
+                                : patient.personalInfo.name,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
-                        if (patient.encerramento != null) ...[
+                        if (patient.discharge != null) ...[
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -118,7 +118,7 @@ class _PatientTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Text(
-                              patient.encerramento!.motivo.label,
+                              patient.discharge!.reason.label,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -129,9 +129,9 @@ class _PatientTile extends StatelessWidget {
                         ],
                       ],
                     ),
-                    if (patient.dadosPessoais.telefone.isNotEmpty)
+                    if (patient.personalInfo.phone.isNotEmpty)
                       Text(
-                        patient.dadosPessoais.telefone,
+                        patient.personalInfo.phone,
                         style: TextStyle(
                           color: context.colors.textSecondary,
                           fontSize: 13,

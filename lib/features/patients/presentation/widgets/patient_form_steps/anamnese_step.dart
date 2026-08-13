@@ -20,25 +20,25 @@ class AnamneseStep extends StatefulWidget {
 
 class _AnamneseStepState extends State<AnamneseStep> {
   late final _queixaController = TextEditingController(
-    text: widget.patient.anamnese.queixaPrincipal,
+    text: widget.patient.medicalHistory.chiefComplaint,
   );
   late final _diagnosticoController = TextEditingController(
-    text: widget.patient.anamnese.diagnosticoMedico ?? '',
+    text: widget.patient.medicalHistory.medicalDiagnosis ?? '',
   );
   late final _inicioSintomasController = TextEditingController(
-    text: widget.patient.anamnese.inicioSintomas,
+    text: widget.patient.medicalHistory.symptomsOnset,
   );
   late final _tratamentoController = TextEditingController(
-    text: widget.patient.anamnese.descricaoTratamento ?? '',
+    text: widget.patient.medicalHistory.treatmentDescription ?? '',
   );
   late final _doencasController = TextEditingController(
-    text: widget.patient.anamnese.descricaoDoencasCronicas ?? '',
+    text: widget.patient.medicalHistory.chronicDiseasesDescription ?? '',
   );
   late final _medicamentosController = TextEditingController(
-    text: widget.patient.anamnese.descricaoMedicamentos ?? '',
+    text: widget.patient.medicalHistory.medicationsDescription ?? '',
   );
   late final _examesImagemController = TextEditingController(
-    text: widget.patient.anamnese.examesImagem ?? '',
+    text: widget.patient.medicalHistory.imagingExams ?? '',
   );
 
   @override
@@ -53,15 +53,17 @@ class _AnamneseStepState extends State<AnamneseStep> {
     super.dispose();
   }
 
-  void _update(Anamnese Function(Anamnese) update) {
+  void _update(MedicalHistory Function(MedicalHistory) update) {
     widget.onChanged(
-      widget.patient.copyWith(anamnese: update(widget.patient.anamnese)),
+      widget.patient.copyWith(
+        medicalHistory: update(widget.patient.medicalHistory),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final anamnese = widget.patient.anamnese;
+    final medicalHistory = widget.patient.medicalHistory;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -71,23 +73,23 @@ class _AnamneseStepState extends State<AnamneseStep> {
           hintText: 'Queixa principal',
           maxLines: 3,
           onChanged: (value) =>
-              _update((a) => a.copyWith(queixaPrincipal: value)),
+              _update((a) => a.copyWith(chiefComplaint: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Tem diagnóstico médico?',
-          value: anamnese.temDiagnosticoMedico,
+          value: medicalHistory.hasMedicalDiagnosis,
           onChanged: (value) =>
-              _update((a) => a.copyWith(temDiagnosticoMedico: value)),
+              _update((a) => a.copyWith(hasMedicalDiagnosis: value)),
         ),
-        if (anamnese.temDiagnosticoMedico == true) ...[
+        if (medicalHistory.hasMedicalDiagnosis == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _diagnosticoController,
             icon: Icons.description_outlined,
             hintText: 'Qual diagnóstico?',
             onChanged: (value) =>
-                _update((a) => a.copyWith(diagnosticoMedico: value)),
+                _update((a) => a.copyWith(medicalDiagnosis: value)),
           ),
         ],
         const SizedBox(height: 20),
@@ -107,57 +109,57 @@ class _AnamneseStepState extends State<AnamneseStep> {
           hintText: 'Início dos sintomas',
           maxLines: 3,
           onChanged: (value) =>
-              _update((a) => a.copyWith(inicioSintomas: value)),
+              _update((a) => a.copyWith(symptomsOnset: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Já realizou algum tratamento?',
-          value: anamnese.realizouTratamento,
+          value: medicalHistory.hadPreviousTreatment,
           onChanged: (value) =>
-              _update((a) => a.copyWith(realizouTratamento: value)),
+              _update((a) => a.copyWith(hadPreviousTreatment: value)),
         ),
-        if (anamnese.realizouTratamento == true) ...[
+        if (medicalHistory.hadPreviousTreatment == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _tratamentoController,
             icon: Icons.healing_outlined,
             hintText: 'Qual tratamento?',
             onChanged: (value) =>
-                _update((a) => a.copyWith(descricaoTratamento: value)),
+                _update((a) => a.copyWith(treatmentDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Doenças crônicas?',
-          value: anamnese.doencasCronicas,
+          value: medicalHistory.hasChronicDiseases,
           onChanged: (value) =>
-              _update((a) => a.copyWith(doencasCronicas: value)),
+              _update((a) => a.copyWith(hasChronicDiseases: value)),
         ),
-        if (anamnese.doencasCronicas == true) ...[
+        if (medicalHistory.hasChronicDiseases == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _doencasController,
             icon: Icons.local_hospital_outlined,
             hintText: 'Quais doenças?',
             onChanged: (value) =>
-                _update((a) => a.copyWith(descricaoDoencasCronicas: value)),
+                _update((a) => a.copyWith(chronicDiseasesDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Uso contínuo de medicamentos?',
-          value: anamnese.usoContinuoMedicamentos,
+          value: medicalHistory.takesContinuousMedication,
           onChanged: (value) =>
-              _update((a) => a.copyWith(usoContinuoMedicamentos: value)),
+              _update((a) => a.copyWith(takesContinuousMedication: value)),
         ),
-        if (anamnese.usoContinuoMedicamentos == true) ...[
+        if (medicalHistory.takesContinuousMedication == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _medicamentosController,
             icon: Icons.medication_outlined,
             hintText: 'Quais medicamentos?',
             onChanged: (value) =>
-                _update((a) => a.copyWith(descricaoMedicamentos: value)),
+                _update((a) => a.copyWith(medicationsDescription: value)),
           ),
         ],
         const SizedBox(height: 20),
@@ -173,22 +175,22 @@ class _AnamneseStepState extends State<AnamneseStep> {
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Tabagismo?',
-          value: anamnese.tabagismo,
-          onChanged: (value) => _update((a) => a.copyWith(tabagismo: value)),
+          value: medicalHistory.smoking,
+          onChanged: (value) => _update((a) => a.copyWith(smoking: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Consome álcool?',
-          value: anamnese.consomeAlcool,
+          value: medicalHistory.consumesAlcohol,
           onChanged: (value) =>
-              _update((a) => a.copyWith(consomeAlcool: value)),
+              _update((a) => a.copyWith(consumesAlcohol: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Pratica atividade física?',
-          value: anamnese.praticaAtividadeFisica,
+          value: medicalHistory.practicesPhysicalActivity,
           onChanged: (value) =>
-              _update((a) => a.copyWith(praticaAtividadeFisica: value)),
+              _update((a) => a.copyWith(practicesPhysicalActivity: value)),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -196,7 +198,7 @@ class _AnamneseStepState extends State<AnamneseStep> {
           icon: Icons.image_outlined,
           hintText: 'Exames de imagem — resultado',
           maxLines: 3,
-          onChanged: (value) => _update((a) => a.copyWith(examesImagem: value)),
+          onChanged: (value) => _update((a) => a.copyWith(imagingExams: value)),
         ),
       ],
     );

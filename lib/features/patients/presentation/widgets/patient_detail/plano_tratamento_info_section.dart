@@ -5,7 +5,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class PlanoTratamentoInfoSection extends StatelessWidget {
   const PlanoTratamentoInfoSection(this.plano, {super.key});
 
-  final PlanoTratamento plano;
+  final TreatmentPlan plano;
 
   @override
   Widget build(BuildContext context) {
@@ -16,19 +16,19 @@ class PlanoTratamentoInfoSection extends StatelessWidget {
         const SectionTitle('Plano de tratamento'),
         InfoRow(
           'Diagnóstico fisioterapêutico',
-          PatientDetailFormat.text(p.diagnosticoFisioterapeutico),
+          PatientDetailFormat.text(p.physiotherapyDiagnosis),
         ),
         InfoRow(
           'Objetivo do tratamento',
-          PatientDetailFormat.text(p.objetivoTratamento),
+          PatientDetailFormat.text(p.treatmentGoal),
         ),
         InfoRow(
           'Conduta / plano de tratamento',
-          PatientDetailFormat.text(p.condutaTratamento),
+          PatientDetailFormat.text(p.treatmentApproach),
         ),
         InfoRow(
           'Frequência sugerida',
-          PatientDetailFormat.text(p.frequenciaSugerida),
+          PatientDetailFormat.text(p.suggestedFrequency),
         ),
       ],
     );

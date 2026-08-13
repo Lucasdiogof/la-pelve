@@ -42,16 +42,25 @@ class _PatientAttachmentsView extends StatelessWidget {
     showAppLoading();
     final result = await cubit.upload(
       category: picked.contentType == 'application/pdf'
-          ? AttachmentCategory.documento
-          : AttachmentCategory.imagem,
+          ? AttachmentCategory.document
+          : AttachmentCategory.image,
       bytes: picked.bytes,
       fileName: picked.fileName,
       contentType: picked.contentType,
     );
     hideAppLoading();
     if (!context.mounted) return;
-    if (result case Error(:final failure)) {
-      await AppInfoBottomSheet.showError(context, description: failure.message);
+    switch (result) {
+      case Success():
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          description: 'Anexo adicionado com sucesso.',
+        );
+      case Error(:final failure):
+        await AppInfoBottomSheet.showError(
+          context,
+          description: failure.message,
+        );
     }
   }
 

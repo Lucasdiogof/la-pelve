@@ -20,9 +20,9 @@ class ValorConsultaStep extends StatefulWidget {
 
 class _ValorConsultaStepState extends State<ValorConsultaStep> {
   late final _valorController = TextEditingController(
-    text: widget.patient.valorConsulta == null
+    text: widget.patient.consultationFee == null
         ? ''
-        : CurrencyInputFormatter.format(widget.patient.valorConsulta!),
+        : CurrencyInputFormatter.format(widget.patient.consultationFee!),
   );
 
   @override
@@ -50,7 +50,7 @@ class _ValorConsultaStepState extends State<ValorConsultaStep> {
           inputFormatters: [CurrencyInputFormatter()],
           onChanged: (value) => widget.onChanged(
             widget.patient.copyWith(
-              valorConsulta: CurrencyInputFormatter.parse(value),
+              consultationFee: CurrencyInputFormatter.parse(value),
             ),
           ),
         ),

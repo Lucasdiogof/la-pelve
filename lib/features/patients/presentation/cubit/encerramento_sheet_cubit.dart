@@ -4,10 +4,10 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/encerr
 
 class EncerramentoSheetCubit extends Cubit<EncerramentoSheetState> {
   EncerramentoSheetCubit()
-    : super(EncerramentoSheetState(data: DateTime.now()));
+    : super(EncerramentoSheetState(date: DateTime.now()));
 
-  void setData(DateTime data) => emit(state.copyWith(data: data));
+  void setData(DateTime date) => emit(state.copyWith(date: date));
 
-  void setMotivo(MotivoEncerramento? motivo) =>
-      emit(EncerramentoSheetState(data: state.data, motivo: motivo));
+  void setMotivo(DischargeReason? reason) =>
+      emit(EncerramentoSheetState(date: state.date, reason: reason));
 }

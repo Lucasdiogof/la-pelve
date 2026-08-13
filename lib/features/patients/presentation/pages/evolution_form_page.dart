@@ -31,7 +31,7 @@ class EvolutionFormPage extends StatefulWidget {
 
 class _EvolutionFormPageState extends State<EvolutionFormPage> {
   late final _descricaoController = TextEditingController(
-    text: widget.existingEntry?.descricao ?? '',
+    text: widget.existingEntry?.description ?? '',
   );
   late final _formCubit = EvolutionFormCubit(existing: widget.existingEntry);
 
@@ -58,16 +58,16 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
   }
 
   bool _canSave(EvolutionFormState state) =>
-      state.data != null && _descricaoController.text.trim().isNotEmpty;
+      state.date != null && _descricaoController.text.trim().isNotEmpty;
 
   Future<void> _save() async {
     _formCubit.setSaving(true);
-    final data = _formCubit.state.data;
+    final date = _formCubit.state.date;
     final result = _isEditing
         ? await sl<PatientRepository>().updateEvolution(
             widget.existingEntry!.copyWith(
-              data: data!,
-              descricao: _descricaoController.text.trim(),
+              date: date!,
+              description: _descricaoController.text.trim(),
               updatedAt: DateTime.now(),
             ),
           )
@@ -75,14 +75,20 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
             EvolutionEntry(
               id: generateId(),
               patientId: widget.patientId,
-              data: data!,
-              descricao: _descricaoController.text.trim(),
+              date: date!,
+              description: _descricaoController.text.trim(),
             ),
           );
     if (!mounted) return;
     switch (result) {
       case Success():
         context.pop();
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          description: _isEditing
+              ? 'Evolução atualizada com sucesso.'
+              : 'Evolução registrada com sucesso.',
+        );
       case Error(:final failure):
         _formCubit.setSaving(false);
         await AppInfoBottomSheet.showError(
@@ -110,7 +116,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
                   children: [
                     AppDateField(
                       hintText: 'Data',
-                      value: formState.data,
+                      value: formState.date,
                       lastDate: _today,
                       onChanged: _formCubit.setData,
                     ),

@@ -6,7 +6,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class HistoricoGinecologicoInfoSection extends StatelessWidget {
   const HistoricoGinecologicoInfoSection(this.historico, {super.key});
 
-  final HistoricoGinecologico historico;
+  final GynecologicalHistory historico;
 
   @override
   Widget build(BuildContext context) {
@@ -17,65 +17,65 @@ class HistoricoGinecologicoInfoSection extends StatelessWidget {
         const SectionTitle('Histórico ginecológico'),
         InfoRow(
           'Idade da primeira menstruação',
-          PatientDetailFormat.intValue(h.idadePrimeiraMenstruacao),
+          PatientDetailFormat.intValue(h.ageAtMenarche),
         ),
         InfoRow(
           'Fluxo menstrual',
-          PatientDetailFormat.enumValue(h.fluxoMenstrual, (v) => v.label),
+          PatientDetailFormat.enumValue(h.menstrualFlow, (v) => v.label),
         ),
         InfoRow(
           'Presença de cólica (0-10)',
-          PatientDetailFormat.intValue(h.colica0a10),
+          PatientDetailFormat.intValue(h.crampsScore0to10),
         ),
         InfoRow(
           'Menstrua atualmente',
-          PatientDetailFormat.yesNo(h.menstruaAtualmente),
+          PatientDetailFormat.yesNo(h.currentlyMenstruating),
         ),
-        if (h.menstruaAtualmente == false) ...[
+        if (h.currentlyMenstruating == false) ...[
           InfoRow(
             'Está na menopausa',
-            PatientDetailFormat.yesNo(h.estaNaMenopausa),
+            PatientDetailFormat.yesNo(h.isInMenopause),
           ),
           InfoRow(
             'Data aproximada da última menstruação',
-            PatientDetailFormat.dateValue(h.dataUltimaMenstruacaoAproximada),
+            PatientDetailFormat.dateValue(h.approximateLastMenstruationDate),
           ),
         ],
-        InfoRow('Ciclo regular', PatientDetailFormat.yesNo(h.cicloRegular)),
-        InfoRow('Menopausa', PatientDetailFormat.yesNo(h.menopausa)),
+        InfoRow('Ciclo regular', PatientDetailFormat.yesNo(h.regularCycle)),
+        InfoRow('Menopausa', PatientDetailFormat.yesNo(h.menopause)),
         InfoRow(
           'Faz reposição hormonal',
-          PatientDetailFormat.yesNo(h.reposicaoHormonal),
+          PatientDetailFormat.yesNo(h.hormoneReplacementTherapy),
         ),
-        if (h.reposicaoHormonal == true)
+        if (h.hormoneReplacementTherapy == true)
           InfoRow(
             'Detalhe da reposição hormonal',
-            PatientDetailFormat.text(h.descricaoReposicaoHormonal),
+            PatientDetailFormat.text(h.hormoneReplacementTherapyDescription),
           ),
         InfoRow(
           'Método contraceptivo',
-          PatientDetailFormat.enumValue(h.metodoContraceptivo, (v) => v.label),
+          PatientDetailFormat.enumValue(h.contraceptiveMethod, (v) => v.label),
         ),
         InfoRow(
           'Dor pélvica fora do período menstrual',
-          PatientDetailFormat.yesNo(h.dorPelvicaForaPeriodo),
+          PatientDetailFormat.yesNo(h.pelvicPainOutsidePeriod),
         ),
         InfoRow(
           'Sangramento fora do período menstrual',
-          PatientDetailFormat.yesNo(h.sangramentoForaPeriodo),
+          PatientDetailFormat.yesNo(h.bleedingOutsidePeriod),
         ),
-        InfoRow('Endometriose', PatientDetailFormat.yesNo(h.endometriose)),
+        InfoRow('Endometriose', PatientDetailFormat.yesNo(h.endometriosis)),
         InfoRow(
           'Síndrome dos ovários policísticos',
-          PatientDetailFormat.yesNo(h.sindromeOvariosPolicisticos),
+          PatientDetailFormat.yesNo(h.polycysticOvarySyndrome),
         ),
         InfoRow(
           'Infecções urinárias recorrentes',
-          PatientDetailFormat.yesNo(h.infeccoesUrinariasRecorrentes),
+          PatientDetailFormat.yesNo(h.recurrentUrinaryInfections),
         ),
         InfoRow(
           'Infecções vaginais recorrentes',
-          PatientDetailFormat.yesNo(h.infeccoesVaginaisRecorrentes),
+          PatientDetailFormat.yesNo(h.recurrentVaginalInfections),
         ),
       ],
     );

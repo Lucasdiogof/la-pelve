@@ -4,9 +4,9 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolut
 
 class EvolutionFormCubit extends Cubit<EvolutionFormState> {
   EvolutionFormCubit({EvolutionEntry? existing})
-    : super(EvolutionFormState(data: existing?.data));
+    : super(EvolutionFormState(date: existing?.date));
 
-  void setData(DateTime data) => emit(state.copyWith(data: data));
+  void setData(DateTime date) => emit(state.copyWith(date: date));
 
   void setSaving(bool saving) => emit(state.copyWith(saving: saving));
 

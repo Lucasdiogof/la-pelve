@@ -6,7 +6,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class FuncaoUrinariaInfoSection extends StatelessWidget {
   const FuncaoUrinariaInfoSection(this.funcao, {super.key});
 
-  final FuncaoUrinaria funcao;
+  final UrinaryFunction funcao;
 
   @override
   Widget build(BuildContext context) {
@@ -15,93 +15,96 @@ class FuncaoUrinariaInfoSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitle('Função urinária'),
-        InfoRow('Urgência', PatientDetailFormat.yesNo(f.urgencia)),
-        if (f.urgencia == true)
+        InfoRow('Urgência', PatientDetailFormat.yesNo(f.urgency)),
+        if (f.urgency == true)
           InfoRow(
             'Detalhe da urgência',
-            PatientDetailFormat.text(f.descricaoUrgencia),
+            PatientDetailFormat.text(f.urgencyDescription),
           ),
         InfoRow(
           'Perda associada à urgência',
-          PatientDetailFormat.yesNo(f.perdaAssociadaUrgencia),
+          PatientDetailFormat.yesNo(f.urgencyAssociatedLeakage),
         ),
         InfoRow(
           'Incontinência de esforço',
-          PatientDetailFormat.yesNo(f.incontinenciaEsforco),
+          PatientDetailFormat.yesNo(f.stressIncontinence),
         ),
-        if (f.incontinenciaEsforco == true) ...[
+        if (f.stressIncontinence == true) ...[
           InfoRow(
             'Gatilhos',
-            f.gatilhosIncontinencia.isEmpty
+            f.incontinenceTriggers.isEmpty
                 ? PatientDetailFormat.naoInformado
-                : f.gatilhosIncontinencia.map((g) => g.label).join(', '),
+                : f.incontinenceTriggers.map((g) => g.label).join(', '),
           ),
-          if (f.gatilhosIncontinencia.contains(GatilhoIncontinencia.outros))
+          if (f.incontinenceTriggers.contains(IncontinenceTrigger.other))
             InfoRow(
               'Qual outro gatilho',
-              PatientDetailFormat.text(f.descricaoOutroGatilho),
+              PatientDetailFormat.text(f.otherTriggerDescription),
             ),
         ],
-        if (f.perdaAssociadaUrgencia == true || f.incontinenciaEsforco == true)
+        if (f.urgencyAssociatedLeakage == true || f.stressIncontinence == true)
           InfoRow(
             'Quantidade aproximada da perda',
-            PatientDetailFormat.enumValue(f.quantidadePerda, (v) => v.label),
+            PatientDetailFormat.enumValue(f.leakageAmount, (v) => v.label),
           ),
         InfoRow(
           'Utiliza absorvente ou protetor',
-          PatientDetailFormat.yesNo(f.utilizaAbsorvente),
+          PatientDetailFormat.yesNo(f.usesPads),
         ),
-        if (f.utilizaAbsorvente == true)
+        if (f.usesPads == true)
           InfoRow(
             'Quantos por dia',
-            PatientDetailFormat.intValue(f.quantosAbsorventes),
+            PatientDetailFormat.intValue(f.padsPerDay),
           ),
         InfoRow(
           'Dor ou ardência ao urinar',
-          PatientDetailFormat.yesNo(f.dorArdenciaAoUrinar),
+          PatientDetailFormat.yesNo(f.painOrBurningWhenUrinating),
         ),
         InfoRow(
           'Jato urinário fraco',
-          PatientDetailFormat.yesNo(f.jatoUrinarioFraco),
+          PatientDetailFormat.yesNo(f.weakUrinaryStream),
         ),
-        InfoRow('Enurese noturna', PatientDetailFormat.yesNo(f.enureseNoturna)),
-        if (f.enureseNoturna == true)
+        InfoRow(
+          'Enurese noturna',
+          PatientDetailFormat.yesNo(f.nocturnalEnuresis),
+        ),
+        if (f.nocturnalEnuresis == true)
           InfoRow(
             'Detalhe da enurese',
-            PatientDetailFormat.text(f.descricaoEnurese),
+            PatientDetailFormat.text(f.enuresisDescription),
           ),
-        InfoRow('Hesitação', PatientDetailFormat.yesNo(f.hesitacao)),
-        if (f.hesitacao == true)
+        InfoRow('Hesitação', PatientDetailFormat.yesNo(f.hesitancy)),
+        if (f.hesitancy == true)
           InfoRow(
             'Detalhe da hesitação',
-            PatientDetailFormat.text(f.descricaoHesitacao),
+            PatientDetailFormat.text(f.hesitancyDescription),
           ),
         InfoRow(
           'Esforço miccional',
-          PatientDetailFormat.yesNo(f.esforcoMiccional),
+          PatientDetailFormat.yesNo(f.urinaryStraining),
         ),
-        if (f.esforcoMiccional == true)
+        if (f.urinaryStraining == true)
           InfoRow(
             'Detalhe do esforço miccional',
-            PatientDetailFormat.text(f.descricaoEsforcoMiccional),
+            PatientDetailFormat.text(f.urinaryStrainingDescription),
           ),
         InfoRow(
           'Gotejamento pós miccional',
-          PatientDetailFormat.yesNo(f.gotejamentoPosMiccional),
+          PatientDetailFormat.yesNo(f.postVoidDribbling),
         ),
-        if (f.gotejamentoPosMiccional == true)
+        if (f.postVoidDribbling == true)
           InfoRow(
             'Detalhe do gotejamento',
-            PatientDetailFormat.text(f.descricaoGotejamento),
+            PatientDetailFormat.text(f.dribblingDescription),
           ),
         InfoRow(
           'Sensação de esvaziamento incompleto',
-          PatientDetailFormat.yesNo(f.esvaziamentoIncompleto),
+          PatientDetailFormat.yesNo(f.incompleteEmptying),
         ),
-        if (f.esvaziamentoIncompleto == true)
+        if (f.incompleteEmptying == true)
           InfoRow(
             'Detalhe do esvaziamento',
-            PatientDetailFormat.text(f.descricaoEsvaziamentoIncompleto),
+            PatientDetailFormat.text(f.incompleteEmptyingDescription),
           ),
       ],
     );

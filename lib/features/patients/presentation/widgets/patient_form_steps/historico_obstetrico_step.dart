@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/gestacao.dart';
+import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
@@ -26,13 +26,13 @@ class HistoricoObstetricoStep extends StatefulWidget {
 
 class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
   late final _numeroController = TextEditingController(
-    text: widget.patient.historicoObstetrico.numeroGestacoes?.toString() ?? '',
+    text: widget.patient.obstetricHistory.pregnancyCount?.toString() ?? '',
   );
   late final _semanasController = TextEditingController(
-    text: widget.patient.historicoObstetrico.semanasGestacao?.toString() ?? '',
+    text: widget.patient.obstetricHistory.gestationWeeks?.toString() ?? '',
   );
   late final _gestacaoRiscoController = TextEditingController(
-    text: widget.patient.historicoObstetrico.descricaoGestacaoRisco ?? '',
+    text: widget.patient.obstetricHistory.highRiskPregnancyDescription ?? '',
   );
 
   @override
@@ -43,10 +43,10 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
     super.dispose();
   }
 
-  void _update(HistoricoObstetrico Function(HistoricoObstetrico) update) {
+  void _update(ObstetricHistory Function(ObstetricHistory) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        historicoObstetrico: update(widget.patient.historicoObstetrico),
+        obstetricHistory: update(widget.patient.obstetricHistory),
       ),
     );
   }
@@ -55,38 +55,39 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
     final numero = int.tryParse(value);
     _update((h) {
       if (numero == null || numero < 1) {
-        return h.copyWith(numeroGestacoes: numero, gestacoes: const []);
+        return h.copyWith(pregnancyCount: numero, pregnancies: const []);
       }
-      final gestacoes = List<Gestacao>.generate(
+      final pregnancies = List<Pregnancy>.generate(
         numero,
-        (index) =>
-            index < h.gestacoes.length ? h.gestacoes[index] : const Gestacao(),
+        (index) => index < h.pregnancies.length
+            ? h.pregnancies[index]
+            : const Pregnancy(),
       );
-      return h.copyWith(numeroGestacoes: numero, gestacoes: gestacoes);
+      return h.copyWith(pregnancyCount: numero, pregnancies: pregnancies);
     });
   }
 
-  void _updateGestacao(int index, Gestacao gestacao) {
+  void _updateGestacao(int index, Pregnancy pregnancy) {
     _update((h) {
-      final gestacoes = List<Gestacao>.from(h.gestacoes);
-      gestacoes[index] = gestacao;
-      return h.copyWith(gestacoes: gestacoes);
+      final pregnancies = List<Pregnancy>.from(h.pregnancies);
+      pregnancies[index] = pregnancy;
+      return h.copyWith(pregnancies: pregnancies);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final historico = widget.patient.historicoObstetrico;
+    final historico = widget.patient.obstetricHistory;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppYesNoToggle(
           label: 'Está gestante atualmente?',
-          value: historico.estaGestanteAtualmente,
+          value: historico.currentlyPregnant,
           onChanged: (value) =>
-              _update((h) => h.copyWith(estaGestanteAtualmente: value)),
+              _update((h) => h.copyWith(currentlyPregnant: value)),
         ),
-        if (historico.estaGestanteAtualmente == true) ...[
+        if (historico.currentlyPregnant == true) ...[
           const SizedBox(height: 16),
           Text(
             'VIA DE PARTO DESEJADO',
@@ -98,15 +99,15 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
             ),
           ),
           const SizedBox(height: 8),
-          AppChipSelect<ViaDeParto>(
-            options: ViaDeParto.values,
+          AppChipSelect<DeliveryMethod>(
+            options: DeliveryMethod.values,
             labelBuilder: (option) => option.label,
-            selected: historico.viaDePartoDesejado == null
+            selected: historico.desiredDeliveryMethod == null
                 ? {}
-                : {historico.viaDePartoDesejado!},
+                : {historico.desiredDeliveryMethod!},
             onChanged: (selected) => _update(
               (h) => h.copyWith(
-                viaDePartoDesejado: selected.isEmpty ? null : selected.first,
+                desiredDeliveryMethod: selected.isEmpty ? null : selected.first,
               ),
             ),
           ),
@@ -120,48 +121,48 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(2),
             ],
-            onChanged: (value) => _update(
-              (h) => h.copyWith(semanasGestacao: int.tryParse(value)),
-            ),
+            onChanged: (value) =>
+                _update((h) => h.copyWith(gestationWeeks: int.tryParse(value))),
           ),
           const SizedBox(height: 12),
           AppDateField(
             hintText: 'Data provável do parto',
-            value: historico.dataProvavelParto,
+            value: historico.estimatedDeliveryDate,
             onChanged: (value) =>
-                _update((h) => h.copyWith(dataProvavelParto: value)),
+                _update((h) => h.copyWith(estimatedDeliveryDate: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Gestação de risco?',
-            value: historico.gestacaoDeRisco,
+            value: historico.highRiskPregnancy,
             onChanged: (value) =>
-                _update((h) => h.copyWith(gestacaoDeRisco: value)),
+                _update((h) => h.copyWith(highRiskPregnancy: value)),
           ),
-          if (historico.gestacaoDeRisco == true) ...[
+          if (historico.highRiskPregnancy == true) ...[
             const SizedBox(height: 8),
             AppTextField(
               controller: _gestacaoRiscoController,
               icon: Icons.description_outlined,
               hintText: 'Detalhe a gestação de risco',
-              onChanged: (value) =>
-                  _update((h) => h.copyWith(descricaoGestacaoRisco: value)),
+              onChanged: (value) => _update(
+                (h) => h.copyWith(highRiskPregnancyDescription: value),
+              ),
             ),
           ],
         ],
         const SizedBox(height: 20),
         AppYesNoToggle(
           label: 'Já engravidou?',
-          value: historico.jaEngravidou,
+          value: historico.hasBeenPregnant,
           onChanged: (value) => _update(
             (h) => h.copyWith(
-              jaEngravidou: value,
-              numeroGestacoes: value == true ? h.numeroGestacoes : null,
-              gestacoes: value == true ? h.gestacoes : const [],
+              hasBeenPregnant: value,
+              pregnancyCount: value == true ? h.pregnancyCount : null,
+              pregnancies: value == true ? h.pregnancies : const [],
             ),
           ),
         ),
-        if (historico.jaEngravidou == true) ...[
+        if (historico.hasBeenPregnant == true) ...[
           const SizedBox(height: 12),
           AppTextField(
             controller: _numeroController,
@@ -174,12 +175,12 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
             ],
             onChanged: _setNumeroGestacoes,
           ),
-          for (var i = 0; i < historico.gestacoes.length; i++) ...[
+          for (var i = 0; i < historico.pregnancies.length; i++) ...[
             const SizedBox(height: 20),
             _GestacaoCard(
               index: i,
-              gestacao: historico.gestacoes[i],
-              onChanged: (gestacao) => _updateGestacao(i, gestacao),
+              pregnancy: historico.pregnancies[i],
+              onChanged: (pregnancy) => _updateGestacao(i, pregnancy),
             ),
           ],
         ],
@@ -191,13 +192,13 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
 class _GestacaoCard extends StatefulWidget {
   const _GestacaoCard({
     required this.index,
-    required this.gestacao,
+    required this.pregnancy,
     required this.onChanged,
   });
 
   final int index;
-  final Gestacao gestacao;
-  final ValueChanged<Gestacao> onChanged;
+  final Pregnancy pregnancy;
+  final ValueChanged<Pregnancy> onChanged;
 
   @override
   State<_GestacaoCard> createState() => _GestacaoCardState();
@@ -205,13 +206,13 @@ class _GestacaoCard extends StatefulWidget {
 
 class _GestacaoCardState extends State<_GestacaoCard> {
   late final _perdaController = TextEditingController(
-    text: widget.gestacao.descricaoPerda ?? '',
+    text: widget.pregnancy.lossDescription ?? '',
   );
   late final _complicacaoController = TextEditingController(
-    text: widget.gestacao.descricaoComplicacao ?? '',
+    text: widget.pregnancy.complicationDescription ?? '',
   );
   late final _pesoBebeController = TextEditingController(
-    text: widget.gestacao.pesoAproximadoBebe ?? '',
+    text: widget.pregnancy.approximateBabyWeight ?? '',
   );
 
   @override
@@ -224,7 +225,7 @@ class _GestacaoCardState extends State<_GestacaoCard> {
 
   @override
   Widget build(BuildContext context) {
-    final gestacao = widget.gestacao;
+    final pregnancy = widget.pregnancy;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -245,55 +246,57 @@ class _GestacaoCardState extends State<_GestacaoCard> {
           const SizedBox(height: 12),
           AppYesNoToggle(
             label: 'Perda gestacional?',
-            value: gestacao.perdaGestacional,
+            value: pregnancy.pregnancyLoss,
             onChanged: (value) => widget.onChanged(
-              widget.gestacao.copyWith(perdaGestacional: value),
+              widget.pregnancy.copyWith(pregnancyLoss: value),
             ),
           ),
-          if (gestacao.perdaGestacional == true) ...[
+          if (pregnancy.pregnancyLoss == true) ...[
             const SizedBox(height: 8),
             AppTextField(
               controller: _perdaController,
               icon: Icons.description_outlined,
               hintText: 'Detalhe a perda gestacional',
               onChanged: (value) => widget.onChanged(
-                widget.gestacao.copyWith(descricaoPerda: value),
+                widget.pregnancy.copyWith(lossDescription: value),
               ),
             ),
-          ] else if (gestacao.perdaGestacional == false) ...[
+          ] else if (pregnancy.pregnancyLoss == false) ...[
             const SizedBox(height: 12),
-            AppChipSelect<ViaDeParto>(
-              options: ViaDeParto.values,
+            AppChipSelect<DeliveryMethod>(
+              options: DeliveryMethod.values,
               labelBuilder: (option) => option.label,
-              selected: gestacao.viaDeParto == null
+              selected: pregnancy.deliveryMethod == null
                   ? {}
-                  : {gestacao.viaDeParto!},
+                  : {pregnancy.deliveryMethod!},
               onChanged: (selected) => widget.onChanged(
-                widget.gestacao.copyWith(
-                  viaDeParto: selected.isEmpty ? null : selected.first,
+                widget.pregnancy.copyWith(
+                  deliveryMethod: selected.isEmpty ? null : selected.first,
                 ),
               ),
             ),
-            if (gestacao.viaDeParto == ViaDeParto.normal) ...[
+            if (pregnancy.deliveryMethod == DeliveryMethod.vaginal) ...[
               const SizedBox(height: 12),
-              AppChipSelect<ComplicacaoParto>(
-                options: ComplicacaoParto.values,
+              AppChipSelect<DeliveryComplication>(
+                options: DeliveryComplication.values,
                 labelBuilder: (option) => option.label,
-                selected: gestacao.complicacaoParto == null
+                selected: pregnancy.deliveryComplication == null
                     ? {}
-                    : {gestacao.complicacaoParto!},
+                    : {pregnancy.deliveryComplication!},
                 onChanged: (selected) => widget.onChanged(
-                  widget.gestacao.copyWith(
-                    complicacaoParto: selected.isEmpty ? null : selected.first,
+                  widget.pregnancy.copyWith(
+                    deliveryComplication: selected.isEmpty
+                        ? null
+                        : selected.first,
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               AppYesNoToggle(
                 label: 'Uso de fórceps ou vácuo?',
-                value: gestacao.usoForcepsOuVacuo,
+                value: pregnancy.forcepsOrVacuumUse,
                 onChanged: (value) => widget.onChanged(
-                  widget.gestacao.copyWith(usoForcepsOuVacuo: value),
+                  widget.pregnancy.copyWith(forcepsOrVacuumUse: value),
                 ),
               ),
             ],
@@ -303,25 +306,25 @@ class _GestacaoCardState extends State<_GestacaoCard> {
               icon: Icons.monitor_weight_outlined,
               hintText: 'Peso aproximado do bebê',
               onChanged: (value) => widget.onChanged(
-                widget.gestacao.copyWith(pesoAproximadoBebe: value),
+                widget.pregnancy.copyWith(approximateBabyWeight: value),
               ),
             ),
             const SizedBox(height: 12),
             AppYesNoToggle(
               label: 'Teve complicações?',
-              value: gestacao.teveComplicacoes,
+              value: pregnancy.hadComplications,
               onChanged: (value) => widget.onChanged(
-                widget.gestacao.copyWith(teveComplicacoes: value),
+                widget.pregnancy.copyWith(hadComplications: value),
               ),
             ),
-            if (gestacao.teveComplicacoes == true) ...[
+            if (pregnancy.hadComplications == true) ...[
               const SizedBox(height: 8),
               AppTextField(
                 controller: _complicacaoController,
                 icon: Icons.description_outlined,
                 hintText: 'Detalhe as complicações',
                 onChanged: (value) => widget.onChanged(
-                  widget.gestacao.copyWith(descricaoComplicacao: value),
+                  widget.pregnancy.copyWith(complicationDescription: value),
                 ),
               ),
             ],

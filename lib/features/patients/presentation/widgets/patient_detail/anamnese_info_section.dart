@@ -3,68 +3,65 @@ import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.d
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
 
 class AnamneseInfoSection extends StatelessWidget {
-  const AnamneseInfoSection(this.anamnese, {super.key});
+  const AnamneseInfoSection(this.medicalHistory, {super.key});
 
-  final Anamnese anamnese;
+  final MedicalHistory medicalHistory;
 
   @override
   Widget build(BuildContext context) {
-    final a = anamnese;
+    final a = medicalHistory;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionTitle('Anamnese'),
-        InfoRow(
-          'Queixa principal',
-          PatientDetailFormat.text(a.queixaPrincipal),
-        ),
+        InfoRow('Queixa principal', PatientDetailFormat.text(a.chiefComplaint)),
         InfoRow(
           'Início dos sintomas',
-          PatientDetailFormat.text(a.inicioSintomas),
+          PatientDetailFormat.text(a.symptomsOnset),
         ),
         InfoRow(
           'Tem diagnóstico médico',
-          PatientDetailFormat.yesNo(a.temDiagnosticoMedico),
+          PatientDetailFormat.yesNo(a.hasMedicalDiagnosis),
         ),
-        if (a.temDiagnosticoMedico == true)
+        if (a.hasMedicalDiagnosis == true)
           InfoRow(
             'Qual diagnóstico',
-            PatientDetailFormat.text(a.diagnosticoMedico),
+            PatientDetailFormat.text(a.medicalDiagnosis),
           ),
         InfoRow(
           'Já realizou tratamento',
-          PatientDetailFormat.yesNo(a.realizouTratamento),
+          PatientDetailFormat.yesNo(a.hadPreviousTreatment),
         ),
-        if (a.realizouTratamento == true)
+        if (a.hadPreviousTreatment == true)
           InfoRow(
             'Qual tratamento',
-            PatientDetailFormat.text(a.descricaoTratamento),
+            PatientDetailFormat.text(a.treatmentDescription),
           ),
         InfoRow(
           'Doenças crônicas',
-          PatientDetailFormat.yesNo(a.doencasCronicas),
+          PatientDetailFormat.yesNo(a.hasChronicDiseases),
         ),
-        if (a.doencasCronicas == true)
+        if (a.hasChronicDiseases == true)
           InfoRow(
             'Quais doenças',
-            PatientDetailFormat.text(a.descricaoDoencasCronicas),
+            PatientDetailFormat.text(a.chronicDiseasesDescription),
           ),
         InfoRow(
           'Uso contínuo de medicamentos',
-          PatientDetailFormat.yesNo(a.usoContinuoMedicamentos),
+          PatientDetailFormat.yesNo(a.takesContinuousMedication),
         ),
-        if (a.usoContinuoMedicamentos == true)
+        if (a.takesContinuousMedication == true)
           InfoRow(
             'Quais medicamentos',
-            PatientDetailFormat.text(a.descricaoMedicamentos),
+            PatientDetailFormat.text(a.medicationsDescription),
           ),
-        InfoRow('Tabagismo', PatientDetailFormat.yesNo(a.tabagismo)),
-        InfoRow('Consome álcool', PatientDetailFormat.yesNo(a.consomeAlcool)),
+        InfoRow('Tabagismo', PatientDetailFormat.yesNo(a.smoking)),
+        InfoRow('Consome álcool', PatientDetailFormat.yesNo(a.consumesAlcohol)),
         InfoRow(
           'Pratica atividade física',
-          PatientDetailFormat.yesNo(a.praticaAtividadeFisica),
+          PatientDetailFormat.yesNo(a.practicesPhysicalActivity),
         ),
-        InfoRow('Exames de imagem', PatientDetailFormat.text(a.examesImagem)),
+        InfoRow('Exames de imagem', PatientDetailFormat.text(a.imagingExams)),
       ],
     );
   }

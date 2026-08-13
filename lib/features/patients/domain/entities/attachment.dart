@@ -1,14 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
 
-enum AttachmentCategory { fichaAvaliacao, documento, imagem, outro }
+enum AttachmentCategory { assessmentForm, document, image, other }
 
 extension AttachmentCategoryLabel on AttachmentCategory {
   String get label => switch (this) {
-    AttachmentCategory.fichaAvaliacao => 'Ficha de avaliação física',
-    AttachmentCategory.documento => 'Documento',
-    AttachmentCategory.imagem => 'Imagem',
-    AttachmentCategory.outro => 'Anexo',
+    AttachmentCategory.assessmentForm => 'Ficha de avaliação física',
+    AttachmentCategory.document => 'Documento',
+    AttachmentCategory.image => 'Imagem',
+    AttachmentCategory.other => 'Anexo',
   };
 }
 
@@ -52,7 +52,7 @@ class Attachment extends Equatable {
     contentType: json['content_type'] as String? ?? '',
     category:
         enumFromName(AttachmentCategory.values, json['category']) ??
-        AttachmentCategory.outro,
+        AttachmentCategory.other,
     createdAt: DateTime.parse(json['created_at'] as String),
   );
 

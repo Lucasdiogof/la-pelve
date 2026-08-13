@@ -24,16 +24,16 @@ class DadosPessoaisStep extends StatefulWidget {
 
 class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
   late final _nomeController = TextEditingController(
-    text: widget.patient.dadosPessoais.nome,
+    text: widget.patient.personalInfo.name,
   );
   late final _idadeController = TextEditingController(
-    text: widget.patient.dadosPessoais.idade?.toString() ?? '',
+    text: widget.patient.personalInfo.age?.toString() ?? '',
   );
   late final _telefoneController = TextEditingController(
-    text: widget.patient.dadosPessoais.telefone,
+    text: widget.patient.personalInfo.phone,
   );
   late final _profissaoController = TextEditingController(
-    text: widget.patient.dadosPessoais.profissao,
+    text: widget.patient.personalInfo.occupation,
   );
 
   @override
@@ -48,11 +48,11 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
   void _emit() {
     widget.onChanged(
       widget.patient.copyWith(
-        dadosPessoais: widget.patient.dadosPessoais.copyWith(
-          nome: _nomeController.text,
-          idade: int.tryParse(_idadeController.text),
-          telefone: _telefoneController.text,
-          profissao: _profissaoController.text,
+        personalInfo: widget.patient.personalInfo.copyWith(
+          name: _nomeController.text,
+          age: int.tryParse(_idadeController.text),
+          phone: _telefoneController.text,
+          occupation: _profissaoController.text,
         ),
       ),
     );
@@ -126,16 +126,16 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
           ),
         ),
         const SizedBox(height: 12),
-        AppChipSelect<Sexo>(
-          options: Sexo.values,
+        AppChipSelect<Gender>(
+          options: Gender.values,
           labelBuilder: (option) => option.label,
-          selected: widget.patient.dadosPessoais.sexo == null
+          selected: widget.patient.personalInfo.gender == null
               ? {}
-              : {widget.patient.dadosPessoais.sexo!},
+              : {widget.patient.personalInfo.gender!},
           onChanged: (selected) => widget.onChanged(
             widget.patient.copyWith(
-              dadosPessoais: widget.patient.dadosPessoais.copyWith(
-                sexo: selected.isEmpty ? null : selected.first,
+              personalInfo: widget.patient.personalInfo.copyWith(
+                gender: selected.isEmpty ? null : selected.first,
               ),
             ),
           ),

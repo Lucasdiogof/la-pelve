@@ -6,7 +6,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class HistoricoCirurgicoInfoSection extends StatelessWidget {
   const HistoricoCirurgicoInfoSection(this.historico, {super.key});
 
-  final HistoricoCirurgico historico;
+  final SurgicalHistory historico;
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +17,14 @@ class HistoricoCirurgicoInfoSection extends StatelessWidget {
         const SectionTitle('Histórico cirúrgico'),
         InfoRow(
           'Cirurgias',
-          h.cirurgias.isEmpty
+          h.surgeries.isEmpty
               ? PatientDetailFormat.naoInformado
-              : h.cirurgias.map((c) => c.label).join(', '),
+              : h.surgeries.map((c) => c.label).join(', '),
         ),
-        if (h.cirurgias.contains(CirurgiaGinecologica.outro))
+        if (h.surgeries.contains(GynecologicalSurgery.other))
           InfoRow(
             'Qual cirurgia',
-            PatientDetailFormat.text(h.descricaoOutraCirurgia),
+            PatientDetailFormat.text(h.otherSurgeryDescription),
           ),
       ],
     );

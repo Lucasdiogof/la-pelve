@@ -10,8 +10,8 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
-Future<Encerramento?> showEncerramentoSheet(BuildContext context) {
-  return showModalBottomSheet<Encerramento>(
+Future<Discharge?> showEncerramentoSheet(BuildContext context) {
+  return showModalBottomSheet<Discharge>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -38,7 +38,7 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
   }
 
   bool _canSave(EncerramentoSheetState state) =>
-      state.data != null && state.motivo != null;
+      state.date != null && state.reason != null;
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +86,16 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
                     const SizedBox(height: 20),
                     AppDateField(
                       hintText: 'Data',
-                      value: formState.data,
+                      value: formState.date,
                       onChanged: _formCubit.setData,
                     ),
                     const SizedBox(height: 16),
-                    AppChipSelect<MotivoEncerramento>(
-                      options: MotivoEncerramento.values,
+                    AppChipSelect<DischargeReason>(
+                      options: DischargeReason.values,
                       labelBuilder: (v) => v.label,
-                      selected: formState.motivo == null
+                      selected: formState.reason == null
                           ? {}
-                          : {formState.motivo!},
+                          : {formState.reason!},
                       onChanged: (value) => _formCubit.setMotivo(
                         value.isEmpty ? null : value.first,
                       ),
@@ -112,10 +112,10 @@ class _EncerramentoSheetState extends State<_EncerramentoSheet> {
                       label: 'Confirmar encerramento',
                       onPressed: _canSave(formState)
                           ? () => Navigator.of(context).pop(
-                              Encerramento(
-                                data: formState.data!,
-                                motivo: formState.motivo!,
-                                observacaoFinal:
+                              Discharge(
+                                date: formState.date!,
+                                reason: formState.reason!,
+                                finalNote:
                                     _observacaoController.text.trim().isEmpty
                                     ? null
                                     : _observacaoController.text.trim(),

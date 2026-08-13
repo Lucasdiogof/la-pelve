@@ -22,9 +22,9 @@ void main() {
     blocTest<PatientsCubit, List<Patient>>(
       'emits the loaded patients on start',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => Success([patient]),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => Success([patient]));
       },
       build: () => PatientsCubit(repository),
       expect: () => [
@@ -35,9 +35,9 @@ void main() {
     blocTest<PatientsCubit, List<Patient>>(
       'keeps the previous state when the initial load fails',
       setUp: () {
-        when(() => repository.getAll()).thenAnswer(
-          (_) async => const Error(ServerFailure()),
-        );
+        when(
+          () => repository.getAll(),
+        ).thenAnswer((_) async => const Error(ServerFailure()));
       },
       build: () => PatientsCubit(repository),
       expect: () => <List<Patient>>[],
@@ -46,16 +46,18 @@ void main() {
 
   group('PatientsCubit.addPatient', () {
     test('reloads the list after a successful add', () async {
-      when(() => repository.getAll()).thenAnswer((_) async => const Success([]));
-      when(() => repository.add(patient)).thenAnswer(
-        (_) async => const Success(null),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.add(patient),
+      ).thenAnswer((_) async => const Success(null));
       final cubit = PatientsCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
-      when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([patient]),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([patient]));
       final result = await cubit.addPatient(patient);
 
       expect(result, isA<Success<void>>());
@@ -65,10 +67,12 @@ void main() {
     });
 
     test('does not reload the list when the add fails', () async {
-      when(() => repository.getAll()).thenAnswer((_) async => const Success([]));
-      when(() => repository.add(patient)).thenAnswer(
-        (_) async => const Error(ServerFailure('boom')),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.add(patient),
+      ).thenAnswer((_) async => const Error(ServerFailure('boom')));
       final cubit = PatientsCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
@@ -82,16 +86,18 @@ void main() {
 
   group('PatientsCubit.deletePatient', () {
     test('reloads the list after a successful delete', () async {
-      when(() => repository.getAll()).thenAnswer(
-        (_) async => Success([patient]),
-      );
-      when(() => repository.delete(patient.id)).thenAnswer(
-        (_) async => const Success(null),
-      );
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([patient]));
+      when(
+        () => repository.delete(patient.id),
+      ).thenAnswer((_) async => const Success(null));
       final cubit = PatientsCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
-      when(() => repository.getAll()).thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => const Success([]));
       final result = await cubit.deletePatient(patient.id);
 
       expect(result, isA<Success<void>>());

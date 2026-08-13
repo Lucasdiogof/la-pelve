@@ -6,7 +6,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class FuncaoIntestinalInfoSection extends StatelessWidget {
   const FuncaoIntestinalInfoSection(this.funcao, {super.key});
 
-  final FuncaoIntestinal funcao;
+  final BowelFunction funcao;
 
   @override
   Widget build(BuildContext context) {
@@ -17,48 +17,45 @@ class FuncaoIntestinalInfoSection extends StatelessWidget {
         const SectionTitle('Função intestinal'),
         InfoRow(
           'Frequência evacuatória',
-          PatientDetailFormat.enumValue(
-            f.frequenciaEvacuatoria,
-            (v) => v.label,
-          ),
+          PatientDetailFormat.enumValue(f.bowelFrequency, (v) => v.label),
         ),
-        if (f.frequenciaEvacuatoria == FrequenciaEvacuatoria.personalizado)
+        if (f.bowelFrequency == BowelFrequency.custom)
           InfoRow(
             'Quantas vezes por semana',
-            PatientDetailFormat.intValue(f.frequenciaPersonalizadaValor),
+            PatientDetailFormat.intValue(f.customFrequencyValue),
           ),
-        InfoRow('Usa laxante', PatientDetailFormat.yesNo(f.usaLaxante)),
-        if (f.usaLaxante == true)
+        InfoRow('Usa laxante', PatientDetailFormat.yesNo(f.usesLaxative)),
+        if (f.usesLaxative == true)
           InfoRow(
             'Qual laxante e frequência',
-            PatientDetailFormat.text(f.descricaoLaxante),
+            PatientDetailFormat.text(f.laxativeDescription),
           ),
         InfoRow(
           'Faz força para evacuar',
-          PatientDetailFormat.yesNo(f.forcaParaEvacuar),
+          PatientDetailFormat.yesNo(f.strainsToDefecate),
         ),
         InfoRow(
           'Sente dor para evacuar',
-          PatientDetailFormat.yesNo(f.dorParaEvacuar),
+          PatientDetailFormat.yesNo(f.painToDefecate),
         ),
         InfoRow(
           'Sensação de esvaziamento incompleto',
-          PatientDetailFormat.yesNo(f.esvaziamentoIncompleto),
+          PatientDetailFormat.yesNo(f.incompleteEmptying),
         ),
         InfoRow(
           'Sensação de obstrução',
-          PatientDetailFormat.yesNo(f.sensacaoObstrucao),
+          PatientDetailFormat.yesNo(f.obstructionSensation),
         ),
-        InfoRow('Urgência fecal', PatientDetailFormat.yesNo(f.urgenciaFecal)),
+        InfoRow('Urgência fecal', PatientDetailFormat.yesNo(f.fecalUrgency)),
         InfoRow(
           'Presença de hemorroidas',
-          PatientDetailFormat.yesNo(f.presencaHemorroidas),
+          PatientDetailFormat.yesNo(f.hemorrhoids),
         ),
-        InfoRow('Perde gases', PatientDetailFormat.yesNo(f.perdeGases)),
-        InfoRow('Perde fezes', PatientDetailFormat.yesNo(f.perdeFezes)),
+        InfoRow('Perde gases', PatientDetailFormat.yesNo(f.gasIncontinence)),
+        InfoRow('Perde fezes', PatientDetailFormat.yesNo(f.fecalIncontinence)),
         InfoRow(
           'Escala de Bristol',
-          PatientDetailFormat.enumValue(f.escalaBristol, (v) => v.label),
+          PatientDetailFormat.enumValue(f.bristolScale, (v) => v.label),
         ),
       ],
     );

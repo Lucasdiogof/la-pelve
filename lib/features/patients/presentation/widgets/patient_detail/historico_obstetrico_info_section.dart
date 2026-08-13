@@ -6,7 +6,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 class HistoricoObstetricoInfoSection extends StatelessWidget {
   const HistoricoObstetricoInfoSection(this.historico, {super.key});
 
-  final HistoricoObstetrico historico;
+  final ObstetricHistory historico;
 
   @override
   Widget build(BuildContext context) {
@@ -17,39 +17,42 @@ class HistoricoObstetricoInfoSection extends StatelessWidget {
         const SectionTitle('Histórico obstétrico'),
         InfoRow(
           'Está gestante atualmente',
-          PatientDetailFormat.yesNo(h.estaGestanteAtualmente),
+          PatientDetailFormat.yesNo(h.currentlyPregnant),
         ),
-        if (h.estaGestanteAtualmente == true) ...[
+        if (h.currentlyPregnant == true) ...[
           InfoRow(
             'Via de parto desejado',
-            PatientDetailFormat.enumValue(h.viaDePartoDesejado, (v) => v.label),
+            PatientDetailFormat.enumValue(
+              h.desiredDeliveryMethod,
+              (v) => v.label,
+            ),
           ),
           InfoRow(
             'Quantas semanas',
-            PatientDetailFormat.intValue(h.semanasGestacao),
+            PatientDetailFormat.intValue(h.gestationWeeks),
           ),
           InfoRow(
             'Data provável do parto',
-            PatientDetailFormat.dateValue(h.dataProvavelParto),
+            PatientDetailFormat.dateValue(h.estimatedDeliveryDate),
           ),
           InfoRow(
             'Gestação de risco',
-            PatientDetailFormat.yesNo(h.gestacaoDeRisco),
+            PatientDetailFormat.yesNo(h.highRiskPregnancy),
           ),
-          if (h.gestacaoDeRisco == true)
+          if (h.highRiskPregnancy == true)
             InfoRow(
               'Detalhe da gestação de risco',
-              PatientDetailFormat.text(h.descricaoGestacaoRisco),
+              PatientDetailFormat.text(h.highRiskPregnancyDescription),
             ),
         ],
-        InfoRow('Já engravidou', PatientDetailFormat.yesNo(h.jaEngravidou)),
-        if (h.jaEngravidou == true) ...[
+        InfoRow('Já engravidou', PatientDetailFormat.yesNo(h.hasBeenPregnant)),
+        if (h.hasBeenPregnant == true) ...[
           InfoRow(
             'Quantas gestações',
-            PatientDetailFormat.intValue(h.numeroGestacoes),
+            PatientDetailFormat.intValue(h.pregnancyCount),
           ),
-          for (var i = 0; i < h.gestacoes.length; i++)
-            GestacaoCard(index: i, gestacao: h.gestacoes[i]),
+          for (var i = 0; i < h.pregnancies.length; i++)
+            GestacaoCard(index: i, pregnancy: h.pregnancies[i]),
         ],
       ],
     );

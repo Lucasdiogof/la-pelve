@@ -1,1131 +1,1113 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/gestacao.dart';
+import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
 import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 
-class DadosPessoais extends Equatable {
-  const DadosPessoais({
-    this.nome = '',
-    this.idade,
-    this.telefone = '',
-    this.profissao = '',
-    this.sexo,
+class PersonalInfo extends Equatable {
+  const PersonalInfo({
+    this.name = '',
+    this.age,
+    this.phone = '',
+    this.occupation = '',
+    this.gender,
   });
 
-  final String nome;
-  final int? idade;
-  final String telefone;
-  final String profissao;
-  final Sexo? sexo;
+  final String name;
+  final int? age;
+  final String phone;
+  final String occupation;
+  final Gender? gender;
 
-  DadosPessoais copyWith({
-    String? nome,
-    int? idade,
-    String? telefone,
-    String? profissao,
-    Sexo? sexo,
+  PersonalInfo copyWith({
+    String? name,
+    int? age,
+    String? phone,
+    String? occupation,
+    Gender? gender,
   }) {
-    return DadosPessoais(
-      nome: nome ?? this.nome,
-      idade: idade ?? this.idade,
-      telefone: telefone ?? this.telefone,
-      profissao: profissao ?? this.profissao,
-      sexo: sexo ?? this.sexo,
+    return PersonalInfo(
+      name: name ?? this.name,
+      age: age ?? this.age,
+      phone: phone ?? this.phone,
+      occupation: occupation ?? this.occupation,
+      gender: gender ?? this.gender,
     );
   }
 
   @override
-  List<Object?> get props => [nome, idade, telefone, profissao, sexo];
+  List<Object?> get props => [name, age, phone, occupation, gender];
 }
 
-class Anamnese extends Equatable {
-  const Anamnese({
-    this.queixaPrincipal = '',
-    this.temDiagnosticoMedico,
-    this.diagnosticoMedico,
-    this.inicioSintomas = '',
-    this.realizouTratamento,
-    this.descricaoTratamento,
-    this.doencasCronicas,
-    this.descricaoDoencasCronicas,
-    this.usoContinuoMedicamentos,
-    this.descricaoMedicamentos,
-    this.tabagismo,
-    this.consomeAlcool,
-    this.praticaAtividadeFisica,
-    this.examesImagem,
+class MedicalHistory extends Equatable {
+  const MedicalHistory({
+    this.chiefComplaint = '',
+    this.hasMedicalDiagnosis,
+    this.medicalDiagnosis,
+    this.symptomsOnset = '',
+    this.hadPreviousTreatment,
+    this.treatmentDescription,
+    this.hasChronicDiseases,
+    this.chronicDiseasesDescription,
+    this.takesContinuousMedication,
+    this.medicationsDescription,
+    this.smoking,
+    this.consumesAlcohol,
+    this.practicesPhysicalActivity,
+    this.imagingExams,
   });
 
-  final String queixaPrincipal;
-  final bool? temDiagnosticoMedico;
-  final String? diagnosticoMedico;
-  final String inicioSintomas;
-  final bool? realizouTratamento;
-  final String? descricaoTratamento;
-  final bool? doencasCronicas;
-  final String? descricaoDoencasCronicas;
-  final bool? usoContinuoMedicamentos;
-  final String? descricaoMedicamentos;
-  final bool? tabagismo;
-  final bool? consomeAlcool;
-  final bool? praticaAtividadeFisica;
-  final String? examesImagem;
+  final String chiefComplaint;
+  final bool? hasMedicalDiagnosis;
+  final String? medicalDiagnosis;
+  final String symptomsOnset;
+  final bool? hadPreviousTreatment;
+  final String? treatmentDescription;
+  final bool? hasChronicDiseases;
+  final String? chronicDiseasesDescription;
+  final bool? takesContinuousMedication;
+  final String? medicationsDescription;
+  final bool? smoking;
+  final bool? consumesAlcohol;
+  final bool? practicesPhysicalActivity;
+  final String? imagingExams;
 
-  Anamnese copyWith({
-    String? queixaPrincipal,
-    Object? temDiagnosticoMedico = kUnset,
-    String? diagnosticoMedico,
-    String? inicioSintomas,
-    Object? realizouTratamento = kUnset,
-    String? descricaoTratamento,
-    Object? doencasCronicas = kUnset,
-    String? descricaoDoencasCronicas,
-    Object? usoContinuoMedicamentos = kUnset,
-    String? descricaoMedicamentos,
-    Object? tabagismo = kUnset,
-    Object? consomeAlcool = kUnset,
-    Object? praticaAtividadeFisica = kUnset,
-    String? examesImagem,
+  MedicalHistory copyWith({
+    String? chiefComplaint,
+    Object? hasMedicalDiagnosis = kUnset,
+    String? medicalDiagnosis,
+    String? symptomsOnset,
+    Object? hadPreviousTreatment = kUnset,
+    String? treatmentDescription,
+    Object? hasChronicDiseases = kUnset,
+    String? chronicDiseasesDescription,
+    Object? takesContinuousMedication = kUnset,
+    String? medicationsDescription,
+    Object? smoking = kUnset,
+    Object? consumesAlcohol = kUnset,
+    Object? practicesPhysicalActivity = kUnset,
+    String? imagingExams,
   }) {
-    return Anamnese(
-      queixaPrincipal: queixaPrincipal ?? this.queixaPrincipal,
-      temDiagnosticoMedico: unsetOr(
-        temDiagnosticoMedico,
-        this.temDiagnosticoMedico,
+    return MedicalHistory(
+      chiefComplaint: chiefComplaint ?? this.chiefComplaint,
+      hasMedicalDiagnosis: unsetOr(
+        hasMedicalDiagnosis,
+        this.hasMedicalDiagnosis,
       ),
-      diagnosticoMedico: diagnosticoMedico ?? this.diagnosticoMedico,
-      inicioSintomas: inicioSintomas ?? this.inicioSintomas,
-      realizouTratamento: unsetOr(realizouTratamento, this.realizouTratamento),
-      descricaoTratamento: descricaoTratamento ?? this.descricaoTratamento,
-      doencasCronicas: unsetOr(doencasCronicas, this.doencasCronicas),
-      descricaoDoencasCronicas:
-          descricaoDoencasCronicas ?? this.descricaoDoencasCronicas,
-      usoContinuoMedicamentos: unsetOr(
-        usoContinuoMedicamentos,
-        this.usoContinuoMedicamentos,
+      medicalDiagnosis: medicalDiagnosis ?? this.medicalDiagnosis,
+      symptomsOnset: symptomsOnset ?? this.symptomsOnset,
+      hadPreviousTreatment: unsetOr(
+        hadPreviousTreatment,
+        this.hadPreviousTreatment,
       ),
-      descricaoMedicamentos:
-          descricaoMedicamentos ?? this.descricaoMedicamentos,
-      tabagismo: unsetOr(tabagismo, this.tabagismo),
-      consomeAlcool: unsetOr(consomeAlcool, this.consomeAlcool),
-      praticaAtividadeFisica: unsetOr(
-        praticaAtividadeFisica,
-        this.praticaAtividadeFisica,
+      treatmentDescription: treatmentDescription ?? this.treatmentDescription,
+      hasChronicDiseases: unsetOr(hasChronicDiseases, this.hasChronicDiseases),
+      chronicDiseasesDescription:
+          chronicDiseasesDescription ?? this.chronicDiseasesDescription,
+      takesContinuousMedication: unsetOr(
+        takesContinuousMedication,
+        this.takesContinuousMedication,
       ),
-      examesImagem: examesImagem ?? this.examesImagem,
+      medicationsDescription:
+          medicationsDescription ?? this.medicationsDescription,
+      smoking: unsetOr(smoking, this.smoking),
+      consumesAlcohol: unsetOr(consumesAlcohol, this.consumesAlcohol),
+      practicesPhysicalActivity: unsetOr(
+        practicesPhysicalActivity,
+        this.practicesPhysicalActivity,
+      ),
+      imagingExams: imagingExams ?? this.imagingExams,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'queixaPrincipal': queixaPrincipal,
-    'temDiagnosticoMedico': temDiagnosticoMedico,
-    'diagnosticoMedico': diagnosticoMedico,
-    'inicioSintomas': inicioSintomas,
-    'realizouTratamento': realizouTratamento,
-    'descricaoTratamento': descricaoTratamento,
-    'doencasCronicas': doencasCronicas,
-    'descricaoDoencasCronicas': descricaoDoencasCronicas,
-    'usoContinuoMedicamentos': usoContinuoMedicamentos,
-    'descricaoMedicamentos': descricaoMedicamentos,
-    'tabagismo': tabagismo,
-    'consomeAlcool': consomeAlcool,
-    'praticaAtividadeFisica': praticaAtividadeFisica,
-    'examesImagem': examesImagem,
+    'chiefComplaint': chiefComplaint,
+    'hasMedicalDiagnosis': hasMedicalDiagnosis,
+    'medicalDiagnosis': medicalDiagnosis,
+    'symptomsOnset': symptomsOnset,
+    'hadPreviousTreatment': hadPreviousTreatment,
+    'treatmentDescription': treatmentDescription,
+    'hasChronicDiseases': hasChronicDiseases,
+    'chronicDiseasesDescription': chronicDiseasesDescription,
+    'takesContinuousMedication': takesContinuousMedication,
+    'medicationsDescription': medicationsDescription,
+    'smoking': smoking,
+    'consumesAlcohol': consumesAlcohol,
+    'practicesPhysicalActivity': practicesPhysicalActivity,
+    'imagingExams': imagingExams,
   };
 
-  factory Anamnese.fromJson(Map<String, dynamic> json) => Anamnese(
-    queixaPrincipal: json['queixaPrincipal'] as String? ?? '',
-    temDiagnosticoMedico: json['temDiagnosticoMedico'] as bool?,
-    diagnosticoMedico: json['diagnosticoMedico'] as String?,
-    inicioSintomas: json['inicioSintomas'] as String? ?? '',
-    realizouTratamento: json['realizouTratamento'] as bool?,
-    descricaoTratamento: json['descricaoTratamento'] as String?,
-    doencasCronicas: json['doencasCronicas'] as bool?,
-    descricaoDoencasCronicas: json['descricaoDoencasCronicas'] as String?,
-    usoContinuoMedicamentos: json['usoContinuoMedicamentos'] as bool?,
-    descricaoMedicamentos: json['descricaoMedicamentos'] as String?,
-    tabagismo: json['tabagismo'] as bool?,
-    consomeAlcool: json['consomeAlcool'] as bool?,
-    praticaAtividadeFisica: json['praticaAtividadeFisica'] as bool?,
-    examesImagem: json['examesImagem'] as String?,
+  factory MedicalHistory.fromJson(Map<String, dynamic> json) => MedicalHistory(
+    chiefComplaint: json['chiefComplaint'] as String? ?? '',
+    hasMedicalDiagnosis: json['hasMedicalDiagnosis'] as bool?,
+    medicalDiagnosis: json['medicalDiagnosis'] as String?,
+    symptomsOnset: json['symptomsOnset'] as String? ?? '',
+    hadPreviousTreatment: json['hadPreviousTreatment'] as bool?,
+    treatmentDescription: json['treatmentDescription'] as String?,
+    hasChronicDiseases: json['hasChronicDiseases'] as bool?,
+    chronicDiseasesDescription: json['chronicDiseasesDescription'] as String?,
+    takesContinuousMedication: json['takesContinuousMedication'] as bool?,
+    medicationsDescription: json['medicationsDescription'] as String?,
+    smoking: json['smoking'] as bool?,
+    consumesAlcohol: json['consumesAlcohol'] as bool?,
+    practicesPhysicalActivity: json['practicesPhysicalActivity'] as bool?,
+    imagingExams: json['imagingExams'] as String?,
   );
 
   @override
   List<Object?> get props => [
-    queixaPrincipal,
-    temDiagnosticoMedico,
-    diagnosticoMedico,
-    inicioSintomas,
-    realizouTratamento,
-    descricaoTratamento,
-    doencasCronicas,
-    descricaoDoencasCronicas,
-    usoContinuoMedicamentos,
-    descricaoMedicamentos,
-    tabagismo,
-    consomeAlcool,
-    praticaAtividadeFisica,
-    examesImagem,
+    chiefComplaint,
+    hasMedicalDiagnosis,
+    medicalDiagnosis,
+    symptomsOnset,
+    hadPreviousTreatment,
+    treatmentDescription,
+    hasChronicDiseases,
+    chronicDiseasesDescription,
+    takesContinuousMedication,
+    medicationsDescription,
+    smoking,
+    consumesAlcohol,
+    practicesPhysicalActivity,
+    imagingExams,
   ];
 }
 
-class HistoricoGinecologico extends Equatable {
-  const HistoricoGinecologico({
-    this.idadePrimeiraMenstruacao,
-    this.menstruaAtualmente,
-    this.cicloRegular,
-    this.metodoContraceptivo,
-    this.menopausa,
-    this.reposicaoHormonal,
-    this.descricaoReposicaoHormonal,
-    this.fluxoMenstrual,
-    this.colica0a10,
-    this.estaNaMenopausa,
-    this.dataUltimaMenstruacaoAproximada,
-    this.dorPelvicaForaPeriodo,
-    this.sangramentoForaPeriodo,
-    this.endometriose,
-    this.sindromeOvariosPolicisticos,
-    this.infeccoesUrinariasRecorrentes,
-    this.infeccoesVaginaisRecorrentes,
+class GynecologicalHistory extends Equatable {
+  const GynecologicalHistory({
+    this.ageAtMenarche,
+    this.currentlyMenstruating,
+    this.regularCycle,
+    this.contraceptiveMethod,
+    this.menopause,
+    this.hormoneReplacementTherapy,
+    this.hormoneReplacementTherapyDescription,
+    this.menstrualFlow,
+    this.crampsScore0to10,
+    this.isInMenopause,
+    this.approximateLastMenstruationDate,
+    this.pelvicPainOutsidePeriod,
+    this.bleedingOutsidePeriod,
+    this.endometriosis,
+    this.polycysticOvarySyndrome,
+    this.recurrentUrinaryInfections,
+    this.recurrentVaginalInfections,
   });
 
-  final int? idadePrimeiraMenstruacao;
-  final bool? menstruaAtualmente;
-  final bool? cicloRegular;
-  final MetodoContraceptivo? metodoContraceptivo;
-  final bool? menopausa;
-  final bool? reposicaoHormonal;
-  final String? descricaoReposicaoHormonal;
-  final FluxoMenstrual? fluxoMenstrual;
-  final int? colica0a10;
-  final bool? estaNaMenopausa;
-  final DateTime? dataUltimaMenstruacaoAproximada;
-  final bool? dorPelvicaForaPeriodo;
-  final bool? sangramentoForaPeriodo;
-  final bool? endometriose;
-  final bool? sindromeOvariosPolicisticos;
-  final bool? infeccoesUrinariasRecorrentes;
-  final bool? infeccoesVaginaisRecorrentes;
+  final int? ageAtMenarche;
+  final bool? currentlyMenstruating;
+  final bool? regularCycle;
+  final ContraceptiveMethod? contraceptiveMethod;
+  final bool? menopause;
+  final bool? hormoneReplacementTherapy;
+  final String? hormoneReplacementTherapyDescription;
+  final MenstrualFlow? menstrualFlow;
+  final int? crampsScore0to10;
+  final bool? isInMenopause;
+  final DateTime? approximateLastMenstruationDate;
+  final bool? pelvicPainOutsidePeriod;
+  final bool? bleedingOutsidePeriod;
+  final bool? endometriosis;
+  final bool? polycysticOvarySyndrome;
+  final bool? recurrentUrinaryInfections;
+  final bool? recurrentVaginalInfections;
 
-  HistoricoGinecologico copyWith({
-    int? idadePrimeiraMenstruacao,
-    Object? menstruaAtualmente = kUnset,
-    Object? cicloRegular = kUnset,
-    MetodoContraceptivo? metodoContraceptivo,
-    Object? menopausa = kUnset,
-    Object? reposicaoHormonal = kUnset,
-    String? descricaoReposicaoHormonal,
-    FluxoMenstrual? fluxoMenstrual,
-    int? colica0a10,
-    Object? estaNaMenopausa = kUnset,
-    DateTime? dataUltimaMenstruacaoAproximada,
-    Object? dorPelvicaForaPeriodo = kUnset,
-    Object? sangramentoForaPeriodo = kUnset,
-    Object? endometriose = kUnset,
-    Object? sindromeOvariosPolicisticos = kUnset,
-    Object? infeccoesUrinariasRecorrentes = kUnset,
-    Object? infeccoesVaginaisRecorrentes = kUnset,
+  GynecologicalHistory copyWith({
+    int? ageAtMenarche,
+    Object? currentlyMenstruating = kUnset,
+    Object? regularCycle = kUnset,
+    ContraceptiveMethod? contraceptiveMethod,
+    Object? menopause = kUnset,
+    Object? hormoneReplacementTherapy = kUnset,
+    String? hormoneReplacementTherapyDescription,
+    MenstrualFlow? menstrualFlow,
+    int? crampsScore0to10,
+    Object? isInMenopause = kUnset,
+    DateTime? approximateLastMenstruationDate,
+    Object? pelvicPainOutsidePeriod = kUnset,
+    Object? bleedingOutsidePeriod = kUnset,
+    Object? endometriosis = kUnset,
+    Object? polycysticOvarySyndrome = kUnset,
+    Object? recurrentUrinaryInfections = kUnset,
+    Object? recurrentVaginalInfections = kUnset,
   }) {
-    return HistoricoGinecologico(
-      idadePrimeiraMenstruacao:
-          idadePrimeiraMenstruacao ?? this.idadePrimeiraMenstruacao,
-      menstruaAtualmente: unsetOr(menstruaAtualmente, this.menstruaAtualmente),
-      cicloRegular: unsetOr(cicloRegular, this.cicloRegular),
-      metodoContraceptivo: metodoContraceptivo ?? this.metodoContraceptivo,
-      menopausa: unsetOr(menopausa, this.menopausa),
-      reposicaoHormonal: unsetOr(reposicaoHormonal, this.reposicaoHormonal),
-      descricaoReposicaoHormonal:
-          descricaoReposicaoHormonal ?? this.descricaoReposicaoHormonal,
-      fluxoMenstrual: fluxoMenstrual ?? this.fluxoMenstrual,
-      colica0a10: colica0a10 ?? this.colica0a10,
-      estaNaMenopausa: unsetOr(estaNaMenopausa, this.estaNaMenopausa),
-      dataUltimaMenstruacaoAproximada:
-          dataUltimaMenstruacaoAproximada ??
-          this.dataUltimaMenstruacaoAproximada,
-      dorPelvicaForaPeriodo: unsetOr(
-        dorPelvicaForaPeriodo,
-        this.dorPelvicaForaPeriodo,
+    return GynecologicalHistory(
+      ageAtMenarche: ageAtMenarche ?? this.ageAtMenarche,
+      currentlyMenstruating: unsetOr(
+        currentlyMenstruating,
+        this.currentlyMenstruating,
       ),
-      sangramentoForaPeriodo: unsetOr(
-        sangramentoForaPeriodo,
-        this.sangramentoForaPeriodo,
+      regularCycle: unsetOr(regularCycle, this.regularCycle),
+      contraceptiveMethod: contraceptiveMethod ?? this.contraceptiveMethod,
+      menopause: unsetOr(menopause, this.menopause),
+      hormoneReplacementTherapy: unsetOr(
+        hormoneReplacementTherapy,
+        this.hormoneReplacementTherapy,
       ),
-      endometriose: unsetOr(endometriose, this.endometriose),
-      sindromeOvariosPolicisticos: unsetOr(
-        sindromeOvariosPolicisticos,
-        this.sindromeOvariosPolicisticos,
+      hormoneReplacementTherapyDescription:
+          hormoneReplacementTherapyDescription ??
+          this.hormoneReplacementTherapyDescription,
+      menstrualFlow: menstrualFlow ?? this.menstrualFlow,
+      crampsScore0to10: crampsScore0to10 ?? this.crampsScore0to10,
+      isInMenopause: unsetOr(isInMenopause, this.isInMenopause),
+      approximateLastMenstruationDate:
+          approximateLastMenstruationDate ??
+          this.approximateLastMenstruationDate,
+      pelvicPainOutsidePeriod: unsetOr(
+        pelvicPainOutsidePeriod,
+        this.pelvicPainOutsidePeriod,
       ),
-      infeccoesUrinariasRecorrentes: unsetOr(
-        infeccoesUrinariasRecorrentes,
-        this.infeccoesUrinariasRecorrentes,
+      bleedingOutsidePeriod: unsetOr(
+        bleedingOutsidePeriod,
+        this.bleedingOutsidePeriod,
       ),
-      infeccoesVaginaisRecorrentes: unsetOr(
-        infeccoesVaginaisRecorrentes,
-        this.infeccoesVaginaisRecorrentes,
+      endometriosis: unsetOr(endometriosis, this.endometriosis),
+      polycysticOvarySyndrome: unsetOr(
+        polycysticOvarySyndrome,
+        this.polycysticOvarySyndrome,
+      ),
+      recurrentUrinaryInfections: unsetOr(
+        recurrentUrinaryInfections,
+        this.recurrentUrinaryInfections,
+      ),
+      recurrentVaginalInfections: unsetOr(
+        recurrentVaginalInfections,
+        this.recurrentVaginalInfections,
       ),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'idadePrimeiraMenstruacao': idadePrimeiraMenstruacao,
-    'menstruaAtualmente': menstruaAtualmente,
-    'cicloRegular': cicloRegular,
-    'metodoContraceptivo': metodoContraceptivo?.name,
-    'menopausa': menopausa,
-    'reposicaoHormonal': reposicaoHormonal,
-    'descricaoReposicaoHormonal': descricaoReposicaoHormonal,
-    'fluxoMenstrual': fluxoMenstrual?.name,
-    'colica0a10': colica0a10,
-    'estaNaMenopausa': estaNaMenopausa,
-    'dataUltimaMenstruacaoAproximada': dataUltimaMenstruacaoAproximada
+    'ageAtMenarche': ageAtMenarche,
+    'currentlyMenstruating': currentlyMenstruating,
+    'regularCycle': regularCycle,
+    'contraceptiveMethod': contraceptiveMethod?.name,
+    'menopause': menopause,
+    'hormoneReplacementTherapy': hormoneReplacementTherapy,
+    'hormoneReplacementTherapyDescription':
+        hormoneReplacementTherapyDescription,
+    'menstrualFlow': menstrualFlow?.name,
+    'crampsScore0to10': crampsScore0to10,
+    'isInMenopause': isInMenopause,
+    'approximateLastMenstruationDate': approximateLastMenstruationDate
         ?.toIso8601String(),
-    'dorPelvicaForaPeriodo': dorPelvicaForaPeriodo,
-    'sangramentoForaPeriodo': sangramentoForaPeriodo,
-    'endometriose': endometriose,
-    'sindromeOvariosPolicisticos': sindromeOvariosPolicisticos,
-    'infeccoesUrinariasRecorrentes': infeccoesUrinariasRecorrentes,
-    'infeccoesVaginaisRecorrentes': infeccoesVaginaisRecorrentes,
+    'pelvicPainOutsidePeriod': pelvicPainOutsidePeriod,
+    'bleedingOutsidePeriod': bleedingOutsidePeriod,
+    'endometriosis': endometriosis,
+    'polycysticOvarySyndrome': polycysticOvarySyndrome,
+    'recurrentUrinaryInfections': recurrentUrinaryInfections,
+    'recurrentVaginalInfections': recurrentVaginalInfections,
   };
 
-  factory HistoricoGinecologico.fromJson(
-    Map<String, dynamic> json,
-  ) => HistoricoGinecologico(
-    idadePrimeiraMenstruacao: json['idadePrimeiraMenstruacao'] as int?,
-    menstruaAtualmente: json['menstruaAtualmente'] as bool?,
-    cicloRegular: json['cicloRegular'] as bool?,
-    metodoContraceptivo: enumFromName(
-      MetodoContraceptivo.values,
-      json['metodoContraceptivo'],
-    ),
-    menopausa: json['menopausa'] as bool?,
-    reposicaoHormonal: json['reposicaoHormonal'] as bool?,
-    descricaoReposicaoHormonal: json['descricaoReposicaoHormonal'] as String?,
-    fluxoMenstrual: enumFromName(FluxoMenstrual.values, json['fluxoMenstrual']),
-    colica0a10: json['colica0a10'] as int?,
-    estaNaMenopausa: json['estaNaMenopausa'] as bool?,
-    dataUltimaMenstruacaoAproximada:
-        json['dataUltimaMenstruacaoAproximada'] == null
-        ? null
-        : DateTime.parse(json['dataUltimaMenstruacaoAproximada'] as String),
-    dorPelvicaForaPeriodo: json['dorPelvicaForaPeriodo'] as bool?,
-    sangramentoForaPeriodo: json['sangramentoForaPeriodo'] as bool?,
-    endometriose: json['endometriose'] as bool?,
-    sindromeOvariosPolicisticos: json['sindromeOvariosPolicisticos'] as bool?,
-    infeccoesUrinariasRecorrentes:
-        json['infeccoesUrinariasRecorrentes'] as bool?,
-    infeccoesVaginaisRecorrentes: json['infeccoesVaginaisRecorrentes'] as bool?,
-  );
-
-  @override
-  List<Object?> get props => [
-    idadePrimeiraMenstruacao,
-    menstruaAtualmente,
-    cicloRegular,
-    metodoContraceptivo,
-    menopausa,
-    reposicaoHormonal,
-    descricaoReposicaoHormonal,
-    fluxoMenstrual,
-    colica0a10,
-    estaNaMenopausa,
-    dataUltimaMenstruacaoAproximada,
-    dorPelvicaForaPeriodo,
-    sangramentoForaPeriodo,
-    endometriose,
-    sindromeOvariosPolicisticos,
-    infeccoesUrinariasRecorrentes,
-    infeccoesVaginaisRecorrentes,
-  ];
-}
-
-class HistoricoObstetrico extends Equatable {
-  const HistoricoObstetrico({
-    this.jaEngravidou,
-    this.numeroGestacoes,
-    this.gestacoes = const [],
-    this.estaGestanteAtualmente,
-    this.viaDePartoDesejado,
-    this.semanasGestacao,
-    this.dataProvavelParto,
-    this.gestacaoDeRisco,
-    this.descricaoGestacaoRisco,
-  });
-
-  final bool? jaEngravidou;
-  final int? numeroGestacoes;
-  final List<Gestacao> gestacoes;
-  final bool? estaGestanteAtualmente;
-  final ViaDeParto? viaDePartoDesejado;
-  final int? semanasGestacao;
-  final DateTime? dataProvavelParto;
-  final bool? gestacaoDeRisco;
-  final String? descricaoGestacaoRisco;
-
-  HistoricoObstetrico copyWith({
-    Object? jaEngravidou = kUnset,
-    int? numeroGestacoes,
-    List<Gestacao>? gestacoes,
-    Object? estaGestanteAtualmente = kUnset,
-    ViaDeParto? viaDePartoDesejado,
-    int? semanasGestacao,
-    DateTime? dataProvavelParto,
-    Object? gestacaoDeRisco = kUnset,
-    String? descricaoGestacaoRisco,
-  }) {
-    return HistoricoObstetrico(
-      jaEngravidou: unsetOr(jaEngravidou, this.jaEngravidou),
-      numeroGestacoes: numeroGestacoes ?? this.numeroGestacoes,
-      gestacoes: gestacoes ?? this.gestacoes,
-      estaGestanteAtualmente: unsetOr(
-        estaGestanteAtualmente,
-        this.estaGestanteAtualmente,
-      ),
-      viaDePartoDesejado: viaDePartoDesejado ?? this.viaDePartoDesejado,
-      semanasGestacao: semanasGestacao ?? this.semanasGestacao,
-      dataProvavelParto: dataProvavelParto ?? this.dataProvavelParto,
-      gestacaoDeRisco: unsetOr(gestacaoDeRisco, this.gestacaoDeRisco),
-      descricaoGestacaoRisco:
-          descricaoGestacaoRisco ?? this.descricaoGestacaoRisco,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'jaEngravidou': jaEngravidou,
-    'numeroGestacoes': numeroGestacoes,
-    'gestacoes': gestacoes.map((g) => g.toJson()).toList(),
-    'estaGestanteAtualmente': estaGestanteAtualmente,
-    'viaDePartoDesejado': viaDePartoDesejado?.name,
-    'semanasGestacao': semanasGestacao,
-    'dataProvavelParto': dataProvavelParto?.toIso8601String(),
-    'gestacaoDeRisco': gestacaoDeRisco,
-    'descricaoGestacaoRisco': descricaoGestacaoRisco,
-  };
-
-  factory HistoricoObstetrico.fromJson(Map<String, dynamic> json) =>
-      HistoricoObstetrico(
-        jaEngravidou: json['jaEngravidou'] as bool?,
-        numeroGestacoes: json['numeroGestacoes'] as int?,
-        gestacoes: (json['gestacoes'] as List<dynamic>? ?? [])
-            .map((g) => Gestacao.fromJson(g as Map<String, dynamic>))
-            .toList(),
-        estaGestanteAtualmente: json['estaGestanteAtualmente'] as bool?,
-        viaDePartoDesejado: enumFromName(
-          ViaDeParto.values,
-          json['viaDePartoDesejado'],
+  factory GynecologicalHistory.fromJson(Map<String, dynamic> json) =>
+      GynecologicalHistory(
+        ageAtMenarche: json['ageAtMenarche'] as int?,
+        currentlyMenstruating: json['currentlyMenstruating'] as bool?,
+        regularCycle: json['regularCycle'] as bool?,
+        contraceptiveMethod: enumFromName(
+          ContraceptiveMethod.values,
+          json['contraceptiveMethod'],
         ),
-        semanasGestacao: json['semanasGestacao'] as int?,
-        dataProvavelParto: json['dataProvavelParto'] == null
+        menopause: json['menopause'] as bool?,
+        hormoneReplacementTherapy: json['hormoneReplacementTherapy'] as bool?,
+        hormoneReplacementTherapyDescription:
+            json['hormoneReplacementTherapyDescription'] as String?,
+        menstrualFlow: enumFromName(
+          MenstrualFlow.values,
+          json['menstrualFlow'],
+        ),
+        crampsScore0to10: json['crampsScore0to10'] as int?,
+        isInMenopause: json['isInMenopause'] as bool?,
+        approximateLastMenstruationDate:
+            json['approximateLastMenstruationDate'] == null
             ? null
-            : DateTime.parse(json['dataProvavelParto'] as String),
-        gestacaoDeRisco: json['gestacaoDeRisco'] as bool?,
-        descricaoGestacaoRisco: json['descricaoGestacaoRisco'] as String?,
+            : DateTime.parse(json['approximateLastMenstruationDate'] as String),
+        pelvicPainOutsidePeriod: json['pelvicPainOutsidePeriod'] as bool?,
+        bleedingOutsidePeriod: json['bleedingOutsidePeriod'] as bool?,
+        endometriosis: json['endometriosis'] as bool?,
+        polycysticOvarySyndrome: json['polycysticOvarySyndrome'] as bool?,
+        recurrentUrinaryInfections: json['recurrentUrinaryInfections'] as bool?,
+        recurrentVaginalInfections: json['recurrentVaginalInfections'] as bool?,
       );
 
   @override
   List<Object?> get props => [
-    jaEngravidou,
-    numeroGestacoes,
-    gestacoes,
-    estaGestanteAtualmente,
-    viaDePartoDesejado,
-    semanasGestacao,
-    dataProvavelParto,
-    gestacaoDeRisco,
-    descricaoGestacaoRisco,
+    ageAtMenarche,
+    currentlyMenstruating,
+    regularCycle,
+    contraceptiveMethod,
+    menopause,
+    hormoneReplacementTherapy,
+    hormoneReplacementTherapyDescription,
+    menstrualFlow,
+    crampsScore0to10,
+    isInMenopause,
+    approximateLastMenstruationDate,
+    pelvicPainOutsidePeriod,
+    bleedingOutsidePeriod,
+    endometriosis,
+    polycysticOvarySyndrome,
+    recurrentUrinaryInfections,
+    recurrentVaginalInfections,
   ];
 }
 
-class HistoricoCirurgico extends Equatable {
-  const HistoricoCirurgico({
-    this.cirurgias = const {},
-    this.descricaoOutraCirurgia,
+class ObstetricHistory extends Equatable {
+  const ObstetricHistory({
+    this.hasBeenPregnant,
+    this.pregnancyCount,
+    this.pregnancies = const [],
+    this.currentlyPregnant,
+    this.desiredDeliveryMethod,
+    this.gestationWeeks,
+    this.estimatedDeliveryDate,
+    this.highRiskPregnancy,
+    this.highRiskPregnancyDescription,
   });
 
-  final Set<CirurgiaGinecologica> cirurgias;
-  final String? descricaoOutraCirurgia;
+  final bool? hasBeenPregnant;
+  final int? pregnancyCount;
+  final List<Pregnancy> pregnancies;
+  final bool? currentlyPregnant;
+  final DeliveryMethod? desiredDeliveryMethod;
+  final int? gestationWeeks;
+  final DateTime? estimatedDeliveryDate;
+  final bool? highRiskPregnancy;
+  final String? highRiskPregnancyDescription;
 
-  HistoricoCirurgico copyWith({
-    Set<CirurgiaGinecologica>? cirurgias,
-    String? descricaoOutraCirurgia,
+  ObstetricHistory copyWith({
+    Object? hasBeenPregnant = kUnset,
+    int? pregnancyCount,
+    List<Pregnancy>? pregnancies,
+    Object? currentlyPregnant = kUnset,
+    DeliveryMethod? desiredDeliveryMethod,
+    int? gestationWeeks,
+    DateTime? estimatedDeliveryDate,
+    Object? highRiskPregnancy = kUnset,
+    String? highRiskPregnancyDescription,
   }) {
-    return HistoricoCirurgico(
-      cirurgias: cirurgias ?? this.cirurgias,
-      descricaoOutraCirurgia:
-          descricaoOutraCirurgia ?? this.descricaoOutraCirurgia,
+    return ObstetricHistory(
+      hasBeenPregnant: unsetOr(hasBeenPregnant, this.hasBeenPregnant),
+      pregnancyCount: pregnancyCount ?? this.pregnancyCount,
+      pregnancies: pregnancies ?? this.pregnancies,
+      currentlyPregnant: unsetOr(currentlyPregnant, this.currentlyPregnant),
+      desiredDeliveryMethod:
+          desiredDeliveryMethod ?? this.desiredDeliveryMethod,
+      gestationWeeks: gestationWeeks ?? this.gestationWeeks,
+      estimatedDeliveryDate:
+          estimatedDeliveryDate ?? this.estimatedDeliveryDate,
+      highRiskPregnancy: unsetOr(highRiskPregnancy, this.highRiskPregnancy),
+      highRiskPregnancyDescription:
+          highRiskPregnancyDescription ?? this.highRiskPregnancyDescription,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'cirurgias': cirurgias.map((c) => c.name).toList(),
-    'descricaoOutraCirurgia': descricaoOutraCirurgia,
+    'hasBeenPregnant': hasBeenPregnant,
+    'pregnancyCount': pregnancyCount,
+    'pregnancies': pregnancies.map((p) => p.toJson()).toList(),
+    'currentlyPregnant': currentlyPregnant,
+    'desiredDeliveryMethod': desiredDeliveryMethod?.name,
+    'gestationWeeks': gestationWeeks,
+    'estimatedDeliveryDate': estimatedDeliveryDate?.toIso8601String(),
+    'highRiskPregnancy': highRiskPregnancy,
+    'highRiskPregnancyDescription': highRiskPregnancyDescription,
   };
 
-  factory HistoricoCirurgico.fromJson(Map<String, dynamic> json) =>
-      HistoricoCirurgico(
-        cirurgias: (json['cirurgias'] as List<dynamic>? ?? [])
-            .map((name) => enumFromName(CirurgiaGinecologica.values, name))
-            .whereType<CirurgiaGinecologica>()
-            .toSet(),
-        descricaoOutraCirurgia: json['descricaoOutraCirurgia'] as String?,
+  factory ObstetricHistory.fromJson(Map<String, dynamic> json) =>
+      ObstetricHistory(
+        hasBeenPregnant: json['hasBeenPregnant'] as bool?,
+        pregnancyCount: json['pregnancyCount'] as int?,
+        pregnancies: (json['pregnancies'] as List<dynamic>? ?? [])
+            .map((p) => Pregnancy.fromJson(p as Map<String, dynamic>))
+            .toList(),
+        currentlyPregnant: json['currentlyPregnant'] as bool?,
+        desiredDeliveryMethod: enumFromName(
+          DeliveryMethod.values,
+          json['desiredDeliveryMethod'],
+        ),
+        gestationWeeks: json['gestationWeeks'] as int?,
+        estimatedDeliveryDate: json['estimatedDeliveryDate'] == null
+            ? null
+            : DateTime.parse(json['estimatedDeliveryDate'] as String),
+        highRiskPregnancy: json['highRiskPregnancy'] as bool?,
+        highRiskPregnancyDescription:
+            json['highRiskPregnancyDescription'] as String?,
       );
 
   @override
-  List<Object?> get props => [cirurgias, descricaoOutraCirurgia];
+  List<Object?> get props => [
+    hasBeenPregnant,
+    pregnancyCount,
+    pregnancies,
+    currentlyPregnant,
+    desiredDeliveryMethod,
+    gestationWeeks,
+    estimatedDeliveryDate,
+    highRiskPregnancy,
+    highRiskPregnancyDescription,
+  ];
 }
 
-class FuncaoUrinaria extends Equatable {
-  const FuncaoUrinaria({
-    this.urgencia,
-    this.descricaoUrgencia,
-    this.incontinenciaEsforco,
-    this.gatilhosIncontinencia = const {},
-    this.descricaoOutroGatilho,
-    this.enureseNoturna,
-    this.descricaoEnurese,
-    this.hesitacao,
-    this.descricaoHesitacao,
-    this.esforcoMiccional,
-    this.descricaoEsforcoMiccional,
-    this.gotejamentoPosMiccional,
-    this.descricaoGotejamento,
-    this.esvaziamentoIncompleto,
-    this.descricaoEsvaziamentoIncompleto,
-    this.perdaAssociadaUrgencia,
-    this.quantidadePerda,
-    this.utilizaAbsorvente,
-    this.quantosAbsorventes,
-    this.dorArdenciaAoUrinar,
-    this.jatoUrinarioFraco,
+class SurgicalHistory extends Equatable {
+  const SurgicalHistory({
+    this.surgeries = const {},
+    this.otherSurgeryDescription,
   });
 
-  final bool? urgencia;
-  final String? descricaoUrgencia;
-  final bool? incontinenciaEsforco;
-  final Set<GatilhoIncontinencia> gatilhosIncontinencia;
-  final String? descricaoOutroGatilho;
-  final bool? enureseNoturna;
-  final String? descricaoEnurese;
-  final bool? hesitacao;
-  final String? descricaoHesitacao;
-  final bool? esforcoMiccional;
-  final String? descricaoEsforcoMiccional;
-  final bool? gotejamentoPosMiccional;
-  final String? descricaoGotejamento;
-  final bool? esvaziamentoIncompleto;
-  final String? descricaoEsvaziamentoIncompleto;
-  final bool? perdaAssociadaUrgencia;
-  final QuantidadePerda? quantidadePerda;
-  final bool? utilizaAbsorvente;
-  final int? quantosAbsorventes;
-  final bool? dorArdenciaAoUrinar;
-  final bool? jatoUrinarioFraco;
+  final Set<GynecologicalSurgery> surgeries;
+  final String? otherSurgeryDescription;
 
-  FuncaoUrinaria copyWith({
-    Object? urgencia = kUnset,
-    String? descricaoUrgencia,
-    Object? incontinenciaEsforco = kUnset,
-    Set<GatilhoIncontinencia>? gatilhosIncontinencia,
-    String? descricaoOutroGatilho,
-    Object? enureseNoturna = kUnset,
-    String? descricaoEnurese,
-    Object? hesitacao = kUnset,
-    String? descricaoHesitacao,
-    Object? esforcoMiccional = kUnset,
-    String? descricaoEsforcoMiccional,
-    Object? gotejamentoPosMiccional = kUnset,
-    String? descricaoGotejamento,
-    Object? esvaziamentoIncompleto = kUnset,
-    String? descricaoEsvaziamentoIncompleto,
-    Object? perdaAssociadaUrgencia = kUnset,
-    QuantidadePerda? quantidadePerda,
-    Object? utilizaAbsorvente = kUnset,
-    int? quantosAbsorventes,
-    Object? dorArdenciaAoUrinar = kUnset,
-    Object? jatoUrinarioFraco = kUnset,
+  SurgicalHistory copyWith({
+    Set<GynecologicalSurgery>? surgeries,
+    String? otherSurgeryDescription,
   }) {
-    return FuncaoUrinaria(
-      urgencia: unsetOr(urgencia, this.urgencia),
-      descricaoUrgencia: descricaoUrgencia ?? this.descricaoUrgencia,
-      incontinenciaEsforco: unsetOr(
-        incontinenciaEsforco,
-        this.incontinenciaEsforco,
-      ),
-      gatilhosIncontinencia:
-          gatilhosIncontinencia ?? this.gatilhosIncontinencia,
-      descricaoOutroGatilho:
-          descricaoOutroGatilho ?? this.descricaoOutroGatilho,
-      enureseNoturna: unsetOr(enureseNoturna, this.enureseNoturna),
-      descricaoEnurese: descricaoEnurese ?? this.descricaoEnurese,
-      hesitacao: unsetOr(hesitacao, this.hesitacao),
-      descricaoHesitacao: descricaoHesitacao ?? this.descricaoHesitacao,
-      esforcoMiccional: unsetOr(esforcoMiccional, this.esforcoMiccional),
-      descricaoEsforcoMiccional:
-          descricaoEsforcoMiccional ?? this.descricaoEsforcoMiccional,
-      gotejamentoPosMiccional: unsetOr(
-        gotejamentoPosMiccional,
-        this.gotejamentoPosMiccional,
-      ),
-      descricaoGotejamento: descricaoGotejamento ?? this.descricaoGotejamento,
-      esvaziamentoIncompleto: unsetOr(
-        esvaziamentoIncompleto,
-        this.esvaziamentoIncompleto,
-      ),
-      descricaoEsvaziamentoIncompleto:
-          descricaoEsvaziamentoIncompleto ??
-          this.descricaoEsvaziamentoIncompleto,
-      perdaAssociadaUrgencia: unsetOr(
-        perdaAssociadaUrgencia,
-        this.perdaAssociadaUrgencia,
-      ),
-      quantidadePerda: quantidadePerda ?? this.quantidadePerda,
-      utilizaAbsorvente: unsetOr(utilizaAbsorvente, this.utilizaAbsorvente),
-      quantosAbsorventes: quantosAbsorventes ?? this.quantosAbsorventes,
-      dorArdenciaAoUrinar: unsetOr(
-        dorArdenciaAoUrinar,
-        this.dorArdenciaAoUrinar,
-      ),
-      jatoUrinarioFraco: unsetOr(jatoUrinarioFraco, this.jatoUrinarioFraco),
+    return SurgicalHistory(
+      surgeries: surgeries ?? this.surgeries,
+      otherSurgeryDescription:
+          otherSurgeryDescription ?? this.otherSurgeryDescription,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'urgencia': urgencia,
-    'descricaoUrgencia': descricaoUrgencia,
-    'incontinenciaEsforco': incontinenciaEsforco,
-    'gatilhosIncontinencia': gatilhosIncontinencia.map((g) => g.name).toList(),
-    'descricaoOutroGatilho': descricaoOutroGatilho,
-    'enureseNoturna': enureseNoturna,
-    'descricaoEnurese': descricaoEnurese,
-    'hesitacao': hesitacao,
-    'descricaoHesitacao': descricaoHesitacao,
-    'esforcoMiccional': esforcoMiccional,
-    'descricaoEsforcoMiccional': descricaoEsforcoMiccional,
-    'gotejamentoPosMiccional': gotejamentoPosMiccional,
-    'descricaoGotejamento': descricaoGotejamento,
-    'esvaziamentoIncompleto': esvaziamentoIncompleto,
-    'descricaoEsvaziamentoIncompleto': descricaoEsvaziamentoIncompleto,
-    'perdaAssociadaUrgencia': perdaAssociadaUrgencia,
-    'quantidadePerda': quantidadePerda?.name,
-    'utilizaAbsorvente': utilizaAbsorvente,
-    'quantosAbsorventes': quantosAbsorventes,
-    'dorArdenciaAoUrinar': dorArdenciaAoUrinar,
-    'jatoUrinarioFraco': jatoUrinarioFraco,
+    'surgeries': surgeries.map((c) => c.name).toList(),
+    'otherSurgeryDescription': otherSurgeryDescription,
   };
 
-  factory FuncaoUrinaria.fromJson(Map<String, dynamic> json) => FuncaoUrinaria(
-    urgencia: json['urgencia'] as bool?,
-    descricaoUrgencia: json['descricaoUrgencia'] as String?,
-    incontinenciaEsforco: json['incontinenciaEsforco'] as bool?,
-    gatilhosIncontinencia:
-        (json['gatilhosIncontinencia'] as List<dynamic>? ?? [])
-            .map((name) => enumFromName(GatilhoIncontinencia.values, name))
-            .whereType<GatilhoIncontinencia>()
+  factory SurgicalHistory.fromJson(Map<String, dynamic> json) =>
+      SurgicalHistory(
+        surgeries: (json['surgeries'] as List<dynamic>? ?? [])
+            .map((name) => enumFromName(GynecologicalSurgery.values, name))
+            .whereType<GynecologicalSurgery>()
             .toSet(),
-    descricaoOutroGatilho: json['descricaoOutroGatilho'] as String?,
-    enureseNoturna: json['enureseNoturna'] as bool?,
-    descricaoEnurese: json['descricaoEnurese'] as String?,
-    hesitacao: json['hesitacao'] as bool?,
-    descricaoHesitacao: json['descricaoHesitacao'] as String?,
-    esforcoMiccional: json['esforcoMiccional'] as bool?,
-    descricaoEsforcoMiccional: json['descricaoEsforcoMiccional'] as String?,
-    gotejamentoPosMiccional: json['gotejamentoPosMiccional'] as bool?,
-    descricaoGotejamento: json['descricaoGotejamento'] as String?,
-    esvaziamentoIncompleto: json['esvaziamentoIncompleto'] as bool?,
-    descricaoEsvaziamentoIncompleto:
-        json['descricaoEsvaziamentoIncompleto'] as String?,
-    perdaAssociadaUrgencia: json['perdaAssociadaUrgencia'] as bool?,
-    quantidadePerda: enumFromName(
-      QuantidadePerda.values,
-      json['quantidadePerda'],
-    ),
-    utilizaAbsorvente: json['utilizaAbsorvente'] as bool?,
-    quantosAbsorventes: json['quantosAbsorventes'] as int?,
-    dorArdenciaAoUrinar: json['dorArdenciaAoUrinar'] as bool?,
-    jatoUrinarioFraco: json['jatoUrinarioFraco'] as bool?,
-  );
+        otherSurgeryDescription: json['otherSurgeryDescription'] as String?,
+      );
 
   @override
-  List<Object?> get props => [
-    urgencia,
-    descricaoUrgencia,
-    incontinenciaEsforco,
-    gatilhosIncontinencia,
-    descricaoOutroGatilho,
-    enureseNoturna,
-    descricaoEnurese,
-    hesitacao,
-    descricaoHesitacao,
-    esforcoMiccional,
-    descricaoEsforcoMiccional,
-    gotejamentoPosMiccional,
-    descricaoGotejamento,
-    esvaziamentoIncompleto,
-    descricaoEsvaziamentoIncompleto,
-    perdaAssociadaUrgencia,
-    quantidadePerda,
-    utilizaAbsorvente,
-    quantosAbsorventes,
-    dorArdenciaAoUrinar,
-    jatoUrinarioFraco,
-  ];
+  List<Object?> get props => [surgeries, otherSurgeryDescription];
 }
 
-class FuncaoSexual extends Equatable {
-  const FuncaoSexual({
-    this.vidaSexualAtiva,
-    this.precisaLubrificante,
-    this.dificuldadeOrgasmo,
-    this.descricaoDificuldadeOrgasmo,
-    this.desejoSexual,
-    this.frequenciaAtividadeSexual,
-    this.dorNaPenetracao,
-    this.tipoDorPenetracao,
-    this.dorDuranteOuDepoisRelacao,
-    this.intensidadeDor0a10,
-    this.ressecamento,
+class UrinaryFunction extends Equatable {
+  const UrinaryFunction({
+    this.urgency,
+    this.urgencyDescription,
+    this.stressIncontinence,
+    this.incontinenceTriggers = const {},
+    this.otherTriggerDescription,
+    this.nocturnalEnuresis,
+    this.enuresisDescription,
+    this.hesitancy,
+    this.hesitancyDescription,
+    this.urinaryStraining,
+    this.urinaryStrainingDescription,
+    this.postVoidDribbling,
+    this.dribblingDescription,
+    this.incompleteEmptying,
+    this.incompleteEmptyingDescription,
+    this.urgencyAssociatedLeakage,
+    this.leakageAmount,
+    this.usesPads,
+    this.padsPerDay,
+    this.painOrBurningWhenUrinating,
+    this.weakUrinaryStream,
   });
 
-  final bool? vidaSexualAtiva;
-  final bool? precisaLubrificante;
-  final bool? dificuldadeOrgasmo;
-  final String? descricaoDificuldadeOrgasmo;
-  final DesejoSexual? desejoSexual;
-  final String? frequenciaAtividadeSexual;
-  final bool? dorNaPenetracao;
-  final TipoDorPenetracao? tipoDorPenetracao;
-  final bool? dorDuranteOuDepoisRelacao;
-  final int? intensidadeDor0a10;
-  final bool? ressecamento;
+  final bool? urgency;
+  final String? urgencyDescription;
+  final bool? stressIncontinence;
+  final Set<IncontinenceTrigger> incontinenceTriggers;
+  final String? otherTriggerDescription;
+  final bool? nocturnalEnuresis;
+  final String? enuresisDescription;
+  final bool? hesitancy;
+  final String? hesitancyDescription;
+  final bool? urinaryStraining;
+  final String? urinaryStrainingDescription;
+  final bool? postVoidDribbling;
+  final String? dribblingDescription;
+  final bool? incompleteEmptying;
+  final String? incompleteEmptyingDescription;
+  final bool? urgencyAssociatedLeakage;
+  final LeakageAmount? leakageAmount;
+  final bool? usesPads;
+  final int? padsPerDay;
+  final bool? painOrBurningWhenUrinating;
+  final bool? weakUrinaryStream;
 
-  FuncaoSexual copyWith({
-    Object? vidaSexualAtiva = kUnset,
-    Object? precisaLubrificante = kUnset,
-    Object? dificuldadeOrgasmo = kUnset,
-    String? descricaoDificuldadeOrgasmo,
-    DesejoSexual? desejoSexual,
-    String? frequenciaAtividadeSexual,
-    Object? dorNaPenetracao = kUnset,
-    TipoDorPenetracao? tipoDorPenetracao,
-    Object? dorDuranteOuDepoisRelacao = kUnset,
-    int? intensidadeDor0a10,
-    Object? ressecamento = kUnset,
+  UrinaryFunction copyWith({
+    Object? urgency = kUnset,
+    String? urgencyDescription,
+    Object? stressIncontinence = kUnset,
+    Set<IncontinenceTrigger>? incontinenceTriggers,
+    String? otherTriggerDescription,
+    Object? nocturnalEnuresis = kUnset,
+    String? enuresisDescription,
+    Object? hesitancy = kUnset,
+    String? hesitancyDescription,
+    Object? urinaryStraining = kUnset,
+    String? urinaryStrainingDescription,
+    Object? postVoidDribbling = kUnset,
+    String? dribblingDescription,
+    Object? incompleteEmptying = kUnset,
+    String? incompleteEmptyingDescription,
+    Object? urgencyAssociatedLeakage = kUnset,
+    LeakageAmount? leakageAmount,
+    Object? usesPads = kUnset,
+    int? padsPerDay,
+    Object? painOrBurningWhenUrinating = kUnset,
+    Object? weakUrinaryStream = kUnset,
   }) {
-    return FuncaoSexual(
-      vidaSexualAtiva: unsetOr(vidaSexualAtiva, this.vidaSexualAtiva),
-      precisaLubrificante: unsetOr(
-        precisaLubrificante,
-        this.precisaLubrificante,
+    return UrinaryFunction(
+      urgency: unsetOr(urgency, this.urgency),
+      urgencyDescription: urgencyDescription ?? this.urgencyDescription,
+      stressIncontinence: unsetOr(stressIncontinence, this.stressIncontinence),
+      incontinenceTriggers: incontinenceTriggers ?? this.incontinenceTriggers,
+      otherTriggerDescription:
+          otherTriggerDescription ?? this.otherTriggerDescription,
+      nocturnalEnuresis: unsetOr(nocturnalEnuresis, this.nocturnalEnuresis),
+      enuresisDescription: enuresisDescription ?? this.enuresisDescription,
+      hesitancy: unsetOr(hesitancy, this.hesitancy),
+      hesitancyDescription: hesitancyDescription ?? this.hesitancyDescription,
+      urinaryStraining: unsetOr(urinaryStraining, this.urinaryStraining),
+      urinaryStrainingDescription:
+          urinaryStrainingDescription ?? this.urinaryStrainingDescription,
+      postVoidDribbling: unsetOr(postVoidDribbling, this.postVoidDribbling),
+      dribblingDescription: dribblingDescription ?? this.dribblingDescription,
+      incompleteEmptying: unsetOr(incompleteEmptying, this.incompleteEmptying),
+      incompleteEmptyingDescription:
+          incompleteEmptyingDescription ?? this.incompleteEmptyingDescription,
+      urgencyAssociatedLeakage: unsetOr(
+        urgencyAssociatedLeakage,
+        this.urgencyAssociatedLeakage,
       ),
-      dificuldadeOrgasmo: unsetOr(dificuldadeOrgasmo, this.dificuldadeOrgasmo),
-      descricaoDificuldadeOrgasmo:
-          descricaoDificuldadeOrgasmo ?? this.descricaoDificuldadeOrgasmo,
-      desejoSexual: desejoSexual ?? this.desejoSexual,
-      frequenciaAtividadeSexual:
-          frequenciaAtividadeSexual ?? this.frequenciaAtividadeSexual,
-      dorNaPenetracao: unsetOr(dorNaPenetracao, this.dorNaPenetracao),
-      tipoDorPenetracao: tipoDorPenetracao ?? this.tipoDorPenetracao,
-      dorDuranteOuDepoisRelacao: unsetOr(
-        dorDuranteOuDepoisRelacao,
-        this.dorDuranteOuDepoisRelacao,
+      leakageAmount: leakageAmount ?? this.leakageAmount,
+      usesPads: unsetOr(usesPads, this.usesPads),
+      padsPerDay: padsPerDay ?? this.padsPerDay,
+      painOrBurningWhenUrinating: unsetOr(
+        painOrBurningWhenUrinating,
+        this.painOrBurningWhenUrinating,
       ),
-      intensidadeDor0a10: intensidadeDor0a10 ?? this.intensidadeDor0a10,
-      ressecamento: unsetOr(ressecamento, this.ressecamento),
+      weakUrinaryStream: unsetOr(weakUrinaryStream, this.weakUrinaryStream),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'vidaSexualAtiva': vidaSexualAtiva,
-    'precisaLubrificante': precisaLubrificante,
-    'dificuldadeOrgasmo': dificuldadeOrgasmo,
-    'descricaoDificuldadeOrgasmo': descricaoDificuldadeOrgasmo,
-    'desejoSexual': desejoSexual?.name,
-    'frequenciaAtividadeSexual': frequenciaAtividadeSexual,
-    'dorNaPenetracao': dorNaPenetracao,
-    'tipoDorPenetracao': tipoDorPenetracao?.name,
-    'dorDuranteOuDepoisRelacao': dorDuranteOuDepoisRelacao,
-    'intensidadeDor0a10': intensidadeDor0a10,
-    'ressecamento': ressecamento,
+    'urgency': urgency,
+    'urgencyDescription': urgencyDescription,
+    'stressIncontinence': stressIncontinence,
+    'incontinenceTriggers': incontinenceTriggers.map((g) => g.name).toList(),
+    'otherTriggerDescription': otherTriggerDescription,
+    'nocturnalEnuresis': nocturnalEnuresis,
+    'enuresisDescription': enuresisDescription,
+    'hesitancy': hesitancy,
+    'hesitancyDescription': hesitancyDescription,
+    'urinaryStraining': urinaryStraining,
+    'urinaryStrainingDescription': urinaryStrainingDescription,
+    'postVoidDribbling': postVoidDribbling,
+    'dribblingDescription': dribblingDescription,
+    'incompleteEmptying': incompleteEmptying,
+    'incompleteEmptyingDescription': incompleteEmptyingDescription,
+    'urgencyAssociatedLeakage': urgencyAssociatedLeakage,
+    'leakageAmount': leakageAmount?.name,
+    'usesPads': usesPads,
+    'padsPerDay': padsPerDay,
+    'painOrBurningWhenUrinating': painOrBurningWhenUrinating,
+    'weakUrinaryStream': weakUrinaryStream,
   };
 
-  factory FuncaoSexual.fromJson(Map<String, dynamic> json) => FuncaoSexual(
-    vidaSexualAtiva: json['vidaSexualAtiva'] as bool?,
-    precisaLubrificante: json['precisaLubrificante'] as bool?,
-    dificuldadeOrgasmo: json['dificuldadeOrgasmo'] as bool?,
-    descricaoDificuldadeOrgasmo: json['descricaoDificuldadeOrgasmo'] as String?,
-    desejoSexual: enumFromName(DesejoSexual.values, json['desejoSexual']),
-    frequenciaAtividadeSexual: json['frequenciaAtividadeSexual'] as String?,
-    dorNaPenetracao: json['dorNaPenetracao'] as bool?,
-    tipoDorPenetracao: enumFromName(
-      TipoDorPenetracao.values,
-      json['tipoDorPenetracao'],
-    ),
-    dorDuranteOuDepoisRelacao: json['dorDuranteOuDepoisRelacao'] as bool?,
-    intensidadeDor0a10: json['intensidadeDor0a10'] as int?,
-    ressecamento: json['ressecamento'] as bool?,
-  );
-
-  @override
-  List<Object?> get props => [
-    vidaSexualAtiva,
-    precisaLubrificante,
-    dificuldadeOrgasmo,
-    descricaoDificuldadeOrgasmo,
-    desejoSexual,
-    frequenciaAtividadeSexual,
-    dorNaPenetracao,
-    tipoDorPenetracao,
-    dorDuranteOuDepoisRelacao,
-    intensidadeDor0a10,
-    ressecamento,
-  ];
-}
-
-class FuncaoIntestinal extends Equatable {
-  const FuncaoIntestinal({
-    this.frequenciaEvacuatoria,
-    this.frequenciaPersonalizadaValor,
-    this.usaLaxante,
-    this.descricaoLaxante,
-    this.forcaParaEvacuar,
-    this.dorParaEvacuar,
-    this.esvaziamentoIncompleto,
-    this.perdeGases,
-    this.perdeFezes,
-    this.escalaBristol,
-    this.sensacaoObstrucao,
-    this.urgenciaFecal,
-    this.presencaHemorroidas,
-  });
-
-  final FrequenciaEvacuatoria? frequenciaEvacuatoria;
-  final int? frequenciaPersonalizadaValor;
-  final bool? usaLaxante;
-  final String? descricaoLaxante;
-  final bool? forcaParaEvacuar;
-  final bool? dorParaEvacuar;
-  final bool? esvaziamentoIncompleto;
-  final bool? perdeGases;
-  final bool? perdeFezes;
-  final EscalaBristol? escalaBristol;
-  final bool? sensacaoObstrucao;
-  final bool? urgenciaFecal;
-  final bool? presencaHemorroidas;
-
-  FuncaoIntestinal copyWith({
-    FrequenciaEvacuatoria? frequenciaEvacuatoria,
-    int? frequenciaPersonalizadaValor,
-    Object? usaLaxante = kUnset,
-    String? descricaoLaxante,
-    Object? forcaParaEvacuar = kUnset,
-    Object? dorParaEvacuar = kUnset,
-    Object? esvaziamentoIncompleto = kUnset,
-    Object? perdeGases = kUnset,
-    Object? perdeFezes = kUnset,
-    EscalaBristol? escalaBristol,
-    Object? sensacaoObstrucao = kUnset,
-    Object? urgenciaFecal = kUnset,
-    Object? presencaHemorroidas = kUnset,
-  }) {
-    return FuncaoIntestinal(
-      frequenciaEvacuatoria:
-          frequenciaEvacuatoria ?? this.frequenciaEvacuatoria,
-      frequenciaPersonalizadaValor:
-          frequenciaPersonalizadaValor ?? this.frequenciaPersonalizadaValor,
-      usaLaxante: unsetOr(usaLaxante, this.usaLaxante),
-      descricaoLaxante: descricaoLaxante ?? this.descricaoLaxante,
-      forcaParaEvacuar: unsetOr(forcaParaEvacuar, this.forcaParaEvacuar),
-      dorParaEvacuar: unsetOr(dorParaEvacuar, this.dorParaEvacuar),
-      esvaziamentoIncompleto: unsetOr(
-        esvaziamentoIncompleto,
-        this.esvaziamentoIncompleto,
-      ),
-      perdeGases: unsetOr(perdeGases, this.perdeGases),
-      perdeFezes: unsetOr(perdeFezes, this.perdeFezes),
-      escalaBristol: escalaBristol ?? this.escalaBristol,
-      sensacaoObstrucao: unsetOr(sensacaoObstrucao, this.sensacaoObstrucao),
-      urgenciaFecal: unsetOr(urgenciaFecal, this.urgenciaFecal),
-      presencaHemorroidas: unsetOr(
-        presencaHemorroidas,
-        this.presencaHemorroidas,
-      ),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'frequenciaEvacuatoria': frequenciaEvacuatoria?.name,
-    'frequenciaPersonalizadaValor': frequenciaPersonalizadaValor,
-    'usaLaxante': usaLaxante,
-    'descricaoLaxante': descricaoLaxante,
-    'forcaParaEvacuar': forcaParaEvacuar,
-    'dorParaEvacuar': dorParaEvacuar,
-    'esvaziamentoIncompleto': esvaziamentoIncompleto,
-    'perdeGases': perdeGases,
-    'perdeFezes': perdeFezes,
-    'escalaBristol': escalaBristol?.name,
-    'sensacaoObstrucao': sensacaoObstrucao,
-    'urgenciaFecal': urgenciaFecal,
-    'presencaHemorroidas': presencaHemorroidas,
-  };
-
-  factory FuncaoIntestinal.fromJson(
+  factory UrinaryFunction.fromJson(
     Map<String, dynamic> json,
-  ) => FuncaoIntestinal(
-    frequenciaEvacuatoria: enumFromName(
-      FrequenciaEvacuatoria.values,
-      json['frequenciaEvacuatoria'],
-    ),
-    frequenciaPersonalizadaValor: json['frequenciaPersonalizadaValor'] as int?,
-    usaLaxante: json['usaLaxante'] as bool?,
-    descricaoLaxante: json['descricaoLaxante'] as String?,
-    forcaParaEvacuar: json['forcaParaEvacuar'] as bool?,
-    dorParaEvacuar: json['dorParaEvacuar'] as bool?,
-    esvaziamentoIncompleto: json['esvaziamentoIncompleto'] as bool?,
-    perdeGases: json['perdeGases'] as bool?,
-    perdeFezes: json['perdeFezes'] as bool?,
-    escalaBristol: enumFromName(EscalaBristol.values, json['escalaBristol']),
-    sensacaoObstrucao: json['sensacaoObstrucao'] as bool?,
-    urgenciaFecal: json['urgenciaFecal'] as bool?,
-    presencaHemorroidas: json['presencaHemorroidas'] as bool?,
+  ) => UrinaryFunction(
+    urgency: json['urgency'] as bool?,
+    urgencyDescription: json['urgencyDescription'] as String?,
+    stressIncontinence: json['stressIncontinence'] as bool?,
+    incontinenceTriggers: (json['incontinenceTriggers'] as List<dynamic>? ?? [])
+        .map((name) => enumFromName(IncontinenceTrigger.values, name))
+        .whereType<IncontinenceTrigger>()
+        .toSet(),
+    otherTriggerDescription: json['otherTriggerDescription'] as String?,
+    nocturnalEnuresis: json['nocturnalEnuresis'] as bool?,
+    enuresisDescription: json['enuresisDescription'] as String?,
+    hesitancy: json['hesitancy'] as bool?,
+    hesitancyDescription: json['hesitancyDescription'] as String?,
+    urinaryStraining: json['urinaryStraining'] as bool?,
+    urinaryStrainingDescription: json['urinaryStrainingDescription'] as String?,
+    postVoidDribbling: json['postVoidDribbling'] as bool?,
+    dribblingDescription: json['dribblingDescription'] as String?,
+    incompleteEmptying: json['incompleteEmptying'] as bool?,
+    incompleteEmptyingDescription:
+        json['incompleteEmptyingDescription'] as String?,
+    urgencyAssociatedLeakage: json['urgencyAssociatedLeakage'] as bool?,
+    leakageAmount: enumFromName(LeakageAmount.values, json['leakageAmount']),
+    usesPads: json['usesPads'] as bool?,
+    padsPerDay: json['padsPerDay'] as int?,
+    painOrBurningWhenUrinating: json['painOrBurningWhenUrinating'] as bool?,
+    weakUrinaryStream: json['weakUrinaryStream'] as bool?,
   );
 
   @override
   List<Object?> get props => [
-    frequenciaEvacuatoria,
-    frequenciaPersonalizadaValor,
-    usaLaxante,
-    descricaoLaxante,
-    forcaParaEvacuar,
-    dorParaEvacuar,
-    esvaziamentoIncompleto,
-    perdeGases,
-    perdeFezes,
-    escalaBristol,
-    sensacaoObstrucao,
-    urgenciaFecal,
-    presencaHemorroidas,
+    urgency,
+    urgencyDescription,
+    stressIncontinence,
+    incontinenceTriggers,
+    otherTriggerDescription,
+    nocturnalEnuresis,
+    enuresisDescription,
+    hesitancy,
+    hesitancyDescription,
+    urinaryStraining,
+    urinaryStrainingDescription,
+    postVoidDribbling,
+    dribblingDescription,
+    incompleteEmptying,
+    incompleteEmptyingDescription,
+    urgencyAssociatedLeakage,
+    leakageAmount,
+    usesPads,
+    padsPerDay,
+    painOrBurningWhenUrinating,
+    weakUrinaryStream,
   ];
 }
 
-class PlanoTratamento extends Equatable {
-  const PlanoTratamento({
-    this.diagnosticoFisioterapeutico,
-    this.objetivoTratamento,
-    this.condutaTratamento,
-    this.frequenciaSugerida,
+class SexualFunction extends Equatable {
+  const SexualFunction({
+    this.sexuallyActive,
+    this.needsLubricant,
+    this.orgasmDifficulty,
+    this.orgasmDifficultyDescription,
+    this.sexualDesire,
+    this.sexualActivityFrequency,
+    this.painDuringPenetration,
+    this.penetrationPainType,
+    this.painDuringOrAfterIntercourse,
+    this.painIntensity0to10,
+    this.dryness,
   });
 
-  final String? diagnosticoFisioterapeutico;
-  final String? objetivoTratamento;
-  final String? condutaTratamento;
-  final String? frequenciaSugerida;
+  final bool? sexuallyActive;
+  final bool? needsLubricant;
+  final bool? orgasmDifficulty;
+  final String? orgasmDifficultyDescription;
+  final SexualDesire? sexualDesire;
+  final String? sexualActivityFrequency;
+  final bool? painDuringPenetration;
+  final PenetrationPainType? penetrationPainType;
+  final bool? painDuringOrAfterIntercourse;
+  final int? painIntensity0to10;
+  final bool? dryness;
 
-  PlanoTratamento copyWith({
-    String? diagnosticoFisioterapeutico,
-    String? objetivoTratamento,
-    String? condutaTratamento,
-    String? frequenciaSugerida,
+  SexualFunction copyWith({
+    Object? sexuallyActive = kUnset,
+    Object? needsLubricant = kUnset,
+    Object? orgasmDifficulty = kUnset,
+    String? orgasmDifficultyDescription,
+    SexualDesire? sexualDesire,
+    String? sexualActivityFrequency,
+    Object? painDuringPenetration = kUnset,
+    PenetrationPainType? penetrationPainType,
+    Object? painDuringOrAfterIntercourse = kUnset,
+    int? painIntensity0to10,
+    Object? dryness = kUnset,
   }) {
-    return PlanoTratamento(
-      diagnosticoFisioterapeutico:
-          diagnosticoFisioterapeutico ?? this.diagnosticoFisioterapeutico,
-      objetivoTratamento: objetivoTratamento ?? this.objetivoTratamento,
-      condutaTratamento: condutaTratamento ?? this.condutaTratamento,
-      frequenciaSugerida: frequenciaSugerida ?? this.frequenciaSugerida,
+    return SexualFunction(
+      sexuallyActive: unsetOr(sexuallyActive, this.sexuallyActive),
+      needsLubricant: unsetOr(needsLubricant, this.needsLubricant),
+      orgasmDifficulty: unsetOr(orgasmDifficulty, this.orgasmDifficulty),
+      orgasmDifficultyDescription:
+          orgasmDifficultyDescription ?? this.orgasmDifficultyDescription,
+      sexualDesire: sexualDesire ?? this.sexualDesire,
+      sexualActivityFrequency:
+          sexualActivityFrequency ?? this.sexualActivityFrequency,
+      painDuringPenetration: unsetOr(
+        painDuringPenetration,
+        this.painDuringPenetration,
+      ),
+      penetrationPainType: penetrationPainType ?? this.penetrationPainType,
+      painDuringOrAfterIntercourse: unsetOr(
+        painDuringOrAfterIntercourse,
+        this.painDuringOrAfterIntercourse,
+      ),
+      painIntensity0to10: painIntensity0to10 ?? this.painIntensity0to10,
+      dryness: unsetOr(dryness, this.dryness),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'diagnosticoFisioterapeutico': diagnosticoFisioterapeutico,
-    'objetivoTratamento': objetivoTratamento,
-    'condutaTratamento': condutaTratamento,
-    'frequenciaSugerida': frequenciaSugerida,
+    'sexuallyActive': sexuallyActive,
+    'needsLubricant': needsLubricant,
+    'orgasmDifficulty': orgasmDifficulty,
+    'orgasmDifficultyDescription': orgasmDifficultyDescription,
+    'sexualDesire': sexualDesire?.name,
+    'sexualActivityFrequency': sexualActivityFrequency,
+    'painDuringPenetration': painDuringPenetration,
+    'penetrationPainType': penetrationPainType?.name,
+    'painDuringOrAfterIntercourse': painDuringOrAfterIntercourse,
+    'painIntensity0to10': painIntensity0to10,
+    'dryness': dryness,
   };
 
-  factory PlanoTratamento.fromJson(Map<String, dynamic> json) =>
-      PlanoTratamento(
-        diagnosticoFisioterapeutico:
-            json['diagnosticoFisioterapeutico'] as String?,
-        objetivoTratamento: json['objetivoTratamento'] as String?,
-        condutaTratamento: json['condutaTratamento'] as String?,
-        frequenciaSugerida: json['frequenciaSugerida'] as String?,
-      );
-
-  @override
-  List<Object?> get props => [
-    diagnosticoFisioterapeutico,
-    objetivoTratamento,
-    condutaTratamento,
-    frequenciaSugerida,
-  ];
-}
-
-class Encerramento extends Equatable {
-  const Encerramento({
-    required this.data,
-    required this.motivo,
-    this.observacaoFinal,
-  });
-
-  final DateTime data;
-  final MotivoEncerramento motivo;
-  final String? observacaoFinal;
-
-  Map<String, dynamic> toJson() => {
-    'data': data.toIso8601String(),
-    'motivo': motivo.name,
-    'observacaoFinal': observacaoFinal,
-  };
-
-  factory Encerramento.fromJson(Map<String, dynamic> json) => Encerramento(
-    data: DateTime.parse(json['data'] as String),
-    motivo:
-        enumFromName(MotivoEncerramento.values, json['motivo']) ??
-        MotivoEncerramento.outro,
-    observacaoFinal: json['observacaoFinal'] as String?,
+  factory SexualFunction.fromJson(Map<String, dynamic> json) => SexualFunction(
+    sexuallyActive: json['sexuallyActive'] as bool?,
+    needsLubricant: json['needsLubricant'] as bool?,
+    orgasmDifficulty: json['orgasmDifficulty'] as bool?,
+    orgasmDifficultyDescription: json['orgasmDifficultyDescription'] as String?,
+    sexualDesire: enumFromName(SexualDesire.values, json['sexualDesire']),
+    sexualActivityFrequency: json['sexualActivityFrequency'] as String?,
+    painDuringPenetration: json['painDuringPenetration'] as bool?,
+    penetrationPainType: enumFromName(
+      PenetrationPainType.values,
+      json['penetrationPainType'],
+    ),
+    painDuringOrAfterIntercourse: json['painDuringOrAfterIntercourse'] as bool?,
+    painIntensity0to10: json['painIntensity0to10'] as int?,
+    dryness: json['dryness'] as bool?,
   );
 
   @override
-  List<Object?> get props => [data, motivo, observacaoFinal];
+  List<Object?> get props => [
+    sexuallyActive,
+    needsLubricant,
+    orgasmDifficulty,
+    orgasmDifficultyDescription,
+    sexualDesire,
+    sexualActivityFrequency,
+    painDuringPenetration,
+    penetrationPainType,
+    painDuringOrAfterIntercourse,
+    painIntensity0to10,
+    dryness,
+  ];
+}
+
+class BowelFunction extends Equatable {
+  const BowelFunction({
+    this.bowelFrequency,
+    this.customFrequencyValue,
+    this.usesLaxative,
+    this.laxativeDescription,
+    this.strainsToDefecate,
+    this.painToDefecate,
+    this.incompleteEmptying,
+    this.gasIncontinence,
+    this.fecalIncontinence,
+    this.bristolScale,
+    this.obstructionSensation,
+    this.fecalUrgency,
+    this.hemorrhoids,
+  });
+
+  final BowelFrequency? bowelFrequency;
+  final int? customFrequencyValue;
+  final bool? usesLaxative;
+  final String? laxativeDescription;
+  final bool? strainsToDefecate;
+  final bool? painToDefecate;
+  final bool? incompleteEmptying;
+  final bool? gasIncontinence;
+  final bool? fecalIncontinence;
+  final BristolScale? bristolScale;
+  final bool? obstructionSensation;
+  final bool? fecalUrgency;
+  final bool? hemorrhoids;
+
+  BowelFunction copyWith({
+    BowelFrequency? bowelFrequency,
+    int? customFrequencyValue,
+    Object? usesLaxative = kUnset,
+    String? laxativeDescription,
+    Object? strainsToDefecate = kUnset,
+    Object? painToDefecate = kUnset,
+    Object? incompleteEmptying = kUnset,
+    Object? gasIncontinence = kUnset,
+    Object? fecalIncontinence = kUnset,
+    BristolScale? bristolScale,
+    Object? obstructionSensation = kUnset,
+    Object? fecalUrgency = kUnset,
+    Object? hemorrhoids = kUnset,
+  }) {
+    return BowelFunction(
+      bowelFrequency: bowelFrequency ?? this.bowelFrequency,
+      customFrequencyValue: customFrequencyValue ?? this.customFrequencyValue,
+      usesLaxative: unsetOr(usesLaxative, this.usesLaxative),
+      laxativeDescription: laxativeDescription ?? this.laxativeDescription,
+      strainsToDefecate: unsetOr(strainsToDefecate, this.strainsToDefecate),
+      painToDefecate: unsetOr(painToDefecate, this.painToDefecate),
+      incompleteEmptying: unsetOr(incompleteEmptying, this.incompleteEmptying),
+      gasIncontinence: unsetOr(gasIncontinence, this.gasIncontinence),
+      fecalIncontinence: unsetOr(fecalIncontinence, this.fecalIncontinence),
+      bristolScale: bristolScale ?? this.bristolScale,
+      obstructionSensation: unsetOr(
+        obstructionSensation,
+        this.obstructionSensation,
+      ),
+      fecalUrgency: unsetOr(fecalUrgency, this.fecalUrgency),
+      hemorrhoids: unsetOr(hemorrhoids, this.hemorrhoids),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'bowelFrequency': bowelFrequency?.name,
+    'customFrequencyValue': customFrequencyValue,
+    'usesLaxative': usesLaxative,
+    'laxativeDescription': laxativeDescription,
+    'strainsToDefecate': strainsToDefecate,
+    'painToDefecate': painToDefecate,
+    'incompleteEmptying': incompleteEmptying,
+    'gasIncontinence': gasIncontinence,
+    'fecalIncontinence': fecalIncontinence,
+    'bristolScale': bristolScale?.name,
+    'obstructionSensation': obstructionSensation,
+    'fecalUrgency': fecalUrgency,
+    'hemorrhoids': hemorrhoids,
+  };
+
+  factory BowelFunction.fromJson(Map<String, dynamic> json) => BowelFunction(
+    bowelFrequency: enumFromName(BowelFrequency.values, json['bowelFrequency']),
+    customFrequencyValue: json['customFrequencyValue'] as int?,
+    usesLaxative: json['usesLaxative'] as bool?,
+    laxativeDescription: json['laxativeDescription'] as String?,
+    strainsToDefecate: json['strainsToDefecate'] as bool?,
+    painToDefecate: json['painToDefecate'] as bool?,
+    incompleteEmptying: json['incompleteEmptying'] as bool?,
+    gasIncontinence: json['gasIncontinence'] as bool?,
+    fecalIncontinence: json['fecalIncontinence'] as bool?,
+    bristolScale: enumFromName(BristolScale.values, json['bristolScale']),
+    obstructionSensation: json['obstructionSensation'] as bool?,
+    fecalUrgency: json['fecalUrgency'] as bool?,
+    hemorrhoids: json['hemorrhoids'] as bool?,
+  );
+
+  @override
+  List<Object?> get props => [
+    bowelFrequency,
+    customFrequencyValue,
+    usesLaxative,
+    laxativeDescription,
+    strainsToDefecate,
+    painToDefecate,
+    incompleteEmptying,
+    gasIncontinence,
+    fecalIncontinence,
+    bristolScale,
+    obstructionSensation,
+    fecalUrgency,
+    hemorrhoids,
+  ];
+}
+
+class TreatmentPlan extends Equatable {
+  const TreatmentPlan({
+    this.physiotherapyDiagnosis,
+    this.treatmentGoal,
+    this.treatmentApproach,
+    this.suggestedFrequency,
+  });
+
+  final String? physiotherapyDiagnosis;
+  final String? treatmentGoal;
+  final String? treatmentApproach;
+  final String? suggestedFrequency;
+
+  TreatmentPlan copyWith({
+    String? physiotherapyDiagnosis,
+    String? treatmentGoal,
+    String? treatmentApproach,
+    String? suggestedFrequency,
+  }) {
+    return TreatmentPlan(
+      physiotherapyDiagnosis:
+          physiotherapyDiagnosis ?? this.physiotherapyDiagnosis,
+      treatmentGoal: treatmentGoal ?? this.treatmentGoal,
+      treatmentApproach: treatmentApproach ?? this.treatmentApproach,
+      suggestedFrequency: suggestedFrequency ?? this.suggestedFrequency,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'physiotherapyDiagnosis': physiotherapyDiagnosis,
+    'treatmentGoal': treatmentGoal,
+    'treatmentApproach': treatmentApproach,
+    'suggestedFrequency': suggestedFrequency,
+  };
+
+  factory TreatmentPlan.fromJson(Map<String, dynamic> json) => TreatmentPlan(
+    physiotherapyDiagnosis: json['physiotherapyDiagnosis'] as String?,
+    treatmentGoal: json['treatmentGoal'] as String?,
+    treatmentApproach: json['treatmentApproach'] as String?,
+    suggestedFrequency: json['suggestedFrequency'] as String?,
+  );
+
+  @override
+  List<Object?> get props => [
+    physiotherapyDiagnosis,
+    treatmentGoal,
+    treatmentApproach,
+    suggestedFrequency,
+  ];
+}
+
+class Discharge extends Equatable {
+  const Discharge({required this.date, required this.reason, this.finalNote});
+
+  final DateTime date;
+  final DischargeReason reason;
+  final String? finalNote;
+
+  Map<String, dynamic> toJson() => {
+    'date': date.toIso8601String(),
+    'reason': reason.name,
+    'finalNote': finalNote,
+  };
+
+  factory Discharge.fromJson(Map<String, dynamic> json) => Discharge(
+    date: DateTime.parse(json['date'] as String),
+    reason:
+        enumFromName(DischargeReason.values, json['reason']) ??
+        DischargeReason.other,
+    finalNote: json['finalNote'] as String?,
+  );
+
+  @override
+  List<Object?> get props => [date, reason, finalNote];
 }
 
 class Patient extends Equatable {
   const Patient({
     required this.id,
     required this.createdAt,
-    this.dadosPessoais = const DadosPessoais(),
-    this.anamnese = const Anamnese(),
-    this.historicoGinecologico = const HistoricoGinecologico(),
-    this.historicoObstetrico = const HistoricoObstetrico(),
-    this.historicoCirurgico = const HistoricoCirurgico(),
-    this.funcaoUrinaria = const FuncaoUrinaria(),
-    this.funcaoSexual = const FuncaoSexual(),
-    this.funcaoIntestinal = const FuncaoIntestinal(),
-    this.planoTratamento = const PlanoTratamento(),
-    this.encerramento,
-    this.valorConsulta,
+    this.personalInfo = const PersonalInfo(),
+    this.medicalHistory = const MedicalHistory(),
+    this.gynecologicalHistory = const GynecologicalHistory(),
+    this.obstetricHistory = const ObstetricHistory(),
+    this.surgicalHistory = const SurgicalHistory(),
+    this.urinaryFunction = const UrinaryFunction(),
+    this.sexualFunction = const SexualFunction(),
+    this.bowelFunction = const BowelFunction(),
+    this.treatmentPlan = const TreatmentPlan(),
+    this.discharge,
+    this.consultationFee,
   });
 
   final String id;
   final DateTime createdAt;
-  final DadosPessoais dadosPessoais;
-  final Anamnese anamnese;
-  final HistoricoGinecologico historicoGinecologico;
-  final HistoricoObstetrico historicoObstetrico;
-  final HistoricoCirurgico historicoCirurgico;
-  final FuncaoUrinaria funcaoUrinaria;
-  final FuncaoSexual funcaoSexual;
-  final FuncaoIntestinal funcaoIntestinal;
-  final PlanoTratamento planoTratamento;
-  final Encerramento? encerramento;
-  final double? valorConsulta;
+  final PersonalInfo personalInfo;
+  final MedicalHistory medicalHistory;
+  final GynecologicalHistory gynecologicalHistory;
+  final ObstetricHistory obstetricHistory;
+  final SurgicalHistory surgicalHistory;
+  final UrinaryFunction urinaryFunction;
+  final SexualFunction sexualFunction;
+  final BowelFunction bowelFunction;
+  final TreatmentPlan treatmentPlan;
+  final Discharge? discharge;
+  final double? consultationFee;
 
   Patient copyWith({
-    DadosPessoais? dadosPessoais,
-    Anamnese? anamnese,
-    HistoricoGinecologico? historicoGinecologico,
-    HistoricoObstetrico? historicoObstetrico,
-    HistoricoCirurgico? historicoCirurgico,
-    FuncaoUrinaria? funcaoUrinaria,
-    FuncaoSexual? funcaoSexual,
-    FuncaoIntestinal? funcaoIntestinal,
-    PlanoTratamento? planoTratamento,
-    Object? encerramento = kUnset,
-    double? valorConsulta,
+    PersonalInfo? personalInfo,
+    MedicalHistory? medicalHistory,
+    GynecologicalHistory? gynecologicalHistory,
+    ObstetricHistory? obstetricHistory,
+    SurgicalHistory? surgicalHistory,
+    UrinaryFunction? urinaryFunction,
+    SexualFunction? sexualFunction,
+    BowelFunction? bowelFunction,
+    TreatmentPlan? treatmentPlan,
+    Object? discharge = kUnset,
+    double? consultationFee,
   }) {
     return Patient(
       id: id,
       createdAt: createdAt,
-      dadosPessoais: dadosPessoais ?? this.dadosPessoais,
-      anamnese: anamnese ?? this.anamnese,
-      historicoGinecologico:
-          historicoGinecologico ?? this.historicoGinecologico,
-      historicoObstetrico: historicoObstetrico ?? this.historicoObstetrico,
-      historicoCirurgico: historicoCirurgico ?? this.historicoCirurgico,
-      funcaoUrinaria: funcaoUrinaria ?? this.funcaoUrinaria,
-      funcaoSexual: funcaoSexual ?? this.funcaoSexual,
-      funcaoIntestinal: funcaoIntestinal ?? this.funcaoIntestinal,
-      planoTratamento: planoTratamento ?? this.planoTratamento,
-      encerramento: unsetOr(encerramento, this.encerramento),
-      valorConsulta: valorConsulta ?? this.valorConsulta,
+      personalInfo: personalInfo ?? this.personalInfo,
+      medicalHistory: medicalHistory ?? this.medicalHistory,
+      gynecologicalHistory: gynecologicalHistory ?? this.gynecologicalHistory,
+      obstetricHistory: obstetricHistory ?? this.obstetricHistory,
+      surgicalHistory: surgicalHistory ?? this.surgicalHistory,
+      urinaryFunction: urinaryFunction ?? this.urinaryFunction,
+      sexualFunction: sexualFunction ?? this.sexualFunction,
+      bowelFunction: bowelFunction ?? this.bowelFunction,
+      treatmentPlan: treatmentPlan ?? this.treatmentPlan,
+      discharge: unsetOr(discharge, this.discharge),
+      consultationFee: consultationFee ?? this.consultationFee,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'created_at': createdAt.toIso8601String(),
-    'nome': dadosPessoais.nome,
-    'idade': dadosPessoais.idade,
-    'telefone': dadosPessoais.telefone,
-    'profissao': dadosPessoais.profissao,
-    'sexo': dadosPessoais.sexo?.name,
-    'anamnese': anamnese.toJson(),
-    'historico_ginecologico': historicoGinecologico.toJson(),
-    'historico_obstetrico': historicoObstetrico.toJson(),
-    'historico_cirurgico': historicoCirurgico.toJson(),
-    'funcao_urinaria': funcaoUrinaria.toJson(),
-    'funcao_sexual': funcaoSexual.toJson(),
-    'funcao_intestinal': funcaoIntestinal.toJson(),
-    'plano_tratamento': planoTratamento.toJson(),
-    'encerramento': encerramento?.toJson(),
-    'valor_consulta': valorConsulta,
+    'name': personalInfo.name,
+    'age': personalInfo.age,
+    'phone': personalInfo.phone,
+    'occupation': personalInfo.occupation,
+    'gender': personalInfo.gender?.name,
+    'medical_history': medicalHistory.toJson(),
+    'gynecological_history': gynecologicalHistory.toJson(),
+    'obstetric_history': obstetricHistory.toJson(),
+    'surgical_history': surgicalHistory.toJson(),
+    'urinary_function': urinaryFunction.toJson(),
+    'sexual_function': sexualFunction.toJson(),
+    'bowel_function': bowelFunction.toJson(),
+    'treatment_plan': treatmentPlan.toJson(),
+    'discharge': discharge?.toJson(),
+    'consultation_fee': consultationFee,
   };
 
   factory Patient.fromJson(Map<String, dynamic> json) => Patient(
     id: json['id'] as String,
     createdAt: DateTime.parse(json['created_at'] as String),
-    dadosPessoais: DadosPessoais(
-      nome: json['nome'] as String? ?? '',
-      idade: json['idade'] as int?,
-      telefone: json['telefone'] as String? ?? '',
-      profissao: json['profissao'] as String? ?? '',
-      sexo: enumFromName(Sexo.values, json['sexo']),
+    personalInfo: PersonalInfo(
+      name: json['name'] as String? ?? '',
+      age: json['age'] as int?,
+      phone: json['phone'] as String? ?? '',
+      occupation: json['occupation'] as String? ?? '',
+      gender: enumFromName(Gender.values, json['gender']),
     ),
-    anamnese: Anamnese.fromJson(
-      (json['anamnese'] as Map<String, dynamic>?) ?? {},
+    medicalHistory: MedicalHistory.fromJson(
+      (json['medical_history'] as Map<String, dynamic>?) ?? {},
     ),
-    historicoGinecologico: HistoricoGinecologico.fromJson(
-      (json['historico_ginecologico'] as Map<String, dynamic>?) ?? {},
+    gynecologicalHistory: GynecologicalHistory.fromJson(
+      (json['gynecological_history'] as Map<String, dynamic>?) ?? {},
     ),
-    historicoObstetrico: HistoricoObstetrico.fromJson(
-      (json['historico_obstetrico'] as Map<String, dynamic>?) ?? {},
+    obstetricHistory: ObstetricHistory.fromJson(
+      (json['obstetric_history'] as Map<String, dynamic>?) ?? {},
     ),
-    historicoCirurgico: HistoricoCirurgico.fromJson(
-      (json['historico_cirurgico'] as Map<String, dynamic>?) ?? {},
+    surgicalHistory: SurgicalHistory.fromJson(
+      (json['surgical_history'] as Map<String, dynamic>?) ?? {},
     ),
-    funcaoUrinaria: FuncaoUrinaria.fromJson(
-      (json['funcao_urinaria'] as Map<String, dynamic>?) ?? {},
+    urinaryFunction: UrinaryFunction.fromJson(
+      (json['urinary_function'] as Map<String, dynamic>?) ?? {},
     ),
-    funcaoSexual: FuncaoSexual.fromJson(
-      (json['funcao_sexual'] as Map<String, dynamic>?) ?? {},
+    sexualFunction: SexualFunction.fromJson(
+      (json['sexual_function'] as Map<String, dynamic>?) ?? {},
     ),
-    funcaoIntestinal: FuncaoIntestinal.fromJson(
-      (json['funcao_intestinal'] as Map<String, dynamic>?) ?? {},
+    bowelFunction: BowelFunction.fromJson(
+      (json['bowel_function'] as Map<String, dynamic>?) ?? {},
     ),
-    planoTratamento: PlanoTratamento.fromJson(
-      (json['plano_tratamento'] as Map<String, dynamic>?) ?? {},
+    treatmentPlan: TreatmentPlan.fromJson(
+      (json['treatment_plan'] as Map<String, dynamic>?) ?? {},
     ),
-    encerramento: json['encerramento'] == null
+    discharge: json['discharge'] == null
         ? null
-        : Encerramento.fromJson(json['encerramento'] as Map<String, dynamic>),
-    valorConsulta: (json['valor_consulta'] as num?)?.toDouble(),
+        : Discharge.fromJson(json['discharge'] as Map<String, dynamic>),
+    consultationFee: (json['consultation_fee'] as num?)?.toDouble(),
   );
 
   @override
   List<Object?> get props => [
     id,
     createdAt,
-    dadosPessoais,
-    anamnese,
-    historicoGinecologico,
-    historicoObstetrico,
-    historicoCirurgico,
-    funcaoUrinaria,
-    funcaoSexual,
-    funcaoIntestinal,
-    planoTratamento,
-    encerramento,
-    valorConsulta,
+    personalInfo,
+    medicalHistory,
+    gynecologicalHistory,
+    obstetricHistory,
+    surgicalHistory,
+    urinaryFunction,
+    sexualFunction,
+    bowelFunction,
+    treatmentPlan,
+    discharge,
+    consultationFee,
   ];
 }

@@ -20,7 +20,7 @@ class HistoricoCirurgicoStep extends StatefulWidget {
 
 class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
   late final _outraController = TextEditingController(
-    text: widget.patient.historicoCirurgico.descricaoOutraCirurgia ?? '',
+    text: widget.patient.surgicalHistory.otherSurgeryDescription ?? '',
   );
 
   @override
@@ -29,55 +29,55 @@ class _HistoricoCirurgicoStepState extends State<HistoricoCirurgicoStep> {
     super.dispose();
   }
 
-  void _update(HistoricoCirurgico Function(HistoricoCirurgico) update) {
+  void _update(SurgicalHistory Function(SurgicalHistory) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        historicoCirurgico: update(widget.patient.historicoCirurgico),
+        surgicalHistory: update(widget.patient.surgicalHistory),
       ),
     );
   }
 
   static const _somenteFeminino = {
-    CirurgiaGinecologica.histerectomia,
-    CirurgiaGinecologica.laqueadura,
-    CirurgiaGinecologica.perineoplastia,
+    GynecologicalSurgery.hysterectomy,
+    GynecologicalSurgery.tubalLigation,
+    GynecologicalSurgery.perineoplasty,
   };
 
   @override
   Widget build(BuildContext context) {
-    final historico = widget.patient.historicoCirurgico;
-    final isFeminino = widget.patient.dadosPessoais.sexo == Sexo.feminino;
+    final historico = widget.patient.surgicalHistory;
+    final isFeminino = widget.patient.personalInfo.gender == Gender.female;
     final opcoes = isFeminino
-        ? CirurgiaGinecologica.values
-        : CirurgiaGinecologica.values
+        ? GynecologicalSurgery.values
+        : GynecologicalSurgery.values
               .where((c) => !_somenteFeminino.contains(c))
               .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppChipSelect<CirurgiaGinecologica>(
+        AppChipSelect<GynecologicalSurgery>(
           options: opcoes,
           labelBuilder: (option) => option.label,
-          selected: historico.cirurgias,
+          selected: historico.surgeries,
           multiSelect: true,
           onChanged: (selected) {
             final tappedNenhum =
-                selected.contains(CirurgiaGinecologica.nenhum) &&
-                !historico.cirurgias.contains(CirurgiaGinecologica.nenhum);
+                selected.contains(GynecologicalSurgery.none) &&
+                !historico.surgeries.contains(GynecologicalSurgery.none);
             final cirurgias = tappedNenhum
-                ? {CirurgiaGinecologica.nenhum}
-                : (selected..remove(CirurgiaGinecologica.nenhum));
-            _update((h) => h.copyWith(cirurgias: cirurgias));
+                ? {GynecologicalSurgery.none}
+                : (selected..remove(GynecologicalSurgery.none));
+            _update((h) => h.copyWith(surgeries: cirurgias));
           },
         ),
-        if (historico.cirurgias.contains(CirurgiaGinecologica.outro)) ...[
+        if (historico.surgeries.contains(GynecologicalSurgery.other)) ...[
           const SizedBox(height: 12),
           AppTextField(
             controller: _outraController,
             icon: Icons.description_outlined,
             hintText: 'Qual cirurgia?',
             onChanged: (value) =>
-                _update((h) => h.copyWith(descricaoOutraCirurgia: value)),
+                _update((h) => h.copyWith(otherSurgeryDescription: value)),
           ),
         ],
       ],

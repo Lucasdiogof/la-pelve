@@ -27,13 +27,15 @@ class HistoricoGinecologicoStep extends StatefulWidget {
 
 class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
   late final _idadeMenstruacaoController = TextEditingController(
-    text:
-        widget.patient.historicoGinecologico.idadePrimeiraMenstruacao
-            ?.toString() ??
-        '',
+    text: widget.patient.gynecologicalHistory.ageAtMenarche?.toString() ?? '',
   );
   late final _reposicaoHormonalController = TextEditingController(
-    text: widget.patient.historicoGinecologico.descricaoReposicaoHormonal ?? '',
+    text:
+        widget
+            .patient
+            .gynecologicalHistory
+            .hormoneReplacementTherapyDescription ??
+        '',
   );
 
   @override
@@ -43,10 +45,10 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
     super.dispose();
   }
 
-  void _update(HistoricoGinecologico Function(HistoricoGinecologico) update) {
+  void _update(GynecologicalHistory Function(GynecologicalHistory) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        historicoGinecologico: update(widget.patient.historicoGinecologico),
+        gynecologicalHistory: update(widget.patient.gynecologicalHistory),
       ),
     );
   }
@@ -56,7 +58,7 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
 
   @override
   Widget build(BuildContext context) {
-    final historico = widget.patient.historicoGinecologico;
+    final historico = widget.patient.gynecologicalHistory;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -70,80 +72,81 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
             LengthLimitingTextInputFormatter(3),
           ],
           errorText: _idadeMenstruacaoError,
-          onChanged: (value) => _update(
-            (h) => h.copyWith(idadePrimeiraMenstruacao: int.tryParse(value)),
-          ),
+          onChanged: (value) =>
+              _update((h) => h.copyWith(ageAtMenarche: int.tryParse(value))),
         ),
         const SizedBox(height: 16),
-        AppChipSelect<FluxoMenstrual>(
-          options: FluxoMenstrual.values,
+        AppChipSelect<MenstrualFlow>(
+          options: MenstrualFlow.values,
           labelBuilder: (option) => option.label,
-          selected: historico.fluxoMenstrual == null
+          selected: historico.menstrualFlow == null
               ? {}
-              : {historico.fluxoMenstrual!},
+              : {historico.menstrualFlow!},
           onChanged: (selected) => _update(
             (h) => h.copyWith(
-              fluxoMenstrual: selected.isEmpty ? null : selected.first,
+              menstrualFlow: selected.isEmpty ? null : selected.first,
             ),
           ),
         ),
         const SizedBox(height: 16),
         AppScaleField(
           label: 'Presença de cólica',
-          value: historico.colica0a10,
-          onChanged: (value) => _update((h) => h.copyWith(colica0a10: value)),
+          value: historico.crampsScore0to10,
+          onChanged: (value) =>
+              _update((h) => h.copyWith(crampsScore0to10: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Menstrua atualmente?',
-          value: historico.menstruaAtualmente,
+          value: historico.currentlyMenstruating,
           onChanged: (value) =>
-              _update((h) => h.copyWith(menstruaAtualmente: value)),
+              _update((h) => h.copyWith(currentlyMenstruating: value)),
         ),
-        if (historico.menstruaAtualmente == false) ...[
+        if (historico.currentlyMenstruating == false) ...[
           const SizedBox(height: 8),
           AppYesNoToggle(
             label: 'Está na menopausa?',
-            value: historico.estaNaMenopausa,
+            value: historico.isInMenopause,
             onChanged: (value) =>
-                _update((h) => h.copyWith(estaNaMenopausa: value)),
+                _update((h) => h.copyWith(isInMenopause: value)),
           ),
           const SizedBox(height: 8),
           AppDateField(
             hintText: 'Data aproximada da última menstruação',
-            value: historico.dataUltimaMenstruacaoAproximada,
+            value: historico.approximateLastMenstruationDate,
             onChanged: (value) => _update(
-              (h) => h.copyWith(dataUltimaMenstruacaoAproximada: value),
+              (h) => h.copyWith(approximateLastMenstruationDate: value),
             ),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Ciclo regular?',
-          value: historico.cicloRegular,
-          onChanged: (value) => _update((h) => h.copyWith(cicloRegular: value)),
+          value: historico.regularCycle,
+          onChanged: (value) => _update((h) => h.copyWith(regularCycle: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Menopausa?',
-          value: historico.menopausa,
-          onChanged: (value) => _update((h) => h.copyWith(menopausa: value)),
+          value: historico.menopause,
+          onChanged: (value) => _update((h) => h.copyWith(menopause: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Faz reposição hormonal?',
-          value: historico.reposicaoHormonal,
+          value: historico.hormoneReplacementTherapy,
           onChanged: (value) =>
-              _update((h) => h.copyWith(reposicaoHormonal: value)),
+              _update((h) => h.copyWith(hormoneReplacementTherapy: value)),
         ),
-        if (historico.reposicaoHormonal == true) ...[
+        if (historico.hormoneReplacementTherapy == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _reposicaoHormonalController,
             icon: Icons.medication_outlined,
             hintText: 'Detalhe a reposição hormonal',
-            onChanged: (value) =>
-                _update((h) => h.copyWith(descricaoReposicaoHormonal: value)),
+            onChanged: (value) => _update(
+              (h) => h.copyWith(hormoneReplacementTherapyDescription: value),
+            ),
           ),
         ],
         const SizedBox(height: 20),
@@ -157,15 +160,15 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
           ),
         ),
         const SizedBox(height: 12),
-        AppChipSelect<MetodoContraceptivo>(
-          options: MetodoContraceptivo.values,
+        AppChipSelect<ContraceptiveMethod>(
+          options: ContraceptiveMethod.values,
           labelBuilder: (option) => option.label,
-          selected: historico.metodoContraceptivo == null
+          selected: historico.contraceptiveMethod == null
               ? {}
-              : {historico.metodoContraceptivo!},
+              : {historico.contraceptiveMethod!},
           onChanged: (selected) => _update(
             (h) => h.copyWith(
-              metodoContraceptivo: selected.isEmpty ? null : selected.first,
+              contraceptiveMethod: selected.isEmpty ? null : selected.first,
             ),
           ),
         ),
@@ -182,43 +185,44 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Dor pélvica fora do período menstrual?',
-          value: historico.dorPelvicaForaPeriodo,
+          value: historico.pelvicPainOutsidePeriod,
           onChanged: (value) =>
-              _update((h) => h.copyWith(dorPelvicaForaPeriodo: value)),
+              _update((h) => h.copyWith(pelvicPainOutsidePeriod: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Sangramento fora do período menstrual?',
-          value: historico.sangramentoForaPeriodo,
+          value: historico.bleedingOutsidePeriod,
           onChanged: (value) =>
-              _update((h) => h.copyWith(sangramentoForaPeriodo: value)),
+              _update((h) => h.copyWith(bleedingOutsidePeriod: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Endometriose?',
-          value: historico.endometriose,
-          onChanged: (value) => _update((h) => h.copyWith(endometriose: value)),
+          value: historico.endometriosis,
+          onChanged: (value) =>
+              _update((h) => h.copyWith(endometriosis: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Síndrome dos ovários policísticos?',
-          value: historico.sindromeOvariosPolicisticos,
+          value: historico.polycysticOvarySyndrome,
           onChanged: (value) =>
-              _update((h) => h.copyWith(sindromeOvariosPolicisticos: value)),
+              _update((h) => h.copyWith(polycysticOvarySyndrome: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Infecções urinárias recorrentes?',
-          value: historico.infeccoesUrinariasRecorrentes,
+          value: historico.recurrentUrinaryInfections,
           onChanged: (value) =>
-              _update((h) => h.copyWith(infeccoesUrinariasRecorrentes: value)),
+              _update((h) => h.copyWith(recurrentUrinaryInfections: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Infecções vaginais recorrentes?',
-          value: historico.infeccoesVaginaisRecorrentes,
+          value: historico.recurrentVaginalInfections,
           onChanged: (value) =>
-              _update((h) => h.copyWith(infeccoesVaginaisRecorrentes: value)),
+              _update((h) => h.copyWith(recurrentVaginalInfections: value)),
         ),
       ],
     );

@@ -33,7 +33,7 @@ class PatientDetailPage extends StatelessWidget {
       context,
       title: 'Excluir paciente',
       description:
-          'Tem certeza que deseja excluir ${current.dadosPessoais.nome.isEmpty ? 'este paciente' : current.dadosPessoais.nome}? '
+          'Tem certeza que deseja excluir ${current.personalInfo.name.isEmpty ? 'este paciente' : current.personalInfo.name}? '
           'Essa ação não pode ser desfeita e também apaga as evoluções registradas.',
       confirmLabel: 'Excluir',
       isDestructive: true,
@@ -61,9 +61,14 @@ class PatientDetailPage extends StatelessWidget {
     BuildContext context,
     Patient current,
   ) async {
-    final encerramento = await showEncerramentoSheet(context);
-    if (encerramento == null || !context.mounted) return;
-    await _saveEncerramento(context, current, encerramento);
+    final discharge = await showEncerramentoSheet(context);
+    if (discharge == null || !context.mounted) return;
+    await _saveEncerramento(
+      context,
+      current,
+      discharge,
+      successMessage: 'Tratamento encerrado com sucesso.',
+    );
   }
 
   Future<void> _reabrirTratamento(BuildContext context, Patient current) async {
@@ -75,22 +80,37 @@ class PatientDetailPage extends StatelessWidget {
       confirmLabel: 'Reabrir',
     );
     if (!confirmed || !context.mounted) return;
-    await _saveEncerramento(context, current, null);
+    await _saveEncerramento(
+      context,
+      current,
+      null,
+      successMessage: 'Tratamento reaberto com sucesso.',
+    );
   }
 
   Future<void> _saveEncerramento(
     BuildContext context,
     Patient current,
-    Encerramento? encerramento,
-  ) async {
+    Discharge? discharge, {
+    required String successMessage,
+  }) async {
     showAppLoading();
     final result = await context.read<PatientsCubit>().updatePatient(
-      current.copyWith(encerramento: encerramento),
+      current.copyWith(discharge: discharge),
     );
     hideAppLoading();
     if (!context.mounted) return;
-    if (result case Error(:final failure)) {
-      await AppInfoBottomSheet.showError(context, description: failure.message);
+    switch (result) {
+      case Success():
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          description: successMessage,
+        );
+      case Error(:final failure):
+        await AppInfoBottomSheet.showError(
+          context,
+          description: failure.message,
+        );
     }
   }
 
@@ -101,8 +121,8 @@ class PatientDetailPage extends StatelessWidget {
       (p) => p.id == patient.id,
       orElse: () => patient,
     );
-    final dados = current.dadosPessoais;
-    final isFeminino = dados.sexo == Sexo.feminino;
+    final dados = current.personalInfo;
+    final isFeminino = dados.gender == Gender.female;
 
     return DefaultTabController(
       length: 2,
@@ -112,7 +132,7 @@ class PatientDetailPage extends StatelessWidget {
           return Scaffold(
             backgroundColor: context.colors.background,
             appBar: AppBar(
-              title: Text(dados.nome.isEmpty ? 'Paciente' : dados.nome),
+              title: Text(dados.name.isEmpty ? 'Paciente' : dados.name),
               actions: [
                 AnimatedBuilder(
                   animation: tabController,
@@ -155,7 +175,7 @@ class PatientDetailPage extends StatelessWidget {
             ),
             body: Column(
               children: [
-                current.encerramento == null
+                current.discharge == null
                     ? Padding(
                         padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                         child: OutlinedButton.icon(
@@ -166,7 +186,7 @@ class PatientDetailPage extends StatelessWidget {
                         ),
                       )
                     : EncerramentoBanner(
-                        encerramento: current.encerramento!,
+                        discharge: current.discharge!,
                         onReabrir: () => _reabrirTratamento(context, current),
                       ),
                 Expanded(
@@ -179,42 +199,42 @@ class PatientDetailPage extends StatelessWidget {
                           InfoRow(
                             'Sexo',
                             PatientDetailFormat.enumValue(
-                              dados.sexo,
+                              dados.gender,
                               (v) => v.label,
                             ),
                           ),
                           InfoRow(
                             'Idade',
-                            PatientDetailFormat.intValue(dados.idade),
+                            PatientDetailFormat.intValue(dados.age),
                           ),
                           InfoRow(
                             'Telefone',
-                            PatientDetailFormat.text(dados.telefone),
+                            PatientDetailFormat.text(dados.phone),
                           ),
                           InfoRow(
                             'Profissão',
-                            PatientDetailFormat.text(dados.profissao),
+                            PatientDetailFormat.text(dados.occupation),
                           ),
-                          AnamneseInfoSection(current.anamnese),
+                          AnamneseInfoSection(current.medicalHistory),
                           if (isFeminino)
                             HistoricoGinecologicoInfoSection(
-                              current.historicoGinecologico,
+                              current.gynecologicalHistory,
                             ),
                           if (isFeminino)
                             HistoricoObstetricoInfoSection(
-                              current.historicoObstetrico,
+                              current.obstetricHistory,
                             ),
                           HistoricoCirurgicoInfoSection(
-                            current.historicoCirurgico,
+                            current.surgicalHistory,
                           ),
-                          FuncaoUrinariaInfoSection(current.funcaoUrinaria),
-                          FuncaoSexualInfoSection(current.funcaoSexual),
-                          FuncaoIntestinalInfoSection(current.funcaoIntestinal),
-                          PlanoTratamentoInfoSection(current.planoTratamento),
+                          FuncaoUrinariaInfoSection(current.urinaryFunction),
+                          FuncaoSexualInfoSection(current.sexualFunction),
+                          FuncaoIntestinalInfoSection(current.bowelFunction),
+                          PlanoTratamentoInfoSection(current.treatmentPlan),
                           const SectionTitle('Valor da consulta'),
                           InfoRow(
                             'Valor da 1ª consulta',
-                            PatientDetailFormat.money(current.valorConsulta),
+                            PatientDetailFormat.money(current.consultationFee),
                           ),
                         ],
                       ),

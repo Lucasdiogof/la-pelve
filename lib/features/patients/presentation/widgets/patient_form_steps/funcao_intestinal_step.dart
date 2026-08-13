@@ -23,13 +23,10 @@ class FuncaoIntestinalStep extends StatefulWidget {
 
 class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
   late final _frequenciaPersonalizadaController = TextEditingController(
-    text:
-        widget.patient.funcaoIntestinal.frequenciaPersonalizadaValor
-            ?.toString() ??
-        '',
+    text: widget.patient.bowelFunction.customFrequencyValue?.toString() ?? '',
   );
   late final _laxanteController = TextEditingController(
-    text: widget.patient.funcaoIntestinal.descricaoLaxante ?? '',
+    text: widget.patient.bowelFunction.laxativeDescription ?? '',
   );
 
   @override
@@ -39,17 +36,17 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
     super.dispose();
   }
 
-  void _update(FuncaoIntestinal Function(FuncaoIntestinal) update) {
+  void _update(BowelFunction Function(BowelFunction) update) {
     widget.onChanged(
       widget.patient.copyWith(
-        funcaoIntestinal: update(widget.patient.funcaoIntestinal),
+        bowelFunction: update(widget.patient.bowelFunction),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final funcao = widget.patient.funcaoIntestinal;
+    final funcao = widget.patient.bowelFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -63,20 +60,19 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
           ),
         ),
         const SizedBox(height: 12),
-        AppChipSelect<FrequenciaEvacuatoria>(
-          options: FrequenciaEvacuatoria.values,
+        AppChipSelect<BowelFrequency>(
+          options: BowelFrequency.values,
           labelBuilder: (option) => option.label,
-          selected: funcao.frequenciaEvacuatoria == null
+          selected: funcao.bowelFrequency == null
               ? {}
-              : {funcao.frequenciaEvacuatoria!},
+              : {funcao.bowelFrequency!},
           onChanged: (selected) => _update(
             (f) => f.copyWith(
-              frequenciaEvacuatoria: selected.isEmpty ? null : selected.first,
+              bowelFrequency: selected.isEmpty ? null : selected.first,
             ),
           ),
         ),
-        if (funcao.frequenciaEvacuatoria ==
-            FrequenciaEvacuatoria.personalizado) ...[
+        if (funcao.bowelFrequency == BowelFrequency.custom) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _frequenciaPersonalizadaController,
@@ -88,80 +84,79 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
               LengthLimitingTextInputFormatter(2),
             ],
             onChanged: (value) => _update(
-              (f) =>
-                  f.copyWith(frequenciaPersonalizadaValor: int.tryParse(value)),
+              (f) => f.copyWith(customFrequencyValue: int.tryParse(value)),
             ),
           ),
         ],
         const SizedBox(height: 20),
         AppYesNoToggle(
           label: 'Usa laxante?',
-          value: funcao.usaLaxante,
-          onChanged: (value) => _update((f) => f.copyWith(usaLaxante: value)),
+          value: funcao.usesLaxative,
+          onChanged: (value) => _update((f) => f.copyWith(usesLaxative: value)),
         ),
-        if (funcao.usaLaxante == true) ...[
+        if (funcao.usesLaxative == true) ...[
           const SizedBox(height: 8),
           AppTextField(
             controller: _laxanteController,
             icon: Icons.medication_outlined,
             hintText: 'Qual laxante e frequência?',
             onChanged: (value) =>
-                _update((f) => f.copyWith(descricaoLaxante: value)),
+                _update((f) => f.copyWith(laxativeDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Faz força para evacuar?',
-          value: funcao.forcaParaEvacuar,
+          value: funcao.strainsToDefecate,
           onChanged: (value) =>
-              _update((f) => f.copyWith(forcaParaEvacuar: value)),
+              _update((f) => f.copyWith(strainsToDefecate: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Sente dor para evacuar?',
-          value: funcao.dorParaEvacuar,
+          value: funcao.painToDefecate,
           onChanged: (value) =>
-              _update((f) => f.copyWith(dorParaEvacuar: value)),
+              _update((f) => f.copyWith(painToDefecate: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Sensação de esvaziamento incompleto?',
-          value: funcao.esvaziamentoIncompleto,
+          value: funcao.incompleteEmptying,
           onChanged: (value) =>
-              _update((f) => f.copyWith(esvaziamentoIncompleto: value)),
+              _update((f) => f.copyWith(incompleteEmptying: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Sensação de obstrução?',
-          value: funcao.sensacaoObstrucao,
+          value: funcao.obstructionSensation,
           onChanged: (value) =>
-              _update((f) => f.copyWith(sensacaoObstrucao: value)),
+              _update((f) => f.copyWith(obstructionSensation: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Urgência fecal?',
-          value: funcao.urgenciaFecal,
-          onChanged: (value) =>
-              _update((f) => f.copyWith(urgenciaFecal: value)),
+          value: funcao.fecalUrgency,
+          onChanged: (value) => _update((f) => f.copyWith(fecalUrgency: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Presença de hemorroidas?',
-          value: funcao.presencaHemorroidas,
-          onChanged: (value) =>
-              _update((f) => f.copyWith(presencaHemorroidas: value)),
+          value: funcao.hemorrhoids,
+          onChanged: (value) => _update((f) => f.copyWith(hemorrhoids: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Perde gases?',
-          value: funcao.perdeGases,
-          onChanged: (value) => _update((f) => f.copyWith(perdeGases: value)),
+          value: funcao.gasIncontinence,
+          onChanged: (value) =>
+              _update((f) => f.copyWith(gasIncontinence: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
           label: 'Perde fezes?',
-          value: funcao.perdeFezes,
-          onChanged: (value) => _update((f) => f.copyWith(perdeFezes: value)),
+          value: funcao.fecalIncontinence,
+          onChanged: (value) =>
+              _update((f) => f.copyWith(fecalIncontinence: value)),
         ),
         const SizedBox(height: 20),
         Text(
@@ -174,13 +169,13 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
           ),
         ),
         const SizedBox(height: 12),
-        AppChipSelect<EscalaBristol>(
-          options: EscalaBristol.values,
+        AppChipSelect<BristolScale>(
+          options: BristolScale.values,
           labelBuilder: (option) => option.label,
-          selected: funcao.escalaBristol == null ? {} : {funcao.escalaBristol!},
+          selected: funcao.bristolScale == null ? {} : {funcao.bristolScale!},
           onChanged: (selected) => _update(
             (f) => f.copyWith(
-              escalaBristol: selected.isEmpty ? null : selected.first,
+              bristolScale: selected.isEmpty ? null : selected.first,
             ),
           ),
         ),

@@ -10,7 +10,7 @@ void main() {
         storagePath: 'path/photo.jpg',
         fileName: 'photo.jpg',
         contentType: 'image/jpeg',
-        category: AttachmentCategory.imagem,
+        category: AttachmentCategory.image,
         createdAt: DateTime.utc(2026, 3, 5),
       );
 
@@ -25,7 +25,7 @@ void main() {
         storagePath: 'path/doc.pdf',
         fileName: 'doc.pdf',
         contentType: 'application/pdf',
-        category: AttachmentCategory.documento,
+        category: AttachmentCategory.document,
         createdAt: DateTime.utc(2026, 3, 5),
       );
 
@@ -42,7 +42,7 @@ void main() {
         storagePath: 'path/photo.jpg',
         fileName: 'photo.jpg',
         contentType: 'image/jpeg',
-        category: AttachmentCategory.fichaAvaliacao,
+        category: AttachmentCategory.assessmentForm,
         createdAt: DateTime.utc(2026, 3, 5),
       );
 
@@ -51,7 +51,7 @@ void main() {
       expect(restored, attachment);
     });
 
-    test('defaults to outro for an unknown category', () {
+    test('defaults to other for an unknown category', () {
       final json = {
         'id': 'a1',
         'patient_id': 'p1',
@@ -62,7 +62,7 @@ void main() {
         'created_at': DateTime.utc(2026, 3, 5).toIso8601String(),
       };
 
-      expect(Attachment.fromJson(json).category, AttachmentCategory.outro);
+      expect(Attachment.fromJson(json).category, AttachmentCategory.other);
     });
   });
 }

@@ -1,20 +1,20 @@
 import 'package:equatable/equatable.dart';
 
 class EvolutionFormState extends Equatable {
-  const EvolutionFormState({this.data, this.saving = false, this.revision = 0});
+  const EvolutionFormState({this.date, this.saving = false, this.revision = 0});
 
-  final DateTime? data;
+  final DateTime? date;
   final bool saving;
   final int revision;
 
-  EvolutionFormState copyWith({DateTime? data, bool? saving, int? revision}) {
+  EvolutionFormState copyWith({DateTime? date, bool? saving, int? revision}) {
     return EvolutionFormState(
-      data: data ?? this.data,
+      date: date ?? this.date,
       saving: saving ?? this.saving,
       revision: revision ?? this.revision,
     );
   }
 
   @override
-  List<Object?> get props => [data, saving, revision];
+  List<Object?> get props => [date, saving, revision];
 }

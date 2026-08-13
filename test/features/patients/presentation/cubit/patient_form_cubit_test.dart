@@ -8,14 +8,14 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/atta
 
 void main() {
   group('PatientFormCubit step visibility', () {
-    test('hides gynecological/obstetric steps when sexo is masculino', () {
+    test('hides gynecological/obstetric steps when gender is male', () {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -24,14 +24,14 @@ void main() {
       cubit.close();
     });
 
-    test('shows gynecological/obstetric steps when sexo is feminino', () {
+    test('shows gynecological/obstetric steps when gender is female', () {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Maria',
-            telefone: '11933334444',
-            sexo: Sexo.feminino,
+          personalInfo: const PersonalInfo(
+            name: 'Maria',
+            phone: '11933334444',
+            gender: Gender.female,
           ),
         ),
       );
@@ -46,10 +46,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Ab',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Ab',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -62,10 +62,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '123',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '123',
+            gender: Gender.male,
           ),
         ),
       );
@@ -74,13 +74,13 @@ void main() {
       cubit.close();
     });
 
-    test('blocks advancing from dados pessoais without a sexo', () {
+    test('blocks advancing from dados pessoais without a gender', () {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
           ),
         ),
       );
@@ -93,10 +93,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -109,16 +109,16 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
       cubit.nextStep();
 
-      expect(cubit.currentStep, PatientFormStep.anamnese);
+      expect(cubit.currentStep, PatientFormStep.medicalHistory);
       expect(cubit.canProceed, isTrue);
       cubit.close();
     });
@@ -138,10 +138,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -156,10 +156,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -185,10 +185,10 @@ void main() {
       final cubit = PatientFormCubit();
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          dadosPessoais: const DadosPessoais(
-            nome: 'Joao Silva',
-            telefone: '11933334444',
-            sexo: Sexo.masculino,
+          personalInfo: const PersonalInfo(
+            name: 'Joao Silva',
+            phone: '11933334444',
+            gender: Gender.male,
           ),
         ),
       );
@@ -210,22 +210,22 @@ void main() {
     test('adds a file to the list', () {
       final cubit = PatientFormCubit();
 
-      cubit.addFichaAvaliacao(file('foto1.jpg'));
+      cubit.addAssessmentFile(file('foto1.jpg'));
 
-      expect(cubit.state.fichasAvaliacao.length, 1);
-      expect(cubit.state.fichasAvaliacao.single.fileName, 'foto1.jpg');
+      expect(cubit.state.assessmentFiles.length, 1);
+      expect(cubit.state.assessmentFiles.single.fileName, 'foto1.jpg');
       cubit.close();
     });
 
     test('removes a file by index', () {
       final cubit = PatientFormCubit();
-      cubit.addFichaAvaliacao(file('foto1.jpg'));
-      cubit.addFichaAvaliacao(file('foto2.jpg'));
+      cubit.addAssessmentFile(file('foto1.jpg'));
+      cubit.addAssessmentFile(file('foto2.jpg'));
 
-      cubit.removeFichaAvaliacao(0);
+      cubit.removeAssessmentFile(0);
 
-      expect(cubit.state.fichasAvaliacao.length, 1);
-      expect(cubit.state.fichasAvaliacao.single.fileName, 'foto2.jpg');
+      expect(cubit.state.assessmentFiles.length, 1);
+      expect(cubit.state.assessmentFiles.single.fileName, 'foto2.jpg');
       cubit.close();
     });
   });

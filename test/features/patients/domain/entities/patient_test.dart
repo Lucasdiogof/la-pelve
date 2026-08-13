@@ -8,27 +8,27 @@ void main() {
       final patient = Patient(
         id: 'p1',
         createdAt: DateTime.utc(2026, 1, 10, 12),
-        dadosPessoais: const DadosPessoais(
-          nome: 'Maria',
-          idade: 32,
-          telefone: '11933334444',
-          profissao: 'Professora',
-          sexo: Sexo.feminino,
+        personalInfo: const PersonalInfo(
+          name: 'Maria',
+          age: 32,
+          phone: '11933334444',
+          occupation: 'Professora',
+          gender: Gender.female,
         ),
-        anamnese: const Anamnese(
-          queixaPrincipal: 'Dor pélvica',
-          temDiagnosticoMedico: true,
-          tabagismo: false,
+        medicalHistory: const MedicalHistory(
+          chiefComplaint: 'Dor pélvica',
+          hasMedicalDiagnosis: true,
+          smoking: false,
         ),
-        planoTratamento: const PlanoTratamento(
-          diagnosticoFisioterapeutico: 'Disfunção do assoalho pélvico',
+        treatmentPlan: const TreatmentPlan(
+          physiotherapyDiagnosis: 'Disfunção do assoalho pélvico',
         ),
-        encerramento: Encerramento(
-          data: DateTime.utc(2026, 2, 1),
-          motivo: MotivoEncerramento.alta,
-          observacaoFinal: 'Paciente evoluiu bem',
+        discharge: Discharge(
+          date: DateTime.utc(2026, 2, 1),
+          reason: DischargeReason.completed,
+          finalNote: 'Paciente evoluiu bem',
         ),
-        valorConsulta: 180.5,
+        consultationFee: 180.5,
       );
 
       final json = patient.toJson();
@@ -43,8 +43,8 @@ void main() {
       final restored = Patient.fromJson(patient.toJson());
 
       expect(restored, patient);
-      expect(restored.encerramento, isNull);
-      expect(restored.dadosPessoais.sexo, isNull);
+      expect(restored.discharge, isNull);
+      expect(restored.personalInfo.gender, isNull);
     });
 
     test('fromJson tolerates missing nested sections', () {
@@ -55,9 +55,9 @@ void main() {
 
       final patient = Patient.fromJson(json);
 
-      expect(patient.dadosPessoais.nome, '');
-      expect(patient.anamnese.queixaPrincipal, '');
-      expect(patient.encerramento, isNull);
+      expect(patient.personalInfo.name, '');
+      expect(patient.medicalHistory.chiefComplaint, '');
+      expect(patient.discharge, isNull);
     });
   });
 
@@ -65,60 +65,60 @@ void main() {
     test('keeps the original id and createdAt', () {
       final original = Patient(id: 'p1', createdAt: DateTime.utc(2026, 1, 1));
       final updated = original.copyWith(
-        dadosPessoais: const DadosPessoais(nome: 'Ana'),
+        personalInfo: const PersonalInfo(name: 'Ana'),
       );
 
       expect(updated.id, original.id);
       expect(updated.createdAt, original.createdAt);
-      expect(updated.dadosPessoais.nome, 'Ana');
+      expect(updated.personalInfo.name, 'Ana');
     });
 
     test('clears encerramento when explicitly passed null', () {
       final withEncerramento = Patient(
         id: 'p1',
         createdAt: DateTime.utc(2026, 1, 1),
-        encerramento: Encerramento(
-          data: DateTime.utc(2026, 2, 1),
-          motivo: MotivoEncerramento.abandono,
+        discharge: Discharge(
+          date: DateTime.utc(2026, 2, 1),
+          reason: DischargeReason.dropOut,
         ),
       );
 
-      final reopened = withEncerramento.copyWith(encerramento: null);
+      final reopened = withEncerramento.copyWith(discharge: null);
 
-      expect(reopened.encerramento, isNull);
+      expect(reopened.discharge, isNull);
     });
 
     test('keeps encerramento when the argument is omitted', () {
-      final encerramento = Encerramento(
-        data: DateTime.utc(2026, 2, 1),
-        motivo: MotivoEncerramento.abandono,
+      final encerramento = Discharge(
+        date: DateTime.utc(2026, 2, 1),
+        reason: DischargeReason.dropOut,
       );
       final withEncerramento = Patient(
         id: 'p1',
         createdAt: DateTime.utc(2026, 1, 1),
-        encerramento: encerramento,
+        discharge: encerramento,
       );
 
-      final updated = withEncerramento.copyWith(valorConsulta: 200);
+      final updated = withEncerramento.copyWith(consultationFee: 200);
 
-      expect(updated.encerramento, encerramento);
+      expect(updated.discharge, encerramento);
     });
   });
 
-  group('Anamnese.copyWith', () {
+  group('MedicalHistory.copyWith', () {
     test('clears a nullable bool when explicitly passed null', () {
-      const original = Anamnese(tabagismo: true);
-      final updated = original.copyWith(tabagismo: null);
+      const original = MedicalHistory(smoking: true);
+      final updated = original.copyWith(smoking: null);
 
-      expect(updated.tabagismo, isNull);
+      expect(updated.smoking, isNull);
     });
 
     test('keeps the field when the argument is omitted', () {
-      const original = Anamnese(tabagismo: true);
-      final updated = original.copyWith(queixaPrincipal: 'Nova queixa');
+      const original = MedicalHistory(smoking: true);
+      final updated = original.copyWith(chiefComplaint: 'Nova queixa');
 
-      expect(updated.tabagismo, isTrue);
-      expect(updated.queixaPrincipal, 'Nova queixa');
+      expect(updated.smoking, isTrue);
+      expect(updated.chiefComplaint, 'Nova queixa');
     });
   });
 
