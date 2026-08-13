@@ -44,7 +44,12 @@ class ProfilePage extends StatelessWidget {
       '/perfil/editar-nome',
       extra: currentNome,
     );
-    if (updated != null) cubit.applyNome(updated);
+    if (updated == null || !context.mounted) return;
+    cubit.applyNome(updated);
+    await AppInfoBottomSheet.showSuccess(
+      context,
+      description: 'Nome atualizado com sucesso.',
+    );
   }
 
   Future<void> _openBiometria(BuildContext context) async {
@@ -122,8 +127,8 @@ class ProfilePage extends StatelessWidget {
                           children: [
                             ProfileAvatarSection(
                               photoUrl: state.photoUrl,
-                              initial: (state.profile?.nome.isNotEmpty ?? false)
-                                  ? state.profile!.nome[0].toUpperCase()
+                              initial: (state.profile?.name.isNotEmpty ?? false)
+                                  ? state.profile!.name[0].toUpperCase()
                                   : '?',
                               isSaving: state.savingPhoto,
                               onTap: () => _pickPhoto(context),
@@ -132,14 +137,14 @@ class ProfilePage extends StatelessWidget {
                             ProfileRow(
                               icon: Icons.person_outline,
                               label: 'Nome',
-                              value: state.profile?.nome ?? '',
+                              value: state.profile?.name ?? '',
                               trailing: Icon(
                                 Icons.edit_outlined,
                                 size: 18,
                                 color: context.colors.primary,
                               ),
                               onTap: () =>
-                                  _editNome(context, state.profile?.nome),
+                                  _editNome(context, state.profile?.name),
                             ),
                             const SizedBox(height: 8),
                             ProfileRow(

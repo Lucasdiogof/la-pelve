@@ -28,9 +28,9 @@ class ProfileRepositorySupabase implements ProfileRepository {
             .from('profiles')
             .insert({
               'id': user.id,
-              'nome': '',
+              'name': '',
               'crefito': '',
-              'telefone': '',
+              'phone': '',
               'email': user.email ?? '',
             })
             .select()
@@ -52,19 +52,19 @@ class ProfileRepositorySupabase implements ProfileRepository {
   }
 
   @override
-  Future<Result<void>> updateNome(String nome) async {
+  Future<Result<void>> updateName(String name) async {
     try {
       final userId = _client.auth.currentUser!.id;
-      await _client.from('profiles').update({'nome': nome}).eq('id', userId);
-      _cachedProfile = _cachedProfile?.copyWith(nome: nome);
+      await _client.from('profiles').update({'name': name}).eq('id', userId);
+      _cachedProfile = _cachedProfile?.copyWith(name: name);
       return const Success(null);
     } on PostgrestException catch (e, st) {
       debugPrint(
-        '[ProfileRepositorySupabase.updateNome] code=${e.code} msg=${e.message}\n$st',
+        '[ProfileRepositorySupabase.updateName] code=${e.code} msg=${e.message}\n$st',
       );
       return const Error(ServerFailure());
     } catch (e, st) {
-      debugPrint('[ProfileRepositorySupabase.updateNome] $e\n$st');
+      debugPrint('[ProfileRepositorySupabase.updateName] $e\n$st');
       return const Error(UnexpectedFailure());
     }
   }
@@ -87,9 +87,9 @@ class ProfileRepositorySupabase implements ProfileRepository {
           );
       await _client
           .from('profiles')
-          .update({'foto_path': path})
+          .update({'photo_path': path})
           .eq('id', userId);
-      _cachedProfile = _cachedProfile?.copyWith(fotoPath: path);
+      _cachedProfile = _cachedProfile?.copyWith(photoPath: path);
       _cachedPhotoUrl = null;
       _cachedPhotoUrlPath = null;
       return Success(path);
@@ -110,16 +110,16 @@ class ProfileRepositorySupabase implements ProfileRepository {
   }
 
   @override
-  Future<Result<String>> getPhotoUrl(String fotoPath) async {
-    if (_cachedPhotoUrlPath == fotoPath && _cachedPhotoUrl != null) {
+  Future<Result<String>> getPhotoUrl(String photoPath) async {
+    if (_cachedPhotoUrlPath == photoPath && _cachedPhotoUrl != null) {
       return Success(_cachedPhotoUrl!);
     }
     try {
       final url = await _client.storage
           .from(_bucket)
-          .createSignedUrl(fotoPath, 3600);
+          .createSignedUrl(photoPath, 3600);
       _cachedPhotoUrl = url;
-      _cachedPhotoUrlPath = fotoPath;
+      _cachedPhotoUrlPath = photoPath;
       return Success(url);
     } on StorageException catch (e, st) {
       debugPrint(

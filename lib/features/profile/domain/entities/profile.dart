@@ -3,38 +3,38 @@ import 'package:equatable/equatable.dart';
 class Profile extends Equatable {
   const Profile({
     required this.id,
-    required this.nome,
+    required this.name,
     required this.crefito,
-    required this.telefone,
+    required this.phone,
     required this.email,
-    this.fotoPath,
+    this.photoPath,
   });
 
   final String id;
-  final String nome;
+  final String name;
   final String crefito;
-  final String telefone;
+  final String phone;
   final String email;
-  final String? fotoPath;
+  final String? photoPath;
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
     id: json['id'] as String,
-    nome: json['nome'] as String? ?? '',
+    name: json['name'] as String? ?? '',
     crefito: json['crefito'] as String? ?? '',
-    telefone: json['telefone'] as String? ?? '',
+    phone: json['phone'] as String? ?? '',
     email: json['email'] as String? ?? '',
-    fotoPath: json['foto_path'] as String?,
+    photoPath: json['photo_path'] as String?,
   );
 
-  Profile copyWith({String? nome, String? fotoPath}) => Profile(
+  Profile copyWith({String? name, String? photoPath}) => Profile(
     id: id,
-    nome: nome ?? this.nome,
+    name: name ?? this.name,
     crefito: crefito,
-    telefone: telefone,
+    phone: phone,
     email: email,
-    fotoPath: fotoPath ?? this.fotoPath,
+    photoPath: photoPath ?? this.photoPath,
   );
 
   @override
-  List<Object?> get props => [id, nome, crefito, telefone, email, fotoPath];
+  List<Object?> get props => [id, name, crefito, phone, email, photoPath];
 }

@@ -43,7 +43,7 @@ class _EditNamePageState extends State<EditNamePage> {
     final nome = _controller.text.trim();
     if (nome.isEmpty) return;
     showAppLoading();
-    final result = await _repository.updateNome(nome);
+    final result = await _repository.updateName(nome);
     hideAppLoading();
     if (!mounted) return;
     switch (result) {

@@ -6,64 +6,64 @@ void main() {
     test('parses a fully populated map', () {
       final profile = Profile.fromJson(const {
         'id': 'u1',
-        'nome': 'Lucas',
+        'name': 'Lucas',
         'crefito': '123456-F3',
-        'telefone': '11933334444',
+        'phone': '11933334444',
         'email': 'lucas@example.com',
-        'foto_path': 'avatars/u1.png',
+        'photo_path': 'avatars/u1.png',
       });
 
       expect(profile.id, 'u1');
-      expect(profile.nome, 'Lucas');
+      expect(profile.name, 'Lucas');
       expect(profile.crefito, '123456-F3');
-      expect(profile.telefone, '11933334444');
+      expect(profile.phone, '11933334444');
       expect(profile.email, 'lucas@example.com');
-      expect(profile.fotoPath, 'avatars/u1.png');
+      expect(profile.photoPath, 'avatars/u1.png');
     });
 
-    test('defaults missing string fields to empty and fotoPath to null', () {
+    test('defaults missing string fields to empty and photoPath to null', () {
       final profile = Profile.fromJson(const {'id': 'u1'});
 
-      expect(profile.nome, '');
+      expect(profile.name, '');
       expect(profile.crefito, '');
-      expect(profile.telefone, '');
+      expect(profile.phone, '');
       expect(profile.email, '');
-      expect(profile.fotoPath, isNull);
+      expect(profile.photoPath, isNull);
     });
   });
 
   group('Profile.copyWith', () {
-    test('replaces nome while keeping other fields', () {
+    test('replaces name while keeping other fields', () {
       const profile = Profile(
         id: 'u1',
-        nome: 'Lucas',
+        name: 'Lucas',
         crefito: '123456-F3',
-        telefone: '11933334444',
+        phone: '11933334444',
         email: 'lucas@example.com',
       );
 
-      final updated = profile.copyWith(nome: 'Lucas Diogo');
+      final updated = profile.copyWith(name: 'Lucas Diogo');
 
-      expect(updated.nome, 'Lucas Diogo');
+      expect(updated.name, 'Lucas Diogo');
       expect(updated.id, profile.id);
       expect(updated.crefito, profile.crefito);
-      expect(updated.telefone, profile.telefone);
+      expect(updated.phone, profile.phone);
       expect(updated.email, profile.email);
     });
 
-    test('keeps fotoPath when the argument is omitted', () {
+    test('keeps photoPath when the argument is omitted', () {
       const profile = Profile(
         id: 'u1',
-        nome: 'Lucas',
+        name: 'Lucas',
         crefito: '123456-F3',
-        telefone: '11933334444',
+        phone: '11933334444',
         email: 'lucas@example.com',
-        fotoPath: 'avatars/u1.png',
+        photoPath: 'avatars/u1.png',
       );
 
-      final updated = profile.copyWith(nome: 'Lucas Diogo');
+      final updated = profile.copyWith(name: 'Lucas Diogo');
 
-      expect(updated.fotoPath, 'avatars/u1.png');
+      expect(updated.photoPath, 'avatars/u1.png');
     });
   });
 }

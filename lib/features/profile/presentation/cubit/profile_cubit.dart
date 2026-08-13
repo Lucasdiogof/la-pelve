@@ -26,8 +26,8 @@ class ProfileCubit extends Cubit<ProfileState> {
             loading: false,
           ),
         );
-        if (data.fotoPath != null) {
-          final urlResult = await _repository.getPhotoUrl(data.fotoPath!);
+        if (data.photoPath != null) {
+          final urlResult = await _repository.getPhotoUrl(data.photoPath!);
           if (urlResult is Success<String>) {
             emit(state.copyWith(photoUrl: urlResult.data));
           }
@@ -56,10 +56,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     return result;
   }
 
-  void applyNome(String nome) {
+  void applyNome(String name) {
     final profile = state.profile;
     if (profile == null) return;
-    emit(state.copyWith(profile: profile.copyWith(nome: nome)));
+    emit(state.copyWith(profile: profile.copyWith(name: name)));
   }
 
   Future<void> refreshBiometria() async {
