@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 
 class AppConfirmSheet extends StatelessWidget {
   const AppConfirmSheet({
@@ -7,14 +8,14 @@ class AppConfirmSheet extends StatelessWidget {
     required this.description,
     required this.confirmLabel,
     super.key,
-    this.cancelLabel = 'Cancelar',
+    this.cancelLabel,
     this.isDestructive = false,
   });
 
   final String title;
   final String description;
   final String confirmLabel;
-  final String cancelLabel;
+  final String? cancelLabel;
   final bool isDestructive;
 
   static Future<bool> show(
@@ -22,7 +23,7 @@ class AppConfirmSheet extends StatelessWidget {
     required String title,
     required String description,
     required String confirmLabel,
-    String cancelLabel = 'Cancelar',
+    String? cancelLabel,
     bool isDestructive = false,
   }) async {
     final confirmed = await showModalBottomSheet<bool>(
@@ -99,7 +100,7 @@ class AppConfirmSheet extends StatelessWidget {
               const SizedBox(height: 4),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text(cancelLabel),
+                child: Text(cancelLabel ?? context.strings.shared.cancel),
               ),
             ],
           ),

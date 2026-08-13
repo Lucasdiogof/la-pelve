@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/app.dart';
 import 'package:fisioterapia_pelvica/core/config/env_config.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/network/logging_http_client.dart';
 import 'package:fisioterapia_pelvica/core/router/app_router.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
@@ -18,6 +19,7 @@ void main() {
   EnvConfig.validate();
 
   sl.registerLazySingleton<ThemeCubit>(ThemeCubit.new);
+  sl.registerLazySingleton<LocaleCubit>(LocaleCubit.new);
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString(

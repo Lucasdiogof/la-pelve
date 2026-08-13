@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
 enum AppInfoBottomSheetVariant { error, success, info }
 
 class AppInfoBottomSheet extends StatelessWidget {
   const AppInfoBottomSheet({
-    required this.title,
     required this.description,
     required this.variant,
     super.key,
+    this.title,
     this.secondaryActionLabel,
     this.onSecondaryAction,
   });
 
-  final String title;
+  final String? title;
   final String description;
   final AppInfoBottomSheetVariant variant;
   final String? secondaryActionLabel;
@@ -23,7 +24,7 @@ class AppInfoBottomSheet extends StatelessWidget {
   static Future<void> showError(
     BuildContext context, {
     required String description,
-    String title = 'Não foi possível continuar',
+    String? title,
     String? secondaryActionLabel,
     VoidCallback? onSecondaryAction,
   }) => _show(
@@ -38,7 +39,7 @@ class AppInfoBottomSheet extends StatelessWidget {
   static Future<void> showSuccess(
     BuildContext context, {
     required String description,
-    String title = 'Tudo certo!',
+    String? title,
   }) => _show(
     context,
     title: title,
@@ -49,7 +50,7 @@ class AppInfoBottomSheet extends StatelessWidget {
   static Future<void> showInfo(
     BuildContext context, {
     required String description,
-    String title = 'Informação',
+    String? title,
   }) => _show(
     context,
     title: title,
@@ -59,7 +60,7 @@ class AppInfoBottomSheet extends StatelessWidget {
 
   static Future<void> _show(
     BuildContext context, {
-    required String title,
+    required String? title,
     required String description,
     required AppInfoBottomSheetVariant variant,
     String? secondaryActionLabel,
@@ -91,6 +92,12 @@ class AppInfoBottomSheet extends StatelessWidget {
     AppInfoBottomSheetVariant.error => Icons.error_outline_rounded,
     AppInfoBottomSheetVariant.success => Icons.check_circle_outline_rounded,
     AppInfoBottomSheetVariant.info => Icons.info_outline_rounded,
+  };
+
+  String _defaultTitle(BuildContext context) => switch (variant) {
+    AppInfoBottomSheetVariant.error => context.strings.shared.errorTitle,
+    AppInfoBottomSheetVariant.success => context.strings.shared.successTitle,
+    AppInfoBottomSheetVariant.info => context.strings.shared.infoTitle,
   };
 
   @override
@@ -133,7 +140,7 @@ class AppInfoBottomSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                title,
+                title ?? _defaultTitle(context),
                 textAlign: TextAlign.center,
                 style: textTheme.titleLarge?.copyWith(
                   color: context.colors.textPrimary,
@@ -151,7 +158,7 @@ class AppInfoBottomSheet extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               PrimaryButton(
-                label: 'Entendi',
+                label: context.strings.shared.understood,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               if (secondaryActionLabel != null)

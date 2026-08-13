@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:fisioterapia_pelvica/core/constants/app_constants.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/router/app_router.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_theme.dart';
@@ -19,50 +21,60 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: sl<ThemeCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: sl<ThemeCubit>()),
+        BlocProvider.value(value: sl<LocaleCubit>()),
+      ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
-          return MaterialApp.router(
-            title: AppConstants.appName,
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: themeMode,
-            locale: const Locale('pt', 'BR'),
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('pt', 'BR')],
-            routerConfig: appRouter,
-            builder: (context, child) {
-              return GlobalLoaderOverlay(
-                overlayColor: context.colors.background.withValues(alpha: 0.7),
-                overlayWidgetBuilder: (progress) => const AppLoadingWidget(),
-                child: FutureBuilder<void>(
-                  future: bootstrap,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return Scaffold(
-                        backgroundColor: context.colors.background,
-                        body: const Center(child: PulsingLogo(size: 140)),
-                      );
-                    }
-                    return ColoredBox(
-                      color: context.colors.background,
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: AppLockGate(
-                            child: child ?? const SizedBox.shrink(),
+          return BlocBuilder<LocaleCubit, AppLanguage>(
+            builder: (context, language) {
+              return MaterialApp.router(
+                title: AppConstants.appName,
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: themeMode,
+                locale: language.locale,
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
+                routerConfig: appRouter,
+                builder: (context, child) {
+                  return GlobalLoaderOverlay(
+                    overlayColor: context.colors.background.withValues(
+                      alpha: 0.7,
+                    ),
+                    overlayWidgetBuilder: (progress) =>
+                        const AppLoadingWidget(),
+                    child: FutureBuilder<void>(
+                      future: bootstrap,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return Scaffold(
+                            backgroundColor: context.colors.background,
+                            body: const Center(child: PulsingLogo(size: 140)),
+                          );
+                        }
+                        return ColoredBox(
+                          color: context.colors.background,
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 480),
+                              child: AppLockGate(
+                                child: child ?? const SizedBox.shrink(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  );
+                },
               );
             },
           );
