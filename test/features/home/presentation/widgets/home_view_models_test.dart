@@ -13,15 +13,15 @@ void main() {
   Appointment appointmentOn(
     DateTime day, {
     String id = 'a',
-    TimeOfDay hora = const TimeOfDay(hour: 12, minute: 0),
-    AppointmentStatus status = AppointmentStatus.agendado,
-    String nomePaciente = 'Paciente',
+    TimeOfDay time = const TimeOfDay(hour: 12, minute: 0),
+    AppointmentStatus status = AppointmentStatus.scheduled,
+    String patientName = 'Paciente',
   }) {
     return Appointment(
       id: id,
-      data: day,
-      hora: hora,
-      nomePaciente: nomePaciente,
+      date: day,
+      time: time,
+      patientName: patientName,
       status: status,
     );
   }
@@ -51,95 +51,97 @@ void main() {
         appointmentOn(
           today.add(const Duration(days: 1)),
           id: 'later-day-early-time',
-          hora: const TimeOfDay(hour: 8, minute: 0),
-          nomePaciente: 'B',
+          time: const TimeOfDay(hour: 8, minute: 0),
+          patientName: 'B',
         ),
         appointmentOn(
           today,
           id: 'today-late-time',
-          hora: const TimeOfDay(hour: 20, minute: 0),
-          nomePaciente: 'A',
+          time: const TimeOfDay(hour: 20, minute: 0),
+          patientName: 'A',
         ),
       ]);
 
       expect(result.map((e) => e.patientName).toList(), ['A', 'B']);
     });
 
-    test('marks atendido as finalizado regardless of time', () {
+    test('marks fulfilled as completed regardless of time', () {
       final result = buildUpcomingSchedule([
         appointmentOn(
           today.add(const Duration(days: 2)),
-          hora: const TimeOfDay(hour: 23, minute: 59),
-          status: AppointmentStatus.atendido,
+          time: const TimeOfDay(hour: 23, minute: 59),
+          status: AppointmentStatus.fulfilled,
         ),
       ]);
 
-      expect(result.single.status, ScheduleStatus.finalizado);
+      expect(result.single.status, ScheduleStatus.completed);
     });
 
-    test('marks cancelado and faltou as cancelado', () {
+    test('marks cancelled and noShow as cancelled', () {
       final result = buildUpcomingSchedule([
         appointmentOn(
           today.add(const Duration(days: 2)),
           id: 'c1',
-          status: AppointmentStatus.cancelado,
+          status: AppointmentStatus.cancelled,
         ),
         appointmentOn(
           today.add(const Duration(days: 2)),
           id: 'c2',
-          status: AppointmentStatus.faltou,
+          status: AppointmentStatus.noShow,
         ),
       ]);
 
-      expect(result.every((e) => e.status == ScheduleStatus.cancelado), isTrue);
+      expect(result.every((e) => e.status == ScheduleStatus.cancelled), isTrue);
     });
 
-    test('marks a today appointment already past as finalizado', () {
+    test('marks a today appointment already past as completed', () {
       final result = buildUpcomingSchedule([
         appointmentOn(
           today,
-          hora: const TimeOfDay(hour: 0, minute: 1),
-          status: AppointmentStatus.agendado,
+          time: const TimeOfDay(hour: 0, minute: 1),
+          status: AppointmentStatus.scheduled,
         ),
       ]);
 
-      expect(result.single.status, ScheduleStatus.finalizado);
+      expect(result.single.status, ScheduleStatus.completed);
     });
 
-    test('assigns proximo to the first upcoming slot and aguardando to the rest', () {
+    test('assigns next to the first upcoming slot and waiting to the rest', () {
       final result = buildUpcomingSchedule([
         appointmentOn(
           today.add(const Duration(days: 2)),
           id: 'first',
-          status: AppointmentStatus.agendado,
+          status: AppointmentStatus.scheduled,
         ),
         appointmentOn(
           today.add(const Duration(days: 3)),
           id: 'second',
-          status: AppointmentStatus.confirmado,
+          status: AppointmentStatus.confirmed,
         ),
       ]);
 
-      expect(result[0].status, ScheduleStatus.proximo);
-      expect(result[1].status, ScheduleStatus.aguardando);
+      expect(result[0].status, ScheduleStatus.next);
+      expect(result[1].status, ScheduleStatus.waiting);
     });
 
-    test('a cancelled appointment does not consume the proximo slot', () {
+    test('a cancelled appointment does not consume the next slot', () {
       final result = buildUpcomingSchedule([
         appointmentOn(
           today.add(const Duration(days: 1)),
           id: 'cancelled',
-          status: AppointmentStatus.cancelado,
+          status: AppointmentStatus.cancelled,
         ),
         appointmentOn(
           today.add(const Duration(days: 2)),
           id: 'next',
-          status: AppointmentStatus.agendado,
+          status: AppointmentStatus.scheduled,
         ),
       ]);
 
-      final next = result.firstWhere((e) => e.status != ScheduleStatus.cancelado);
-      expect(next.status, ScheduleStatus.proximo);
+      final next = result.firstWhere(
+        (e) => e.status != ScheduleStatus.cancelled,
+      );
+      expect(next.status, ScheduleStatus.next);
     });
 
     test('labels today, tomorrow and other days correctly', () {
@@ -153,7 +155,9 @@ void main() {
       ]);
 
       final byId = {
-        'today': result.firstWhere((e) => e.time == '12:00' && e.dayLabel == 'Hoje'),
+        'today': result.firstWhere(
+          (e) => e.time == '12:00' && e.dayLabel == 'Hoje',
+        ),
       };
       expect(byId['today'], isNotNull);
       expect(result.any((e) => e.dayLabel == 'Amanhã'), isTrue);
@@ -165,7 +169,7 @@ void main() {
 
     test('falls back to Sem nome for a blank patient name', () {
       final result = buildUpcomingSchedule([
-        appointmentOn(today, nomePaciente: '   '),
+        appointmentOn(today, patientName: '   '),
       ]);
 
       expect(result.single.patientName, 'Sem nome');
@@ -207,7 +211,7 @@ void main() {
       expect(overview.activePatients, 42);
     });
 
-    test('sums only pago entries from the current month', () {
+    test('sums only paid entries from the current month', () {
       final overview = buildClinicOverview(
         patientCount: 0,
         appointments: const [],
@@ -215,23 +219,23 @@ void main() {
           FinancialEntry(
             id: 'f1',
             patientName: 'A',
-            data: DateTime(now.year, now.month, 10),
-            valor: 100,
-            status: StatusPagamento.pago,
+            date: DateTime(now.year, now.month, 10),
+            amount: 100,
+            status: PaymentStatus.paid,
           ),
           FinancialEntry(
             id: 'f2',
             patientName: 'B',
-            data: DateTime(now.year, now.month, 15),
-            valor: 50,
-            status: StatusPagamento.pendente,
+            date: DateTime(now.year, now.month, 15),
+            amount: 50,
+            status: PaymentStatus.pending,
           ),
           FinancialEntry(
             id: 'f3',
             patientName: 'C',
-            data: DateTime(now.year, now.month - 1, 10),
-            valor: 999,
-            status: StatusPagamento.pago,
+            date: DateTime(now.year, now.month - 1, 10),
+            amount: 999,
+            status: PaymentStatus.paid,
           ),
         ],
       );

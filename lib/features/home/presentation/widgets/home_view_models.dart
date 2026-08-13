@@ -5,14 +5,14 @@ import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
 
-enum ScheduleStatus { finalizado, proximo, aguardando, cancelado }
+enum ScheduleStatus { completed, next, waiting, cancelled }
 
 extension ScheduleStatusLabel on ScheduleStatus {
   String get label => switch (this) {
-    ScheduleStatus.finalizado => 'Finalizado',
-    ScheduleStatus.proximo => 'Próximo',
-    ScheduleStatus.aguardando => 'Aguardando',
-    ScheduleStatus.cancelado => 'Cancelado',
+    ScheduleStatus.completed => 'Finalizado',
+    ScheduleStatus.next => 'Próximo',
+    ScheduleStatus.waiting => 'Aguardando',
+    ScheduleStatus.cancelled => 'Cancelado',
   };
 }
 
@@ -69,20 +69,18 @@ ScheduleStatus _statusFor(
   bool nextAlreadyAssigned,
 ) {
   switch (appointment.status) {
-    case AppointmentStatus.atendido:
-      return ScheduleStatus.finalizado;
-    case AppointmentStatus.cancelado:
-    case AppointmentStatus.faltou:
-      return ScheduleStatus.cancelado;
-    case AppointmentStatus.agendado:
-    case AppointmentStatus.confirmado:
-    case AppointmentStatus.reagendado:
-      if (isToday && _minutesOf(appointment.hora) < nowMinutes) {
-        return ScheduleStatus.finalizado;
+    case AppointmentStatus.fulfilled:
+      return ScheduleStatus.completed;
+    case AppointmentStatus.cancelled:
+    case AppointmentStatus.noShow:
+      return ScheduleStatus.cancelled;
+    case AppointmentStatus.scheduled:
+    case AppointmentStatus.confirmed:
+    case AppointmentStatus.rescheduled:
+      if (isToday && _minutesOf(appointment.time) < nowMinutes) {
+        return ScheduleStatus.completed;
       }
-      return nextAlreadyAssigned
-          ? ScheduleStatus.aguardando
-          : ScheduleStatus.proximo;
+      return nextAlreadyAssigned ? ScheduleStatus.waiting : ScheduleStatus.next;
   }
 }
 
@@ -92,28 +90,28 @@ List<ScheduleItem> buildUpcomingSchedule(List<Appointment> appointments) {
   final endDate = today.add(const Duration(days: 7));
   final upcoming =
       appointments.where((a) {
-        final data = _dateOnly(a.data);
-        return !data.isBefore(today) && !data.isAfter(endDate);
+        final date = _dateOnly(a.date);
+        return !date.isBefore(today) && !date.isAfter(endDate);
       }).toList()..sort((a, b) {
-        final byDate = a.data.compareTo(b.data);
+        final byDate = a.date.compareTo(b.date);
         if (byDate != 0) return byDate;
-        return _minutesOf(a.hora).compareTo(_minutesOf(b.hora));
+        return _minutesOf(a.time).compareTo(_minutesOf(b.time));
       });
 
   final nowMinutes = _minutesOf(TimeOfDay.fromDateTime(now));
   var nextAssigned = false;
   final result = <ScheduleItem>[];
   for (final appointment in upcoming) {
-    final isToday = _isSameDay(appointment.data, now);
+    final isToday = _isSameDay(appointment.date, now);
     final status = _statusFor(appointment, isToday, nowMinutes, nextAssigned);
-    if (status == ScheduleStatus.proximo) nextAssigned = true;
+    if (status == ScheduleStatus.next) nextAssigned = true;
     result.add(
       ScheduleItem(
-        dayLabel: _dayLabel(_dateOnly(appointment.data), today),
-        time: _formatTime(appointment.hora),
-        patientName: appointment.nomePaciente.trim().isEmpty
+        dayLabel: _dayLabel(_dateOnly(appointment.date), today),
+        time: _formatTime(appointment.time),
+        patientName: appointment.patientName.trim().isEmpty
             ? 'Sem nome'
-            : appointment.nomePaciente,
+            : appointment.patientName,
         status: status,
       ),
     );
@@ -134,17 +132,17 @@ ClinicOverview buildClinicOverview({
   ).subtract(Duration(days: now.weekday - 1));
   final endOfWeek = startOfWeek.add(const Duration(days: 7));
   final appointmentsThisWeek = appointments
-      .where((a) => !a.data.isBefore(startOfWeek) && a.data.isBefore(endOfWeek))
+      .where((a) => !a.date.isBefore(startOfWeek) && a.date.isBefore(endOfWeek))
       .length;
 
   final receivedThisMonth = financialEntries
       .where(
         (e) =>
-            e.data.year == now.year &&
-            e.data.month == now.month &&
-            e.status == StatusPagamento.pago,
+            e.date.year == now.year &&
+            e.date.month == now.month &&
+            e.status == PaymentStatus.paid,
       )
-      .fold<double>(0, (sum, e) => sum + e.valor);
+      .fold<double>(0, (sum, e) => sum + e.amount);
 
   return ClinicOverview(
     activePatients: patientCount,
@@ -155,9 +153,9 @@ ClinicOverview buildClinicOverview({
 
 extension ScheduleStatusStyle on ScheduleStatus {
   Color foreground(AppColors colors) => switch (this) {
-    ScheduleStatus.finalizado => colors.success,
-    ScheduleStatus.proximo => colors.primary,
-    ScheduleStatus.aguardando => colors.primaryButton,
-    ScheduleStatus.cancelado => colors.textSecondary,
+    ScheduleStatus.completed => colors.success,
+    ScheduleStatus.next => colors.primary,
+    ScheduleStatus.waiting => colors.primaryButton,
+    ScheduleStatus.cancelled => colors.textSecondary,
   };
 }

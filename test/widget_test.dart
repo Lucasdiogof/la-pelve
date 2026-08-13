@@ -55,6 +55,9 @@ void main() {
     await tester.pump();
 
     expect(find.text('Próximos atendimentos'), findsOneWidget);
-    expect(find.text('Nenhum atendimento nos próximos 7 dias.'), findsOneWidget);
+    expect(
+      find.text('Nenhum atendimento nos próximos 7 dias.'),
+      findsOneWidget,
+    );
   });
 }
