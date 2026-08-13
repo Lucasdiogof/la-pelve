@@ -33,6 +33,7 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 - One-tap status changes (scheduled, confirmed, attended, cancelled, no-show, rescheduled)
 - Create, edit and delete appointments; link to an existing patient record or type a name freehand
 - Past dates are blocked when scheduling
+- Monthly report tab with a status breakdown and the full list of appointments in the selected month
 
 **Financial**
 - Payment entries linked to a patient (or ad-hoc), with payment method and status

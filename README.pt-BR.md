@@ -33,6 +33,7 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 - Mudança de status com um toque (agendado, confirmado, atendido, cancelado, faltou, reagendado)
 - Criar, editar e excluir agendamentos; vincular a um paciente já cadastrado ou digitar o nome livremente
 - Bloqueio de agendamento em datas já passadas
+- Aba de relatório mensal com detalhamento por status e a lista completa de agendamentos do mês selecionado
 
 **Financeiro**
 - Lançamentos de pagamento vinculados a um paciente (ou avulsos), com forma de pagamento e status
