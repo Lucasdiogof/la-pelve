@@ -11,6 +11,7 @@ import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/agenda
 import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/appointment_row.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_segmented_tab_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -33,17 +34,11 @@ class AgendaPage extends StatelessWidget {
         body: Column(
           children: [
             ModernAppBar(title: t.pageTitle, subtitle: t.pageSubtitle),
-            Material(
-              color: context.colors.surface,
-              child: TabBar(
-                labelColor: context.colors.textPrimary,
-                unselectedLabelColor: context.colors.textSecondary,
-                indicatorColor: context.colors.primaryButton,
-                tabs: [
-                  Tab(text: t.upcomingTab),
-                  Tab(text: t.reportTab),
-                ],
-              ),
+            AppSegmentedTabBar(
+              tabs: [
+                Tab(text: t.upcomingTab),
+                Tab(text: t.reportTab),
+              ],
             ),
             Expanded(
               child: TabBarView(

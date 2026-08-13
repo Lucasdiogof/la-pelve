@@ -35,6 +35,7 @@ class _PulsingLogoState extends State<PulsingLogo>
         'lib/assets/app_icon.png',
         width: widget.size,
         height: widget.size,
+        filterQuality: FilterQuality.high,
       ),
     );
   }

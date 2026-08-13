@@ -128,7 +128,7 @@ class ProfilePage extends StatelessWidget {
                           ),
                         )
                       : ListView(
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 2),
                           children: [
                             ProfileAvatarSection(
                               photoUrl: state.photoUrl,
@@ -208,26 +208,33 @@ class ProfilePage extends StatelessWidget {
                         ),
                 ),
                 if (!state.loading)
-                  AppBottomActionBar(
-                    child: Column(
-                      children: [
-                        OutlinedButton(
-                          onPressed: () => _signOut(context),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: context.colors.error,
-                            side: BorderSide(color: context.colors.error),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: context.colors.border),
+                      ),
+                    ),
+                    child: AppBottomActionBar(
+                      child: Column(
+                        children: [
+                          OutlinedButton(
+                            onPressed: () => _signOut(context),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: context.colors.error,
+                              side: BorderSide(color: context.colors.error),
+                            ),
+                            child: Text(t.signOutButtonLabel),
                           ),
-                          child: Text(t.signOutButtonLabel),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: () => _deleteAccount(context),
-                          style: TextButton.styleFrom(
-                            foregroundColor: context.colors.error,
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => _deleteAccount(context),
+                            style: TextButton.styleFrom(
+                              foregroundColor: context.colors.error,
+                            ),
+                            child: Text(t.deleteAccountLabel),
                           ),
-                          child: Text(t.deleteAccountLabel),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
               ],

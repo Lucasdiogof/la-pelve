@@ -6,6 +6,7 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/payments_tab.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/monthly_report_tab.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_segmented_tab_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
 class FinancialPage extends StatelessWidget {
@@ -27,17 +28,11 @@ class FinancialPage extends StatelessWidget {
         body: Column(
           children: [
             ModernAppBar(title: t.pageTitle, subtitle: t.pageSubtitle),
-            Material(
-              color: context.colors.surface,
-              child: TabBar(
-                labelColor: context.colors.textPrimary,
-                unselectedLabelColor: context.colors.textSecondary,
-                indicatorColor: context.colors.primaryButton,
-                tabs: [
-                  Tab(text: t.paymentsTab),
-                  Tab(text: t.reportTab),
-                ],
-              ),
+            AppSegmentedTabBar(
+              tabs: [
+                Tab(text: t.paymentsTab),
+                Tab(text: t.reportTab),
+              ],
             ),
             const Expanded(
               child: TabBarView(children: [PaymentsTab(), MonthlyReportTab()]),
