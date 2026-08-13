@@ -47,6 +47,7 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 **Conta e perfil**
 - Autenticação por e-mail/senha, com cadastro, redefinição de senha e confirmação de e-mail
 - Nome, foto de perfil e número do Crefito editáveis
+- Alternância de idioma (inglês/português), aplicada em todo o app
 - Alternância entre tema claro/escuro
 - Bloqueio biométrico do app no mobile (ocultado automaticamente na web, onde a plataforma não suporta)
 - Exclusão de conta pelo próprio usuário, com exclusão em cascata de todos os dados e arquivos armazenados
@@ -54,28 +55,6 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 **Instalável em qualquer lugar**
 - Builds nativos para Android e iOS
 - Progressive Web App: instalável em Android, iOS (Safari "Adicionar à Tela de Início") e desktop, abre em modo standalone, funciona offline para os assets estáticos, e os links de redefinição de senha/confirmação de e-mail se adaptam automaticamente entre o esquema de URL nativo e a origem web
-
-## Screenshots
-
-| Login | Cadastro | Início |
-|---|---|---|
-| ![Tela de login](docs/screenshots/login.png) | ![Tela de cadastro](docs/screenshots/cadastro.png) | ![Painel inicial](docs/screenshots/home.png) |
-
-| Pacientes | Wizard de cadastro | Prontuário do paciente |
-|---|---|---|
-| ![Lista de pacientes](docs/screenshots/pacientes.png) | ![Wizard de cadastro de paciente](docs/screenshots/paciente_wizard.png) | ![Tela de detalhe do paciente](docs/screenshots/paciente_detalhe.png) |
-
-| Evolução | Encerramento de tratamento | Agenda |
-|---|---|---|
-| ![Registros de evolução](docs/screenshots/evolucao.png) | ![Ficha de encerramento de tratamento](docs/screenshots/encerrar_tratamento.png) | ![Próximos agendamentos](docs/screenshots/agenda.png) |
-
-| Editar agendamento | Relatório da agenda | Financeiro |
-|---|---|---|
-| ![Tela de editar agendamento](docs/screenshots/editar_agendamento.png) | ![Relatório mensal de agendamentos](docs/screenshots/agenda_relatorio.png) | ![Novo lançamento de pagamento](docs/screenshots/financeiro.png) |
-
-| Relatório financeiro | Perfil |
-|---|---|
-| ![Relatório financeiro mensal](docs/screenshots/financeiro_relatorio.png) | ![Tela de perfil](docs/screenshots/perfil.png) |
 
 ## Stack técnica
 

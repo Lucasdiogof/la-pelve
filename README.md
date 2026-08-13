@@ -21,7 +21,7 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
   7. Sexual function
   8. Bowel function
   9. Treatment plan
-  10. Physical assessment file upload (photos/PDFs, optional — can also be done later from the patient's Anexos tab)
+  10. Physical assessment file upload (photos/PDFs, optional — can also be done later from the patient's Attachments tab)
   11. Consultation fee
 - Full read-only clinical record view, organized by section
 - Treatment evolution log (dated progress notes) with edit history
@@ -47,6 +47,7 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 **Account & profile**
 - Email/password auth with signup, password reset and email confirmation
 - Editable name, profile photo, Crefito (professional license) number
+- Language toggle (English/Portuguese), applied across the whole app
 - Light/dark theme toggle
 - Biometric app lock on mobile (gracefully hidden on web, where the platform doesn't support it)
 - Self-service account deletion, cascading to all owned data and storage files
@@ -54,28 +55,6 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 **Installable everywhere**
 - Native Android and iOS builds
 - Progressive Web App: installable on Android, iOS (Safari "Add to Home Screen") and desktop, opens in standalone mode, works offline for static assets, deep links to password reset/email confirmation adapt automatically between the native URL scheme and the web origin
-
-## Screenshots
-
-| Login | Sign up | Home |
-|---|---|---|
-| ![Login screen](docs/screenshots/login.png) | ![Sign up screen](docs/screenshots/cadastro.png) | ![Home dashboard](docs/screenshots/home.png) |
-
-| Patients | Patient intake wizard | Patient record |
-|---|---|---|
-| ![Patients list](docs/screenshots/pacientes.png) | ![Patient intake wizard](docs/screenshots/paciente_wizard.png) | ![Patient detail screen](docs/screenshots/paciente_detalhe.png) |
-
-| Evolution log | Treatment closure | Agenda |
-|---|---|---|
-| ![Evolution entries](docs/screenshots/evolucao.png) | ![Treatment closure sheet](docs/screenshots/encerrar_tratamento.png) | ![Upcoming appointments](docs/screenshots/agenda.png) |
-
-| Edit appointment | Agenda report | Financial |
-|---|---|---|
-| ![Edit appointment screen](docs/screenshots/editar_agendamento.png) | ![Monthly appointment report](docs/screenshots/agenda_relatorio.png) | ![New payment entry](docs/screenshots/financeiro.png) |
-
-| Financial report | Profile |
-|---|---|
-| ![Monthly financial report](docs/screenshots/financeiro_relatorio.png) | ![Profile screen](docs/screenshots/perfil.png) |
 
 ## Tech stack
 
