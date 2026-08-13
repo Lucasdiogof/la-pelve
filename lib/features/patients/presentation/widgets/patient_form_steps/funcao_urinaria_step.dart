@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
@@ -48,12 +51,14 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     final funcao = widget.patient.urinaryFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _YesNoWithText(
-          label: 'Urgência?',
+          label: t.urinaryUrgencyLabel,
+          detailHint: t.detailHint,
           value: funcao.urgency,
           controller: _controllerFor('urgencia', funcao.urgencyDescription),
           onToggle: (value) => _update((f) => f.copyWith(urgency: value)),
@@ -62,14 +67,14 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Perda associada à urgência?',
+          label: t.leakageAssociatedWithUrgencyLabel,
           value: funcao.urgencyAssociatedLeakage,
           onChanged: (value) =>
               _update((f) => f.copyWith(urgencyAssociatedLeakage: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Incontinência de esforço?',
+          label: t.stressIncontinenceLabel,
           value: funcao.stressIncontinence,
           onChanged: (value) =>
               _update((f) => f.copyWith(stressIncontinence: value)),
@@ -94,7 +99,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
                 funcao.otherTriggerDescription,
               ),
               icon: Icons.description_outlined,
-              hintText: 'Qual outro gatilho?',
+              hintText: t.otherTriggerHint,
               onChanged: (value) =>
                   _update((f) => f.copyWith(otherTriggerDescription: value)),
             ),
@@ -118,7 +123,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Utiliza absorvente ou protetor?',
+          label: t.usesPadsLabel,
           value: funcao.usesPads,
           onChanged: (value) => _update((f) => f.copyWith(usesPads: value)),
         ),
@@ -130,7 +135,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
               funcao.padsPerDay?.toString(),
             ),
             icon: Icons.numbers_outlined,
-            hintText: 'Quantos por dia?',
+            hintText: t.padsPerDayHint,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -142,21 +147,22 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Dor ou ardência ao urinar?',
+          label: t.painOrBurningWhenUrinatingLabel,
           value: funcao.painOrBurningWhenUrinating,
           onChanged: (value) =>
               _update((f) => f.copyWith(painOrBurningWhenUrinating: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Jato urinário fraco?',
+          label: t.weakUrinaryStreamLabel,
           value: funcao.weakUrinaryStream,
           onChanged: (value) =>
               _update((f) => f.copyWith(weakUrinaryStream: value)),
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
-          label: 'Enurese noturna?',
+          label: t.nocturnalEnuresisLabel,
+          detailHint: t.detailHint,
           value: funcao.nocturnalEnuresis,
           controller: _controllerFor('enurese', funcao.enuresisDescription),
           onToggle: (value) =>
@@ -166,7 +172,8 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
-          label: 'Hesitação?',
+          label: t.hesitancyLabel,
+          detailHint: t.detailHint,
           value: funcao.hesitancy,
           controller: _controllerFor('hesitacao', funcao.hesitancyDescription),
           onToggle: (value) => _update((f) => f.copyWith(hesitancy: value)),
@@ -175,7 +182,8 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
-          label: 'Esforço miccional?',
+          label: t.urinaryStrainingLabel,
+          detailHint: t.detailHint,
           value: funcao.urinaryStraining,
           controller: _controllerFor(
             'esforco',
@@ -188,7 +196,8 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
-          label: 'Gotejamento pós miccional?',
+          label: t.postVoidDribblingLabel,
+          detailHint: t.detailHint,
           value: funcao.postVoidDribbling,
           controller: _controllerFor(
             'gotejamento',
@@ -201,7 +210,8 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
         ),
         const SizedBox(height: 12),
         _YesNoWithText(
-          label: 'Esvaziamento incompleto?',
+          label: t.incompleteEmptyingUrinaryLabel,
+          detailHint: t.detailHint,
           value: funcao.incompleteEmptying,
           controller: _controllerFor(
             'esvaziamento',
@@ -220,6 +230,7 @@ class _FuncaoUrinariaStepState extends State<FuncaoUrinariaStep> {
 class _YesNoWithText extends StatelessWidget {
   const _YesNoWithText({
     required this.label,
+    required this.detailHint,
     required this.value,
     required this.controller,
     required this.onToggle,
@@ -227,6 +238,7 @@ class _YesNoWithText extends StatelessWidget {
   });
 
   final String label;
+  final String detailHint;
   final bool? value;
   final TextEditingController controller;
   final ValueChanged<bool?> onToggle;
@@ -243,7 +255,7 @@ class _YesNoWithText extends StatelessWidget {
           AppTextField(
             controller: controller,
             icon: Icons.description_outlined,
-            hintText: 'Detalhe',
+            hintText: detailHint,
             onChanged: onText,
           ),
         ],

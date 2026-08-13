@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_a.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
 
@@ -64,20 +67,21 @@ class _AnamneseStepState extends State<AnamneseStep> {
   @override
   Widget build(BuildContext context) {
     final medicalHistory = widget.patient.medicalHistory;
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextField(
           controller: _queixaController,
           icon: Icons.chat_bubble_outline,
-          hintText: 'Queixa principal',
+          hintText: t.chiefComplaintHint,
           maxLines: 3,
           onChanged: (value) =>
               _update((a) => a.copyWith(chiefComplaint: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Tem diagnóstico médico?',
+          label: t.hasMedicalDiagnosisLabel,
           value: medicalHistory.hasMedicalDiagnosis,
           onChanged: (value) =>
               _update((a) => a.copyWith(hasMedicalDiagnosis: value)),
@@ -87,14 +91,14 @@ class _AnamneseStepState extends State<AnamneseStep> {
           AppTextField(
             controller: _diagnosticoController,
             icon: Icons.description_outlined,
-            hintText: 'Qual diagnóstico?',
+            hintText: t.medicalDiagnosisDetailHint,
             onChanged: (value) =>
                 _update((a) => a.copyWith(medicalDiagnosis: value)),
           ),
         ],
         const SizedBox(height: 20),
         Text(
-          'HMA — HISTÓRIA DA MOLÉSTIA ATUAL',
+          t.presentIllnessHistorySectionHeader,
           style: TextStyle(
             color: context.colors.textSecondary,
             fontSize: 12,
@@ -106,14 +110,14 @@ class _AnamneseStepState extends State<AnamneseStep> {
         AppTextField(
           controller: _inicioSintomasController,
           icon: Icons.event_outlined,
-          hintText: 'Início dos sintomas',
+          hintText: t.symptomsOnsetHint,
           maxLines: 3,
           onChanged: (value) =>
               _update((a) => a.copyWith(symptomsOnset: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Já realizou algum tratamento?',
+          label: t.hadPreviousTreatmentLabel,
           value: medicalHistory.hadPreviousTreatment,
           onChanged: (value) =>
               _update((a) => a.copyWith(hadPreviousTreatment: value)),
@@ -123,14 +127,14 @@ class _AnamneseStepState extends State<AnamneseStep> {
           AppTextField(
             controller: _tratamentoController,
             icon: Icons.healing_outlined,
-            hintText: 'Qual tratamento?',
+            hintText: t.previousTreatmentDetailHint,
             onChanged: (value) =>
                 _update((a) => a.copyWith(treatmentDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Doenças crônicas?',
+          label: t.hasChronicDiseasesLabel,
           value: medicalHistory.hasChronicDiseases,
           onChanged: (value) =>
               _update((a) => a.copyWith(hasChronicDiseases: value)),
@@ -140,14 +144,14 @@ class _AnamneseStepState extends State<AnamneseStep> {
           AppTextField(
             controller: _doencasController,
             icon: Icons.local_hospital_outlined,
-            hintText: 'Quais doenças?',
+            hintText: t.chronicDiseasesDetailHint,
             onChanged: (value) =>
                 _update((a) => a.copyWith(chronicDiseasesDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Uso contínuo de medicamentos?',
+          label: t.takesContinuousMedicationLabel,
           value: medicalHistory.takesContinuousMedication,
           onChanged: (value) =>
               _update((a) => a.copyWith(takesContinuousMedication: value)),
@@ -157,14 +161,14 @@ class _AnamneseStepState extends State<AnamneseStep> {
           AppTextField(
             controller: _medicamentosController,
             icon: Icons.medication_outlined,
-            hintText: 'Quais medicamentos?',
+            hintText: t.continuousMedicationDetailHint,
             onChanged: (value) =>
                 _update((a) => a.copyWith(medicationsDescription: value)),
           ),
         ],
         const SizedBox(height: 20),
         Text(
-          'HÁBITOS',
+          t.habitsSectionHeader,
           style: TextStyle(
             color: context.colors.textSecondary,
             fontSize: 12,
@@ -174,20 +178,20 @@ class _AnamneseStepState extends State<AnamneseStep> {
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Tabagismo?',
+          label: t.smokingLabel,
           value: medicalHistory.smoking,
           onChanged: (value) => _update((a) => a.copyWith(smoking: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Consome álcool?',
+          label: t.consumesAlcoholLabel,
           value: medicalHistory.consumesAlcohol,
           onChanged: (value) =>
               _update((a) => a.copyWith(consumesAlcohol: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Pratica atividade física?',
+          label: t.practicesPhysicalActivityLabel,
           value: medicalHistory.practicesPhysicalActivity,
           onChanged: (value) =>
               _update((a) => a.copyWith(practicesPhysicalActivity: value)),
@@ -196,7 +200,7 @@ class _AnamneseStepState extends State<AnamneseStep> {
         AppTextField(
           controller: _examesImagemController,
           icon: Icons.image_outlined,
-          hintText: 'Exames de imagem — resultado',
+          hintText: t.imagingExamsHint,
           maxLines: 3,
           onChanged: (value) => _update((a) => a.copyWith(imagingExams: value)),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
@@ -179,6 +180,7 @@ class PatientDetailPage extends StatelessWidget {
                   EncerramentoBanner(
                     discharge: current.discharge!,
                     onReabrir: () => _reabrirTratamento(context, current),
+                    language: AppLanguage.portuguese,
                   ),
                 Expanded(
                   child: TabBarView(

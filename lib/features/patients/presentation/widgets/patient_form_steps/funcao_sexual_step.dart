@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_scale_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
@@ -46,12 +49,13 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     final funcao = widget.patient.sexualFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppYesNoToggle(
-          label: 'Vida sexual ativa?',
+          label: t.sexuallyActiveLabel,
           value: funcao.sexuallyActive,
           onChanged: (value) =>
               _update((f) => f.copyWith(sexuallyActive: value)),
@@ -61,26 +65,26 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           AppTextField(
             controller: _frequenciaController,
             icon: Icons.calendar_today_outlined,
-            hintText: 'Frequência de atividade sexual',
+            hintText: t.sexualActivityFrequencyHint,
             onChanged: (value) =>
                 _update((f) => f.copyWith(sexualActivityFrequency: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Precisa usar lubrificante?',
+            label: t.needsLubricantLabel,
             value: funcao.needsLubricant,
             onChanged: (value) =>
                 _update((f) => f.copyWith(needsLubricant: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Sensação de ressecamento?',
+            label: t.drynessLabel,
             value: funcao.dryness,
             onChanged: (value) => _update((f) => f.copyWith(dryness: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Dificuldade para atingir o orgasmo?',
+            label: t.orgasmDifficultyLabel,
             value: funcao.orgasmDifficulty,
             onChanged: (value) =>
                 _update((f) => f.copyWith(orgasmDifficulty: value)),
@@ -90,7 +94,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
             AppTextField(
               controller: _dificuldadeController,
               icon: Icons.description_outlined,
-              hintText: 'Detalhe',
+              hintText: t.detailHint,
               onChanged: (value) => _update(
                 (f) => f.copyWith(orgasmDifficultyDescription: value),
               ),
@@ -98,7 +102,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           ],
           const SizedBox(height: 20),
           Text(
-            'DOR',
+            t.painSectionHeader,
             style: TextStyle(
               color: context.colors.textSecondary,
               fontSize: 12,
@@ -108,7 +112,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Dor na penetração?',
+            label: t.painDuringPenetrationLabel,
             value: funcao.painDuringPenetration,
             onChanged: (value) =>
                 _update((f) => f.copyWith(painDuringPenetration: value)),
@@ -130,7 +134,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           ],
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Dor durante ou depois da relação?',
+            label: t.painDuringOrAfterIntercourseLabel,
             value: funcao.painDuringOrAfterIntercourse,
             onChanged: (value) =>
                 _update((f) => f.copyWith(painDuringOrAfterIntercourse: value)),
@@ -139,7 +143,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
               funcao.painDuringOrAfterIntercourse == true) ...[
             const SizedBox(height: 12),
             AppScaleField(
-              label: 'Intensidade da dor',
+              label: t.painIntensityLabel,
               value: funcao.painIntensity0to10,
               onChanged: (value) =>
                   _update((f) => f.copyWith(painIntensity0to10: value)),
@@ -147,7 +151,7 @@ class _FuncaoSexualStepState extends State<FuncaoSexualStep> {
           ],
           const SizedBox(height: 20),
           Text(
-            'DESEJO SEXUAL',
+            t.sexualDesireSectionHeader,
             style: TextStyle(
               color: context.colors.textSecondary,
               fontSize: 12,

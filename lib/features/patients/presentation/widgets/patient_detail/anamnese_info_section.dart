@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
 
 class AnamneseInfoSection extends StatelessWidget {
@@ -9,59 +12,102 @@ class AnamneseInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(context.watch<LocaleCubit>().state);
+    final language = t.language;
     final a = medicalHistory;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle('Anamnese'),
-        InfoRow('Queixa principal', PatientDetailFormat.text(a.chiefComplaint)),
+        SectionTitle(t.sectionAnamnesis),
         InfoRow(
-          'Início dos sintomas',
-          PatientDetailFormat.text(a.symptomsOnset),
+          t.fieldChiefComplaint,
+          PatientDetailFormat.text(a.chiefComplaint, language: language),
+          language: language,
         ),
         InfoRow(
-          'Tem diagnóstico médico',
-          PatientDetailFormat.yesNo(a.hasMedicalDiagnosis),
+          t.fieldSymptomsOnset,
+          PatientDetailFormat.text(a.symptomsOnset, language: language),
+          language: language,
+        ),
+        InfoRow(
+          t.fieldHasMedicalDiagnosis,
+          PatientDetailFormat.yesNo(a.hasMedicalDiagnosis, language: language),
+          language: language,
         ),
         if (a.hasMedicalDiagnosis == true)
           InfoRow(
-            'Qual diagnóstico',
-            PatientDetailFormat.text(a.medicalDiagnosis),
+            t.fieldWhichDiagnosis,
+            PatientDetailFormat.text(a.medicalDiagnosis, language: language),
+            language: language,
           ),
         InfoRow(
-          'Já realizou tratamento',
-          PatientDetailFormat.yesNo(a.hadPreviousTreatment),
+          t.fieldHadPreviousTreatment,
+          PatientDetailFormat.yesNo(a.hadPreviousTreatment, language: language),
+          language: language,
         ),
         if (a.hadPreviousTreatment == true)
           InfoRow(
-            'Qual tratamento',
-            PatientDetailFormat.text(a.treatmentDescription),
+            t.fieldWhichTreatment,
+            PatientDetailFormat.text(
+              a.treatmentDescription,
+              language: language,
+            ),
+            language: language,
           ),
         InfoRow(
-          'Doenças crônicas',
-          PatientDetailFormat.yesNo(a.hasChronicDiseases),
+          t.fieldChronicDiseases,
+          PatientDetailFormat.yesNo(a.hasChronicDiseases, language: language),
+          language: language,
         ),
         if (a.hasChronicDiseases == true)
           InfoRow(
-            'Quais doenças',
-            PatientDetailFormat.text(a.chronicDiseasesDescription),
+            t.fieldWhichDiseases,
+            PatientDetailFormat.text(
+              a.chronicDiseasesDescription,
+              language: language,
+            ),
+            language: language,
           ),
         InfoRow(
-          'Uso contínuo de medicamentos',
-          PatientDetailFormat.yesNo(a.takesContinuousMedication),
+          t.fieldContinuousMedication,
+          PatientDetailFormat.yesNo(
+            a.takesContinuousMedication,
+            language: language,
+          ),
+          language: language,
         ),
         if (a.takesContinuousMedication == true)
           InfoRow(
-            'Quais medicamentos',
-            PatientDetailFormat.text(a.medicationsDescription),
+            t.fieldWhichMedications,
+            PatientDetailFormat.text(
+              a.medicationsDescription,
+              language: language,
+            ),
+            language: language,
           ),
-        InfoRow('Tabagismo', PatientDetailFormat.yesNo(a.smoking)),
-        InfoRow('Consome álcool', PatientDetailFormat.yesNo(a.consumesAlcohol)),
         InfoRow(
-          'Pratica atividade física',
-          PatientDetailFormat.yesNo(a.practicesPhysicalActivity),
+          t.fieldSmoking,
+          PatientDetailFormat.yesNo(a.smoking, language: language),
+          language: language,
         ),
-        InfoRow('Exames de imagem', PatientDetailFormat.text(a.imagingExams)),
+        InfoRow(
+          t.fieldConsumesAlcohol,
+          PatientDetailFormat.yesNo(a.consumesAlcohol, language: language),
+          language: language,
+        ),
+        InfoRow(
+          t.fieldPhysicalActivity,
+          PatientDetailFormat.yesNo(
+            a.practicesPhysicalActivity,
+            language: language,
+          ),
+          language: language,
+        ),
+        InfoRow(
+          t.fieldImagingExams,
+          PatientDetailFormat.text(a.imagingExams, language: language),
+          language: language,
+        ),
       ],
     );
   }

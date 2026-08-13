@@ -1,34 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 
 class PatientDetailFormat {
   const PatientDetailFormat._();
 
-  static const naoInformado = 'Não informado';
+  static String naoInformado({AppLanguage language = AppLanguage.portuguese}) =>
+      PatientsStrings(language).notInformed;
 
-  static String text(String? value) =>
-      (value == null || value.trim().isEmpty) ? naoInformado : value.trim();
+  static String text(
+    String? value, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) => (value == null || value.trim().isEmpty)
+      ? naoInformado(language: language)
+      : value.trim();
 
-  static String yesNo(bool? value) => switch (value) {
-    true => 'Sim',
-    false => 'Não',
-    null => naoInformado,
-  };
+  static String yesNo(
+    bool? value, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) {
+    final t = PatientsStrings(language);
+    return switch (value) {
+      true => t.yes,
+      false => t.no,
+      null => naoInformado(language: language),
+    };
+  }
 
-  static String intValue(int? value) => value?.toString() ?? naoInformado;
+  static String intValue(
+    int? value, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) => value?.toString() ?? naoInformado(language: language);
 
-  static String dateValue(DateTime? value) =>
-      value == null ? naoInformado : AppDateField.format(value);
+  static String dateValue(
+    DateTime? value, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) => value == null
+      ? naoInformado(language: language)
+      : AppDateField.format(value);
 
-  static String money(double? value) =>
-      value == null ? naoInformado : 'R\$ ${value.toStringAsFixed(2)}';
+  static String money(
+    double? value, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) => value == null
+      ? naoInformado(language: language)
+      : 'R\$ ${value.toStringAsFixed(2)}';
 
-  static String enumValue<T>(T? value, String Function(T) label) =>
-      value == null ? naoInformado : label(value);
+  static String enumValue<T>(
+    T? value,
+    String Function(T) label, {
+    AppLanguage language = AppLanguage.portuguese,
+  }) => value == null ? naoInformado(language: language) : label(value);
 }
 
 class SectionTitle extends StatelessWidget {
@@ -54,14 +81,21 @@ class SectionTitle extends StatelessWidget {
 }
 
 class InfoRow extends StatelessWidget {
-  const InfoRow(this.label, this.value, {super.key});
+  const InfoRow(
+    this.label,
+    this.value, {
+    this.language = AppLanguage.portuguese,
+    super.key,
+  });
 
   final String label;
   final String value;
+  final AppLanguage language;
 
   @override
   Widget build(BuildContext context) {
-    final isMissing = value == PatientDetailFormat.naoInformado;
+    final isMissing =
+        value == PatientDetailFormat.naoInformado(language: language);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -100,14 +134,17 @@ class EncerramentoBanner extends StatelessWidget {
   const EncerramentoBanner({
     required this.discharge,
     required this.onReabrir,
+    required this.language,
     super.key,
   });
 
   final Discharge discharge;
   final VoidCallback onReabrir;
+  final AppLanguage language;
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(language);
     return Container(
       margin: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       padding: const EdgeInsets.all(16),
@@ -124,11 +161,11 @@ class EncerramentoBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tratamento encerrado em ${AppDateField.format(discharge.date)}',
+                  t.treatmentClosedOn(AppDateField.format(discharge.date)),
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Motivo: ${discharge.reason.label}',
+                  t.reasonLabel(discharge.reason.label),
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
                 if ((discharge.finalNote ?? '').isNotEmpty) ...[
@@ -141,7 +178,7 @@ class EncerramentoBanner extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(onPressed: onReabrir, child: const Text('Reabrir')),
+          TextButton(onPressed: onReabrir, child: Text(t.reopenLabel)),
         ],
       ),
     );
@@ -149,13 +186,20 @@ class EncerramentoBanner extends StatelessWidget {
 }
 
 class GestacaoCard extends StatelessWidget {
-  const GestacaoCard({required this.index, required this.pregnancy, super.key});
+  const GestacaoCard({
+    required this.index,
+    required this.pregnancy,
+    required this.language,
+    super.key,
+  });
 
   final int index;
   final Pregnancy pregnancy;
+  final AppLanguage language;
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsStrings(language);
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4),
       padding: const EdgeInsets.all(16),
@@ -168,7 +212,7 @@ class GestacaoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Gestação ${index + 1}',
+            t.pregnancyNumber(index + 1),
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: context.colors.primary,
@@ -176,47 +220,75 @@ class GestacaoCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           InfoRow(
-            'Perda gestacional',
-            PatientDetailFormat.yesNo(pregnancy.pregnancyLoss),
+            t.fieldPregnancyLoss,
+            PatientDetailFormat.yesNo(
+              pregnancy.pregnancyLoss,
+              language: language,
+            ),
+            language: language,
           ),
           if (pregnancy.pregnancyLoss == true)
             InfoRow(
-              'Detalhe da perda',
-              PatientDetailFormat.text(pregnancy.lossDescription),
+              t.fieldLossDetail,
+              PatientDetailFormat.text(
+                pregnancy.lossDescription,
+                language: language,
+              ),
+              language: language,
             )
           else if (pregnancy.pregnancyLoss == false) ...[
             InfoRow(
-              'Via de parto',
+              t.fieldDeliveryMethod,
               PatientDetailFormat.enumValue(
                 pregnancy.deliveryMethod,
                 (v) => v.label,
+                language: language,
               ),
+              language: language,
             ),
             if (pregnancy.deliveryMethod == DeliveryMethod.vaginal)
               InfoRow(
-                'Complicação no parto',
+                t.fieldDeliveryComplication,
                 PatientDetailFormat.enumValue(
                   pregnancy.deliveryComplication,
                   (v) => v.label,
+                  language: language,
                 ),
+                language: language,
               ),
             if (pregnancy.deliveryMethod == DeliveryMethod.vaginal)
               InfoRow(
-                'Uso de fórceps ou vácuo',
-                PatientDetailFormat.yesNo(pregnancy.forcepsOrVacuumUse),
+                t.fieldForcepsOrVacuum,
+                PatientDetailFormat.yesNo(
+                  pregnancy.forcepsOrVacuumUse,
+                  language: language,
+                ),
+                language: language,
               ),
             InfoRow(
-              'Peso aproximado do bebê',
-              PatientDetailFormat.text(pregnancy.approximateBabyWeight),
+              t.fieldApproxBabyWeight,
+              PatientDetailFormat.text(
+                pregnancy.approximateBabyWeight,
+                language: language,
+              ),
+              language: language,
             ),
             InfoRow(
-              'Teve complicações',
-              PatientDetailFormat.yesNo(pregnancy.hadComplications),
+              t.fieldHadComplications,
+              PatientDetailFormat.yesNo(
+                pregnancy.hadComplications,
+                language: language,
+              ),
+              language: language,
             ),
             if (pregnancy.hadComplications == true)
               InfoRow(
-                'Detalhe das complicações',
-                PatientDetailFormat.text(pregnancy.complicationDescription),
+                t.fieldComplicationDetail,
+                PatientDetailFormat.text(
+                  pregnancy.complicationDescription,
+                  language: language,
+                ),
+                language: language,
               ),
           ],
         ],

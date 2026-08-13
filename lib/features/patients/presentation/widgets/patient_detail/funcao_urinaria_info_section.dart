@@ -33,7 +33,7 @@ class FuncaoUrinariaInfoSection extends StatelessWidget {
           InfoRow(
             'Gatilhos',
             f.incontinenceTriggers.isEmpty
-                ? PatientDetailFormat.naoInformado
+                ? PatientDetailFormat.naoInformado()
                 : f.incontinenceTriggers.map((g) => g.label).join(', '),
           ),
           if (f.incontinenceTriggers.contains(IncontinenceTrigger.other))

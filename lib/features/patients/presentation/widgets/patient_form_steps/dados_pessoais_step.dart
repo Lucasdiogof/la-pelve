@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_a.dart';
 import 'package:fisioterapia_pelvica/shared/utils/phone_input_formatter.dart';
 import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
@@ -58,37 +61,31 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
     );
   }
 
-  String? get _nomeError {
-    final value = _nomeController.text.trim();
+  String? _minLengthError(String value, PatientsWizardStringsA t) {
     if (value.isEmpty || value.length > 2) return null;
-    return 'Informe pelo menos 3 caracteres.';
+    return t.minLengthError;
   }
 
   String? get _idadeError => ageErrorText(_idadeController.text);
 
-  String? get _profissaoError {
-    final value = _profissaoController.text.trim();
-    if (value.isEmpty || value.length > 2) return null;
-    return 'Informe pelo menos 3 caracteres.';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextField(
           controller: _nomeController,
           icon: Icons.person_outline,
-          hintText: 'Nome',
-          errorText: _nomeError,
+          hintText: t.nameHint,
+          errorText: _minLengthError(_nomeController.text.trim(), t),
           onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
         AppTextField(
           controller: _idadeController,
           icon: Icons.cake_outlined,
-          hintText: 'Idade',
+          hintText: t.ageHint,
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
@@ -101,7 +98,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
         AppTextField(
           controller: _telefoneController,
           icon: Icons.phone_outlined,
-          hintText: '(XX) X XXXX-XXXX',
+          hintText: t.phoneHint,
           keyboardType: TextInputType.phone,
           inputFormatters: [PhoneInputFormatter()],
           errorText: phoneErrorText(_telefoneController.text),
@@ -111,13 +108,13 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
         AppTextField(
           controller: _profissaoController,
           icon: Icons.work_outline,
-          hintText: 'Profissão',
-          errorText: _profissaoError,
+          hintText: t.occupationHint,
+          errorText: _minLengthError(_profissaoController.text.trim(), t),
           onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 20),
         Text(
-          'SEXO',
+          t.genderSectionHeader,
           style: TextStyle(
             color: context.colors.textSecondary,
             fontSize: 12,

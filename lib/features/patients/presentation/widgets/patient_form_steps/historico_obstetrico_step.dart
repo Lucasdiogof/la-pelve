@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_a.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
@@ -78,11 +81,12 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
   @override
   Widget build(BuildContext context) {
     final historico = widget.patient.obstetricHistory;
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppYesNoToggle(
-          label: 'Está gestante atualmente?',
+          label: t.currentlyPregnantLabel,
           value: historico.currentlyPregnant,
           onChanged: (value) =>
               _update((h) => h.copyWith(currentlyPregnant: value)),
@@ -90,7 +94,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
         if (historico.currentlyPregnant == true) ...[
           const SizedBox(height: 16),
           Text(
-            'VIA DE PARTO DESEJADO',
+            t.desiredDeliveryMethodSectionHeader,
             style: TextStyle(
               color: context.colors.textSecondary,
               fontSize: 12,
@@ -115,7 +119,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
           AppTextField(
             controller: _semanasController,
             icon: Icons.numbers_outlined,
-            hintText: 'Quantas semanas',
+            hintText: t.gestationWeeksHint,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -126,14 +130,14 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
           ),
           const SizedBox(height: 12),
           AppDateField(
-            hintText: 'Data provável do parto',
+            hintText: t.estimatedDeliveryDateHint,
             value: historico.estimatedDeliveryDate,
             onChanged: (value) =>
                 _update((h) => h.copyWith(estimatedDeliveryDate: value)),
           ),
           const SizedBox(height: 12),
           AppYesNoToggle(
-            label: 'Gestação de risco?',
+            label: t.highRiskPregnancyLabel,
             value: historico.highRiskPregnancy,
             onChanged: (value) =>
                 _update((h) => h.copyWith(highRiskPregnancy: value)),
@@ -143,7 +147,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
             AppTextField(
               controller: _gestacaoRiscoController,
               icon: Icons.description_outlined,
-              hintText: 'Detalhe a gestação de risco',
+              hintText: t.highRiskPregnancyDetailHint,
               onChanged: (value) => _update(
                 (h) => h.copyWith(highRiskPregnancyDescription: value),
               ),
@@ -152,7 +156,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
         ],
         const SizedBox(height: 20),
         AppYesNoToggle(
-          label: 'Já engravidou?',
+          label: t.hasBeenPregnantLabel,
           value: historico.hasBeenPregnant,
           onChanged: (value) => _update(
             (h) => h.copyWith(
@@ -167,7 +171,7 @@ class _HistoricoObstetricoStepState extends State<HistoricoObstetricoStep> {
           AppTextField(
             controller: _numeroController,
             icon: Icons.numbers_outlined,
-            hintText: 'Quantas gestações?',
+            hintText: t.pregnancyCountHint,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,

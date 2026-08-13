@@ -18,7 +18,7 @@ class HistoricoCirurgicoInfoSection extends StatelessWidget {
         InfoRow(
           'Cirurgias',
           h.surgeries.isEmpty
-              ? PatientDetailFormat.naoInformado
+              ? PatientDetailFormat.naoInformado()
               : h.surgeries.map((c) => c.label).join(', '),
         ),
         if (h.surgeries.contains(GynecologicalSurgery.other))

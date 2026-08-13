@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
@@ -52,7 +53,11 @@ class HistoricoObstetricoInfoSection extends StatelessWidget {
             PatientDetailFormat.intValue(h.pregnancyCount),
           ),
           for (var i = 0; i < h.pregnancies.length; i++)
-            GestacaoCard(index: i, pregnancy: h.pregnancies[i]),
+            GestacaoCard(
+              index: i,
+              pregnancy: h.pregnancies[i],
+              language: AppLanguage.portuguese,
+            ),
         ],
       ],
     );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
@@ -46,12 +49,13 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
 
   @override
   Widget build(BuildContext context) {
+    final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
     final funcao = widget.patient.bowelFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'FREQUÊNCIA EVACUATÓRIA',
+          t.bowelFrequencySectionHeader,
           style: TextStyle(
             color: context.colors.textSecondary,
             fontSize: 12,
@@ -77,7 +81,7 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
           AppTextField(
             controller: _frequenciaPersonalizadaController,
             icon: Icons.numbers_outlined,
-            hintText: 'Quantas vezes por semana?',
+            hintText: t.timesPerWeekHint,
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -90,7 +94,7 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
         ],
         const SizedBox(height: 20),
         AppYesNoToggle(
-          label: 'Usa laxante?',
+          label: t.usesLaxativeLabel,
           value: funcao.usesLaxative,
           onChanged: (value) => _update((f) => f.copyWith(usesLaxative: value)),
         ),
@@ -99,68 +103,68 @@ class _FuncaoIntestinalStepState extends State<FuncaoIntestinalStep> {
           AppTextField(
             controller: _laxanteController,
             icon: Icons.medication_outlined,
-            hintText: 'Qual laxante e frequência?',
+            hintText: t.laxativeDescriptionHint,
             onChanged: (value) =>
                 _update((f) => f.copyWith(laxativeDescription: value)),
           ),
         ],
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Faz força para evacuar?',
+          label: t.strainsToDefecateLabel,
           value: funcao.strainsToDefecate,
           onChanged: (value) =>
               _update((f) => f.copyWith(strainsToDefecate: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Sente dor para evacuar?',
+          label: t.painToDefecateLabel,
           value: funcao.painToDefecate,
           onChanged: (value) =>
               _update((f) => f.copyWith(painToDefecate: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Sensação de esvaziamento incompleto?',
+          label: t.incompleteEmptyingBowelLabel,
           value: funcao.incompleteEmptying,
           onChanged: (value) =>
               _update((f) => f.copyWith(incompleteEmptying: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Sensação de obstrução?',
+          label: t.obstructionSensationLabel,
           value: funcao.obstructionSensation,
           onChanged: (value) =>
               _update((f) => f.copyWith(obstructionSensation: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Urgência fecal?',
+          label: t.fecalUrgencyLabel,
           value: funcao.fecalUrgency,
           onChanged: (value) => _update((f) => f.copyWith(fecalUrgency: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Presença de hemorroidas?',
+          label: t.hemorrhoidsLabel,
           value: funcao.hemorrhoids,
           onChanged: (value) => _update((f) => f.copyWith(hemorrhoids: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Perde gases?',
+          label: t.gasIncontinenceLabel,
           value: funcao.gasIncontinence,
           onChanged: (value) =>
               _update((f) => f.copyWith(gasIncontinence: value)),
         ),
         const SizedBox(height: 12),
         AppYesNoToggle(
-          label: 'Perde fezes?',
+          label: t.fecalIncontinenceLabel,
           value: funcao.fecalIncontinence,
           onChanged: (value) =>
               _update((f) => f.copyWith(fecalIncontinence: value)),
         ),
         const SizedBox(height: 20),
         Text(
-          'ESCALA DE BRISTOL',
+          t.bristolScaleSectionHeader,
           style: TextStyle(
             color: context.colors.textSecondary,
             fontSize: 12,
