@@ -59,49 +59,30 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 
 ## Screenshots
 
-### Tema claro — Inglês
-
 <table>
 <tr>
-<td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Tela de login"><br>Login</td>
-<td align="center"><img src="docs/screenshots/light_home.png" width="220" alt="Painel inicial"><br>Início</td>
-<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Lista de pacientes"><br>Pacientes</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
-<td align="center"><img src="docs/screenshots/light_patient_wizard.png" width="220" alt="Wizard de cadastro de paciente"><br>Wizard de cadastro</td>
-<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_attachments.png" width="220" alt="Aba de anexos"><br>Anexos</td>
-<td align="center"><img src="docs/screenshots/light_evolution.png" width="220" alt="Registros de evolução"><br>Evolução</td>
-<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_agenda_report.png" width="220" alt="Relatório mensal de agendamentos"><br>Relatório da agenda</td>
-<td align="center"><img src="docs/screenshots/light_financial.png" width="220" alt="Lançamentos de pagamento"><br>Financeiro</td>
-<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Relatório financeiro mensal"><br>Relatório financeiro</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Tela de perfil"><br>Perfil</td>
-</tr>
-</table>
-
-### Tema escuro — Português
-
-<table>
-<tr>
+<td align="center"><img src="docs/screenshots/dark_login.png" width="220" alt="Tela de login"><br>Login</td>
+<td align="center"><img src="docs/screenshots/dark_signup.png" width="220" alt="Tela de criar conta"><br>Criar conta</td>
 <td align="center"><img src="docs/screenshots/dark_home.png" width="220" alt="Painel inicial"><br>Início</td>
-<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Agenda"><br>Agenda</td>
-<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório da agenda"><br>Relatório da agenda</td>
 </tr>
 <tr>
-<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Financeiro"><br>Financeiro</td>
-<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro"><br>Relatório financeiro</td>
-<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro"><br>Wizard de cadastro</td>
+<td align="center"><img src="docs/screenshots/dark_patients.png" width="220" alt="Lista de pacientes"><br>Pacientes</td>
+<td align="center"><img src="docs/screenshots/dark_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
+<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro de paciente"><br>Wizard de cadastro</td>
 </tr>
 <tr>
 <td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
+<td align="center"><img src="docs/screenshots/dark_attachments.png" width="220" alt="Aba de anexos"><br>Anexos</td>
+<td align="center"><img src="docs/screenshots/dark_evolution.png" width="220" alt="Registros de evolução"><br>Evolução</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
+<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório mensal de agendamentos"><br>Relatório da agenda</td>
+<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Lançamentos de pagamento"><br>Financeiro</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro mensal"><br>Relatório financeiro</td>
+<td align="center"><img src="docs/screenshots/dark_profile.png" width="220" alt="Tela de perfil"><br>Perfil</td>
 </tr>
 </table>
 

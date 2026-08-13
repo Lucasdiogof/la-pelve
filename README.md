@@ -59,8 +59,6 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 
 ## Screenshots
 
-### Light theme — English
-
 <table>
 <tr>
 <td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Login screen"><br>Login</td>
@@ -84,24 +82,6 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 </tr>
 <tr>
 <td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Profile screen"><br>Profile</td>
-</tr>
-</table>
-
-### Dark theme — Portuguese
-
-<table>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_home.png" width="220" alt="Painel inicial"><br>Home</td>
-<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Agenda"><br>Agenda</td>
-<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório da agenda"><br>Agenda report</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Financeiro"><br>Financial</td>
-<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro"><br>Financial report</td>
-<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro"><br>Patient intake wizard</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Patient record</td>
 </tr>
 </table>
 
