@@ -80,11 +80,11 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "lib/assets/icon_foreground.png"
 
 flutter_native_splash:
-  color: "#F8F3F6"
+  color: "#F8F3F6"          # fundo no tema claro
   image: lib/assets/splash_icon.png
-  color_dark: "#1C1418"
+  color_dark: "#1C1418"     # fundo no tema escuro
   image_dark: lib/assets/splash_icon.png
-  android_12:
+  android_12:                # Android 12+ tem regras próprias, repete aqui
     image: lib/assets/splash_icon.png
     color: "#F8F3F6"
     image_dark: lib/assets/splash_icon.png
