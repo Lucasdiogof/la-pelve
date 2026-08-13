@@ -71,20 +71,21 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 </tr>
 <tr>
 <td align="center"><img src="docs/screenshots/dark_patients.png" width="220" alt="Lista de pacientes"><br>Pacientes</td>
-<td align="center"><img src="docs/screenshots/dark_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
 <td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro de paciente"><br>Wizard de cadastro</td>
+<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
 </tr>
 <tr>
-<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
 <td align="center"><img src="docs/screenshots/dark_attachments.png" width="220" alt="Aba de anexos"><br>Anexos</td>
 <td align="center"><img src="docs/screenshots/dark_evolution.png" width="220" alt="Registros de evolução"><br>Evolução</td>
+<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
 </tr>
 <tr>
-<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
+<td align="center"><img src="docs/screenshots/dark_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
 <td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório mensal de agendamentos"><br>Relatório da agenda</td>
 <td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Lançamentos de pagamento"><br>Financeiro</td>
 </tr>
 <tr>
+<td align="center"><img src="docs/screenshots/dark_new_payment.png" width="220" alt="Formulário de nova cobrança"><br>Nova cobrança</td>
 <td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro mensal"><br>Relatório financeiro</td>
 <td align="center"><img src="docs/screenshots/dark_profile.png" width="220" alt="Tela de perfil"><br>Perfil</td>
 </tr>
