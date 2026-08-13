@@ -3,13 +3,13 @@ import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/utils/locale_preference.dart';
 
 class LocaleCubit extends Cubit<AppLanguage> {
-  LocaleCubit() : super(AppLanguage.portuguese) {
+  LocaleCubit() : super(AppLanguage.fromDeviceLocale()) {
     _load();
   }
 
   Future<void> _load() async {
-    final language = await LocalePreference.getLanguage();
-    emit(language);
+    final saved = await LocalePreference.getLanguage();
+    if (saved != null) emit(saved);
   }
 
   Future<void> setLanguage(AppLanguage language) async {

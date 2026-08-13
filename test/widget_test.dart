@@ -27,6 +27,9 @@ void main() {
   testWidgets('HomePage renders the dashboard with an empty schedule', (
     WidgetTester tester,
   ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'BR');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+
     final patientRepository = _FakePatientRepository();
     final agendaRepository = _FakeAgendaRepository();
     final financialRepository = _FakeFinancialRepository();

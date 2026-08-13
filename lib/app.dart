@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:fisioterapia_pelvica/core/constants/app_constants.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
@@ -31,7 +30,7 @@ class App extends StatelessWidget {
           return BlocBuilder<LocaleCubit, AppLanguage>(
             builder: (context, language) {
               return MaterialApp.router(
-                title: AppConstants.appName,
+                title: language.appName,
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.light,
                 darkTheme: AppTheme.dark,

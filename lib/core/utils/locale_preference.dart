@@ -4,11 +4,12 @@ import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 class LocalePreference {
   static const _key = 'app_language';
 
-  static Future<AppLanguage> getLanguage() async {
+  static Future<AppLanguage?> getLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     return switch (prefs.getString(_key)) {
       'english' => AppLanguage.english,
-      _ => AppLanguage.portuguese,
+      'portuguese' => AppLanguage.portuguese,
+      _ => null,
     };
   }
 
