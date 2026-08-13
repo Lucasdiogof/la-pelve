@@ -6,32 +6,32 @@ import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 class LancamentosFormState extends Equatable {
   const LancamentosFormState({
     this.patient,
-    this.data,
-    this.formaPagamento,
-    this.status = StatusPagamento.pago,
+    this.date,
+    this.paymentMethod,
+    this.status = PaymentStatus.paid,
     this.saving = false,
     this.revision = 0,
   });
 
   final Patient? patient;
-  final DateTime? data;
-  final FormaPagamento? formaPagamento;
-  final StatusPagamento status;
+  final DateTime? date;
+  final PaymentMethod? paymentMethod;
+  final PaymentStatus status;
   final bool saving;
   final int revision;
 
   LancamentosFormState copyWith({
     Object? patient = kUnset,
-    DateTime? data,
-    Object? formaPagamento = kUnset,
-    StatusPagamento? status,
+    DateTime? date,
+    Object? paymentMethod = kUnset,
+    PaymentStatus? status,
     bool? saving,
     int? revision,
   }) {
     return LancamentosFormState(
       patient: unsetOr(patient, this.patient),
-      data: data ?? this.data,
-      formaPagamento: unsetOr(formaPagamento, this.formaPagamento),
+      date: date ?? this.date,
+      paymentMethod: unsetOr(paymentMethod, this.paymentMethod),
       status: status ?? this.status,
       saving: saving ?? this.saving,
       revision: revision ?? this.revision,
@@ -41,8 +41,8 @@ class LancamentosFormState extends Equatable {
   @override
   List<Object?> get props => [
     patient,
-    data,
-    formaPagamento,
+    date,
+    paymentMethod,
     status,
     saving,
     revision,

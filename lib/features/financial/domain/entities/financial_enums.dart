@@ -1,22 +1,22 @@
-enum FormaPagamento { pix, dinheiro, cartao, transferencia, outro }
+enum PaymentMethod { pix, cash, card, transfer, other }
 
-extension FormaPagamentoLabel on FormaPagamento {
+extension PaymentMethodLabel on PaymentMethod {
   String get label => switch (this) {
-    FormaPagamento.pix => 'Pix',
-    FormaPagamento.dinheiro => 'Dinheiro',
-    FormaPagamento.cartao => 'Cartão',
-    FormaPagamento.transferencia => 'Transferência',
-    FormaPagamento.outro => 'Outro',
+    PaymentMethod.pix => 'Pix',
+    PaymentMethod.cash => 'Dinheiro',
+    PaymentMethod.card => 'Cartão',
+    PaymentMethod.transfer => 'Transferência',
+    PaymentMethod.other => 'Outro',
   };
 }
 
-enum StatusPagamento { pago, pendente, parcial, outro }
+enum PaymentStatus { paid, pending, partial, other }
 
-extension StatusPagamentoLabel on StatusPagamento {
+extension PaymentStatusLabel on PaymentStatus {
   String get label => switch (this) {
-    StatusPagamento.pago => 'Pago',
-    StatusPagamento.pendente => 'Pendente',
-    StatusPagamento.parcial => 'Parcial',
-    StatusPagamento.outro => 'Outro',
+    PaymentStatus.paid => 'Pago',
+    PaymentStatus.pending => 'Pendente',
+    PaymentStatus.partial => 'Parcial',
+    PaymentStatus.other => 'Outro',
   };
 }

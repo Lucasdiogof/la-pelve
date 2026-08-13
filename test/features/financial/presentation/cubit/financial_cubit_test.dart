@@ -15,8 +15,8 @@ void main() {
   final entry = FinancialEntry(
     id: 'f1',
     patientName: 'Maria',
-    data: DateTime.utc(2026, 3, 5),
-    valor: 150,
+    date: DateTime.utc(2026, 3, 5),
+    amount: 150,
   );
 
   setUp(() {

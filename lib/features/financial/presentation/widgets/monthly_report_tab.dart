@@ -54,14 +54,14 @@ class _MonthlyReportView extends StatelessWidget {
             entries
                 .where(
                   (entry) =>
-                      entry.data.year == month.year &&
-                      entry.data.month == month.month,
+                      entry.date.year == month.year &&
+                      entry.date.month == month.month,
                 )
                 .toList()
-              ..sort((a, b) => a.data.compareTo(b.data));
+              ..sort((a, b) => a.date.compareTo(b.date));
         final total = inMonth
-            .where((entry) => entry.status == StatusPagamento.pago)
-            .fold<double>(0, (sum, entry) => sum + entry.valor);
+            .where((entry) => entry.status == PaymentStatus.paid)
+            .fold<double>(0, (sum, entry) => sum + entry.amount);
 
         return ListView(
           padding: const EdgeInsets.all(24),
@@ -176,7 +176,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  AppDateField.format(entry.data),
+                  AppDateField.format(entry.date),
                   style: TextStyle(
                     color: context.colors.textSecondary,
                     fontSize: 12,
@@ -185,7 +185,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
                 Text(
                   entry.status.label,
                   style: TextStyle(
-                    color: entry.status == StatusPagamento.pago
+                    color: entry.status == PaymentStatus.paid
                         ? context.colors.success
                         : context.colors.primaryButton,
                     fontSize: 11,
@@ -196,7 +196,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
             ),
           ),
           Text(
-            'R\$ ${entry.valor.toStringAsFixed(2)}',
+            'R\$ ${entry.amount.toStringAsFixed(2)}',
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: context.colors.primary,

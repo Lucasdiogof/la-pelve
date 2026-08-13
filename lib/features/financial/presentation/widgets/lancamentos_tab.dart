@@ -47,11 +47,11 @@ class _LancamentosTabState extends State<LancamentosTab> {
 
   bool _canSave(LancamentosFormState state) =>
       _patientNameController.text.trim().isNotEmpty &&
-      state.data != null &&
+      state.date != null &&
       CurrencyInputFormatter.parse(_valorController.text) > 0 &&
-      (state.formaPagamento != FormaPagamento.outro ||
+      (state.paymentMethod != PaymentMethod.other ||
           _formaPagamentoOutroController.text.trim().isNotEmpty) &&
-      (state.status != StatusPagamento.outro ||
+      (state.status != PaymentStatus.other ||
           _statusOutroController.text.trim().length > 3);
 
   Future<void> _selectPatient() async {
@@ -64,7 +64,7 @@ class _LancamentosTabState extends State<LancamentosTab> {
     );
     if (selected != null) {
       _formCubit.selectPatient(selected);
-      _patientNameController.text = selected.dadosPessoais.nome;
+      _patientNameController.text = selected.personalInfo.name;
     }
   }
 
@@ -77,16 +77,16 @@ class _LancamentosTabState extends State<LancamentosTab> {
         id: generateId(),
         patientId: state.patient?.id,
         patientName: _patientNameController.text.trim(),
-        data: state.data!,
-        valor: CurrencyInputFormatter.parse(_valorController.text),
-        observacoes: _observacoesController.text.trim(),
-        formaPagamento: state.formaPagamento,
-        formaPagamentoOutraDescricao:
-            state.formaPagamento == FormaPagamento.outro
+        date: state.date!,
+        amount: CurrencyInputFormatter.parse(_valorController.text),
+        notes: _observacoesController.text.trim(),
+        paymentMethod: state.paymentMethod,
+        otherPaymentMethodDescription:
+            state.paymentMethod == PaymentMethod.other
             ? _formaPagamentoOutroController.text.trim()
             : null,
         status: state.status,
-        statusOutraDescricao: state.status == StatusPagamento.outro
+        otherStatusDescription: state.status == PaymentStatus.other
             ? _statusOutroController.text.trim()
             : null,
       ),
@@ -101,6 +101,10 @@ class _LancamentosTabState extends State<LancamentosTab> {
         _observacoesController.clear();
         _formaPagamentoOutroController.clear();
         _statusOutroController.clear();
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          description: 'Lançamento registrado com sucesso.',
+        );
       case Error(:final failure):
         _formCubit.setSaving(false);
         await AppInfoBottomSheet.showError(
@@ -138,7 +142,7 @@ class _LancamentosTabState extends State<LancamentosTab> {
             const SizedBox(height: 12),
             AppDateField(
               hintText: 'Data do pagamento',
-              value: formState.data,
+              value: formState.date,
               onChanged: _formCubit.setData,
             ),
             const SizedBox(height: 12),
@@ -168,17 +172,17 @@ class _LancamentosTabState extends State<LancamentosTab> {
               ),
             ),
             const SizedBox(height: 12),
-            AppChipSelect<FormaPagamento>(
-              options: FormaPagamento.values,
+            AppChipSelect<PaymentMethod>(
+              options: PaymentMethod.values,
               labelBuilder: (option) => option.label,
-              selected: formState.formaPagamento == null
+              selected: formState.paymentMethod == null
                   ? {}
-                  : {formState.formaPagamento!},
+                  : {formState.paymentMethod!},
               onChanged: (selected) => _formCubit.setFormaPagamento(
                 selected.isEmpty ? null : selected.first,
               ),
             ),
-            if (formState.formaPagamento == FormaPagamento.outro) ...[
+            if (formState.paymentMethod == PaymentMethod.other) ...[
               const SizedBox(height: 12),
               AppTextField(
                 controller: _formaPagamentoOutroController,
@@ -198,15 +202,15 @@ class _LancamentosTabState extends State<LancamentosTab> {
               ),
             ),
             const SizedBox(height: 12),
-            AppChipSelect<StatusPagamento>(
-              options: StatusPagamento.values,
+            AppChipSelect<PaymentStatus>(
+              options: PaymentStatus.values,
               labelBuilder: (option) => option.label,
               selected: {formState.status},
               onChanged: (selected) => _formCubit.setStatus(
-                selected.isEmpty ? StatusPagamento.pago : selected.first,
+                selected.isEmpty ? PaymentStatus.paid : selected.first,
               ),
             ),
-            if (formState.status == StatusPagamento.outro) ...[
+            if (formState.status == PaymentStatus.other) ...[
               const SizedBox(height: 12),
               AppTextField(
                 controller: _statusOutroController,
