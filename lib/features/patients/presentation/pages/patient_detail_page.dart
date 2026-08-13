@@ -23,6 +23,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/pati
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_segmented_tab_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
@@ -173,17 +174,11 @@ class PatientDetailPage extends StatelessWidget {
                     },
                   ),
                 ),
-                Material(
-                  color: context.colors.surface,
-                  child: TabBar(
-                    labelColor: context.colors.textPrimary,
-                    unselectedLabelColor: context.colors.textSecondary,
-                    indicatorColor: context.colors.primaryButton,
-                    tabs: [
-                      Tab(text: t.tabInformation),
-                      Tab(text: t.tabAttachments),
-                    ],
-                  ),
+                AppSegmentedTabBar(
+                  tabs: [
+                    Tab(text: t.tabInformation),
+                    Tab(text: t.tabAttachments),
+                  ],
                 ),
                 if (current.discharge != null)
                   DischargeBanner(
