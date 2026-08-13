@@ -17,8 +17,8 @@ class AgendaRepositorySupabase implements AgendaRepository {
       final rows = await _client
           .from('appointments')
           .select()
-          .order('data')
-          .order('hora');
+          .order('date')
+          .order('time');
       return Success(rows.map((row) => Appointment.fromJson(row)).toList());
     } on PostgrestException catch (e, st) {
       debugPrint(

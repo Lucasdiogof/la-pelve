@@ -92,7 +92,7 @@ class PatientRepositorySupabase implements PatientRepository {
           .from('evolution_entries')
           .select()
           .eq('patient_id', patientId)
-          .order('data');
+          .order('date');
       return Success(rows.map((row) => EvolutionEntry.fromJson(row)).toList());
     } on PostgrestException catch (e, st) {
       debugPrint(

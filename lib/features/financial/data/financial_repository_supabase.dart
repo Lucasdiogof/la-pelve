@@ -16,7 +16,7 @@ class FinancialRepositorySupabase implements FinancialRepository {
       final rows = await _client
           .from('financial_entries')
           .select()
-          .order('data');
+          .order('date');
       return Success(rows.map((row) => FinancialEntry.fromJson(row)).toList());
     } on PostgrestException catch (e, st) {
       debugPrint(
