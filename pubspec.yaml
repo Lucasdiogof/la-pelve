@@ -84,10 +84,10 @@ flutter_native_splash:
   image: lib/assets/splash_icon.png
   color_dark: "#1C1418"     # fundo no tema escuro
   image_dark: lib/assets/splash_icon.png
-  android_12:                # Android 12+ tem regras próprias, repete aqui
-    image: lib/assets/splash_icon.png
+  android_12:                # Android 12+ mascara o ícone num círculo, por isso usa a versão com respiro (mesma do ícone adaptativo)
+    image: lib/assets/icon_foreground.png
     color: "#F8F3F6"
-    image_dark: lib/assets/splash_icon.png
+    image_dark: lib/assets/icon_foreground.png
     color_dark: "#1C1418"
 
 # For information on the generic Dart part of this file, see the
