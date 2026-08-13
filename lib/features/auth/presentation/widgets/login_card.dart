@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/password_visibility_toggle.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
@@ -31,6 +34,7 @@ class LoginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AuthStrings(context.watch<LocaleCubit>().state);
     return Material(
       color: context.colors.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -48,7 +52,7 @@ class LoginCard extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      'Feito para sua rotina clínica',
+                      t.tagline,
                       maxLines: 1,
                       style: GoogleFonts.cormorantGaramond(
                         fontSize: 28,
@@ -62,7 +66,7 @@ class LoginCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: Text(
-                    'Organize pacientes, agenda, evoluções e financeiro com facilidade.',
+                    t.clinicRoutineSubtitle,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -73,7 +77,7 @@ class LoginCard extends StatelessWidget {
                 AppTextField(
                   controller: emailController,
                   icon: Icons.email_outlined,
-                  hintText: 'E-mail',
+                  hintText: t.loginEmailHint,
                   keyboardType: TextInputType.emailAddress,
                   errorText: emailError,
                 ),
@@ -81,7 +85,7 @@ class LoginCard extends StatelessWidget {
                 AppTextField(
                   controller: passwordController,
                   icon: Icons.lock_outline,
-                  hintText: 'Senha',
+                  hintText: t.passwordHint,
                   obscureText: obscurePassword,
                   suffixIcon: PasswordVisibilityToggle(
                     obscured: obscurePassword,
@@ -102,7 +106,7 @@ class LoginCard extends StatelessWidget {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Esqueci minha senha',
+                        t.forgotPasswordLabel,
                         style: TextStyle(
                           fontSize: 13,
                           decoration: TextDecoration.underline,
@@ -114,7 +118,7 @@ class LoginCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                PrimaryButton(label: 'Entrar', onPressed: onSubmit),
+                PrimaryButton(label: t.signInButton, onPressed: onSubmit),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -122,7 +126,7 @@ class LoginCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        'ou',
+                        t.orDivider,
                         style: TextStyle(color: context.colors.textSecondary),
                       ),
                     ),
@@ -147,7 +151,7 @@ class LoginCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Criar conta',
+                        t.createAccount,
                         style: TextStyle(
                           color: context.colors.primaryButton,
                           fontWeight: FontWeight.w600,

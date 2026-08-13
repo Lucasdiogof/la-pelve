@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_state.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/login_form_cubit.dart';
@@ -41,22 +43,22 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  String? _emailError(bool submitted) {
+  String? _emailError(bool submitted, AuthStrings t) {
     final value = _emailController.text;
     if (value.isEmpty) {
-      return submitted ? 'Informe seu e-mail.' : null;
+      return submitted ? t.emailRequired : null;
     }
     if (isValidEmail(value)) return null;
-    return 'Informe um e-mail válido.';
+    return t.emailInvalid;
   }
 
-  String? _passwordError(bool submitted) {
+  String? _passwordError(bool submitted, AuthStrings t) {
     final value = _passwordController.text;
     if (value.isEmpty) {
-      return submitted ? 'Informe sua senha.' : null;
+      return submitted ? t.passwordRequired : null;
     }
     if (isValidPassword(value)) return null;
-    return 'A senha precisa ter pelo menos $kMinPasswordLength caracteres.';
+    return t.passwordMinLengthError;
   }
 
   bool get _canSubmit =>
@@ -75,15 +77,17 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _forgotPassword() async {
     final sent = await showForgotPasswordSheet(context);
     if (sent == true && mounted) {
+      final t = AuthStrings(context.read<LocaleCubit>().state);
       await AppInfoBottomSheet.showSuccess(
         context,
-        description: 'Enviamos um link de redefinição para o seu e-mail.',
+        description: t.resetLinkSentDescription,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AuthStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
       child: BlocConsumer<AuthCubit, AuthState>(
@@ -95,10 +99,9 @@ class _LoginPageState extends State<LoginPage> {
               if (isInvalidCredentials) {
                 AppInfoBottomSheet.showError(
                   context,
-                  title: 'Não encontramos essa conta',
-                  description:
-                      'Confira o e-mail e a senha, ou crie uma conta caso ainda não tenha uma.',
-                  secondaryActionLabel: 'Criar conta',
+                  title: t.accountNotFoundTitle,
+                  description: t.accountNotFoundDescription,
+                  secondaryActionLabel: t.createAccount,
                   onSecondaryAction: () => context.push('/cadastro'),
                 );
               } else {
@@ -144,9 +147,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         LoginCard(
                           emailController: _emailController,
-                          emailError: _emailError(formState.submitted),
+                          emailError: _emailError(formState.submitted, t),
                           passwordController: _passwordController,
-                          passwordError: _passwordError(formState.submitted),
+                          passwordError: _passwordError(formState.submitted, t),
                           obscurePassword: formState.obscurePassword,
                           onToggleObscure: _formCubit.toggleObscurePassword,
                           onSubmit: _submit,

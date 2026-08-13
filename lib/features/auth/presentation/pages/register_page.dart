@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
+import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_state.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/register_form_cubit.dart';
@@ -67,24 +69,25 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  String? get _crefitoError => crefitoErrorText(_crefitoController.text);
+  String? _crefitoError(AuthStrings t) =>
+      crefitoErrorText(_crefitoController.text, language: t.language);
 
-  String? get _emailError {
+  String? _emailError(AuthStrings t) {
     final value = _emailController.text;
     if (value.isEmpty || isValidEmail(value)) return null;
-    return 'Informe um e-mail válido.';
+    return t.emailInvalid;
   }
 
-  String? get _passwordError {
+  String? _passwordError(AuthStrings t) {
     final value = _passwordController.text;
     if (value.isEmpty || isValidPassword(value)) return null;
-    return 'A senha precisa ter pelo menos $kMinPasswordLength caracteres.';
+    return t.passwordMinLengthError;
   }
 
-  String? get _confirmPasswordError {
+  String? _confirmPasswordError(AuthStrings t) {
     final value = _confirmPasswordController.text;
     if (value.isEmpty || value == _passwordController.text) return null;
-    return 'As senhas não coincidem.';
+    return t.passwordsDoNotMatch;
   }
 
   bool get _canSubmit =>
@@ -107,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AuthStrings(context.watch<LocaleCubit>().state);
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         switch (state) {
@@ -117,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
             context.go('/home');
             AppInfoBottomSheet.showSuccess(
               context,
-              description: 'Conta criada com sucesso.',
+              description: t.accountCreatedDescription,
             );
           case AuthError(:final message):
             hideAppLoading();
@@ -162,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                'Criar conta',
+                                t.createAccount,
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       color: context.colors.primary,
@@ -171,7 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Cadastro de fisioterapeuta',
+                                t.physiotherapistSignUp,
                                 style: TextStyle(
                                   color: context.colors.textSecondary,
                                 ),
@@ -180,18 +184,18 @@ class _RegisterPageState extends State<RegisterPage> {
                               AppTextField(
                                 controller: _nameController,
                                 icon: Icons.person_outline,
-                                hintText: 'Nome completo',
+                                hintText: t.fullNameHint,
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
                                 controller: _crefitoController,
                                 icon: Icons.verified_user_outlined,
-                                hintText: 'Crefito (ex: 123456-F3)',
+                                hintText: t.crefitoHint,
                                 keyboardType: TextInputType.text,
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(11),
                                 ],
-                                errorText: _crefitoError,
+                                errorText: _crefitoError(t),
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
@@ -202,34 +206,35 @@ class _RegisterPageState extends State<RegisterPage> {
                                 inputFormatters: [PhoneInputFormatter()],
                                 errorText: phoneErrorText(
                                   _phoneController.text,
+                                  language: t.language,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
                                 controller: _emailController,
                                 icon: Icons.email_outlined,
-                                hintText: 'Email',
+                                hintText: t.emailHint,
                                 keyboardType: TextInputType.emailAddress,
-                                errorText: _emailError,
+                                errorText: _emailError(t),
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
                                 controller: _passwordController,
                                 icon: Icons.lock_outline,
-                                hintText: 'Senha',
+                                hintText: t.passwordHint,
                                 obscureText: formState.obscurePassword,
                                 suffixIcon: PasswordVisibilityToggle(
                                   obscured: formState.obscurePassword,
                                   color: context.colors.textSecondary,
                                   onPressed: _formCubit.toggleObscurePassword,
                                 ),
-                                errorText: _passwordError,
+                                errorText: _passwordError(t),
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
                                 controller: _confirmPasswordController,
                                 icon: Icons.lock_outline,
-                                hintText: 'Confirmar senha',
+                                hintText: t.confirmPasswordHint,
                                 obscureText: formState.obscureConfirmPassword,
                                 suffixIcon: PasswordVisibilityToggle(
                                   obscured: formState.obscureConfirmPassword,
@@ -237,7 +242,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   onPressed:
                                       _formCubit.toggleObscureConfirmPassword,
                                 ),
-                                errorText: _confirmPasswordError,
+                                errorText: _confirmPasswordError(t),
                               ),
                             ],
                           ),
@@ -247,7 +252,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   AppBottomActionBar(
                     child: PrimaryButton(
-                      label: 'Cadastrar',
+                      label: t.registerSubmitButton,
                       onPressed: _canSubmit ? _submit : null,
                     ),
                   ),

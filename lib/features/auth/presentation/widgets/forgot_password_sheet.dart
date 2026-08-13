@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_cubit.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_state.dart';
 import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
@@ -46,10 +48,10 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
     super.dispose();
   }
 
-  String? get _emailError {
+  String? _emailError(AuthStrings t) {
     final value = _emailController.text;
     if (value.isEmpty || isValidEmail(value)) return null;
-    return 'Informe um e-mail válido.';
+    return t.emailInvalid;
   }
 
   Future<void> _send() async {
@@ -72,6 +74,7 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AuthStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
@@ -106,7 +109,7 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Esqueci minha senha',
+                      t.forgotPasswordLabel,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -115,7 +118,7 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Informe seu e-mail para receber um link de redefinição de senha.',
+                      t.forgotPasswordDescription,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: context.colors.textSecondary),
                     ),
@@ -123,13 +126,13 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
                     AppTextField(
                       controller: _emailController,
                       icon: Icons.email_outlined,
-                      hintText: 'Email',
+                      hintText: t.emailHint,
                       keyboardType: TextInputType.emailAddress,
-                      errorText: _emailError,
+                      errorText: _emailError(t),
                     ),
                     const SizedBox(height: 20),
                     PrimaryButton(
-                      label: 'Enviar link',
+                      label: t.sendLinkButton,
                       isLoading: formState.sending,
                       onPressed: isValidEmail(_emailController.text)
                           ? _send

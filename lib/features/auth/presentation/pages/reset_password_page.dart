@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/reset_password_cubit.dart';
 import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/reset_password_state.dart';
 import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
@@ -46,16 +48,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     super.dispose();
   }
 
-  String? get _passwordError {
+  String? _passwordError(AuthStrings t) {
     final value = _passwordController.text;
     if (value.isEmpty || isValidPassword(value)) return null;
-    return 'A senha precisa ter pelo menos $kMinPasswordLength caracteres.';
+    return t.passwordMinLengthError;
   }
 
-  String? get _confirmPasswordError {
+  String? _confirmPasswordError(AuthStrings t) {
     final value = _confirmPasswordController.text;
     if (value.isEmpty || value == _passwordController.text) return null;
-    return 'As senhas não coincidem.';
+    return t.passwordsDoNotMatch;
   }
 
   bool get _canSubmit =>
@@ -74,10 +76,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         await sl<AuthRepository>().signOut();
         hideAppLoading();
         if (!mounted) return;
+        final t = AuthStrings(context.read<LocaleCubit>().state);
         context.go('/');
         await AppInfoBottomSheet.showSuccess(
           context,
-          description: 'Senha alterada. Faça login com a nova senha.',
+          description: t.passwordChangedDescription,
         );
       case Error(:final failure):
         _formCubit.setSaving(false);
@@ -90,12 +93,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AuthStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<ResetPasswordCubit, ResetPasswordState>(
         builder: (context, formState) => Scaffold(
           backgroundColor: context.colors.background,
-          appBar: AppBar(title: const Text('Nova senha')),
+          appBar: AppBar(title: Text(t.resetPasswordPageTitle)),
           body: Column(
             children: [
               Expanded(
@@ -103,41 +107,41 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   padding: const EdgeInsets.all(24),
                   children: [
                     Text(
-                      'Defina uma nova senha para sua conta.',
+                      t.resetPasswordInstructions,
                       style: TextStyle(color: context.colors.textSecondary),
                     ),
                     const SizedBox(height: 20),
                     AppTextField(
                       controller: _passwordController,
                       icon: Icons.lock_outline,
-                      hintText: 'Nova senha',
+                      hintText: t.newPasswordHint,
                       obscureText: formState.obscurePassword,
                       suffixIcon: PasswordVisibilityToggle(
                         obscured: formState.obscurePassword,
                         color: context.colors.textSecondary,
                         onPressed: _formCubit.toggleObscurePassword,
                       ),
-                      errorText: _passwordError,
+                      errorText: _passwordError(t),
                     ),
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _confirmPasswordController,
                       icon: Icons.lock_outline,
-                      hintText: 'Confirmar nova senha',
+                      hintText: t.confirmNewPasswordHint,
                       obscureText: formState.obscureConfirmPassword,
                       suffixIcon: PasswordVisibilityToggle(
                         obscured: formState.obscureConfirmPassword,
                         color: context.colors.textSecondary,
                         onPressed: _formCubit.toggleObscureConfirmPassword,
                       ),
-                      errorText: _confirmPasswordError,
+                      errorText: _confirmPasswordError(t),
                     ),
                   ],
                 ),
               ),
               AppBottomActionBar(
                 child: PrimaryButton(
-                  label: 'Salvar nova senha',
+                  label: t.saveNewPasswordButton,
                   isLoading: formState.saving,
                   onPressed: _canSubmit ? _submit : null,
                 ),
