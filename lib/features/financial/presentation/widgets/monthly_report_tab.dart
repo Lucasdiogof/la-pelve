@@ -1,27 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
+import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_report_month_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
-
-const _monthNames = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-];
 
 class MonthlyReportTab extends StatelessWidget {
   const MonthlyReportTab({super.key});
@@ -44,6 +31,7 @@ class _MonthlyReportView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = FinancialStrings(context.watch<LocaleCubit>().state);
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
     final monthCubit = context.read<FinancialReportMonthCubit>();
@@ -74,7 +62,7 @@ class _MonthlyReportView extends StatelessWidget {
                   onPressed: () => monthCubit.shift(-1),
                 ),
                 Text(
-                  '${_monthNames[month.month - 1]} ${month.year}',
+                  '${t.monthName(month.month)} ${month.year}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
@@ -87,7 +75,10 @@ class _MonthlyReportView extends StatelessWidget {
               ],
             ),
             Text(
-              'Período: ${AppDateField.format(firstDay)} a ${AppDateField.format(lastDay)}',
+              t.periodRange(
+                AppDateField.format(firstDay),
+                AppDateField.format(lastDay),
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.colors.textSecondary,
@@ -103,9 +94,9 @@ class _MonthlyReportView extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Total recebido',
-                    style: TextStyle(color: Colors.white70),
+                  Text(
+                    t.totalReceived,
+                    style: const TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -124,7 +115,7 @@ class _MonthlyReportView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Nenhum lançamento neste mês.',
+                  t.noPaymentsThisMonth,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
@@ -144,12 +135,12 @@ class _MonthlyReportEntryTile extends StatelessWidget {
   final FinancialEntry entry;
 
   Future<void> _delete(BuildContext context) async {
+    final t = FinancialStrings(context.read<LocaleCubit>().state);
     final confirmed = await AppConfirmSheet.show(
       context,
-      title: 'Excluir lançamento',
-      description:
-          'Tem certeza que deseja excluir este lançamento? Essa ação não pode ser desfeita.',
-      confirmLabel: 'Excluir',
+      title: t.deletePaymentTitle,
+      description: t.deletePaymentDescription,
+      confirmLabel: t.deleteLabel,
       isDestructive: true,
     );
     if (!confirmed || !context.mounted) return;
@@ -158,6 +149,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = FinancialStrings(context.watch<LocaleCubit>().state);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -204,7 +196,7 @@ class _MonthlyReportEntryTile extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.delete_outline, color: context.colors.error),
-            tooltip: 'Excluir lançamento',
+            tooltip: t.deletePaymentTooltip,
             onPressed: () => _delete(context),
           ),
         ],
