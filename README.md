@@ -9,7 +9,18 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 ## Features
 
 **Patients**
-- Multi-step intake wizard covering personal data, anamnesis, gynecological/obstetric history (conditionally shown), surgical history, urinary/sexual/bowel function, treatment plan and consultation fee — modeled after a real pelvic physiotherapy clinical assessment form
+- Multi-step intake wizard, modeled after a real pelvic physiotherapy clinical assessment form:
+  1. Personal data (name, age, phone, profession)
+  2. Anamnesis (chief complaint, symptom onset, diagnosis, medical/lifestyle history)
+  3. Gynecological history *(female patients only)*
+  4. Obstetric history, including a full pregnancy-by-pregnancy record *(female patients only)*
+  5. Surgical history
+  6. Urinary function
+  7. Sexual function
+  8. Bowel function
+  9. Treatment plan
+  10. Physical assessment file upload (photos/PDFs, optional — can also be done later from the patient's Anexos tab)
+  11. Consultation fee
 - Full read-only clinical record view, organized by section
 - Treatment evolution log (dated progress notes) with edit history
 - File attachments (photos, PDFs) per patient, categorized automatically, with in-app image preview and secure signed-URL delivery
@@ -18,11 +29,14 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 **Agenda**
 - Rolling 7-day appointment view, grouped by day
 - One-tap status changes (scheduled, confirmed, attended, cancelled, no-show, rescheduled)
+- Create, edit and delete appointments; link to an existing patient record or type a name freehand
+- Past dates are blocked when scheduling
 
 **Financial**
 - Payment entries linked to a patient (or ad-hoc), with payment method and status
 - Monthly report with running total and per-entry breakdown
 - Real-time currency input formatting (BRL)
+- Delete an entry
 
 **Home dashboard**
 - Live-updating "next 7 days" schedule card that recomputes appointment status against the current time, so a past appointment never lingers as "upcoming"
@@ -38,6 +52,28 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 **Installable everywhere**
 - Native Android and iOS builds
 - Progressive Web App: installable on Android, iOS (Safari "Add to Home Screen") and desktop, opens in standalone mode, works offline for static assets, deep links to password reset/email confirmation adapt automatically between the native URL scheme and the web origin
+
+## Screenshots
+
+| Login | Sign up | Home |
+|---|---|---|
+| ![Login screen](docs/screenshots/login.png) | ![Sign up screen](docs/screenshots/cadastro.png) | ![Home dashboard](docs/screenshots/home.png) |
+
+| Patients | Patient intake wizard | Patient record |
+|---|---|---|
+| ![Patients list](docs/screenshots/pacientes.png) | ![Patient intake wizard](docs/screenshots/paciente_wizard.png) | ![Patient detail screen](docs/screenshots/paciente_detalhe.png) |
+
+| Evolution log | Treatment closure | Agenda |
+|---|---|---|
+| ![Evolution entries](docs/screenshots/evolucao.png) | ![Treatment closure sheet](docs/screenshots/encerrar_tratamento.png) | ![Upcoming appointments](docs/screenshots/agenda.png) |
+
+| Edit appointment | Agenda report | Financial |
+|---|---|---|
+| ![Edit appointment screen](docs/screenshots/editar_agendamento.png) | ![Monthly appointment report](docs/screenshots/agenda_relatorio.png) | ![New payment entry](docs/screenshots/financeiro.png) |
+
+| Financial report | Profile |
+|---|---|
+| ![Monthly financial report](docs/screenshots/financeiro_relatorio.png) | ![Profile screen](docs/screenshots/perfil.png) |
 
 ## Tech stack
 
