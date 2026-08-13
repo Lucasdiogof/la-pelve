@@ -9,8 +9,9 @@ class PhoneInputFormatter extends TextInputFormatter {
     if (limited.length <= 2) return buffer.toString();
     buffer.write(') ');
     final firstBlockLength = limited.length >= 11 ? 5 : 4;
-    final firstBlockEnd =
-        limited.length < 2 + firstBlockLength ? limited.length : 2 + firstBlockLength;
+    final firstBlockEnd = limited.length < 2 + firstBlockLength
+        ? limited.length
+        : 2 + firstBlockLength;
     buffer.write(limited.substring(2, firstBlockEnd));
     if (limited.length <= 2 + firstBlockLength) return buffer.toString();
     buffer.write('-');

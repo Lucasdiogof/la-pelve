@@ -28,10 +28,7 @@ void main() {
     });
 
     test('truncates input beyond 11 digits', () {
-      expect(
-        PhoneInputFormatter.format('119333344445555'),
-        '(11) 93333-4444',
-      );
+      expect(PhoneInputFormatter.format('119333344445555'), '(11) 93333-4444');
     });
   });
 }

@@ -24,48 +24,47 @@ void main() {
       'emits loading then success on a valid sign in',
       setUp: () {
         when(
-          () => repository.signIn(email: 'lucas@example.com', password: '12345678'),
+          () => repository.signIn(
+            email: 'lucas@example.com',
+            password: '12345678',
+          ),
         ).thenAnswer((_) async => const Success(user));
       },
       build: () => AuthCubit(repository),
-      act: (cubit) => cubit.signIn(
-        email: 'lucas@example.com',
-        password: '12345678',
-      ),
-      expect: () => [
-        const AuthLoading(),
-        const AuthSuccess(user),
-      ],
+      act: (cubit) =>
+          cubit.signIn(email: 'lucas@example.com', password: '12345678'),
+      expect: () => [const AuthLoading(), const AuthSuccess(user)],
     );
 
     blocTest<AuthCubit, AuthState>(
       'emits loading then a generic error on a server failure',
       setUp: () {
         when(
-          () => repository.signIn(email: 'lucas@example.com', password: 'wrong'),
-        ).thenAnswer((_) async => const Error(ServerFailure('Erro no servidor.')));
+          () =>
+              repository.signIn(email: 'lucas@example.com', password: 'wrong'),
+        ).thenAnswer(
+          (_) async => const Error(ServerFailure('Erro no servidor.')),
+        );
       },
       build: () => AuthCubit(repository),
-      act: (cubit) => cubit.signIn(email: 'lucas@example.com', password: 'wrong'),
-      expect: () => [
-        const AuthLoading(),
-        const AuthError('Erro no servidor.'),
-      ],
+      act: (cubit) =>
+          cubit.signIn(email: 'lucas@example.com', password: 'wrong'),
+      expect: () => [const AuthLoading(), const AuthError('Erro no servidor.')],
     );
 
     blocTest<AuthCubit, AuthState>(
       'flags isInvalidCredentials on an AuthFailure with invalid credentials',
       setUp: () {
         when(
-          () => repository.signIn(email: 'lucas@example.com', password: 'wrong'),
+          () =>
+              repository.signIn(email: 'lucas@example.com', password: 'wrong'),
         ).thenAnswer(
-          (_) async => const Error(
-            AuthFailure('Credenciais inválidas.', true),
-          ),
+          (_) async => const Error(AuthFailure('Credenciais inválidas.', true)),
         );
       },
       build: () => AuthCubit(repository),
-      act: (cubit) => cubit.signIn(email: 'lucas@example.com', password: 'wrong'),
+      act: (cubit) =>
+          cubit.signIn(email: 'lucas@example.com', password: 'wrong'),
       expect: () => [
         const AuthLoading(),
         const AuthError('Credenciais inválidas.', isInvalidCredentials: true),
@@ -95,10 +94,7 @@ void main() {
         email: 'lucas@example.com',
         password: '12345678',
       ),
-      expect: () => [
-        const AuthLoading(),
-        const AuthSuccess(user),
-      ],
+      expect: () => [const AuthLoading(), const AuthSuccess(user)],
     );
   });
 }
