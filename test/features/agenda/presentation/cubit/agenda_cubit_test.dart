@@ -16,9 +16,9 @@ void main() {
 
   final appointment = Appointment(
     id: 'a1',
-    data: DateTime.utc(2026, 3, 5),
-    hora: const TimeOfDay(hour: 10, minute: 0),
-    nomePaciente: 'Maria',
+    date: DateTime.utc(2026, 3, 5),
+    time: const TimeOfDay(hour: 10, minute: 0),
+    patientName: 'Maria',
   );
 
   setUp(() {
@@ -57,23 +57,26 @@ void main() {
         () => repository.getAll(),
       ).thenAnswer((_) async => Success([appointment]));
       when(
-        () =>
-            repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+        () => repository.updateStatus(
+          appointment.id,
+          AppointmentStatus.fulfilled,
+        ),
       ).thenAnswer((_) async => const Success(null));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
       when(() => repository.getAll()).thenAnswer(
-        (_) async =>
-            Success([appointment.copyWith(status: AppointmentStatus.atendido)]),
+        (_) async => Success([
+          appointment.copyWith(status: AppointmentStatus.fulfilled),
+        ]),
       );
       final result = await cubit.updateStatus(
         appointment.id,
-        AppointmentStatus.atendido,
+        AppointmentStatus.fulfilled,
       );
 
       expect(result, isA<Success<void>>());
-      expect(cubit.state.single.status, AppointmentStatus.atendido);
+      expect(cubit.state.single.status, AppointmentStatus.fulfilled);
       await cubit.close();
     });
 
@@ -82,19 +85,21 @@ void main() {
         () => repository.getAll(),
       ).thenAnswer((_) async => Success([appointment]));
       when(
-        () =>
-            repository.updateStatus(appointment.id, AppointmentStatus.atendido),
+        () => repository.updateStatus(
+          appointment.id,
+          AppointmentStatus.fulfilled,
+        ),
       ).thenAnswer((_) async => const Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
       await Future<void>.delayed(Duration.zero);
 
       final result = await cubit.updateStatus(
         appointment.id,
-        AppointmentStatus.atendido,
+        AppointmentStatus.fulfilled,
       );
 
       expect(result, isA<Error<void>>());
-      expect(cubit.state.single.status, AppointmentStatus.agendado);
+      expect(cubit.state.single.status, AppointmentStatus.scheduled);
       await cubit.close();
     });
   });
@@ -104,7 +109,7 @@ void main() {
       when(
         () => repository.getAll(),
       ).thenAnswer((_) async => Success([appointment]));
-      final updated = appointment.copyWith(nomePaciente: 'Joana');
+      final updated = appointment.copyWith(patientName: 'Joana');
       when(
         () => repository.update(updated),
       ).thenAnswer((_) async => const Success(null));
@@ -117,7 +122,7 @@ void main() {
       final result = await cubit.updateAppointment(updated);
 
       expect(result, isA<Success<void>>());
-      expect(cubit.state.single.nomePaciente, 'Joana');
+      expect(cubit.state.single.patientName, 'Joana');
       await cubit.close();
     });
 
@@ -125,7 +130,7 @@ void main() {
       when(
         () => repository.getAll(),
       ).thenAnswer((_) async => Success([appointment]));
-      final updated = appointment.copyWith(nomePaciente: 'Joana');
+      final updated = appointment.copyWith(patientName: 'Joana');
       when(
         () => repository.update(updated),
       ).thenAnswer((_) async => const Error(ServerFailure()));
@@ -135,7 +140,7 @@ void main() {
       final result = await cubit.updateAppointment(updated);
 
       expect(result, isA<Error<void>>());
-      expect(cubit.state.single.nomePaciente, 'Maria');
+      expect(cubit.state.single.patientName, 'Maria');
       await cubit.close();
     });
   });

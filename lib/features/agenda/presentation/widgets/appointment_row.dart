@@ -49,7 +49,7 @@ class AppointmentRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  appointment.hora.format(context),
+                  appointment.time.format(context),
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w700,
@@ -59,7 +59,7 @@ class AppointmentRow extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  appointment.nomePaciente,
+                  appointment.patientName,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -97,11 +97,11 @@ class AppointmentRow extends StatelessWidget {
 
 extension _AppointmentStatusColor on AppointmentStatus {
   Color foreground(AppColors colors) => switch (this) {
-    AppointmentStatus.agendado => colors.primary,
-    AppointmentStatus.confirmado => colors.primaryButton,
-    AppointmentStatus.atendido => colors.success,
-    AppointmentStatus.cancelado => colors.error,
-    AppointmentStatus.faltou => colors.error,
-    AppointmentStatus.reagendado => colors.textSecondary,
+    AppointmentStatus.scheduled => colors.primary,
+    AppointmentStatus.confirmed => colors.primaryButton,
+    AppointmentStatus.fulfilled => colors.success,
+    AppointmentStatus.cancelled => colors.error,
+    AppointmentStatus.noShow => colors.error,
+    AppointmentStatus.rescheduled => colors.textSecondary,
   };
 }

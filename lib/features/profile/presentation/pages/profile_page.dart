@@ -8,10 +8,10 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_mode_label.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
-import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/entities/profile.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_state.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_avatar_section.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_photo_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/widgets/profile_row.dart';
@@ -20,102 +20,40 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
-  final _repository = sl<ProfileRepository>();
-
-  Profile? _profile;
-  String? _photoUrl;
-  bool _biometriaEnabled = false;
-  bool _loading = true;
-  bool _savingPhoto = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final biometria = BiometricPreference.isEnabled();
-    final profileResult = await _repository.getCurrent();
-    final biometriaEnabled = await biometria;
-    if (!mounted) return;
-    switch (profileResult) {
-      case Success(:final data):
-        setState(() {
-          _profile = data;
-          _biometriaEnabled = biometriaEnabled;
-          _loading = false;
-        });
-        if (data.fotoPath != null) {
-          final urlResult = await _repository.getPhotoUrl(data.fotoPath!);
-          if (mounted && urlResult is Success<String>) {
-            setState(() => _photoUrl = urlResult.data);
-          }
-        }
-      case Error(:final failure):
-        setState(() => _loading = false);
-        if (mounted) {
-          await AppInfoBottomSheet.showError(
-            context,
-            description: failure.message,
-          );
-        }
-    }
-  }
-
-  Future<void> _pickPhoto() async {
+  Future<void> _pickPhoto(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
     final picked = await pickProfilePhoto(context);
-    if (picked == null || !mounted) return;
-    setState(() => _savingPhoto = true);
-    final result = await _repository.uploadPhoto(
+    if (picked == null || !context.mounted) return;
+    final result = await cubit.uploadPhoto(
       bytes: picked.bytes,
       contentType: picked.contentType,
     );
-    if (!mounted) return;
-    setState(() => _savingPhoto = false);
-    switch (result) {
-      case Success(:final data):
-        final urlResult = await _repository.getPhotoUrl(data);
-        if (mounted && urlResult is Success<String>) {
-          setState(() => _photoUrl = urlResult.data);
-        }
-      case Error(:final failure):
-        await AppInfoBottomSheet.showError(
-          context,
-          description: failure.message,
-        );
+    if (!context.mounted) return;
+    if (result case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(context, description: failure.message);
     }
   }
 
-  Future<void> _editNome() async {
-    final profile = _profile;
-    if (profile == null) return;
+  Future<void> _editNome(BuildContext context, String? currentNome) async {
+    if (currentNome == null) return;
+    final cubit = context.read<ProfileCubit>();
     final updated = await context.push<String>(
       '/perfil/editar-nome',
-      extra: profile.nome,
+      extra: currentNome,
     );
-    if (updated != null && mounted) {
-      setState(() {
-        _profile = profile.copyWith(nome: updated);
-      });
-    }
+    if (updated != null) cubit.applyNome(updated);
   }
 
-  Future<void> _openBiometria() async {
+  Future<void> _openBiometria(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
     await context.push('/perfil/biometria');
-    final enabled = await BiometricPreference.isEnabled();
-    if (mounted) setState(() => _biometriaEnabled = enabled);
+    await cubit.refreshBiometria();
   }
 
-  Future<void> _signOut() async {
+  Future<void> _signOut(BuildContext context) async {
     final confirmed = await AppConfirmSheet.show(
       context,
       title: 'Sair',
@@ -123,14 +61,14 @@ class _ProfilePageState extends State<ProfilePage> {
       confirmLabel: 'Sair',
       isDestructive: true,
     );
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !context.mounted) return;
     showAppLoading();
     await sl<AuthRepository>().signOut();
     hideAppLoading();
-    if (mounted) context.go('/');
+    if (context.mounted) context.go('/');
   }
 
-  Future<void> _deleteAccount() async {
+  Future<void> _deleteAccount(BuildContext context) async {
     final confirmed = await AppConfirmSheet.show(
       context,
       title: 'Excluir minha conta',
@@ -141,11 +79,11 @@ class _ProfilePageState extends State<ProfilePage> {
       confirmLabel: 'Excluir conta',
       isDestructive: true,
     );
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !context.mounted) return;
     showAppLoading();
     final result = await sl<AuthRepository>().deleteAccount();
     hideAppLoading();
-    if (!mounted) return;
+    if (!context.mounted) return;
     switch (result) {
       case Success():
         context.go('/');
@@ -159,110 +97,120 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Column(
-        children: [
-          const ModernAppBar(
-            title: 'Perfil',
-            subtitle: 'Gerencie seu perfil',
-            showBackButton: true,
-          ),
-          Expanded(
-            child: _loading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: context.colors.primary,
-                    ),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      ProfileAvatarSection(
-                        photoUrl: _photoUrl,
-                        initial: (_profile?.nome.isNotEmpty ?? false)
-                            ? _profile!.nome[0].toUpperCase()
-                            : '?',
-                        isSaving: _savingPhoto,
-                        onTap: _pickPhoto,
-                      ),
-                      const SizedBox(height: 32),
-                      ProfileRow(
-                        icon: Icons.person_outline,
-                        label: 'Nome',
-                        value: _profile?.nome ?? '',
-                        trailing: Icon(
-                          Icons.edit_outlined,
-                          size: 18,
-                          color: context.colors.primary,
-                        ),
-                        onTap: _editNome,
-                      ),
-                      const SizedBox(height: 8),
-                      ProfileRow(
-                        icon: Icons.email_outlined,
-                        label: 'E-mail',
-                        value: _profile?.email ?? '',
-                      ),
-                      const SizedBox(height: 8),
-                      ProfileRow(
-                        icon: Icons.verified_user_outlined,
-                        label: 'Crefito',
-                        value: _profile?.crefito ?? '',
-                      ),
-                      if (!kIsWeb) ...[
-                        const SizedBox(height: 8),
-                        ProfileRow(
-                          icon: Icons.fingerprint,
-                          label: 'Biometria',
-                          value: _biometriaEnabled ? 'Ativada' : 'Desativada',
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: context.colors.textSecondary,
+    return BlocProvider(
+      create: (_) => ProfileCubit(sl<ProfileRepository>()),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: context.colors.background,
+            body: Column(
+              children: [
+                const ModernAppBar(
+                  title: 'Perfil',
+                  subtitle: 'Gerencie seu perfil',
+                  showBackButton: true,
+                ),
+                Expanded(
+                  child: state.loading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: context.colors.primary,
                           ),
-                          onTap: _openBiometria,
+                        )
+                      : ListView(
+                          padding: const EdgeInsets.all(24),
+                          children: [
+                            ProfileAvatarSection(
+                              photoUrl: state.photoUrl,
+                              initial: (state.profile?.nome.isNotEmpty ?? false)
+                                  ? state.profile!.nome[0].toUpperCase()
+                                  : '?',
+                              isSaving: state.savingPhoto,
+                              onTap: () => _pickPhoto(context),
+                            ),
+                            const SizedBox(height: 32),
+                            ProfileRow(
+                              icon: Icons.person_outline,
+                              label: 'Nome',
+                              value: state.profile?.nome ?? '',
+                              trailing: Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                                color: context.colors.primary,
+                              ),
+                              onTap: () =>
+                                  _editNome(context, state.profile?.nome),
+                            ),
+                            const SizedBox(height: 8),
+                            ProfileRow(
+                              icon: Icons.email_outlined,
+                              label: 'E-mail',
+                              value: state.profile?.email ?? '',
+                            ),
+                            const SizedBox(height: 8),
+                            ProfileRow(
+                              icon: Icons.verified_user_outlined,
+                              label: 'Crefito',
+                              value: state.profile?.crefito ?? '',
+                            ),
+                            if (!kIsWeb) ...[
+                              const SizedBox(height: 8),
+                              ProfileRow(
+                                icon: Icons.fingerprint,
+                                label: 'Biometria',
+                                value: state.biometriaEnabled
+                                    ? 'Ativada'
+                                    : 'Desativada',
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: context.colors.textSecondary,
+                                ),
+                                onTap: () => _openBiometria(context),
+                              ),
+                            ],
+                            const SizedBox(height: 8),
+                            BlocBuilder<ThemeCubit, ThemeMode>(
+                              builder: (context, mode) => ProfileRow(
+                                icon: Icons.palette_outlined,
+                                label: 'Tema',
+                                value: themeModeLabel(mode),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: context.colors.textSecondary,
+                                ),
+                                onTap: () => context.push('/perfil/tema'),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                if (!state.loading)
+                  AppBottomActionBar(
+                    child: Column(
+                      children: [
+                        OutlinedButton(
+                          onPressed: () => _signOut(context),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: context.colors.error,
+                            side: BorderSide(color: context.colors.error),
+                          ),
+                          child: const Text('Sair da conta'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () => _deleteAccount(context),
+                          style: TextButton.styleFrom(
+                            foregroundColor: context.colors.error,
+                          ),
+                          child: const Text('Excluir minha conta'),
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      BlocBuilder<ThemeCubit, ThemeMode>(
-                        builder: (context, mode) => ProfileRow(
-                          icon: Icons.palette_outlined,
-                          label: 'Tema',
-                          value: themeModeLabel(mode),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: context.colors.textSecondary,
-                          ),
-                          onTap: () => context.push('/perfil/tema'),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-          if (!_loading)
-            AppBottomActionBar(
-              child: Column(
-                children: [
-                  OutlinedButton(
-                    onPressed: _signOut,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: context.colors.error,
-                      side: BorderSide(color: context.colors.error),
                     ),
-                    child: const Text('Sair da conta'),
                   ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _deleteAccount,
-                    style: TextButton.styleFrom(
-                      foregroundColor: context.colors.error,
-                    ),
-                    child: const Text('Excluir minha conta'),
-                  ),
-                ],
-              ),
+              ],
             ),
-        ],
+          );
+        },
       ),
     );
   }

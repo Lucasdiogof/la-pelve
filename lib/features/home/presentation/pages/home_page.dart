@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_clock_cubit.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/clinic_overview_section.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_header.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
@@ -22,20 +21,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Timer? _refreshTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _refreshTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => setState(() {}),
-    );
-  }
+  final _clockCubit = HomeClockCubit();
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
+    _clockCubit.close();
     super.dispose();
   }
 
@@ -45,28 +35,38 @@ class _HomePageState extends State<HomePage> {
     final appointments = context.watch<AgendaCubit>().state;
     final financialEntries = context.watch<FinancialCubit>().state;
 
-    final schedule = buildUpcomingSchedule(appointments);
-    final overview = buildClinicOverview(
-      patientCount: patientCount,
-      appointments: appointments,
-      financialEntries: financialEntries,
-    );
+    return BlocProvider.value(
+      value: _clockCubit,
+      child: BlocBuilder<HomeClockCubit, int>(
+        builder: (context, _) {
+          final schedule = buildUpcomingSchedule(appointments);
+          final overview = buildClinicOverview(
+            patientCount: patientCount,
+            appointments: appointments,
+            financialEntries: financialEntries,
+          );
 
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            const HomeHeader(),
-            const SizedBox(height: 20),
-            TodaySummaryCard(schedule: schedule),
-            const SizedBox(height: 24),
-            QuickActionsSection(onNavigateToTab: widget.onNavigateToTab),
-            const SizedBox(height: 24),
-            ClinicOverviewSection(overview: overview),
-          ],
-        ),
+          return Scaffold(
+            backgroundColor: context.colors.background,
+            body: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  const HomeHeader(),
+                  const SizedBox(height: 20),
+                  TodaySummaryCard(
+                    schedule: schedule,
+                    onTap: () => widget.onNavigateToTab(2),
+                  ),
+                  const SizedBox(height: 24),
+                  QuickActionsSection(onNavigateToTab: widget.onNavigateToTab),
+                  const SizedBox(height: 24),
+                  ClinicOverviewSection(overview: overview),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

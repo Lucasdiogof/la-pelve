@@ -106,112 +106,135 @@ class PatientDetailPage extends StatelessWidget {
 
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        backgroundColor: context.colors.background,
-        appBar: AppBar(
-          title: Text(dados.nome.isEmpty ? 'Paciente' : dados.nome),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Editar paciente',
-              onPressed: () => context.push(
-                '/pacientes/${current.id}/editar',
-                extra: current,
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: context.colors.error),
-              tooltip: 'Excluir paciente',
-              onPressed: () => _confirmDelete(context, current),
-            ),
-          ],
-          bottom: TabBar(
-            labelColor: context.colors.textPrimary,
-            unselectedLabelColor: context.colors.textSecondary,
-            indicatorColor: context.colors.primaryButton,
-            tabs: const [
-              Tab(text: 'Informações'),
-              Tab(text: 'Anexos'),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            current.encerramento == null
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                    child: OutlinedButton.icon(
-                      onPressed: () => _encerrarTratamento(context, current),
-                      icon: const Icon(Icons.event_busy_outlined),
-                      label: const Text('Encerrar tratamento'),
-                    ),
-                  )
-                : EncerramentoBanner(
-                    encerramento: current.encerramento!,
-                    onReabrir: () => _reabrirTratamento(context, current),
-                  ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      const SectionTitle('Dados pessoais'),
-                      InfoRow(
-                        'Sexo',
-                        PatientDetailFormat.enumValue(
-                          dados.sexo,
-                          (v) => v.label,
+      child: Builder(
+        builder: (context) {
+          final tabController = DefaultTabController.of(context);
+          return Scaffold(
+            backgroundColor: context.colors.background,
+            appBar: AppBar(
+              title: Text(dados.nome.isEmpty ? 'Paciente' : dados.nome),
+              actions: [
+                AnimatedBuilder(
+                  animation: tabController,
+                  builder: (context, _) {
+                    if (tabController.index != 0) {
+                      return const SizedBox.shrink();
+                    }
+                    return Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          tooltip: 'Editar paciente',
+                          onPressed: () => context.push(
+                            '/pacientes/${current.id}/editar',
+                            extra: current,
+                          ),
                         ),
-                      ),
-                      InfoRow(
-                        'Idade',
-                        PatientDetailFormat.intValue(dados.idade),
-                      ),
-                      InfoRow(
-                        'Telefone',
-                        PatientDetailFormat.text(dados.telefone),
-                      ),
-                      InfoRow(
-                        'Profissão',
-                        PatientDetailFormat.text(dados.profissao),
-                      ),
-                      AnamneseInfoSection(current.anamnese),
-                      if (isFeminino)
-                        HistoricoGinecologicoInfoSection(
-                          current.historicoGinecologico,
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: context.colors.error,
+                          ),
+                          tooltip: 'Excluir paciente',
+                          onPressed: () => _confirmDelete(context, current),
                         ),
-                      if (isFeminino)
-                        HistoricoObstetricoInfoSection(
-                          current.historicoObstetrico,
-                        ),
-                      HistoricoCirurgicoInfoSection(current.historicoCirurgico),
-                      FuncaoUrinariaInfoSection(current.funcaoUrinaria),
-                      FuncaoSexualInfoSection(current.funcaoSexual),
-                      FuncaoIntestinalInfoSection(current.funcaoIntestinal),
-                      PlanoTratamentoInfoSection(current.planoTratamento),
-                      const SectionTitle('Valor da consulta'),
-                      InfoRow(
-                        'Valor da 1ª consulta',
-                        PatientDetailFormat.money(current.valorConsulta),
-                      ),
-                    ],
-                  ),
-                  PatientAttachmentsTab(patientId: current.id),
+                      ],
+                    );
+                  },
+                ),
+              ],
+              bottom: TabBar(
+                labelColor: context.colors.textPrimary,
+                unselectedLabelColor: context.colors.textSecondary,
+                indicatorColor: context.colors.primaryButton,
+                tabs: const [
+                  Tab(text: 'Informações'),
+                  Tab(text: 'Anexos'),
                 ],
               ),
             ),
-            AppBottomActionBar(
-              child: PrimaryButton(
-                label: 'Ver evolução',
-                onPressed: () => context.push(
-                  '/pacientes/${current.id}/evolucao',
-                  extra: current,
+            body: Column(
+              children: [
+                current.encerramento == null
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              _encerrarTratamento(context, current),
+                          icon: const Icon(Icons.event_busy_outlined),
+                          label: const Text('Encerrar tratamento'),
+                        ),
+                      )
+                    : EncerramentoBanner(
+                        encerramento: current.encerramento!,
+                        onReabrir: () => _reabrirTratamento(context, current),
+                      ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      ListView(
+                        padding: const EdgeInsets.all(24),
+                        children: [
+                          const SectionTitle('Dados pessoais'),
+                          InfoRow(
+                            'Sexo',
+                            PatientDetailFormat.enumValue(
+                              dados.sexo,
+                              (v) => v.label,
+                            ),
+                          ),
+                          InfoRow(
+                            'Idade',
+                            PatientDetailFormat.intValue(dados.idade),
+                          ),
+                          InfoRow(
+                            'Telefone',
+                            PatientDetailFormat.text(dados.telefone),
+                          ),
+                          InfoRow(
+                            'Profissão',
+                            PatientDetailFormat.text(dados.profissao),
+                          ),
+                          AnamneseInfoSection(current.anamnese),
+                          if (isFeminino)
+                            HistoricoGinecologicoInfoSection(
+                              current.historicoGinecologico,
+                            ),
+                          if (isFeminino)
+                            HistoricoObstetricoInfoSection(
+                              current.historicoObstetrico,
+                            ),
+                          HistoricoCirurgicoInfoSection(
+                            current.historicoCirurgico,
+                          ),
+                          FuncaoUrinariaInfoSection(current.funcaoUrinaria),
+                          FuncaoSexualInfoSection(current.funcaoSexual),
+                          FuncaoIntestinalInfoSection(current.funcaoIntestinal),
+                          PlanoTratamentoInfoSection(current.planoTratamento),
+                          const SectionTitle('Valor da consulta'),
+                          InfoRow(
+                            'Valor da 1ª consulta',
+                            PatientDetailFormat.money(current.valorConsulta),
+                          ),
+                        ],
+                      ),
+                      PatientAttachmentsTab(patientId: current.id),
+                    ],
+                  ),
                 ),
-              ),
+                AppBottomActionBar(
+                  child: PrimaryButton(
+                    label: 'Ver evolução',
+                    onPressed: () => context.push(
+                      '/pacientes/${current.id}/evolucao',
+                      extra: current,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

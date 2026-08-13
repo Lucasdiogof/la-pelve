@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
@@ -6,6 +7,8 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_attachments_cubit.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_attachments_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/image_viewer_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
@@ -14,35 +17,30 @@ import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
-class PatientAttachmentsTab extends StatefulWidget {
+class PatientAttachmentsTab extends StatelessWidget {
   const PatientAttachmentsTab({required this.patientId, super.key});
 
   final String patientId;
 
   @override
-  State<PatientAttachmentsTab> createState() => _PatientAttachmentsTabState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          PatientAttachmentsCubit(sl<AttachmentRepository>(), patientId),
+      child: const _PatientAttachmentsView(),
+    );
+  }
 }
 
-class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
-  final _repository = sl<AttachmentRepository>();
-  late Future<Result<List<Attachment>>> _future = _repository.getForPatient(
-    widget.patientId,
-  );
-  bool _uploading = false;
+class _PatientAttachmentsView extends StatelessWidget {
+  const _PatientAttachmentsView();
 
-  Future<void> _reload() async {
-    setState(() {
-      _future = _repository.getForPatient(widget.patientId);
-    });
-  }
-
-  Future<void> _addAttachment() async {
+  Future<void> _addAttachment(BuildContext context) async {
+    final cubit = context.read<PatientAttachmentsCubit>();
     final picked = await pickAttachment(context);
-    if (picked == null || !mounted) return;
-    setState(() => _uploading = true);
+    if (picked == null || !context.mounted) return;
     showAppLoading();
-    final result = await _repository.upload(
-      patientId: widget.patientId,
+    final result = await cubit.upload(
       category: picked.contentType == 'application/pdf'
           ? AttachmentCategory.documento
           : AttachmentCategory.imagem,
@@ -51,29 +49,24 @@ class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
       contentType: picked.contentType,
     );
     hideAppLoading();
-    if (!mounted) return;
-    setState(() => _uploading = false);
-    switch (result) {
-      case Success():
-        await _reload();
-      case Error(:final failure):
-        await AppInfoBottomSheet.showError(
-          context,
-          description: failure.message,
-        );
+    if (!context.mounted) return;
+    if (result case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(context, description: failure.message);
     }
   }
 
-  Future<void> _open(Attachment attachment) async {
+  Future<void> _open(BuildContext context, Attachment attachment) async {
     showAppLoading();
-    final result = await _repository.getViewUrl(attachment);
-    if (result case Success(:final data) when attachment.isImage && mounted) {
+    final result = await sl<AttachmentRepository>().getViewUrl(attachment);
+    if (result case Success(
+      :final data,
+    ) when attachment.isImage && context.mounted) {
       try {
         await precacheImage(NetworkImage(data), context);
       } catch (_) {}
     }
     hideAppLoading();
-    if (!mounted) return;
+    if (!context.mounted) return;
     switch (result) {
       case Success(:final data):
         if (attachment.isImage) {
@@ -88,7 +81,7 @@ class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
             Uri.parse(data),
             mode: LaunchMode.externalApplication,
           );
-          if (!opened && mounted) {
+          if (!opened && context.mounted) {
             await AppInfoBottomSheet.showError(
               context,
               description: 'Não foi possível abrir o arquivo.',
@@ -103,7 +96,8 @@ class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
     }
   }
 
-  Future<void> _delete(Attachment attachment) async {
+  Future<void> _delete(BuildContext context, Attachment attachment) async {
+    final cubit = context.read<PatientAttachmentsCubit>();
     final confirmed = await AppConfirmSheet.show(
       context,
       title: 'Excluir anexo',
@@ -112,73 +106,70 @@ class _PatientAttachmentsTabState extends State<PatientAttachmentsTab> {
       confirmLabel: 'Excluir',
       isDestructive: true,
     );
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !context.mounted) return;
     showAppLoading();
-    final result = await _repository.delete(attachment);
+    final result = await cubit.delete(attachment);
     hideAppLoading();
-    if (!mounted) return;
-    switch (result) {
-      case Success():
-        await _reload();
-      case Error(:final failure):
-        await AppInfoBottomSheet.showError(
-          context,
-          description: failure.message,
-        );
+    if (!context.mounted) return;
+    if (result case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(context, description: failure.message);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        PrimaryButton(
-          label: 'Adicionar anexo',
-          icon: const Icon(Icons.add, color: Colors.white),
-          isLoading: _uploading,
-          onPressed: _addAttachment,
-        ),
-        const SizedBox(height: 20),
-        FutureBuilder<Result<List<Attachment>>>(
-          future: _future,
-          builder: (context, snapshot) {
-            final result = snapshot.data;
-            final attachments = switch (result) {
-              Success(:final data) => data,
-              _ => const <Attachment>[],
-            };
-            if (result is Error<List<Attachment>>) {
-              return Center(
-                child: Text(
-                  result.failure.message,
-                  style: TextStyle(color: context.colors.textSecondary),
-                ),
-              );
-            }
-            if (attachments.isEmpty) {
-              return const AppEmptyState(
-                icon: Icons.attach_file,
-                title: 'Nenhum anexo ainda',
-                message: 'Anexe fotos ou arquivos do paciente.',
-              );
-            }
-            return Column(
-              children: [
-                for (final attachment in attachments)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _AttachmentRow(
-                      attachment: attachment,
-                      onTap: () => _open(attachment),
-                      onDelete: () => _delete(attachment),
+    return BlocBuilder<PatientAttachmentsCubit, PatientAttachmentsState>(
+      builder: (context, state) {
+        return ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            PrimaryButton(
+              label: 'Adicionar anexo',
+              icon: const Icon(Icons.add, color: Colors.white),
+              isLoading: state.uploading,
+              onPressed: () => _addAttachment(context),
+            ),
+            const SizedBox(height: 20),
+            Builder(
+              builder: (context) {
+                final result = state.result;
+                final attachments = switch (result) {
+                  Success(:final data) => data,
+                  _ => const <Attachment>[],
+                };
+                if (result is Error<List<Attachment>>) {
+                  return Center(
+                    child: Text(
+                      result.failure.message,
+                      style: TextStyle(color: context.colors.textSecondary),
                     ),
-                  ),
-              ],
-            );
-          },
-        ),
-      ],
+                  );
+                }
+                if (attachments.isEmpty) {
+                  return const AppEmptyState(
+                    icon: Icons.attach_file,
+                    title: 'Nenhum anexo ainda',
+                    message: 'Anexe fotos ou arquivos do paciente.',
+                  );
+                }
+                return Column(
+                  children: [
+                    for (final attachment in attachments)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _AttachmentRow(
+                          attachment: attachment,
+                          onTap: () => _open(context, attachment),
+                          onDelete: () => _delete(context, attachment),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

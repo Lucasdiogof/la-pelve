@@ -1,0 +1,29 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
+import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/lancamentos_form_state.dart';
+import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+
+class LancamentosFormCubit extends Cubit<LancamentosFormState> {
+  LancamentosFormCubit() : super(const LancamentosFormState());
+
+  void selectPatient(Patient patient) =>
+      emit(state.copyWith(patient: patient, revision: state.revision + 1));
+
+  void onNomeChanged() =>
+      emit(state.copyWith(patient: null, revision: state.revision + 1));
+
+  void setData(DateTime data) => emit(state.copyWith(data: data));
+
+  void notifyFieldChanged() =>
+      emit(state.copyWith(revision: state.revision + 1));
+
+  void setFormaPagamento(FormaPagamento? formaPagamento) =>
+      emit(state.copyWith(formaPagamento: formaPagamento));
+
+  void setStatus(StatusPagamento status) =>
+      emit(state.copyWith(status: status));
+
+  void setSaving(bool saving) => emit(state.copyWith(saving: saving));
+
+  void reset() => emit(const LancamentosFormState());
+}

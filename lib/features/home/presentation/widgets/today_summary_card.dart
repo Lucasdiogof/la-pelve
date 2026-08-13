@@ -4,57 +4,72 @@ import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_sty
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
 
 class TodaySummaryCard extends StatelessWidget {
-  const TodaySummaryCard({required this.schedule, super.key});
+  const TodaySummaryCard({
+    required this.schedule,
+    required this.onTap,
+    super.key,
+  });
 
   final List<ScheduleItem> schedule;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(kHomeCardRadius + 2),
+      child: InkWell(
         borderRadius: BorderRadius.circular(kHomeCardRadius + 2),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [context.colors.primary, context.colors.primaryButton],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: context.colors.primary.withValues(alpha: 0.28),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Próximos atendimentos',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(kHomeCardRadius + 2),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [context.colors.primary, context.colors.primaryButton],
             ),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.primary.withValues(alpha: 0.28),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          if (schedule.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Center(
-                child: Text(
-                  'Nenhum atendimento nos próximos 7 dias.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Próximos atendimentos',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-            )
-          else
-            for (var i = 0; i < schedule.length; i++)
-              _ScheduleRow(item: schedule[i], showDivider: i != 0),
-        ],
+              const SizedBox(height: 16),
+              if (schedule.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: Text(
+                      'Nenhum atendimento nos próximos 7 dias.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                for (var i = 0; i < schedule.length; i++)
+                  _ScheduleRow(item: schedule[i], showDivider: i != 0),
+            ],
+          ),
+        ),
       ),
     );
   }

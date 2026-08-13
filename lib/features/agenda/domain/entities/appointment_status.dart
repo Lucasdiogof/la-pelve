@@ -1,19 +1,19 @@
 enum AppointmentStatus {
-  agendado,
-  confirmado,
-  atendido,
-  cancelado,
-  faltou,
-  reagendado,
+  scheduled,
+  confirmed,
+  fulfilled,
+  cancelled,
+  noShow,
+  rescheduled,
 }
 
 extension AppointmentStatusLabel on AppointmentStatus {
   String get label => switch (this) {
-    AppointmentStatus.agendado => 'Agendado',
-    AppointmentStatus.confirmado => 'Confirmado',
-    AppointmentStatus.atendido => 'Atendido',
-    AppointmentStatus.cancelado => 'Cancelado',
-    AppointmentStatus.faltou => 'Faltou',
-    AppointmentStatus.reagendado => 'Reagendado',
+    AppointmentStatus.scheduled => 'Agendado',
+    AppointmentStatus.confirmed => 'Confirmado',
+    AppointmentStatus.fulfilled => 'Atendido',
+    AppointmentStatus.cancelled => 'Cancelado',
+    AppointmentStatus.noShow => 'Faltou',
+    AppointmentStatus.rescheduled => 'Reagendado',
   };
 }

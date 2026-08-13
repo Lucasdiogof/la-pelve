@@ -9,9 +9,9 @@ void main() {
   Appointment appointmentOn(
     DateTime day, {
     String id = 'a',
-    TimeOfDay hora = const TimeOfDay(hour: 12, minute: 0),
+    TimeOfDay time = const TimeOfDay(hour: 12, minute: 0),
   }) {
-    return Appointment(id: id, data: day, hora: hora, nomePaciente: 'Paciente');
+    return Appointment(id: id, date: day, time: time, patientName: 'Paciente');
   }
 
   group('groupUpcomingAppointmentsByDay', () {
@@ -35,12 +35,12 @@ void main() {
         appointmentOn(
           today,
           id: 'a1',
-          hora: const TimeOfDay(hour: 9, minute: 0),
+          time: const TimeOfDay(hour: 9, minute: 0),
         ),
         appointmentOn(
           today,
           id: 'a2',
-          hora: const TimeOfDay(hour: 14, minute: 0),
+          time: const TimeOfDay(hour: 14, minute: 0),
         ),
       ], today: today);
 
@@ -52,12 +52,12 @@ void main() {
         appointmentOn(
           today,
           id: 'later',
-          hora: const TimeOfDay(hour: 20, minute: 0),
+          time: const TimeOfDay(hour: 20, minute: 0),
         ),
         appointmentOn(
           today,
           id: 'earlier',
-          hora: const TimeOfDay(hour: 8, minute: 0),
+          time: const TimeOfDay(hour: 8, minute: 0),
         ),
       ], today: today);
 

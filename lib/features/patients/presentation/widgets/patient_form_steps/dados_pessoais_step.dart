@@ -82,7 +82,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
           icon: Icons.person_outline,
           hintText: 'Nome',
           errorText: _nomeError,
-          onChanged: (_) => setState(_emit),
+          onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -95,7 +95,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
             LengthLimitingTextInputFormatter(3),
           ],
           errorText: _idadeError,
-          onChanged: (_) => setState(_emit),
+          onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -105,7 +105,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
           keyboardType: TextInputType.phone,
           inputFormatters: [PhoneInputFormatter()],
           errorText: phoneErrorText(_telefoneController.text),
-          onChanged: (_) => setState(_emit),
+          onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
         AppTextField(
@@ -113,7 +113,7 @@ class _DadosPessoaisStepState extends State<DadosPessoaisStep> {
           icon: Icons.work_outline,
           hintText: 'Profissão',
           errorText: _profissaoError,
-          onChanged: (_) => setState(_emit),
+          onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 20),
         Text(

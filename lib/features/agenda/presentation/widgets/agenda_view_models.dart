@@ -12,17 +12,17 @@ Map<DateTime, List<Appointment>> groupUpcomingAppointmentsByDay(
   final endDate = today.add(const Duration(days: 7));
   final upcoming =
       appointments.where((a) {
-        final data = dateOnly(a.data);
-        return !data.isBefore(today) && !data.isAfter(endDate);
+        final date = dateOnly(a.date);
+        return !date.isBefore(today) && !date.isAfter(endDate);
       }).toList()..sort((a, b) {
-        final byDate = a.data.compareTo(b.data);
+        final byDate = a.date.compareTo(b.date);
         if (byDate != 0) return byDate;
-        return _minutesOf(a.hora).compareTo(_minutesOf(b.hora));
+        return _minutesOf(a.time).compareTo(_minutesOf(b.time));
       });
 
   final byDay = <DateTime, List<Appointment>>{};
   for (final appointment in upcoming) {
-    byDay.putIfAbsent(dateOnly(appointment.data), () => []).add(appointment);
+    byDay.putIfAbsent(dateOnly(appointment.date), () => []).add(appointment);
   }
   return byDay;
 }

@@ -8,32 +8,32 @@ import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 class Appointment extends Equatable {
   const Appointment({
     required this.id,
-    required this.data,
-    required this.hora,
-    required this.nomePaciente,
+    required this.date,
+    required this.time,
+    required this.patientName,
     this.patientId,
-    this.status = AppointmentStatus.agendado,
+    this.status = AppointmentStatus.scheduled,
   });
 
   final String id;
-  final DateTime data;
-  final TimeOfDay hora;
-  final String nomePaciente;
+  final DateTime date;
+  final TimeOfDay time;
+  final String patientName;
   final String? patientId;
   final AppointmentStatus status;
 
   Appointment copyWith({
-    DateTime? data,
-    TimeOfDay? hora,
-    String? nomePaciente,
+    DateTime? date,
+    TimeOfDay? time,
+    String? patientName,
     Object? patientId = kUnset,
     AppointmentStatus? status,
   }) {
     return Appointment(
       id: id,
-      data: data ?? this.data,
-      hora: hora ?? this.hora,
-      nomePaciente: nomePaciente ?? this.nomePaciente,
+      date: date ?? this.date,
+      time: time ?? this.time,
+      patientName: patientName ?? this.patientName,
       patientId: unsetOr(patientId, this.patientId),
       status: status ?? this.status,
     );
@@ -41,23 +41,23 @@ class Appointment extends Equatable {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'data': dateOnly(data),
-    'hora':
-        '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}:00',
-    'nome_paciente': nomePaciente,
+    'date': dateOnly(date),
+    'time':
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00',
+    'patient_name': patientName,
     'patient_id': patientId,
     'status': status.name,
   };
 
   factory Appointment.fromJson(Map<String, dynamic> json) => Appointment(
     id: json['id'] as String,
-    data: DateTime.parse(json['data'] as String),
-    hora: _parseTime(json['hora'] as String),
-    nomePaciente: json['nome_paciente'] as String? ?? '',
+    date: DateTime.parse(json['date'] as String),
+    time: _parseTime(json['time'] as String),
+    patientName: json['patient_name'] as String? ?? '',
     patientId: json['patient_id'] as String?,
     status:
         enumFromName(AppointmentStatus.values, json['status']) ??
-        AppointmentStatus.agendado,
+        AppointmentStatus.scheduled,
   );
 
   static TimeOfDay _parseTime(String value) {
@@ -66,5 +66,5 @@ class Appointment extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, data, hora, nomePaciente, patientId, status];
+  List<Object?> get props => [id, date, time, patientName, patientId, status];
 }

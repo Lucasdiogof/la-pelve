@@ -70,10 +70,8 @@ class _HistoricoGinecologicoStepState extends State<HistoricoGinecologicoStep> {
             LengthLimitingTextInputFormatter(3),
           ],
           errorText: _idadeMenstruacaoError,
-          onChanged: (value) => setState(
-            () => _update(
-              (h) => h.copyWith(idadePrimeiraMenstruacao: int.tryParse(value)),
-            ),
+          onChanged: (value) => _update(
+            (h) => h.copyWith(idadePrimeiraMenstruacao: int.tryParse(value)),
           ),
         ),
         const SizedBox(height: 16),

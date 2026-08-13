@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patient_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_form_cubit.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_form_state.dart';
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
@@ -30,26 +33,40 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
   late final _descricaoController = TextEditingController(
     text: widget.existingEntry?.descricao ?? '',
   );
-  late DateTime? _data = widget.existingEntry?.data;
-  bool _saving = false;
+  late final _formCubit = EvolutionFormCubit(existing: widget.existingEntry);
 
   bool get _isEditing => widget.existingEntry != null;
 
+  DateTime get _today {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _descricaoController.addListener(_formCubit.notifyFieldChanged);
+  }
+
   @override
   void dispose() {
-    _descricaoController.dispose();
+    _descricaoController
+      ..removeListener(_formCubit.notifyFieldChanged)
+      ..dispose();
+    _formCubit.close();
     super.dispose();
   }
 
-  bool get _canSave =>
-      _data != null && _descricaoController.text.trim().isNotEmpty;
+  bool _canSave(EvolutionFormState state) =>
+      state.data != null && _descricaoController.text.trim().isNotEmpty;
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    _formCubit.setSaving(true);
+    final data = _formCubit.state.data;
     final result = _isEditing
         ? await sl<PatientRepository>().updateEvolution(
             widget.existingEntry!.copyWith(
-              data: _data!,
+              data: data!,
               descricao: _descricaoController.text.trim(),
               updatedAt: DateTime.now(),
             ),
@@ -58,7 +75,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
             EvolutionEntry(
               id: generateId(),
               patientId: widget.patientId,
-              data: _data!,
+              data: data!,
               descricao: _descricaoController.text.trim(),
             ),
           );
@@ -67,7 +84,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
       case Success():
         context.pop();
       case Error(:final failure):
-        setState(() => _saving = false);
+        _formCubit.setSaving(false);
         await AppInfoBottomSheet.showError(
           context,
           description: failure.message,
@@ -77,41 +94,46 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar evolução' : 'Nova evolução'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                AppDateField(
-                  hintText: 'Data',
-                  value: _data,
-                  onChanged: (value) => setState(() => _data = value),
-                ),
-                const SizedBox(height: 12),
-                AppTextField(
-                  controller: _descricaoController,
-                  icon: Icons.description_outlined,
-                  hintText: 'O que foi feito no atendimento',
-                  maxLines: 6,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ],
-            ),
+    return BlocProvider.value(
+      value: _formCubit,
+      child: BlocBuilder<EvolutionFormCubit, EvolutionFormState>(
+        builder: (context, formState) => Scaffold(
+          backgroundColor: context.colors.background,
+          appBar: AppBar(
+            title: Text(_isEditing ? 'Editar evolução' : 'Nova evolução'),
           ),
-          AppBottomActionBar(
-            child: PrimaryButton(
-              label: _isEditing ? 'Salvar alterações' : 'Salvar',
-              isLoading: _saving,
-              onPressed: _canSave ? _save : null,
-            ),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    AppDateField(
+                      hintText: 'Data',
+                      value: formState.data,
+                      lastDate: _today,
+                      onChanged: _formCubit.setData,
+                    ),
+                    const SizedBox(height: 12),
+                    AppTextField(
+                      controller: _descricaoController,
+                      icon: Icons.description_outlined,
+                      hintText: 'O que foi feito no atendimento',
+                      maxLines: 6,
+                    ),
+                  ],
+                ),
+              ),
+              AppBottomActionBar(
+                child: PrimaryButton(
+                  label: _isEditing ? 'Salvar alterações' : 'Salvar',
+                  isLoading: formState.saving,
+                  onPressed: _canSave(formState) ? _save : null,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

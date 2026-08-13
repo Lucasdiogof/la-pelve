@@ -103,6 +103,8 @@ class _PatientFormPageState extends State<PatientFormPage> {
                     }
                   }
                 : null,
+            showSaveButton: _formCubit.isEditing && !_formCubit.isLastStep,
+            onSave: _formCubit.canSave ? () => _save(state) : null,
             body: _StepBody(
               step: _formCubit.currentStep,
               state: state,

@@ -30,10 +30,7 @@ void main() {
         'status': 'unknown_status',
       };
 
-      expect(
-        FinancialEntry.fromJson(json).status,
-        StatusPagamento.pago,
-      );
+      expect(FinancialEntry.fromJson(json).status, StatusPagamento.pago);
     });
 
     test('accepts an integer valor from JSON', () {

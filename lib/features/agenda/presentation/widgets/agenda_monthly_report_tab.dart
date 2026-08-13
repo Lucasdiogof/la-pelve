@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_report_month_cubit.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
+import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
+import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 
 const _monthNames = [
@@ -23,22 +22,22 @@ const _monthNames = [
   'Dezembro',
 ];
 
-class MonthlyReportTab extends StatelessWidget {
-  const MonthlyReportTab({super.key});
+class AgendaMonthlyReportTab extends StatelessWidget {
+  const AgendaMonthlyReportTab({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => FinancialReportMonthCubit(),
-      child: BlocBuilder<FinancialReportMonthCubit, DateTime>(
-        builder: (context, month) => _MonthlyReportView(month: month),
+      create: (_) => AgendaReportMonthCubit(),
+      child: BlocBuilder<AgendaReportMonthCubit, DateTime>(
+        builder: (context, month) => _AgendaMonthlyReportView(month: month),
       ),
     );
   }
 }
 
-class _MonthlyReportView extends StatelessWidget {
-  const _MonthlyReportView({required this.month});
+class _AgendaMonthlyReportView extends StatelessWidget {
+  const _AgendaMonthlyReportView({required this.month});
 
   final DateTime month;
 
@@ -46,22 +45,25 @@ class _MonthlyReportView extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
-    final monthCubit = context.read<FinancialReportMonthCubit>();
+    final monthCubit = context.read<AgendaReportMonthCubit>();
 
-    return BlocBuilder<FinancialCubit, List<FinancialEntry>>(
-      builder: (context, entries) {
+    return BlocBuilder<AgendaCubit, List<Appointment>>(
+      builder: (context, appointments) {
         final inMonth =
-            entries
+            appointments
                 .where(
-                  (entry) =>
-                      entry.data.year == month.year &&
-                      entry.data.month == month.month,
+                  (appointment) =>
+                      appointment.date.year == month.year &&
+                      appointment.date.month == month.month,
                 )
                 .toList()
-              ..sort((a, b) => a.data.compareTo(b.data));
-        final total = inMonth
-            .where((entry) => entry.status == StatusPagamento.pago)
-            .fold<double>(0, (sum, entry) => sum + entry.valor);
+              ..sort((a, b) => a.date.compareTo(b.date));
+
+        final porStatus = <AppointmentStatus, int>{};
+        for (final appointment in inMonth) {
+          porStatus[appointment.status] =
+              (porStatus[appointment.status] ?? 0) + 1;
+        }
 
         return ListView(
           padding: const EdgeInsets.all(24),
@@ -104,12 +106,12 @@ class _MonthlyReportView extends StatelessWidget {
               child: Column(
                 children: [
                   const Text(
-                    'Total recebido',
+                    'Agendamentos no mês',
                     style: TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'R\$ ${total.toStringAsFixed(2)}',
+                    '${inMonth.length}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -119,18 +121,31 @@ class _MonthlyReportView extends StatelessWidget {
                 ],
               ),
             ),
+            if (porStatus.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final status in AppointmentStatus.values)
+                    if (porStatus[status] != null)
+                      _StatusChip(status: status, count: porStatus[status]!),
+                ],
+              ),
+            ],
             const SizedBox(height: 24),
             if (inMonth.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Nenhum lançamento neste mês.',
+                  'Nenhum agendamento neste mês.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.colors.textSecondary),
                 ),
               )
             else
-              for (final entry in inMonth) _MonthlyReportEntryTile(entry),
+              for (final appointment in inMonth)
+                _MonthlyReportAppointmentTile(appointment),
           ],
         );
       },
@@ -138,23 +153,33 @@ class _MonthlyReportView extends StatelessWidget {
   }
 }
 
-class _MonthlyReportEntryTile extends StatelessWidget {
-  const _MonthlyReportEntryTile(this.entry);
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.status, required this.count});
 
-  final FinancialEntry entry;
+  final AppointmentStatus status;
+  final int count;
 
-  Future<void> _delete(BuildContext context) async {
-    final confirmed = await AppConfirmSheet.show(
-      context,
-      title: 'Excluir lançamento',
-      description:
-          'Tem certeza que deseja excluir este lançamento? Essa ação não pode ser desfeita.',
-      confirmLabel: 'Excluir',
-      isDestructive: true,
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: context.colors.border),
+      ),
+      child: Text(
+        '${status.label}: $count',
+        style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
+      ),
     );
-    if (!confirmed || !context.mounted) return;
-    await context.read<FinancialCubit>().deleteEntry(entry.id);
   }
+}
+
+class _MonthlyReportAppointmentTile extends StatelessWidget {
+  const _MonthlyReportAppointmentTile(this.appointment);
+
+  final Appointment appointment;
 
   @override
   Widget build(BuildContext context) {
@@ -172,40 +197,26 @@ class _MonthlyReportEntryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.patientName,
+                  appointment.patientName,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  AppDateField.format(entry.data),
+                  '${AppDateField.format(appointment.date)} às ${appointment.time.format(context)}',
                   style: TextStyle(
                     color: context.colors.textSecondary,
                     fontSize: 12,
-                  ),
-                ),
-                Text(
-                  entry.status.label,
-                  style: TextStyle(
-                    color: entry.status == StatusPagamento.pago
-                        ? context.colors.success
-                        : context.colors.primaryButton,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
           Text(
-            'R\$ ${entry.valor.toStringAsFixed(2)}',
+            appointment.status.label,
             style: TextStyle(
+              fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: context.colors.primary,
+              color: context.colors.primaryButton,
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.delete_outline, color: context.colors.error),
-            tooltip: 'Excluir lançamento',
-            onPressed: () => _delete(context),
           ),
         ],
       ),

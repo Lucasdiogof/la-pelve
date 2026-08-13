@@ -96,11 +96,17 @@ class PatientFormCubit extends Cubit<PatientFormState> {
 
   bool get isLastStep => state.stepIndex == stepCount - 1;
 
-  bool get canProceed {
-    if (currentStep != PatientFormStep.dadosPessoais) return true;
+  bool get _dadosPessoaisValid {
     final dados = state.patient.dadosPessoais;
     return dados.nome.trim().length > 2 &&
         dados.sexo != null &&
         isValidPhone(dados.telefone);
   }
+
+  bool get canProceed {
+    if (currentStep != PatientFormStep.dadosPessoais) return true;
+    return _dadosPessoaisValid;
+  }
+
+  bool get canSave => isEditing && _dadosPessoaisValid;
 }
