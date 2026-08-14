@@ -41,12 +41,9 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: BlocProvider(
-          create: (_) => sl<AuthCubit>(),
-          child: const LoginPage(),
-        ),
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<AuthCubit>(),
+        child: const LoginPage(),
       ),
     ),
     GoRoute(
@@ -62,17 +59,14 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/home',
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<PatientsCubit>()),
-            BlocProvider.value(value: sl<FinancialCubit>()),
-            BlocProvider.value(value: sl<AgendaCubit>()),
-            BlocProvider.value(value: sl<ProfileCubit>()),
-          ],
-          child: const HomeShellPage(),
-        ),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: sl<PatientsCubit>()),
+          BlocProvider.value(value: sl<FinancialCubit>()),
+          BlocProvider.value(value: sl<AgendaCubit>()),
+          BlocProvider.value(value: sl<ProfileCubit>()),
+        ],
+        child: const HomeShellPage(),
       ),
     ),
     GoRoute(
