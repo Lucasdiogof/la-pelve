@@ -63,7 +63,10 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 24),
                   QuickActionsSection(onNavigateToTab: widget.onNavigateToTab),
                   const SizedBox(height: 24),
-                  ClinicOverviewSection(overview: overview),
+                  ClinicOverviewSection(
+                    overview: overview,
+                    onNavigateToTab: widget.onNavigateToTab,
+                  ),
                 ],
               ),
             ),

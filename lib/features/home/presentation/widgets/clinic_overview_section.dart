@@ -7,9 +7,14 @@ import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_vie
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
 
 class ClinicOverviewSection extends StatelessWidget {
-  const ClinicOverviewSection({required this.overview, super.key});
+  const ClinicOverviewSection({
+    required this.overview,
+    required this.onNavigateToTab,
+    super.key,
+  });
 
   final ClinicOverview overview;
+  final ValueChanged<int> onNavigateToTab;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +48,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       iconColor: context.colors.logoTeal,
                       value: '${overview.activePatients}',
                       label: t.activePatientsLabel,
+                      onTap: () => onNavigateToTab(1),
                     ),
                   ),
                   VerticalDivider(
@@ -57,6 +63,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       iconColor: context.colors.primary,
                       value: '${overview.appointmentsThisWeek}',
                       label: t.appointmentsThisWeekLabel,
+                      onTap: () => onNavigateToTab(2),
                     ),
                   ),
                   VerticalDivider(
@@ -72,6 +79,7 @@ class ClinicOverviewSection extends StatelessWidget {
                       value:
                           'R\$ ${overview.receivedThisMonth.toStringAsFixed(0)}',
                       label: t.receivedThisMonthLabel,
+                      onTap: () => onNavigateToTab(3),
                     ),
                   ),
                 ],
@@ -90,46 +98,55 @@ class _OverviewStat extends StatelessWidget {
     required this.iconColor,
     required this.value,
     required this.label,
+    required this.onTap,
   });
 
   final IconData icon;
   final Color iconColor;
   final String value;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: iconColor, size: 16),
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                color: context.colors.textPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.colors.textSecondary,
+                fontSize: 11,
+                height: 1.2,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            color: context.colors.textPrimary,
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: context.colors.textSecondary,
-            fontSize: 11,
-            height: 1.2,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
