@@ -22,7 +22,7 @@ class AppChipSelect<T> extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      alignment: WrapAlignment.start,
+      alignment: WrapAlignment.center,
       children: options.map((option) {
         final isSelected = selected.contains(option);
         return FilterChip(
