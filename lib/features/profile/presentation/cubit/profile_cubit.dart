@@ -56,6 +56,23 @@ class ProfileCubit extends Cubit<ProfileState> {
     return result;
   }
 
+  Future<Result<void>> removePhoto() async {
+    emit(state.copyWith(savingPhoto: true));
+    final result = await _repository.removePhoto();
+    if (result case Success()) {
+      emit(
+        state.copyWith(
+          profile: state.profile?.copyWith(photoPath: null),
+          photoUrl: null,
+          savingPhoto: false,
+        ),
+      );
+    } else {
+      emit(state.copyWith(savingPhoto: false));
+    }
+    return result;
+  }
+
   void applyNome(String name) {
     final profile = state.profile;
     if (profile == null) return;

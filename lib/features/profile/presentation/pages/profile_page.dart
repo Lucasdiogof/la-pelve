@@ -51,6 +51,23 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  Future<void> _removePhoto(BuildContext context) async {
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
+    final confirmed = await AppConfirmSheet.show(
+      context,
+      title: t.removePhotoTitle,
+      description: t.removePhotoDescription,
+      confirmLabel: t.removePhotoTitle,
+      isDestructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+    final result = await context.read<ProfileCubit>().removePhoto();
+    if (!context.mounted) return;
+    if (result case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(context, description: failure.message);
+    }
+  }
+
   Future<void> _editNome(BuildContext context, String? currentNome) async {
     if (currentNome == null) return;
     final cubit = context.read<ProfileCubit>();
@@ -150,6 +167,9 @@ class ProfilePage extends StatelessWidget {
                               onViewPhoto: state.photoUrl == null
                                   ? null
                                   : () => _viewPhoto(context, state.photoUrl!),
+                              onRemove: state.photoUrl == null
+                                  ? null
+                                  : () => _removePhoto(context),
                             ),
                             const SizedBox(height: 32),
                             ProfileRow(

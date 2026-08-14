@@ -110,6 +110,40 @@ class ProfileRepositorySupabase implements ProfileRepository {
   }
 
   @override
+  Future<Result<void>> removePhoto() async {
+    try {
+      final userId = _client.auth.currentUser!.id;
+      final files = await _client.storage.from(_bucket).list(path: userId);
+      if (files.isNotEmpty) {
+        await _client.storage
+            .from(_bucket)
+            .remove(files.map((f) => '$userId/${f.name}').toList());
+      }
+      await _client
+          .from('profiles')
+          .update({'photo_path': null})
+          .eq('id', userId);
+      _cachedProfile = _cachedProfile?.copyWith(photoPath: null);
+      _cachedPhotoUrl = null;
+      _cachedPhotoUrlPath = null;
+      return const Success(null);
+    } on StorageException catch (e, st) {
+      debugPrint(
+        '[ProfileRepositorySupabase.removePhoto] storage statusCode=${e.statusCode} msg=${e.message}\n$st',
+      );
+      return Error(ServerFailure());
+    } on PostgrestException catch (e, st) {
+      debugPrint(
+        '[ProfileRepositorySupabase.removePhoto] code=${e.code} msg=${e.message}\n$st',
+      );
+      return Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint('[ProfileRepositorySupabase.removePhoto] $e\n$st');
+      return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
   Future<Result<String>> getPhotoUrl(String photoPath) async {
     if (_cachedPhotoUrlPath == photoPath && _cachedPhotoUrl != null) {
       return Success(_cachedPhotoUrl!);

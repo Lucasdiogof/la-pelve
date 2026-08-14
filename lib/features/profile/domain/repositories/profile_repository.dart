@@ -13,5 +13,7 @@ abstract class ProfileRepository {
     required String contentType,
   });
 
+  Future<Result<void>> removePhoto();
+
   Future<Result<String>> getPhotoUrl(String photoPath);
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 
 class Profile extends Equatable {
   const Profile({
@@ -26,13 +27,13 @@ class Profile extends Equatable {
     photoPath: json['photo_path'] as String?,
   );
 
-  Profile copyWith({String? name, String? photoPath}) => Profile(
+  Profile copyWith({String? name, Object? photoPath = kUnset}) => Profile(
     id: id,
     name: name ?? this.name,
     crefito: crefito,
     phone: phone,
     email: email,
-    photoPath: photoPath ?? this.photoPath,
+    photoPath: unsetOr(photoPath, this.photoPath),
   );
 
   @override

@@ -47,6 +47,18 @@ class ProfileStrings {
     AppLanguage.english => 'Profile photo',
   };
 
+  String get removePhotoTitle => switch (language) {
+    AppLanguage.portuguese => 'Remover foto',
+    AppLanguage.english => 'Remove photo',
+  };
+
+  String get removePhotoDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'Tem certeza que deseja remover sua foto de perfil?',
+    AppLanguage.english =>
+      'Are you sure you want to remove your profile photo?',
+  };
+
   String get nameRowLabel => switch (language) {
     AppLanguage.portuguese => 'Nome',
     AppLanguage.english => 'Name',
