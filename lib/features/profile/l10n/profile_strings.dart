@@ -67,6 +67,46 @@ class ProfileStrings {
     AppLanguage.english => 'Biometrics',
   };
 
+  String get changePasswordRowLabel => switch (language) {
+    AppLanguage.portuguese => 'Alterar senha',
+    AppLanguage.english => 'Change password',
+  };
+
+  String get changePasswordPageTitle => switch (language) {
+    AppLanguage.portuguese => 'Alterar senha',
+    AppLanguage.english => 'Change password',
+  };
+
+  String get changePasswordPageSubtitle => switch (language) {
+    AppLanguage.portuguese => 'Informe sua senha atual e a nova senha',
+    AppLanguage.english => 'Enter your current password and the new one',
+  };
+
+  String get currentPasswordHint => switch (language) {
+    AppLanguage.portuguese => 'Senha atual',
+    AppLanguage.english => 'Current password',
+  };
+
+  String get newPasswordHint => switch (language) {
+    AppLanguage.portuguese => 'Nova senha',
+    AppLanguage.english => 'New password',
+  };
+
+  String get confirmNewPasswordHint => switch (language) {
+    AppLanguage.portuguese => 'Confirmar nova senha',
+    AppLanguage.english => 'Confirm new password',
+  };
+
+  String get currentPasswordIncorrectError => switch (language) {
+    AppLanguage.portuguese => 'Senha atual incorreta.',
+    AppLanguage.english => 'Current password is incorrect.',
+  };
+
+  String get passwordChangedSuccessMessage => switch (language) {
+    AppLanguage.portuguese => 'Senha alterada com sucesso.',
+    AppLanguage.english => 'Password changed successfully.',
+  };
+
   String get themeRowLabel => switch (language) {
     AppLanguage.portuguese => 'Tema',
     AppLanguage.english => 'Theme',

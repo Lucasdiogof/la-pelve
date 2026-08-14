@@ -23,6 +23,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patien
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patient_form_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/biometric_settings_page.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/pages/change_password_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/edit_name_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/language_settings_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/profile_page.dart';
@@ -129,6 +130,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/perfil/biometria',
       builder: (context, state) => const BiometricSettingsPage(),
+    ),
+    GoRoute(
+      path: '/perfil/alterar-senha',
+      builder: (context, state) => const ChangePasswordPage(),
     ),
     GoRoute(
       path: '/financeiro/novo',

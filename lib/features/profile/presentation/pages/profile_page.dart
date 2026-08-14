@@ -192,6 +192,18 @@ class ProfilePage extends StatelessWidget {
                               ),
                             ],
                             const SizedBox(height: 8),
+                            ProfileRow(
+                              icon: Icons.password_outlined,
+                              label: t.changePasswordRowLabel,
+                              value: '••••••••',
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                color: context.colors.textSecondary,
+                              ),
+                              onTap: () =>
+                                  context.push('/perfil/alterar-senha'),
+                            ),
+                            const SizedBox(height: 8),
                             BlocBuilder<ThemeCubit, ThemeMode>(
                               builder: (context, mode) => ProfileRow(
                                 icon: Icons.palette_outlined,
