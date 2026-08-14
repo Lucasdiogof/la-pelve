@@ -87,6 +87,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     if (selected != null) {
       _formCubit.selectPatient(selected);
       _patientNameController.text = selected.personalInfo.name;
+      FocusManager.instance.primaryFocus?.unfocus();
     }
   }
 
@@ -201,6 +202,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                               onPressed: _selectPatient,
                             )
                           : null,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                       onChanged: (_) => _formCubit.onNomeChanged(),
                     ),
                     const SizedBox(height: 12),
@@ -216,6 +219,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                       hintText: t.amountPaidHint,
                       keyboardType: TextInputType.number,
                       inputFormatters: [CurrencyInputFormatter()],
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                       onChanged: (_) => _formCubit.notifyFieldChanged(),
                     ),
                     const SizedBox(height: 12),
@@ -224,6 +229,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                       icon: Icons.description_outlined,
                       hintText: t.notesHint,
                       maxLines: 3,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -252,6 +259,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                         controller: _formaPagamentoOutroController,
                         icon: Icons.edit_outlined,
                         hintText: t.whichPaymentMethodHint,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                         onChanged: (_) => _formCubit.notifyFieldChanged(),
                       ),
                     ],
@@ -285,6 +294,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                                 _statusOutroController.text.trim().length > 3
                             ? null
                             : t.statusMinCharsError,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => FocusScope.of(context).unfocus(),
                         onChanged: (_) => _formCubit.notifyFieldChanged(),
                       ),
                     ],

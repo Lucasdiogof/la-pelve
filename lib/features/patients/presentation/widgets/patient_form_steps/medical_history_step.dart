@@ -76,6 +76,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
           icon: Icons.chat_bubble_outline,
           hintText: t.chiefComplaintHint,
           maxLines: 3,
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
           onChanged: (value) =>
               _update((a) => a.copyWith(chiefComplaint: value)),
         ),
@@ -92,6 +94,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
             controller: _diagnosticoController,
             icon: Icons.description_outlined,
             hintText: t.medicalDiagnosisDetailHint,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
             onChanged: (value) =>
                 _update((a) => a.copyWith(medicalDiagnosis: value)),
           ),
@@ -112,6 +116,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
           icon: Icons.event_outlined,
           hintText: t.symptomsOnsetHint,
           maxLines: 3,
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
           onChanged: (value) =>
               _update((a) => a.copyWith(symptomsOnset: value)),
         ),
@@ -128,6 +134,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
             controller: _tratamentoController,
             icon: Icons.healing_outlined,
             hintText: t.previousTreatmentDetailHint,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
             onChanged: (value) =>
                 _update((a) => a.copyWith(treatmentDescription: value)),
           ),
@@ -145,6 +153,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
             controller: _doencasController,
             icon: Icons.local_hospital_outlined,
             hintText: t.chronicDiseasesDetailHint,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
             onChanged: (value) =>
                 _update((a) => a.copyWith(chronicDiseasesDescription: value)),
           ),
@@ -162,6 +172,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
             controller: _medicamentosController,
             icon: Icons.medication_outlined,
             hintText: t.continuousMedicationDetailHint,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
             onChanged: (value) =>
                 _update((a) => a.copyWith(medicationsDescription: value)),
           ),
@@ -202,6 +214,8 @@ class _MedicalHistoryStepState extends State<MedicalHistoryStep> {
           icon: Icons.image_outlined,
           hintText: t.imagingExamsHint,
           maxLines: 3,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => FocusScope.of(context).unfocus(),
           onChanged: (value) => _update((a) => a.copyWith(imagingExams: value)),
         ),
       ],

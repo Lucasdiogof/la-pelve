@@ -25,22 +25,25 @@ class AppDateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppTextField(
-      icon: Icons.calendar_today_outlined,
-      hintText: hintText,
-      readOnly: true,
-      controller: TextEditingController(
-        text: value == null ? '' : format(value!),
+    return ExcludeFocus(
+      child: AppTextField(
+        icon: Icons.calendar_today_outlined,
+        hintText: hintText,
+        readOnly: true,
+        enableInteractiveSelection: false,
+        controller: TextEditingController(
+          text: value == null ? '' : format(value!),
+        ),
+        onTap: () async {
+          final picked = await showDatePicker(
+            context: context,
+            initialDate: value ?? DateTime.now(),
+            firstDate: firstDate ?? DateTime(2000),
+            lastDate: lastDate ?? DateTime(2100),
+          );
+          if (picked != null) onChanged(picked);
+        },
       ),
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? DateTime.now(),
-          firstDate: firstDate ?? DateTime(2000),
-          lastDate: lastDate ?? DateTime(2100),
-        );
-        if (picked != null) onChanged(picked);
-      },
     );
   }
 }

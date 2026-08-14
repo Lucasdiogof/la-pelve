@@ -18,6 +18,10 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.inputFormatters,
     this.iconColor,
+    this.focusNode,
+    this.textInputAction,
+    this.onSubmitted,
+    this.enableInteractiveSelection = true,
   });
 
   final IconData icon;
@@ -33,6 +37,10 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final List<TextInputFormatter>? inputFormatters;
   final Color? iconColor;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
+  final bool enableInteractiveSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +48,16 @@ class AppTextField extends StatelessWidget {
       children: [
         TextField(
           controller: controller,
+          focusNode: focusNode,
           obscureText: obscureText,
           keyboardType: keyboardType,
           readOnly: readOnly,
+          enableInteractiveSelection: enableInteractiveSelection,
           onTap: onTap,
           maxLines: obscureText ? 1 : maxLines,
           onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          textInputAction: textInputAction,
           inputFormatters: inputFormatters,
           style: TextStyle(color: context.colors.textPrimary),
           decoration: InputDecoration(

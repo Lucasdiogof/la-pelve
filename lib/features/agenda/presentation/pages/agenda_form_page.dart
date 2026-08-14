@@ -71,6 +71,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
     if (selected != null) {
       _formCubit.selectPatient(selected.id);
       _nomeController.text = selected.personalInfo.name;
+      FocusManager.instance.primaryFocus?.unfocus();
     }
   }
 
@@ -198,6 +199,8 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                               onPressed: _selectPatient,
                             )
                           : null,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => FocusScope.of(context).unfocus(),
                       onChanged: (_) => _formCubit.onNomeChanged(),
                     ),
                   ],

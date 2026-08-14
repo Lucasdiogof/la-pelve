@@ -38,12 +38,15 @@ class _AppSelectFieldState extends State<AppSelectField> {
 
   @override
   Widget build(BuildContext context) {
-    return AppTextField(
-      icon: widget.icon,
-      hintText: widget.hintText,
-      readOnly: true,
-      controller: _controller,
-      onTap: widget.onTap,
+    return ExcludeFocus(
+      child: AppTextField(
+        icon: widget.icon,
+        hintText: widget.hintText,
+        readOnly: true,
+        enableInteractiveSelection: false,
+        controller: _controller,
+        onTap: widget.onTap,
+      ),
     );
   }
 }
