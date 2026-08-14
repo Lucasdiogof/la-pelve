@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
@@ -29,6 +30,11 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
+  redirect: (context, state) {
+    final hasSession = Supabase.instance.client.auth.currentSession != null;
+    if (hasSession && state.matchedLocation == '/') return '/home';
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/',

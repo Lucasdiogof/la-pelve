@@ -43,7 +43,6 @@ Future<void> _bootstrap() async {
   Supabase.instance.client.auth.onAuthStateChange.listen((data) {
     switch (data.event) {
       case AuthChangeEvent.signedIn:
-      case AuthChangeEvent.initialSession:
         if (data.session != null) {
           rootNavigatorKey.currentContext?.go('/home');
         }
