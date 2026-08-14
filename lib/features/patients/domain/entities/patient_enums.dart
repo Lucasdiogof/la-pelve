@@ -74,6 +74,7 @@ enum GynecologicalSurgery {
   tubalLigation,
   perineoplasty,
   sling,
+  prostatectomy,
   other,
   none,
 }
@@ -93,6 +94,10 @@ extension GynecologicalSurgeryLabel on GynecologicalSurgery {
       'Perineoplasty',
     (GynecologicalSurgery.sling, AppLanguage.portuguese) => 'Sling',
     (GynecologicalSurgery.sling, AppLanguage.english) => 'Sling',
+    (GynecologicalSurgery.prostatectomy, AppLanguage.portuguese) =>
+      'Prostatectomia',
+    (GynecologicalSurgery.prostatectomy, AppLanguage.english) =>
+      'Prostatectomy',
     (GynecologicalSurgery.other, AppLanguage.portuguese) => 'Outro',
     (GynecologicalSurgery.other, AppLanguage.english) => 'Other',
     (GynecologicalSurgery.none, AppLanguage.portuguese) => 'Nenhum',

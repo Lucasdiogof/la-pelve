@@ -46,16 +46,17 @@ class _SurgicalHistoryStepState extends State<SurgicalHistoryStep> {
     GynecologicalSurgery.perineoplasty,
   };
 
+  static const _somenteMasculino = {GynecologicalSurgery.prostatectomy};
+
   @override
   Widget build(BuildContext context) {
     final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     final historico = widget.patient.surgicalHistory;
     final isFeminino = widget.patient.personalInfo.gender == Gender.female;
-    final opcoes = isFeminino
-        ? GynecologicalSurgery.values
-        : GynecologicalSurgery.values
-              .where((c) => !_somenteFeminino.contains(c))
-              .toList();
+    final excluidas = isFeminino ? _somenteMasculino : _somenteFeminino;
+    final opcoes = GynecologicalSurgery.values
+        .where((c) => !excluidas.contains(c))
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
