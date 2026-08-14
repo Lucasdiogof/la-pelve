@@ -17,6 +17,7 @@ import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart'
 import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
+import 'package:fisioterapia_pelvica/shared/widgets/app_confirm_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
@@ -25,19 +26,35 @@ import 'package:fisioterapia_pelvica/shared/widgets/patient_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
 
 class FinancialFormPage extends StatefulWidget {
-  const FinancialFormPage({super.key});
+  const FinancialFormPage({this.existingEntry, super.key});
+
+  final FinancialEntry? existingEntry;
 
   @override
   State<FinancialFormPage> createState() => _FinancialFormPageState();
 }
 
 class _FinancialFormPageState extends State<FinancialFormPage> {
-  final _patientNameController = TextEditingController();
-  final _valorController = TextEditingController();
-  final _observacoesController = TextEditingController();
-  final _formaPagamentoOutroController = TextEditingController();
-  final _statusOutroController = TextEditingController();
-  final _formCubit = PaymentFormCubit();
+  late final _patientNameController = TextEditingController(
+    text: widget.existingEntry?.patientName ?? '',
+  );
+  late final _valorController = TextEditingController(
+    text: widget.existingEntry == null
+        ? ''
+        : CurrencyInputFormatter.format(widget.existingEntry!.amount),
+  );
+  late final _observacoesController = TextEditingController(
+    text: widget.existingEntry?.notes ?? '',
+  );
+  late final _formaPagamentoOutroController = TextEditingController(
+    text: widget.existingEntry?.otherPaymentMethodDescription ?? '',
+  );
+  late final _statusOutroController = TextEditingController(
+    text: widget.existingEntry?.otherStatusDescription ?? '',
+  );
+  late final _formCubit = PaymentFormCubit(existing: widget.existingEntry);
+
+  bool get _isEditing => widget.existingEntry != null;
 
   @override
   void dispose() {
@@ -73,29 +90,60 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     }
   }
 
+  Future<void> _delete() async {
+    final existing = widget.existingEntry;
+    if (existing == null) return;
+    final t = FinancialStrings(context.read<LocaleCubit>().state);
+    final confirmed = await AppConfirmSheet.show(
+      context,
+      title: t.deletePaymentTitle,
+      description: t.deletePaymentDescription,
+      confirmLabel: t.deleteLabel,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+    showAppLoading();
+    final result = await context.read<FinancialCubit>().deleteEntry(
+      existing.id,
+    );
+    hideAppLoading();
+    if (!mounted) return;
+    switch (result) {
+      case Success():
+        context.pop();
+      case Error(:final failure):
+        await AppInfoBottomSheet.showError(
+          context,
+          description: failure.message,
+        );
+    }
+  }
+
   Future<void> _save() async {
     final state = _formCubit.state;
+    final existing = widget.existingEntry;
     _formCubit.setSaving(true);
     showAppLoading();
-    final result = await context.read<FinancialCubit>().addEntry(
-      FinancialEntry(
-        id: generateId(),
-        patientId: state.patient?.id,
-        patientName: _patientNameController.text.trim(),
-        date: state.date!,
-        amount: CurrencyInputFormatter.parse(_valorController.text),
-        notes: _observacoesController.text.trim(),
-        paymentMethod: state.paymentMethod,
-        otherPaymentMethodDescription:
-            state.paymentMethod == PaymentMethod.other
-            ? _formaPagamentoOutroController.text.trim()
-            : null,
-        status: state.status,
-        otherStatusDescription: state.status == PaymentStatus.other
-            ? _statusOutroController.text.trim()
-            : null,
-      ),
+    final entry = FinancialEntry(
+      id: existing?.id ?? generateId(),
+      patientId: state.patientId,
+      patientName: _patientNameController.text.trim(),
+      date: state.date!,
+      amount: CurrencyInputFormatter.parse(_valorController.text),
+      notes: _observacoesController.text.trim(),
+      paymentMethod: state.paymentMethod,
+      otherPaymentMethodDescription: state.paymentMethod == PaymentMethod.other
+          ? _formaPagamentoOutroController.text.trim()
+          : null,
+      status: state.status,
+      otherStatusDescription: state.status == PaymentStatus.other
+          ? _statusOutroController.text.trim()
+          : null,
     );
+    final cubit = context.read<FinancialCubit>();
+    final result = existing == null
+        ? await cubit.addEntry(entry)
+        : await cubit.updateEntry(entry);
     hideAppLoading();
     if (!mounted) return;
     final t = FinancialStrings(context.read<LocaleCubit>().state);
@@ -104,7 +152,9 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
         context.pop();
         await AppInfoBottomSheet.showSuccess(
           context,
-          description: t.paymentRegisteredSuccess,
+          description: existing == null
+              ? t.paymentRegisteredSuccess
+              : t.paymentUpdatedSuccess,
         );
       case Error(:final failure):
         _formCubit.setSaving(false);
@@ -127,8 +177,10 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
           body: Column(
             children: [
               ModernAppBar(
-                title: t.formPageTitle,
-                subtitle: t.formPageSubtitle,
+                title: _isEditing ? t.editFormPageTitle : t.formPageTitle,
+                subtitle: _isEditing
+                    ? t.editFormPageSubtitle
+                    : t.formPageSubtitle,
                 showBackButton: true,
               ),
               Expanded(
@@ -240,10 +292,27 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                 ),
               ),
               AppBottomActionBar(
-                child: PrimaryButton(
-                  label: t.registerPaymentButton,
-                  isLoading: formState.saving,
-                  onPressed: _canSave(formState) ? _save : null,
+                child: Column(
+                  children: [
+                    if (_isEditing) ...[
+                      OutlinedButton(
+                        onPressed: _delete,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: context.colors.error,
+                          side: BorderSide(color: context.colors.error),
+                          minimumSize: const Size.fromHeight(56),
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Text(t.deleteLabel),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    PrimaryButton(
+                      label: t.registerPaymentButton,
+                      isLoading: formState.saving,
+                      onPressed: _canSave(formState) ? _save : null,
+                    ),
+                  ],
                 ),
               ),
             ],

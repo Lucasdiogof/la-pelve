@@ -1,11 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 
 class PaymentFormState extends Equatable {
   const PaymentFormState({
-    this.patient,
+    this.patientId,
     this.date,
     this.paymentMethod,
     this.status = PaymentStatus.paid,
@@ -13,7 +12,7 @@ class PaymentFormState extends Equatable {
     this.revision = 0,
   });
 
-  final Patient? patient;
+  final String? patientId;
   final DateTime? date;
   final PaymentMethod? paymentMethod;
   final PaymentStatus status;
@@ -21,7 +20,7 @@ class PaymentFormState extends Equatable {
   final int revision;
 
   PaymentFormState copyWith({
-    Object? patient = kUnset,
+    Object? patientId = kUnset,
     DateTime? date,
     Object? paymentMethod = kUnset,
     PaymentStatus? status,
@@ -29,7 +28,7 @@ class PaymentFormState extends Equatable {
     int? revision,
   }) {
     return PaymentFormState(
-      patient: unsetOr(patient, this.patient),
+      patientId: unsetOr(patientId, this.patientId),
       date: date ?? this.date,
       paymentMethod: unsetOr(paymentMethod, this.paymentMethod),
       status: status ?? this.status,
@@ -40,7 +39,7 @@ class PaymentFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-    patient,
+    patientId,
     date,
     paymentMethod,
     status,

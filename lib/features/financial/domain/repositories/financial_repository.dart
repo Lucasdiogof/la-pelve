@@ -6,5 +6,7 @@ abstract class FinancialRepository {
 
   Future<Result<void>> add(FinancialEntry entry);
 
+  Future<Result<void>> update(FinancialEntry entry);
+
   Future<Result<void>> delete(String id);
 }

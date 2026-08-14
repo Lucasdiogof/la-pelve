@@ -1,16 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/payment_form_state.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 
 class PaymentFormCubit extends Cubit<PaymentFormState> {
-  PaymentFormCubit() : super(const PaymentFormState());
+  PaymentFormCubit({FinancialEntry? existing})
+    : super(
+        PaymentFormState(
+          patientId: existing?.patientId,
+          date: existing?.date,
+          paymentMethod: existing?.paymentMethod,
+          status: existing?.status ?? PaymentStatus.paid,
+        ),
+      );
 
   void selectPatient(Patient patient) =>
-      emit(state.copyWith(patient: patient, revision: state.revision + 1));
+      emit(state.copyWith(patientId: patient.id, revision: state.revision + 1));
 
   void onNomeChanged() =>
-      emit(state.copyWith(patient: null, revision: state.revision + 1));
+      emit(state.copyWith(patientId: null, revision: state.revision + 1));
 
   void setData(DateTime date) => emit(state.copyWith(date: date));
 

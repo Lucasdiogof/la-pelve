@@ -57,11 +57,6 @@ class FinancialStrings {
     AppLanguage.english => 'Delete',
   };
 
-  String get deletePaymentTooltip => switch (language) {
-    AppLanguage.portuguese => 'Excluir lançamento',
-    AppLanguage.english => 'Delete payment',
-  };
-
   String get formPageTitle => switch (language) {
     AppLanguage.portuguese => 'Registrar cobrança',
     AppLanguage.english => 'Add payment',
@@ -70,6 +65,16 @@ class FinancialStrings {
   String get formPageSubtitle => switch (language) {
     AppLanguage.portuguese => 'Novo lançamento financeiro',
     AppLanguage.english => 'New payment entry',
+  };
+
+  String get editFormPageTitle => switch (language) {
+    AppLanguage.portuguese => 'Editar lançamento',
+    AppLanguage.english => 'Edit payment',
+  };
+
+  String get editFormPageSubtitle => switch (language) {
+    AppLanguage.portuguese => 'Atualize os dados do lançamento',
+    AppLanguage.english => 'Update the payment entry',
   };
 
   String get patientNameHint => switch (language) {
@@ -130,6 +135,11 @@ class FinancialStrings {
   String get paymentRegisteredSuccess => switch (language) {
     AppLanguage.portuguese => 'Lançamento registrado com sucesso.',
     AppLanguage.english => 'Payment registered successfully.',
+  };
+
+  String get paymentUpdatedSuccess => switch (language) {
+    AppLanguage.portuguese => 'Lançamento atualizado com sucesso.',
+    AppLanguage.english => 'Payment updated successfully.',
   };
 
   String get periodLabel => switch (language) {
