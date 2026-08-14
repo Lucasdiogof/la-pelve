@@ -107,6 +107,7 @@ flutter:
     - lib/assets/splash_icon.png
     - lib/assets/background.png
     - lib/assets/dark_background.png
+    - lib/assets/escala_bristol.png
     - lib/assets/google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

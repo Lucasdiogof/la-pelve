@@ -6,6 +6,7 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
 import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/pages/image_viewer_page.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
 import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
@@ -43,6 +44,17 @@ class _BowelFunctionStepState extends State<BowelFunctionStep> {
     widget.onChanged(
       widget.patient.copyWith(
         bowelFunction: update(widget.patient.bowelFunction),
+      ),
+    );
+  }
+
+  void _showBristolScale(PatientsWizardStringsB t) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ImageViewerPage(
+          assetPath: 'lib/assets/escala_bristol.png',
+          title: t.bristolScaleImageTitle,
+        ),
       ),
     );
   }
@@ -163,14 +175,34 @@ class _BowelFunctionStepState extends State<BowelFunctionStep> {
               _update((f) => f.copyWith(fecalIncontinence: value)),
         ),
         const SizedBox(height: 20),
-        Text(
-          t.bristolScaleSectionHeader,
-          style: TextStyle(
-            color: context.colors.textSecondary,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
+        Row(
+          children: [
+            Text(
+              t.bristolScaleSectionHeader,
+              style: TextStyle(
+                color: context.colors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Tooltip(
+              message: t.bristolScaleInfoTooltip,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => _showBristolScale(t),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: context.colors.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         AppChipSelect<BristolScale>(

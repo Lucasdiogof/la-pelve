@@ -190,6 +190,16 @@ class PatientsWizardStringsB {
     AppLanguage.english => 'BRISTOL STOOL SCALE',
   };
 
+  String get bristolScaleInfoTooltip => switch (language) {
+    AppLanguage.portuguese => 'Ver escala de Bristol',
+    AppLanguage.english => 'View Bristol stool scale',
+  };
+
+  String get bristolScaleImageTitle => switch (language) {
+    AppLanguage.portuguese => 'Escala de Bristol',
+    AppLanguage.english => 'Bristol Stool Scale',
+  };
+
   String get physiotherapyDiagnosisHint => switch (language) {
     AppLanguage.portuguese => 'Diagnóstico fisioterapêutico',
     AppLanguage.english => 'Physiotherapy diagnosis',
