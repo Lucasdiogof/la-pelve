@@ -5,6 +5,7 @@ import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/current_user.dart';
 import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -16,6 +17,7 @@ class HomeHeader extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final name = currentUserName();
     final firstName = name?.split(' ').first ?? t.defaultUserName;
+    final photoUrl = context.watch<ProfileCubit>().state.photoUrl;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
       child: Row(
@@ -56,14 +58,17 @@ class HomeHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 24,
               backgroundColor: context.colors.primary,
-              child: Text(
-                firstName[0].toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                ),
-              ),
+              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+              child: photoUrl != null
+                  ? null
+                  : Text(
+                      firstName[0].toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
             ),
           ),
         ],

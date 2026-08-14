@@ -7,6 +7,7 @@ class ProfileAvatarSection extends StatelessWidget {
     required this.initial,
     required this.isSaving,
     required this.onTap,
+    this.onViewPhoto,
     super.key,
   });
 
@@ -14,26 +15,32 @@ class ProfileAvatarSection extends StatelessWidget {
   final String initial;
   final bool isSaving;
   final VoidCallback onTap;
+  final VoidCallback? onViewPhoto;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Stack(
         children: [
-          CircleAvatar(
-            radius: 48,
-            backgroundColor: context.colors.primary.withValues(alpha: 0.15),
-            backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
-            child: photoUrl == null
-                ? Text(
-                    initial,
-                    style: TextStyle(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 32,
-                    ),
-                  )
-                : null,
+          GestureDetector(
+            onTap: onViewPhoto,
+            child: CircleAvatar(
+              radius: 48,
+              backgroundColor: context.colors.primary.withValues(alpha: 0.15),
+              backgroundImage: photoUrl != null
+                  ? NetworkImage(photoUrl!)
+                  : null,
+              child: photoUrl == null
+                  ? Text(
+                      initial,
+                      style: TextStyle(
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 32,
+                      ),
+                    )
+                  : null,
+            ),
           ),
           Positioned(
             right: 0,

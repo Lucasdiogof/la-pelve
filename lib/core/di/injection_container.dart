@@ -18,6 +18,7 @@ import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patie
 import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/data/profile_repository_supabase.dart';
 import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -49,4 +50,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<PatientsCubit>(() => PatientsCubit(sl()));
   sl.registerLazySingleton<FinancialCubit>(() => FinancialCubit(sl()));
   sl.registerLazySingleton<AgendaCubit>(() => AgendaCubit(sl()));
+  sl.registerLazySingleton<ProfileCubit>(() => ProfileCubit(sl()));
 }

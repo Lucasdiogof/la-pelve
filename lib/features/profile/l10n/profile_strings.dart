@@ -42,6 +42,11 @@ class ProfileStrings {
     AppLanguage.english => 'Manage your profile',
   };
 
+  String get profilePhotoTitle => switch (language) {
+    AppLanguage.portuguese => 'Foto de perfil',
+    AppLanguage.english => 'Profile photo',
+  };
+
   String get nameRowLabel => switch (language) {
     AppLanguage.portuguese => 'Nome',
     AppLanguage.english => 'Name',

@@ -21,6 +21,7 @@ import 'package:fisioterapia_pelvica/features/patients/presentation/pages/evolut
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/evolution_list_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patient_detail_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patient_form_page.dart';
+import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/biometric_settings_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/edit_name_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/pages/language_settings_page.dart';
@@ -67,6 +68,7 @@ final GoRouter appRouter = GoRouter(
             BlocProvider.value(value: sl<PatientsCubit>()),
             BlocProvider.value(value: sl<FinancialCubit>()),
             BlocProvider.value(value: sl<AgendaCubit>()),
+            BlocProvider.value(value: sl<ProfileCubit>()),
           ],
           child: const HomeShellPage(),
         ),

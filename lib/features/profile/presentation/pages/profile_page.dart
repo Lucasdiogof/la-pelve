@@ -11,7 +11,7 @@ import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_mode_label.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fisioterapia_pelvica/features/patients/presentation/pages/image_viewer_page.dart';
 import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_state.dart';
@@ -26,6 +26,16 @@ import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  void _viewPhoto(BuildContext context, String photoUrl) {
+    final t = ProfileStrings(context.read<LocaleCubit>().state);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            ImageViewerPage(url: photoUrl, title: t.profilePhotoTitle),
+      ),
+    );
+  }
 
   Future<void> _pickPhoto(BuildContext context) async {
     final cubit = context.read<ProfileCubit>();
@@ -107,8 +117,8 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.strings.profile;
-    return BlocProvider(
-      create: (_) => ProfileCubit(sl<ProfileRepository>()),
+    return BlocProvider.value(
+      value: sl<ProfileCubit>(),
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           return Scaffold(
@@ -137,6 +147,9 @@ class ProfilePage extends StatelessWidget {
                                   : '?',
                               isSaving: state.savingPhoto,
                               onTap: () => _pickPhoto(context),
+                              onViewPhoto: state.photoUrl == null
+                                  ? null
+                                  : () => _viewPhoto(context, state.photoUrl!),
                             ),
                             const SizedBox(height: 32),
                             ProfileRow(
