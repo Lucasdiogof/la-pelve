@@ -43,7 +43,6 @@ class _SurgicalHistoryStepState extends State<SurgicalHistoryStep> {
   static const _somenteFeminino = {
     GynecologicalSurgery.hysterectomy,
     GynecologicalSurgery.tubalLigation,
-    GynecologicalSurgery.perineoplasty,
   };
 
   static const _somenteMasculino = {GynecologicalSurgery.prostatectomy};
