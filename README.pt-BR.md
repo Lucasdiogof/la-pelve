@@ -43,7 +43,7 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 - Lançamentos de pagamento vinculados a um paciente (ou avulsos), com forma de pagamento e status
 - Relatório mensal com total acumulado e detalhamento por lançamento
 - Formatação de valor em tempo real (BRL)
-- Exclusão de lançamento
+- Edição ou exclusão de lançamento
 
 **Painel inicial**
 - Card de "próximos 7 dias" que se atualiza sozinho, recalculando o status do agendamento em relação ao horário atual, para que um atendimento passado nunca fique parado como "próximo"
@@ -51,7 +51,8 @@ O app substitui planilhas e prontuários em papel para uma clínica de fisiotera
 
 **Conta e perfil**
 - Autenticação por e-mail/senha, com cadastro, redefinição de senha e confirmação de e-mail
-- Nome, foto de perfil e número do Crefito editáveis
+- Nome, foto de perfil (visualizar em tela cheia, enviar ou remover) e número do Crefito editáveis
+- Alteração de senha dentro do app, com verificação da senha atual antes de trocar
 - Alternância de idioma (inglês/português), aplicada em todo o app
 - Alternância entre tema claro/escuro
 - Bloqueio biométrico do app no mobile (ocultado automaticamente na web, onde a plataforma não suporta)

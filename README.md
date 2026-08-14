@@ -43,7 +43,7 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 - Payment entries linked to a patient (or ad-hoc), with payment method and status
 - Monthly report with running total and per-entry breakdown
 - Real-time currency input formatting (BRL)
-- Delete an entry
+- Edit or delete an entry
 
 **Home dashboard**
 - Live-updating "next 7 days" schedule card that recomputes appointment status against the current time, so a past appointment never lingers as "upcoming"
@@ -51,7 +51,8 @@ The app replaces spreadsheets and paper charts for a solo or small-team physioth
 
 **Account & profile**
 - Email/password auth with signup, password reset and email confirmation
-- Editable name, profile photo, Crefito (professional license) number
+- Editable name, profile photo (view full-screen, upload, or remove), Crefito (professional license) number
+- Change password from within the app, re-verifying the current one first
 - Language toggle (English/Portuguese), applied across the whole app
 - Light/dark theme toggle
 - Biometric app lock on mobile (gracefully hidden on web, where the platform doesn't support it)
