@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
+import 'package:fisioterapia_pelvica/core/router/app_page.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/utils/app_loading.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
@@ -84,8 +85,8 @@ class _PatientAttachmentsView extends StatelessWidget {
       case Success(:final data):
         if (attachment.isImage) {
           await Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => ImageViewerPage(
+            appRoute<void>(
+              ImageViewerPage(
                 url: data,
                 title: attachment.category.label(t.language),
               ),

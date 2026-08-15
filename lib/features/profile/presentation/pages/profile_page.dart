@@ -6,6 +6,7 @@ import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
+import 'package:fisioterapia_pelvica/core/router/app_page.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_mode_label.dart';
@@ -30,9 +31,8 @@ class ProfilePage extends StatelessWidget {
   void _viewPhoto(BuildContext context, String photoUrl) {
     final t = ProfileStrings(context.read<LocaleCubit>().state);
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) =>
-            ImageViewerPage(url: photoUrl, title: t.profilePhotoTitle),
+      appRoute<void>(
+        ImageViewerPage(url: photoUrl, title: t.profilePhotoTitle),
       ),
     );
   }

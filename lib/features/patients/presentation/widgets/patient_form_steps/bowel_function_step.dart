@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
+import 'package:fisioterapia_pelvica/core/router/app_page.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
@@ -50,8 +51,8 @@ class _BowelFunctionStepState extends State<BowelFunctionStep> {
 
   void _showBristolScale(PatientsWizardStringsB t) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ImageViewerPage(
+      appRoute<void>(
+        ImageViewerPage(
           assetPath: 'lib/assets/escala_bristol.png',
           title: t.bristolScaleImageTitle,
         ),

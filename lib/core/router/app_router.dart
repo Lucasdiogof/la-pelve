@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/core/router/app_page.dart';
 import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:fisioterapia_pelvica/features/agenda/presentation/pages/agenda_form_page.dart';
@@ -41,132 +42,176 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => BlocProvider(
-        create: (_) => sl<AuthCubit>(),
-        child: const LoginPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        BlocProvider(create: (_) => sl<AuthCubit>(), child: const LoginPage()),
       ),
     ),
     GoRoute(
       path: '/cadastro',
-      builder: (context, state) => BlocProvider(
-        create: (_) => sl<AuthCubit>(),
-        child: const RegisterPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        BlocProvider(
+          create: (_) => sl<AuthCubit>(),
+          child: const RegisterPage(),
+        ),
       ),
     ),
     GoRoute(
       path: '/redefinir-senha',
-      builder: (context, state) => const ResetPasswordPage(),
+      pageBuilder: (context, state) =>
+          appPage(state, const ResetPasswordPage()),
     ),
     GoRoute(
       path: '/home',
-      builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: sl<PatientsCubit>()),
-          BlocProvider.value(value: sl<FinancialCubit>()),
-          BlocProvider.value(value: sl<AgendaCubit>()),
-          BlocProvider.value(value: sl<ProfileCubit>()),
-        ],
-        child: const HomeShellPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: sl<PatientsCubit>()),
+            BlocProvider.value(value: sl<FinancialCubit>()),
+            BlocProvider.value(value: sl<AgendaCubit>()),
+            BlocProvider.value(value: sl<ProfileCubit>()),
+          ],
+          child: const HomeShellPage(),
+        ),
       ),
     ),
     GoRoute(
       path: '/pacientes/novo',
-      builder: (context, state) => BlocProvider.value(
-        value: sl<PatientsCubit>(),
-        child: const PatientFormPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        BlocProvider.value(
+          value: sl<PatientsCubit>(),
+          child: const PatientFormPage(),
+        ),
       ),
     ),
     GoRoute(
       path: '/pacientes/:id',
-      builder: (context, state) => BlocProvider.value(
-        value: sl<PatientsCubit>(),
-        child: PatientDetailPage(patient: state.extra! as Patient),
+      pageBuilder: (context, state) => appPage(
+        state,
+        BlocProvider.value(
+          value: sl<PatientsCubit>(),
+          child: PatientDetailPage(patient: state.extra! as Patient),
+        ),
       ),
     ),
     GoRoute(
       path: '/pacientes/:id/editar',
-      builder: (context, state) => BlocProvider.value(
-        value: sl<PatientsCubit>(),
-        child: PatientFormPage(patient: state.extra! as Patient),
+      pageBuilder: (context, state) => appPage(
+        state,
+        BlocProvider.value(
+          value: sl<PatientsCubit>(),
+          child: PatientFormPage(patient: state.extra! as Patient),
+        ),
       ),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao',
-      builder: (context, state) =>
-          EvolutionListPage(patient: state.extra! as Patient),
+      pageBuilder: (context, state) =>
+          appPage(state, EvolutionListPage(patient: state.extra! as Patient)),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao/novo',
-      builder: (context, state) =>
-          EvolutionFormPage(patientId: state.pathParameters['id']!),
+      pageBuilder: (context, state) => appPage(
+        state,
+        EvolutionFormPage(patientId: state.pathParameters['id']!),
+      ),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao/:entryId/editar',
-      builder: (context, state) => EvolutionFormPage(
-        patientId: state.pathParameters['id']!,
-        existingEntry: state.extra! as EvolutionEntry,
+      pageBuilder: (context, state) => appPage(
+        state,
+        EvolutionFormPage(
+          patientId: state.pathParameters['id']!,
+          existingEntry: state.extra! as EvolutionEntry,
+        ),
       ),
     ),
-    GoRoute(path: '/perfil', builder: (context, state) => const ProfilePage()),
+    GoRoute(
+      path: '/perfil',
+      pageBuilder: (context, state) => appPage(state, const ProfilePage()),
+    ),
     GoRoute(
       path: '/perfil/editar-nome',
-      builder: (context, state) =>
-          EditNamePage(initialNome: state.extra! as String),
+      pageBuilder: (context, state) =>
+          appPage(state, EditNamePage(initialNome: state.extra! as String)),
     ),
     GoRoute(
       path: '/perfil/tema',
-      builder: (context, state) => const ThemeSettingsPage(),
+      pageBuilder: (context, state) =>
+          appPage(state, const ThemeSettingsPage()),
     ),
     GoRoute(
       path: '/perfil/idioma',
-      builder: (context, state) => const LanguageSettingsPage(),
+      pageBuilder: (context, state) =>
+          appPage(state, const LanguageSettingsPage()),
     ),
     GoRoute(
       path: '/perfil/biometria',
-      builder: (context, state) => const BiometricSettingsPage(),
+      pageBuilder: (context, state) =>
+          appPage(state, const BiometricSettingsPage()),
     ),
     GoRoute(
       path: '/perfil/alterar-senha',
-      builder: (context, state) => const ChangePasswordPage(),
+      pageBuilder: (context, state) =>
+          appPage(state, const ChangePasswordPage()),
     ),
     GoRoute(
       path: '/financeiro/novo',
-      builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: sl<FinancialCubit>()),
-          BlocProvider.value(value: sl<PatientsCubit>()),
-        ],
-        child: const FinancialFormPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: sl<FinancialCubit>()),
+            BlocProvider.value(value: sl<PatientsCubit>()),
+          ],
+          child: const FinancialFormPage(),
+        ),
       ),
     ),
     GoRoute(
       path: '/financeiro/:id/editar',
-      builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: sl<FinancialCubit>()),
-          BlocProvider.value(value: sl<PatientsCubit>()),
-        ],
-        child: FinancialFormPage(existingEntry: state.extra! as FinancialEntry),
+      pageBuilder: (context, state) => appPage(
+        state,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: sl<FinancialCubit>()),
+            BlocProvider.value(value: sl<PatientsCubit>()),
+          ],
+          child: FinancialFormPage(
+            existingEntry: state.extra! as FinancialEntry,
+          ),
+        ),
       ),
     ),
     GoRoute(
       path: '/agenda/novo',
-      builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: sl<AgendaCubit>()),
-          BlocProvider.value(value: sl<PatientsCubit>()),
-        ],
-        child: const AgendaFormPage(),
+      pageBuilder: (context, state) => appPage(
+        state,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: sl<AgendaCubit>()),
+            BlocProvider.value(value: sl<PatientsCubit>()),
+          ],
+          child: const AgendaFormPage(),
+        ),
       ),
     ),
     GoRoute(
       path: '/agenda/:id/editar',
-      builder: (context, state) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: sl<AgendaCubit>()),
-          BlocProvider.value(value: sl<PatientsCubit>()),
-        ],
-        child: AgendaFormPage(existingAppointment: state.extra! as Appointment),
+      pageBuilder: (context, state) => appPage(
+        state,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: sl<AgendaCubit>()),
+            BlocProvider.value(value: sl<PatientsCubit>()),
+          ],
+          child: AgendaFormPage(
+            existingAppointment: state.extra! as Appointment,
+          ),
+        ),
       ),
     ),
   ],
