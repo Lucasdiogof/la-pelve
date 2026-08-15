@@ -6,6 +6,8 @@ import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
 
+enum ProfilePhotoAction { camera, gallery, remove }
+
 String _mimeFromName(String name) {
   final ext = name.split('.').last.toLowerCase();
   return switch (ext) {
@@ -16,15 +18,24 @@ String _mimeFromName(String name) {
   };
 }
 
-Future<PickedAttachmentFile?> pickProfilePhoto(BuildContext context) async {
-  final source = await showModalBottomSheet<ImageSource>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (_) => const _ProfilePhotoSourceSheet(),
-  );
-  if (source == null || !context.mounted) return null;
+Future<ProfilePhotoAction?> showProfilePhotoActionSheet(
+  BuildContext context, {
+  required bool canRemove,
+}) => showModalBottomSheet<ProfilePhotoAction>(
+  context: context,
+  backgroundColor: Colors.transparent,
+  builder: (_) => _ProfilePhotoSourceSheet(canRemove: canRemove),
+);
 
-  final photo = await ImagePicker().pickImage(source: source, imageQuality: 85);
+Future<PickedAttachmentFile?> pickProfilePhotoFrom(
+  ProfilePhotoAction action,
+) async {
+  final photo = await ImagePicker().pickImage(
+    source: action == ProfilePhotoAction.camera
+        ? ImageSource.camera
+        : ImageSource.gallery,
+    imageQuality: 85,
+  );
   if (photo == null) return null;
   return PickedAttachmentFile(
     bytes: await photo.readAsBytes(),
@@ -34,7 +45,9 @@ Future<PickedAttachmentFile?> pickProfilePhoto(BuildContext context) async {
 }
 
 class _ProfilePhotoSourceSheet extends StatelessWidget {
-  const _ProfilePhotoSourceSheet();
+  const _ProfilePhotoSourceSheet({required this.canRemove});
+
+  final bool canRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +84,8 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ListTile(
-                onTap: () => Navigator.of(context).pop(ImageSource.camera),
+                onTap: () =>
+                    Navigator.of(context).pop(ProfilePhotoAction.camera),
                 leading: Icon(
                   Icons.photo_camera_outlined,
                   color: context.colors.primary,
@@ -79,13 +93,27 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
                 title: Text(t.takePhotoLabel),
               ),
               ListTile(
-                onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+                onTap: () =>
+                    Navigator.of(context).pop(ProfilePhotoAction.gallery),
                 leading: Icon(
                   Icons.photo_library_outlined,
                   color: context.colors.primary,
                 ),
                 title: Text(t.chooseFromGalleryLabel),
               ),
+              if (canRemove)
+                ListTile(
+                  onTap: () =>
+                      Navigator.of(context).pop(ProfilePhotoAction.remove),
+                  leading: Icon(
+                    Icons.delete_outline,
+                    color: context.colors.error,
+                  ),
+                  title: Text(
+                    t.removePhotoTitle,
+                    style: TextStyle(color: context.colors.error),
+                  ),
+                ),
             ],
           ),
         ),

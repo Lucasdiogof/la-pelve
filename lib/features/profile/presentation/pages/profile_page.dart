@@ -37,9 +37,21 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Future<void> _pickPhoto(BuildContext context) async {
+  Future<void> _changePhoto(
+    BuildContext context, {
+    required bool hasPhoto,
+  }) async {
     final cubit = context.read<ProfileCubit>();
-    final picked = await pickProfilePhoto(context);
+    final action = await showProfilePhotoActionSheet(
+      context,
+      canRemove: hasPhoto,
+    );
+    if (action == null || !context.mounted) return;
+    if (action == ProfilePhotoAction.remove) {
+      await _removePhoto(context);
+      return;
+    }
+    final picked = await pickProfilePhotoFrom(action);
     if (picked == null || !context.mounted) return;
     final result = await cubit.uploadPhoto(
       bytes: picked.bytes,
@@ -163,13 +175,13 @@ class ProfilePage extends StatelessWidget {
                                   ? state.profile!.name[0].toUpperCase()
                                   : '?',
                               isSaving: state.savingPhoto,
-                              onTap: () => _pickPhoto(context),
+                              onTap: () => _changePhoto(
+                                context,
+                                hasPhoto: state.photoUrl != null,
+                              ),
                               onViewPhoto: state.photoUrl == null
                                   ? null
                                   : () => _viewPhoto(context, state.photoUrl!),
-                              onRemove: state.photoUrl == null
-                                  ? null
-                                  : () => _removePhoto(context),
                             ),
                             const SizedBox(height: 32),
                             ProfileRow(

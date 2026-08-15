@@ -8,7 +8,6 @@ class ProfileAvatarSection extends StatelessWidget {
     required this.isSaving,
     required this.onTap,
     this.onViewPhoto,
-    this.onRemove,
     super.key,
   });
 
@@ -17,7 +16,6 @@ class ProfileAvatarSection extends StatelessWidget {
   final bool isSaving;
   final VoidCallback onTap;
   final VoidCallback? onViewPhoto;
-  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -73,27 +71,6 @@ class ProfileAvatarSection extends StatelessWidget {
               ),
             ),
           ),
-          if (onRemove != null && photoUrl != null)
-            Positioned(
-              left: 0,
-              bottom: 0,
-              child: Material(
-                color: context.colors.error,
-                shape: const CircleBorder(),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: isSaving ? null : onRemove,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.delete_outline,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
