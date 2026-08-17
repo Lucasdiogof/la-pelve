@@ -7,6 +7,8 @@ abstract class AuthRepository {
     required String password,
   });
 
+  Future<Result<void>> verifyPassword(String password);
+
   Future<Result<AppUser>> signUp({
     required String nome,
     required String crefito,

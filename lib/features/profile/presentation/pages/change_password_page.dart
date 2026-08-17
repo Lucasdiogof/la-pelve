@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
+import 'package:fisioterapia_pelvica/core/error/failures.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
@@ -73,20 +73,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   Future<void> _submit() async {
     final t = ProfileStrings(context.read<LocaleCubit>().state);
-    final email = Supabase.instance.client.auth.currentUser?.email;
-    if (email == null) return;
     _formCubit.setSaving(true);
     final authRepository = sl<AuthRepository>();
-    final verifyResult = await authRepository.signIn(
-      email: email,
-      password: _currentPasswordController.text,
+    final verifyResult = await authRepository.verifyPassword(
+      _currentPasswordController.text,
     );
-    if (verifyResult is Error) {
+    if (verifyResult case Error(:final failure)) {
       if (!mounted) return;
       _formCubit.setSaving(false);
       await AppInfoBottomSheet.showError(
         context,
-        description: t.currentPasswordIncorrectError,
+        description: failure is AuthFailure && !failure.isInvalidCredentials
+            ? failure.message
+            : t.currentPasswordIncorrectError,
       );
       return;
     }

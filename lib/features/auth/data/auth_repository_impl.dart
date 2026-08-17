@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fisioterapia_pelvica/core/config/env_config.dart';
 import 'package:fisioterapia_pelvica/core/error/failures.dart';
 import 'package:fisioterapia_pelvica/core/error/result.dart';
 import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
@@ -43,6 +44,36 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e, st) {
       debugPrint('[AuthRepository.signIn] $e\n$st');
       return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Result<void>> verifyPassword(String password) async {
+    final email = _client.auth.currentUser?.email;
+    if (email == null) return Error(AuthFailure());
+    final verificationClient = SupabaseClient(
+      EnvConfig.supabaseUrl,
+      EnvConfig.supabasePublishableKey,
+    );
+    try {
+      await verificationClient.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      return const Success(null);
+    } on AuthException catch (e, st) {
+      debugPrint(
+        '[AuthRepository.verifyPassword] AuthException code=${e.code} '
+        'msg=${e.message}\n$st',
+      );
+      return Error(
+        AuthFailure(_mapAuthError(e), e.code == 'invalid_credentials'),
+      );
+    } catch (e, st) {
+      debugPrint('[AuthRepository.verifyPassword] $e\n$st');
+      return Error(UnexpectedFailure());
+    } finally {
+      await verificationClient.dispose();
     }
   }
 
