@@ -12,7 +12,6 @@ class EvolutionListCubit extends Cubit<Result<List<EvolutionEntry>>?> {
   final String _patientId;
 
   Future<void> reload() async {
-    emit(null);
     emit(await _repository.getEvolutions(_patientId));
   }
 
