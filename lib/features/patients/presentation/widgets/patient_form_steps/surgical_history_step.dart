@@ -52,8 +52,14 @@ class _SurgicalHistoryStepState extends State<SurgicalHistoryStep> {
   Widget build(BuildContext context) {
     final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
     final historico = widget.patient.surgicalHistory;
-    final isFeminino = widget.patient.personalInfo.gender == Gender.female;
-    final excluidas = isFeminino ? _somenteMasculino : _somenteFeminino;
+    final gender = widget.patient.personalInfo.gender;
+    final excluidas = switch (gender) {
+      Gender.female => _somenteMasculino,
+      Gender.male => _somenteFeminino,
+      // "Outro" and "not yet chosen" get every option: better to show a
+      // surgery that doesn't apply than to hide one that could.
+      Gender.other || null => const <GynecologicalSurgery>{},
+    };
     final opcoes = GynecologicalSurgery.values
         .where((c) => !excluidas.contains(c))
         .toList();

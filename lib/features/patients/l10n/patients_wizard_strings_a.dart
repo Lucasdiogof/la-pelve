@@ -10,6 +10,11 @@ class PatientsWizardStringsA {
     AppLanguage.english => 'Name',
   };
 
+  String get socialNameHint => switch (language) {
+    AppLanguage.portuguese => 'Nome social (opcional)',
+    AppLanguage.english => 'Social name (optional)',
+  };
+
   String get minLengthError => switch (language) {
     AppLanguage.portuguese => 'Informe pelo menos 3 caracteres.',
     AppLanguage.english => 'Enter at least 3 characters.',

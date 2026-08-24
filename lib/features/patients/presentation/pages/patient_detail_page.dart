@@ -128,7 +128,8 @@ class PatientDetailPage extends StatelessWidget {
       orElse: () => patient,
     );
     final dados = current.personalInfo;
-    final isFeminino = dados.gender == Gender.female;
+    final showFemaleSpecificSections =
+        dados.gender == Gender.female || dados.gender == Gender.other;
 
     return DefaultTabController(
       length: 2,
@@ -193,6 +194,15 @@ class PatientDetailPage extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
                         children: [
                           SectionTitle(t.sectionPersonalData),
+                          if (dados.socialName.isNotEmpty)
+                            InfoRow(
+                              t.fieldSocialName,
+                              PatientDetailFormat.text(
+                                dados.socialName,
+                                language: t.language,
+                              ),
+                              language: t.language,
+                            ),
                           InfoRow(
                             t.fieldSex,
                             PatientDetailFormat.enumValue(
@@ -227,11 +237,11 @@ class PatientDetailPage extends StatelessWidget {
                             language: t.language,
                           ),
                           MedicalHistoryInfoSection(current.medicalHistory),
-                          if (isFeminino)
+                          if (showFemaleSpecificSections)
                             GynecologicalHistoryInfoSection(
                               current.gynecologicalHistory,
                             ),
-                          if (isFeminino)
+                          if (showFemaleSpecificSections)
                             ObstetricHistoryInfoSection(
                               current.obstetricHistory,
                             ),

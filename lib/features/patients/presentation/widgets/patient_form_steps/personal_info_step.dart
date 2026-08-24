@@ -29,6 +29,9 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
   late final _nomeController = TextEditingController(
     text: widget.patient.personalInfo.name,
   );
+  late final _nomeSocialController = TextEditingController(
+    text: widget.patient.personalInfo.socialName,
+  );
   late final _idadeController = TextEditingController(
     text: widget.patient.personalInfo.age?.toString() ?? '',
   );
@@ -42,6 +45,7 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
   @override
   void dispose() {
     _nomeController.dispose();
+    _nomeSocialController.dispose();
     _idadeController.dispose();
     _telefoneController.dispose();
     _profissaoController.dispose();
@@ -53,6 +57,7 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
       widget.patient.copyWith(
         personalInfo: widget.patient.personalInfo.copyWith(
           name: _nomeController.text,
+          socialName: _nomeSocialController.text,
           age: int.tryParse(_idadeController.text),
           phone: _telefoneController.text,
           occupation: _profissaoController.text,
@@ -79,6 +84,13 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
           icon: Icons.person_outline,
           hintText: t.nameHint,
           errorText: _minLengthError(_nomeController.text.trim(), t),
+          onChanged: (_) => _emit(),
+        ),
+        const SizedBox(height: 12),
+        AppTextField(
+          controller: _nomeSocialController,
+          icon: Icons.badge_outlined,
+          hintText: t.socialNameHint,
           onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),

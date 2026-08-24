@@ -55,12 +55,17 @@ class PatientFormCubit extends Cubit<PatientFormState> {
   final bool isEditing;
 
   List<PatientFormStep> get _visibleSteps {
-    final isFemale = state.patient.personalInfo.gender == Gender.female;
+    // "Outro" gets the full superset of anatomy-specific sections: better to
+    // ask an extra question that doesn't apply than to silently skip one that
+    // does, since gender identity alone doesn't tell us patient anatomy.
+    final gender = state.patient.personalInfo.gender;
+    final showFemaleSpecificSteps =
+        gender == Gender.female || gender == Gender.other;
     return [
       PatientFormStep.personalInfo,
       PatientFormStep.medicalHistory,
-      if (isFemale) PatientFormStep.gynecologicalHistory,
-      if (isFemale) PatientFormStep.obstetricHistory,
+      if (showFemaleSpecificSteps) PatientFormStep.gynecologicalHistory,
+      if (showFemaleSpecificSteps) PatientFormStep.obstetricHistory,
       PatientFormStep.surgicalHistory,
       PatientFormStep.urinaryFunction,
       PatientFormStep.sexualFunction,

@@ -1,6 +1,6 @@
 import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
 
-enum Gender { female, male }
+enum Gender { female, male, other }
 
 extension GenderLabel on Gender {
   String label(AppLanguage language) => switch ((this, language)) {
@@ -8,6 +8,8 @@ extension GenderLabel on Gender {
     (Gender.female, AppLanguage.english) => 'Female',
     (Gender.male, AppLanguage.portuguese) => 'Masculino',
     (Gender.male, AppLanguage.english) => 'Male',
+    (Gender.other, AppLanguage.portuguese) => 'Outro',
+    (Gender.other, AppLanguage.english) => 'Other',
   };
 }
 

@@ -131,6 +131,11 @@ class PatientsStrings {
     AppLanguage.english => 'Personal data',
   };
 
+  String get fieldSocialName => switch (language) {
+    AppLanguage.portuguese => 'Nome social',
+    AppLanguage.english => 'Social name',
+  };
+
   String get fieldSex => switch (language) {
     AppLanguage.portuguese => 'Sexo',
     AppLanguage.english => 'Sex',
