@@ -5,31 +5,31 @@ import 'package:fisioterapia_pelvica/features/financial/domain/repositories/fina
 
 class FinancialCubit extends Cubit<List<FinancialEntry>> {
   FinancialCubit(this._repository) : super(const []) {
-    _load();
+    reload();
   }
 
   final FinancialRepository _repository;
 
-  Future<void> _load() async {
+  Future<void> reload() async {
     final result = await _repository.getAll();
     if (result case Success(:final data)) emit(data);
   }
 
   Future<Result<void>> addEntry(FinancialEntry entry) async {
     final result = await _repository.add(entry);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 
   Future<Result<void>> updateEntry(FinancialEntry entry) async {
     final result = await _repository.update(entry);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 
   Future<Result<void>> deleteEntry(String id) async {
     final result = await _repository.delete(id);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 }
