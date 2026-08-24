@@ -11,6 +11,7 @@ import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/network/logging_http_client.dart';
 import 'package:fisioterapia_pelvica/core/router/app_router.dart';
 import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
+import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,9 @@ void main() {
 
   sl.registerLazySingleton<ThemeCubit>(ThemeCubit.new);
   sl.registerLazySingleton<LocaleCubit>(LocaleCubit.new);
+  sl.registerLazySingleton<HomeFinancialVisibilityCubit>(
+    HomeFinancialVisibilityCubit.new,
+  );
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString(

@@ -14,6 +14,7 @@ import 'package:fisioterapia_pelvica/features/auth/presentation/pages/reset_pass
 import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:fisioterapia_pelvica/features/financial/presentation/pages/financial_form_page.dart';
+import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/pages/home_shell_page.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
 import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
@@ -72,6 +73,7 @@ final GoRouter appRouter = GoRouter(
             BlocProvider.value(value: sl<FinancialCubit>()),
             BlocProvider.value(value: sl<AgendaCubit>()),
             BlocProvider.value(value: sl<ProfileCubit>()),
+            BlocProvider.value(value: sl<HomeFinancialVisibilityCubit>()),
           ],
           child: const HomeShellPage(),
         ),

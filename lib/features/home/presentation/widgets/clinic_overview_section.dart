@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
 import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
 import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
+import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
 import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
 
@@ -19,6 +20,7 @@ class ClinicOverviewSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = HomeStrings(context.watch<LocaleCubit>().state);
+    final hideFinancial = context.watch<HomeFinancialVisibilityCubit>().state;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
@@ -76,10 +78,23 @@ class ClinicOverviewSection extends StatelessWidget {
                     child: _OverviewStat(
                       icon: Icons.payments_outlined,
                       iconColor: context.colors.success,
-                      value:
-                          'R\$ ${overview.receivedThisMonth.toStringAsFixed(0)}',
+                      value: hideFinancial
+                          ? 'R\$ ••••'
+                          : 'R\$ ${overview.receivedThisMonth.toStringAsFixed(0)}',
                       label: t.receivedThisMonthLabel,
                       onTap: () => onNavigateToTab(3),
+                      corner: IconButton(
+                        icon: Text(hideFinancial ? '🙈' : '👁️'),
+                        tooltip: hideFinancial
+                            ? t.showFinancialValueTooltip
+                            : t.hideFinancialValueTooltip,
+                        onPressed: () => context
+                            .read<HomeFinancialVisibilityCubit>()
+                            .toggle(),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
                     ),
                   ),
                 ],
@@ -99,6 +114,7 @@ class _OverviewStat extends StatelessWidget {
     required this.value,
     required this.label,
     required this.onTap,
+    this.corner,
   });
 
   final IconData icon;
@@ -106,10 +122,11 @@ class _OverviewStat extends StatelessWidget {
   final String value;
   final String label;
   final VoidCallback onTap;
+  final Widget? corner;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final content = InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Padding(
@@ -147,6 +164,14 @@ class _OverviewStat extends StatelessWidget {
           ],
         ),
       ),
+    );
+    if (corner == null) return content;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        content,
+        Positioned(top: -4, right: 0, child: corner!),
+      ],
     );
   }
 }

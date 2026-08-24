@@ -224,4 +224,14 @@ class HomeStrings {
     AppLanguage.portuguese => 'Recebido\neste mês',
     AppLanguage.english => 'Received\nthis month',
   };
+
+  String get showFinancialValueTooltip => switch (language) {
+    AppLanguage.portuguese => 'Mostrar valor',
+    AppLanguage.english => 'Show value',
+  };
+
+  String get hideFinancialValueTooltip => switch (language) {
+    AppLanguage.portuguese => 'Esconder valor',
+    AppLanguage.english => 'Hide value',
+  };
 }
