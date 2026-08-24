@@ -6,37 +6,37 @@ import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_
 
 class AgendaCubit extends Cubit<List<Appointment>> {
   AgendaCubit(this._repository) : super(const []) {
-    _load();
+    reload();
   }
 
   final AgendaRepository _repository;
 
-  Future<void> _load() async {
+  Future<void> reload() async {
     final result = await _repository.getAll();
     if (result case Success(:final data)) emit(data);
   }
 
   Future<Result<void>> addAppointment(Appointment appointment) async {
     final result = await _repository.add(appointment);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 
   Future<Result<void>> updateAppointment(Appointment appointment) async {
     final result = await _repository.update(appointment);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 
   Future<Result<void>> deleteAppointment(String id) async {
     final result = await _repository.delete(id);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 
   Future<Result<void>> updateStatus(String id, AppointmentStatus status) async {
     final result = await _repository.updateStatus(id, status);
-    if (result case Success()) await _load();
+    if (result case Success()) await reload();
     return result;
   }
 }
