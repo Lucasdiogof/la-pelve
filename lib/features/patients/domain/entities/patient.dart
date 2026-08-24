@@ -7,6 +7,7 @@ import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
 class PersonalInfo extends Equatable {
   const PersonalInfo({
     this.name = '',
+    this.socialName = '',
     this.age,
     this.phone = '',
     this.occupation = '',
@@ -14,6 +15,7 @@ class PersonalInfo extends Equatable {
   });
 
   final String name;
+  final String socialName;
   final int? age;
   final String phone;
   final String occupation;
@@ -21,6 +23,7 @@ class PersonalInfo extends Equatable {
 
   PersonalInfo copyWith({
     String? name,
+    String? socialName,
     int? age,
     String? phone,
     String? occupation,
@@ -28,6 +31,7 @@ class PersonalInfo extends Equatable {
   }) {
     return PersonalInfo(
       name: name ?? this.name,
+      socialName: socialName ?? this.socialName,
       age: age ?? this.age,
       phone: phone ?? this.phone,
       occupation: occupation ?? this.occupation,
@@ -36,7 +40,7 @@ class PersonalInfo extends Equatable {
   }
 
   @override
-  List<Object?> get props => [name, age, phone, occupation, gender];
+  List<Object?> get props => [name, socialName, age, phone, occupation, gender];
 }
 
 class MedicalHistory extends Equatable {
@@ -1038,6 +1042,7 @@ class Patient extends Equatable {
     'id': id,
     'created_at': createdAt.toIso8601String(),
     'name': personalInfo.name,
+    'social_name': personalInfo.socialName,
     'age': personalInfo.age,
     'phone': personalInfo.phone,
     'occupation': personalInfo.occupation,
@@ -1059,6 +1064,7 @@ class Patient extends Equatable {
     createdAt: DateTime.parse(json['created_at'] as String),
     personalInfo: PersonalInfo(
       name: json['name'] as String? ?? '',
+      socialName: json['social_name'] as String? ?? '',
       age: json['age'] as int?,
       phone: json['phone'] as String? ?? '',
       occupation: json['occupation'] as String? ?? '',
