@@ -84,7 +84,13 @@ class ClinicOverviewSection extends StatelessWidget {
                       label: t.receivedThisMonthLabel,
                       onTap: () => onNavigateToTab(3),
                       corner: IconButton(
-                        icon: Text(hideFinancial ? '🙈' : '👁️'),
+                        icon: Icon(
+                          hideFinancial
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          size: 16,
+                          color: context.colors.textSecondary,
+                        ),
                         tooltip: hideFinancial
                             ? t.showFinancialValueTooltip
                             : t.hideFinancialValueTooltip,
