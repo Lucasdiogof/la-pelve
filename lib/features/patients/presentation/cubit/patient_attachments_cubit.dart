@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/repositories/attachment_repository.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_attachments_state.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
+import 'package:la_pelve/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patient_attachments_state.dart';
 
 class PatientAttachmentsCubit extends Cubit<PatientAttachmentsState> {
   PatientAttachmentsCubit(this._repository, this._patientId)

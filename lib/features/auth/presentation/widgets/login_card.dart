@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/password_visibility_toggle.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/auth/l10n/auth_strings.dart';
+import 'package:la_pelve/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/shared/widgets/password_visibility_toggle.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class LoginCard extends StatelessWidget {
   const LoginCard({

@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
-import 'package:fisioterapia_pelvica/core/services/biometric_service.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/core/utils/app_lock_cubit.dart';
-import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/services/biometric_service.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/utils/app_lock_cubit.dart';
+import 'package:la_pelve/core/utils/biometric_preference.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class AppLockGate extends StatefulWidget {
   const AppLockGate({required this.child, super.key});

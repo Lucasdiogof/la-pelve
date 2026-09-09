@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_bottom_action_bar.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/shared/l10n/app_strings.dart';
+import 'package:la_pelve/shared/widgets/app_bottom_action_bar.dart';
+import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class AppWizardScaffold extends StatelessWidget {
   const AppWizardScaffold({

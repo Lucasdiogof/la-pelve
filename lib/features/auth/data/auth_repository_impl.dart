@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/core/config/env_config.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/entities/app_user.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
+import 'package:la_pelve/core/config/env_config.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
+import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._client);
@@ -91,7 +91,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         emailRedirectTo: kIsWeb
             ? '${Uri.base.origin}/'
-            : 'fisioterapiapelvica://confirm-signup',
+            : 'lapelve://confirm-signup',
         data: {'nome': nome, 'crefito': crefito, 'telefone': telefone},
       );
       final user = response.user;
@@ -150,7 +150,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email,
         redirectTo: kIsWeb
             ? '${Uri.base.origin}/redefinir-senha'
-            : 'fisioterapiapelvica://reset-password',
+            : 'lapelve://reset-password',
       );
       return const Success(null);
     } on AuthException catch (e, st) {

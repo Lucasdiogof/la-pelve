@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/repositories/financial_repository.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/repositories/financial_repository.dart';
 
 class FinancialCubit extends Cubit<List<FinancialEntry>> {
   FinancialCubit(this._repository) : super(const []) {

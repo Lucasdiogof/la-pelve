@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_repository.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
 
 class AgendaRepositorySupabase implements AgendaRepository {
   AgendaRepositorySupabase(this._client);

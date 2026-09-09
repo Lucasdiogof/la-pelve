@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart' show TimeOfDay;
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 
 DateTime dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 

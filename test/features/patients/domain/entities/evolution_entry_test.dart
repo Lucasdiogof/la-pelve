@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
+import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
 
 void main() {
   group('EvolutionEntry.toJson/fromJson', () {

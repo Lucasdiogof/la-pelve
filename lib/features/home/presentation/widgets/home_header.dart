@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/core/utils/current_user.dart';
-import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/utils/current_user.dart';
+import 'package:la_pelve/features/home/l10n/home_strings.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});

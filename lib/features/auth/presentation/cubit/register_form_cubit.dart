@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/register_form_state.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/register_form_state.dart';
 
 class RegisterFormCubit extends Cubit<RegisterFormState> {
   RegisterFormCubit() : super(const RegisterFormState());

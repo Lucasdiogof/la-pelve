@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/agenda_view_models.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/presentation/widgets/agenda_view_models.dart';
 
 void main() {
   final today = DateTime(2026, 3, 5);

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/widgets/status_picker_sheet.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/agenda/presentation/widgets/status_picker_sheet.dart';
 
 class AppointmentRow extends StatelessWidget {
   const AppointmentRow({required this.appointment, super.key});

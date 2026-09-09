@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/shared/l10n/app_strings.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 enum AppInfoBottomSheetVariant { error, success, info }
 

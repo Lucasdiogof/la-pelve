@@ -1,5 +1,5 @@
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/shared/l10n/shared_strings.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/shared/l10n/shared_strings.dart';
 
 final _emailRegExp = RegExp(
   r'^[\w.!#$%&’*+/=?^`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$',

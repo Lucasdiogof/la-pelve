@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
 
 String themeModeLabel(ThemeMode mode, AppLanguage language) =>
     switch ((mode, language)) {

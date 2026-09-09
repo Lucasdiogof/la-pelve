@@ -1,6 +1,6 @@
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 
 abstract class PatientRepository {
   Future<Result<List<Patient>>> getAll();

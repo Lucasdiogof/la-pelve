@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/core/utils/locale_preference.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/core/utils/locale_preference.dart';
 
 class LocaleCubit extends Cubit<AppLanguage> {
   LocaleCubit() : super(AppLanguage.fromDeviceLocale()) {

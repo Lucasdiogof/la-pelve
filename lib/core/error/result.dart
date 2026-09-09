@@ -1,4 +1,4 @@
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
+import 'package:la_pelve/core/error/failures.dart';
 
 sealed class Result<T> {
   const Result();

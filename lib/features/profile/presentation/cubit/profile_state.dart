@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/entities/profile.dart';
-import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
+import 'package:la_pelve/features/profile/domain/entities/profile.dart';
+import 'package:la_pelve/shared/utils/unset.dart';
 
 class ProfileState extends Equatable {
   const ProfileState({

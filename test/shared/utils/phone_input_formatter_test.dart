@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/shared/utils/phone_input_formatter.dart';
+import 'package:la_pelve/shared/utils/phone_input_formatter.dart';
 
 void main() {
   group('PhoneInputFormatter.format', () {

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_clock_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/clinic_overview_section.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_header.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/quick_actions_section.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/today_summary_card.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_clock_cubit.dart';
+import 'package:la_pelve/features/home/presentation/widgets/clinic_overview_section.dart';
+import 'package:la_pelve/features/home/presentation/widgets/home_header.dart';
+import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
+import 'package:la_pelve/features/home/presentation/widgets/quick_actions_section.dart';
+import 'package:la_pelve/features/home/presentation/widgets/today_summary_card.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({required this.onNavigateToTab, super.key});

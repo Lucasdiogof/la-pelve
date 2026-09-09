@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/features/agenda/l10n/agenda_strings.dart';
 
 class StatusPickerSheet extends StatelessWidget {
   const StatusPickerSheet({required this.current, super.key});

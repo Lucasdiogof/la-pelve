@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_b.dart';
+import 'package:la_pelve/shared/widgets/app_text_field.dart';
 
 class TreatmentPlanStep extends StatefulWidget {
   const TreatmentPlanStep({

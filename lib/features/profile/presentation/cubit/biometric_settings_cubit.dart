@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/biometric_settings_state.dart';
+import 'package:la_pelve/core/utils/biometric_preference.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/biometric_settings_state.dart';
 
 class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
   BiometricSettingsCubit() : super(const BiometricSettingsState()) {

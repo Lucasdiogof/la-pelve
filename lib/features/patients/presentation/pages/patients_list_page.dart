@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:la_pelve/shared/widgets/app_empty_state.dart';
+import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class PatientsListPage extends StatelessWidget {
   const PatientsListPage({super.key});

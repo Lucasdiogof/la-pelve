@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
 
 class DischargeSheetState extends Equatable {
   const DischargeSheetState({this.date, this.reason});

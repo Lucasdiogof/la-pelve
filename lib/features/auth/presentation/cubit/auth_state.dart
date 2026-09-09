@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/entities/app_user.dart';
+import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
 
 sealed class AuthState extends Equatable {
   const AuthState();

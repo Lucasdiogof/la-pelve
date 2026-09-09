@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
-import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_cubit.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/forgot_password_state.dart';
-import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
+import 'package:la_pelve/features/auth/l10n/auth_strings.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/forgot_password_cubit.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/forgot_password_state.dart';
+import 'package:la_pelve/shared/utils/validators.dart';
+import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 Future<bool?> showForgotPasswordSheet(BuildContext context) {
   return showModalBottomSheet<bool>(

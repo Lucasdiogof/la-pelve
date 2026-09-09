@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/repositories/financial_repository.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/repositories/financial_repository.dart';
 
 class FinancialRepositorySupabase implements FinancialRepository {
   FinancialRepositorySupabase(this._client);

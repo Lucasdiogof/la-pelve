@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/primary_button.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_b.dart';
+import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class AssessmentFormStep extends StatelessWidget {
   const AssessmentFormStep({

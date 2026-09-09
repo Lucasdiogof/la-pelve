@@ -1,12 +1,12 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/entities/app_user.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/repositories/auth_repository.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_state.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
+import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/auth_state.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
 

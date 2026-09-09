@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/shared/utils/unset.dart';
 
 class PaymentFormState extends Equatable {
   const PaymentFormState({

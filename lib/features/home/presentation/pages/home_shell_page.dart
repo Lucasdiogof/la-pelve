@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/pages/agenda_page.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/pages/financial_page.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_shell_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_shell_state.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/pages/home_page.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/pages/patients_list_page.dart';
-import 'package:fisioterapia_pelvica/shared/l10n/app_strings.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/presentation/pages/agenda_page.dart';
+import 'package:la_pelve/features/financial/presentation/pages/financial_page.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_shell_cubit.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_shell_state.dart';
+import 'package:la_pelve/features/home/presentation/pages/home_page.dart';
+import 'package:la_pelve/features/patients/presentation/pages/patients_list_page.dart';
+import 'package:la_pelve/shared/l10n/app_strings.dart';
 
 class HomeShellPage extends StatefulWidget {
   const HomeShellPage({super.key});

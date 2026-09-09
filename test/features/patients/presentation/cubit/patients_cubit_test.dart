@@ -1,11 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patient_repository.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 
 class _MockPatientRepository extends Mock implements PatientRepository {}
 

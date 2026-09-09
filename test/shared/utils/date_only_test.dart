@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/shared/utils/date_only.dart';
+import 'package:la_pelve/shared/utils/date_only.dart';
 
 void main() {
   group('dateOnly', () {

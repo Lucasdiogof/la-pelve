@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/repositories/attachment_repository.dart';
-import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
+import 'package:la_pelve/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:la_pelve/shared/utils/id_generator.dart';
 
 class AttachmentRepositorySupabase implements AttachmentRepository {
   AttachmentRepositorySupabase(this._client);

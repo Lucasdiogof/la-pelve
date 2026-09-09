@@ -22,7 +22,7 @@ enum AppLanguage {
   };
 
   String get appName => switch (this) {
-    AppLanguage.portuguese => 'Fisioterapia Pélvica',
-    AppLanguage.english => 'Pelvic Physiotherapy',
+    AppLanguage.portuguese => 'La Pelve',
+    AppLanguage.english => 'La Pelve',
   };
 }

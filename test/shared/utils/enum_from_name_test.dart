@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
+import 'package:la_pelve/shared/utils/enum_from_name.dart';
 
 enum _Fruit { apple, banana }
 

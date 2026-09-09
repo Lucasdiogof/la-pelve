@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
 
 void main() {
   group('FinancialEntry.toJson/fromJson', () {

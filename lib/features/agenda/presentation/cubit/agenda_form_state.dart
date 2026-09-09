@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
-import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
+import 'package:la_pelve/shared/utils/unset.dart';
 
 class AgendaFormState extends Equatable {
   const AgendaFormState({

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/change_password_state.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/change_password_state.dart';
 
 class ChangePasswordCubit extends Cubit<ChangePasswordState> {
   ChangePasswordCubit() : super(const ChangePasswordState());

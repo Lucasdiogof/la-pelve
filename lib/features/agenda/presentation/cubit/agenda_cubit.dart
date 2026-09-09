@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_repository.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
 
 class AgendaCubit extends Cubit<List<Appointment>> {
   AgendaCubit(this._repository) : super(const []) {

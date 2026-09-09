@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/shared/utils/date_only.dart';
-import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/shared/utils/date_only.dart';
+import 'package:la_pelve/shared/utils/enum_from_name.dart';
 
 class FinancialEntry extends Equatable {
   const FinancialEntry({

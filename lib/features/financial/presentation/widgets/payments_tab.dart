@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/widgets/financial_entry_row.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_empty_state.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/l10n/financial_strings.dart';
+import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:la_pelve/features/financial/presentation/widgets/financial_entry_row.dart';
+import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 
 class PaymentsTab extends StatelessWidget {
   const PaymentsTab({super.key});

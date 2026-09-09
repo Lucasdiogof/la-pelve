@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 
 class PatientFormState extends Equatable {
   const PatientFormState({

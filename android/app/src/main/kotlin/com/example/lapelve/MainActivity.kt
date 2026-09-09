@@ -1,4 +1,4 @@
-package com.example.fisioterapia_pelvica
+package com.example.lapelve
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
