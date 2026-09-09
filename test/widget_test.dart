@@ -3,22 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:fisioterapia_pelvica/core/error/failures.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_theme.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/repositories/agenda_repository.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/repositories/financial_repository.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/financial_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/pages/home_page.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/repositories/patient_repository.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patients_cubit.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_theme.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
+import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/repositories/financial_repository.dart';
+import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
+import 'package:la_pelve/features/home/presentation/pages/home_page.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:la_pelve/features/profile/domain/repositories/profile_repository.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
 
 class _FakePatientRepository extends Mock implements PatientRepository {}
 
@@ -62,6 +63,7 @@ void main() {
             BlocProvider(create: (_) => FinancialCubit(financialRepository)),
             BlocProvider(create: (_) => ProfileCubit(profileRepository)),
             BlocProvider(create: (_) => LocaleCubit()),
+            BlocProvider(create: (_) => HomeFinancialVisibilityCubit()),
           ],
           child: HomePage(onNavigateToTab: (_) {}),
         ),
