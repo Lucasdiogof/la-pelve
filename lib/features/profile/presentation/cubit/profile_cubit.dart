@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/core/utils/biometric_preference.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/repositories/profile_repository.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/profile_state.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/utils/biometric_preference.dart';
+import 'package:la_pelve/features/profile/domain/repositories/profile_repository.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit(this._repository) : super(const ProfileState()) {

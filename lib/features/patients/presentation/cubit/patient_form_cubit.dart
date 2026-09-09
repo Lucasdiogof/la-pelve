@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/patient_form_state.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/attachment_picker_sheet.dart';
-import 'package:fisioterapia_pelvica/shared/utils/id_generator.dart';
-import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patient_form_state.dart';
+import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
+import 'package:la_pelve/shared/utils/id_generator.dart';
+import 'package:la_pelve/shared/utils/validators.dart';
 
 enum PatientFormStep {
   personalInfo,

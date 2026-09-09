@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/services/biometric_service.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/profile/l10n/profile_strings.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/biometric_settings_cubit.dart';
-import 'package:fisioterapia_pelvica/features/profile/presentation/cubit/biometric_settings_state.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/services/biometric_service.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/biometric_settings_cubit.dart';
+import 'package:la_pelve/features/profile/presentation/cubit/biometric_settings_state.dart';
+import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class BiometricSettingsPage extends StatelessWidget {
   const BiometricSettingsPage({super.key});

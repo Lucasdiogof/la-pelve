@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/shared/utils/currency_input_formatter.dart';
+import 'package:la_pelve/shared/utils/currency_input_formatter.dart';
 
 void main() {
   group('CurrencyInputFormatter.format', () {

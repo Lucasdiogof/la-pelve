@@ -1,5 +1,5 @@
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/attachment.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
 
 class PatientAttachmentsState {
   const PatientAttachmentsState({this.result, this.uploading = false});

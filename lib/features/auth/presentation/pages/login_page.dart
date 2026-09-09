@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/auth/l10n/auth_strings.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/auth_state.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/login_form_cubit.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/cubit/login_form_state.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/widgets/forgot_password_sheet.dart';
-import 'package:fisioterapia_pelvica/features/auth/presentation/widgets/login_card.dart';
-import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_info_bottom_sheet.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/pulsing_logo.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/auth/l10n/auth_strings.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/auth_state.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/login_form_cubit.dart';
+import 'package:la_pelve/features/auth/presentation/cubit/login_form_state.dart';
+import 'package:la_pelve/features/auth/presentation/widgets/forgot_password_sheet.dart';
+import 'package:la_pelve/features/auth/presentation/widgets/login_card.dart';
+import 'package:la_pelve/shared/utils/validators.dart';
+import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/pulsing_logo.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

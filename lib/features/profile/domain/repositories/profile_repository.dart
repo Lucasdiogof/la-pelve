@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/entities/profile.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/profile/domain/entities/profile.dart';
 
 abstract class ProfileRepository {
   Future<Result<Profile>> getCurrent();

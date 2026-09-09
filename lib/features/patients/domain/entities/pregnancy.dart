@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
-import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/shared/utils/enum_from_name.dart';
+import 'package:la_pelve/shared/utils/unset.dart';
 
 class Pregnancy extends Equatable {
   const Pregnancy({

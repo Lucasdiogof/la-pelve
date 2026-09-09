@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/features/home/l10n/home_strings.dart';
 
 enum ScheduleStatus { completed, next, waiting, cancelled }
 

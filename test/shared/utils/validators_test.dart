@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/shared/utils/validators.dart';
+import 'package:la_pelve/shared/utils/validators.dart';
 
 void main() {
   group('isValidEmail', () {

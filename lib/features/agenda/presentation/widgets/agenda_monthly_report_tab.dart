@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment.dart';
-import 'package:fisioterapia_pelvica/features/agenda/l10n/agenda_strings.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_cubit.dart';
-import 'package:fisioterapia_pelvica/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/l10n/agenda_strings.dart';
+import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
+import 'package:la_pelve/shared/widgets/app_date_field.dart';
 
 class AgendaMonthlyReportTab extends StatelessWidget {
   const AgendaMonthlyReportTab({super.key});

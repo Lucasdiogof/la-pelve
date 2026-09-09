@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fisioterapia_pelvica/shared/utils/date_only.dart';
+import 'package:la_pelve/shared/utils/date_only.dart';
 
 class EvolutionEntry extends Equatable {
   const EvolutionEntry({

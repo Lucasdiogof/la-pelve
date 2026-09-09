@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/home/l10n/home_strings.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_view_models.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/widgets/home_styles.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/home/l10n/home_strings.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
+import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
+import 'package:la_pelve/features/home/presentation/widgets/home_styles.dart';
 
 class ClinicOverviewSection extends StatelessWidget {
   const ClinicOverviewSection({

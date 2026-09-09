@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
+import 'package:la_pelve/features/patients/presentation/widgets/patient_detail/patient_detail_shared.dart';
 
 class UrinaryFunctionInfoSection extends StatelessWidget {
   const UrinaryFunctionInfoSection(this.urinaryFunction, {super.key});

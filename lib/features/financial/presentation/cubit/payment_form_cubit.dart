@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/features/financial/presentation/cubit/payment_form_state.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/features/financial/presentation/cubit/payment_form_state.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 
 class PaymentFormCubit extends Cubit<PaymentFormState> {
   PaymentFormCubit({FinancialEntry? existing})

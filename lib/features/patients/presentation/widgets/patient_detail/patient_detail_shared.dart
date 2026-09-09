@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/l10n/app_language.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/pregnancy.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_strings.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/core/l10n/app_language.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/patients/domain/entities/pregnancy.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
+import 'package:la_pelve/shared/widgets/app_date_field.dart';
 
 class PatientDetailFormat {
   const PatientDetailFormat._();

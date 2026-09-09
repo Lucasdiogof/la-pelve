@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fisioterapia_pelvica/features/profile/domain/entities/profile.dart';
+import 'package:la_pelve/features/profile/domain/entities/profile.dart';
 
 void main() {
   group('Profile.fromJson', () {

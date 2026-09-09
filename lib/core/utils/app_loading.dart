@@ -1,5 +1,5 @@
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:fisioterapia_pelvica/core/router/app_router.dart';
+import 'package:la_pelve/core/router/app_router.dart';
 
 void showAppLoading() {
   final ctx = rootNavigatorKey.currentContext;

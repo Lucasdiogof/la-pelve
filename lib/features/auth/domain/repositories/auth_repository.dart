@@ -1,5 +1,5 @@
-import 'package:fisioterapia_pelvica/core/error/result.dart';
-import 'package:fisioterapia_pelvica/features/auth/domain/entities/app_user.dart';
+import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
 
 abstract class AuthRepository {
   Future<Result<AppUser>> signIn({

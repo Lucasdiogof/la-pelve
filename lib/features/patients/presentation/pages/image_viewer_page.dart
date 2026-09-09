@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/modern_app_bar.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/pulsing_logo.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
+import 'package:la_pelve/shared/widgets/pulsing_logo.dart';
 
 class ImageViewerPage extends StatelessWidget {
   const ImageViewerPage({

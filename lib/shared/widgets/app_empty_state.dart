@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
 
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({

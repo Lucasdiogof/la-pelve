@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/evolution_entry.dart';
-import 'package:fisioterapia_pelvica/features/patients/presentation/cubit/evolution_form_state.dart';
+import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/evolution_form_state.dart';
 
 class EvolutionFormCubit extends Cubit<EvolutionFormState> {
   EvolutionFormCubit({EvolutionEntry? existing})

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 
 class PatientPickerSheet extends StatelessWidget {
   const PatientPickerSheet({required this.patients, super.key});

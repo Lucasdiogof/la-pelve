@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient.dart';
-import 'package:fisioterapia_pelvica/features/patients/domain/entities/patient_enums.dart';
-import 'package:fisioterapia_pelvica/features/patients/l10n/patients_wizard_strings_b.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_chip_select.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_text_field.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_yes_no_toggle.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_b.dart';
+import 'package:la_pelve/shared/widgets/app_chip_select.dart';
+import 'package:la_pelve/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/shared/widgets/app_yes_no_toggle.dart';
 
 class UrinaryFunctionStep extends StatefulWidget {
   const UrinaryFunctionStep({

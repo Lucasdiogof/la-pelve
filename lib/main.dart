@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:fisioterapia_pelvica/app.dart';
-import 'package:fisioterapia_pelvica/core/config/env_config.dart';
-import 'package:fisioterapia_pelvica/core/di/injection_container.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/network/logging_http_client.dart';
-import 'package:fisioterapia_pelvica/core/router/app_router.dart';
-import 'package:fisioterapia_pelvica/core/theme/theme_cubit.dart';
-import 'package:fisioterapia_pelvica/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
+import 'package:la_pelve/app.dart';
+import 'package:la_pelve/core/config/env_config.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/network/logging_http_client.dart';
+import 'package:la_pelve/core/router/app_router.dart';
+import 'package:la_pelve/core/theme/theme_cubit.dart';
+import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

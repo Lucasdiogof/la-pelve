@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fisioterapia_pelvica/core/l10n/locale_cubit.dart';
-import 'package:fisioterapia_pelvica/core/theme/app_colors.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_entry.dart';
-import 'package:fisioterapia_pelvica/features/financial/domain/entities/financial_enums.dart';
-import 'package:fisioterapia_pelvica/features/financial/l10n/financial_strings.dart';
-import 'package:fisioterapia_pelvica/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
+import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
+import 'package:la_pelve/features/financial/l10n/financial_strings.dart';
+import 'package:la_pelve/shared/widgets/app_date_field.dart';
 
 class FinancialEntryRow extends StatelessWidget {
   const FinancialEntryRow({required this.entry, super.key});

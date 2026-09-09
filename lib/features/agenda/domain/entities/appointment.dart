@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
-import 'package:fisioterapia_pelvica/features/agenda/domain/entities/appointment_status.dart';
-import 'package:fisioterapia_pelvica/shared/utils/date_only.dart';
-import 'package:fisioterapia_pelvica/shared/utils/enum_from_name.dart';
-import 'package:fisioterapia_pelvica/shared/utils/unset.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
+import 'package:la_pelve/shared/utils/date_only.dart';
+import 'package:la_pelve/shared/utils/enum_from_name.dart';
+import 'package:la_pelve/shared/utils/unset.dart';
 
 class Appointment extends Equatable {
   const Appointment({
