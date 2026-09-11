@@ -1,4 +1,4 @@
-package com.example.lapelve
+package com.lucasdiogof.lapelve
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
