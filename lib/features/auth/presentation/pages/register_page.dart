@@ -185,15 +185,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                 controller: _nameController,
                                 icon: Icons.person_outline,
                                 hintText: t.fullNameHint,
+                                textCapitalization: TextCapitalization.words,
                               ),
                               const SizedBox(height: 12),
                               AppTextField(
                                 controller: _crefitoController,
                                 icon: Icons.verified_user_outlined,
                                 hintText: t.crefitoHint,
-                                keyboardType: TextInputType.text,
+                                keyboardType: TextInputType.number,
                                 inputFormatters: [
-                                  LengthLimitingTextInputFormatter(11),
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                    kMaxCrefitoLength,
+                                  ),
                                 ],
                                 errorText: _crefitoError(t),
                               ),

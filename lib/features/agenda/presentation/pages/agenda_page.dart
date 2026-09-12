@@ -49,49 +49,64 @@ class AgendaPage extends StatelessWidget {
                         appointments,
                         today: today,
                       );
-
-                      if (porDia.isEmpty) {
-                        return AppEmptyState(
-                          icon: Icons.calendar_month_outlined,
-                          title: t.emptyTitle,
-                          message: t.emptyMessage,
-                        );
-                      }
-
                       final dias = porDia.keys.toList()..sort();
 
-                      return ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                        itemCount: dias.length,
-                        itemBuilder: (context, index) {
-                          final dia = dias[index];
-                          final appointmentsDoDia = porDia[dia]!;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _dayLabel(dia, today, t),
-                                  style: TextStyle(
-                                    color: context.colors.textSecondary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.5,
+                      return RefreshIndicator(
+                        onRefresh: () => context.read<AgendaCubit>().reload(),
+                        child: dias.isEmpty
+                            ? ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  AppEmptyState(
+                                    icon: Icons.calendar_month_outlined,
+                                    title: t.emptyTitle,
+                                    message: t.emptyMessage,
                                   ),
+                                ],
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  16,
+                                  16,
+                                  96,
                                 ),
-                                const SizedBox(height: 8),
-                                for (final appointment in appointmentsDoDia)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: AppointmentRow(
-                                      appointment: appointment,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: dias.length,
+                                itemBuilder: (context, index) {
+                                  final dia = dias[index];
+                                  final appointmentsDoDia = porDia[dia]!;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _dayLabel(dia, today, t),
+                                          style: TextStyle(
+                                            color: context.colors.textSecondary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        for (final appointment
+                                            in appointmentsDoDia)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: AppointmentRow(
+                                              appointment: appointment,
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
+                                  );
+                                },
+                              ),
                       );
                     },
                   ),

@@ -30,25 +30,31 @@ class PatientsListPage extends StatelessWidget {
           Expanded(
             child: BlocBuilder<PatientsCubit, List<Patient>>(
               builder: (context, patients) {
-                if (patients.isEmpty) {
-                  return AppEmptyState(
-                    icon: Icons.people_outline,
-                    title: t.emptyPatientsTitle,
-                    message: t.emptyPatientsMessage,
-                  );
-                }
                 final sorted = [
                   ...patients.where((p) => p.discharge == null),
                   ...patients.where((p) => p.discharge != null),
                 ];
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                  itemCount: sorted.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final patient = sorted[index];
-                    return _PatientTile(patient: patient);
-                  },
+                return RefreshIndicator(
+                  onRefresh: () => context.read<PatientsCubit>().reload(),
+                  child: sorted.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            AppEmptyState(
+                              icon: Icons.people_outline,
+                              title: t.emptyPatientsTitle,
+                              message: t.emptyPatientsMessage,
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: sorted.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) =>
+                              _PatientTile(patient: sorted[index]),
+                        ),
                 );
               },
             ),

@@ -45,12 +45,13 @@ String? phoneErrorText(
   return SharedStrings(language).invalidPhone;
 }
 
-final _crefitoRegExp = RegExp(
-  r'^(?:\d{2}[-/\s]?)?\d{4,7}[-/\s]?(?:F|TO)$',
-  caseSensitive: false,
-);
+const int kMinCrefitoLength = 4;
+const int kMaxCrefitoLength = 10;
 
-bool isValidCrefito(String value) => _crefitoRegExp.hasMatch(value.trim());
+bool isValidCrefito(String value) {
+  final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+  return digits.length >= kMinCrefitoLength && digits.length <= kMaxCrefitoLength;
+}
 
 String? crefitoErrorText(
   String value, {

@@ -94,28 +94,28 @@ void main() {
   });
 
   group('isValidCrefito', () {
-    test('accepts the documented format', () {
-      expect(isValidCrefito('123456-F'), isTrue);
+    test('accepts a plain number within range', () {
+      expect(isValidCrefito('123456'), isTrue);
     });
 
-    test('accepts a region prefix', () {
+    test('accepts formatted input by counting digits only', () {
       expect(isValidCrefito('11/338376-F'), isTrue);
     });
 
-    test('accepts occupational therapy category', () {
-      expect(isValidCrefito('123456-TO'), isTrue);
+    test('accepts the shortest allowed length', () {
+      expect(isValidCrefito('1234'), isTrue);
     });
 
-    test('accepts shorter, older registration numbers', () {
-      expect(isValidCrefito('9596-F'), isTrue);
+    test('accepts the longest allowed length', () {
+      expect(isValidCrefito('1234567890'), isTrue);
     });
 
-    test('accepts lowercase and without a separator', () {
-      expect(isValidCrefito('123456f'), isTrue);
+    test('rejects a value shorter than the minimum', () {
+      expect(isValidCrefito('123'), isFalse);
     });
 
-    test('rejects a value without the category letter', () {
-      expect(isValidCrefito('123456'), isFalse);
+    test('rejects a value longer than the maximum', () {
+      expect(isValidCrefito('12345678901'), isFalse);
     });
 
     test('rejects an empty value', () {
@@ -129,11 +129,11 @@ void main() {
     });
 
     test('returns null for a valid Crefito', () {
-      expect(crefitoErrorText('11/338376-F'), isNull);
+      expect(crefitoErrorText('123456'), isNull);
     });
 
     test('returns an error for an invalid Crefito', () {
-      expect(crefitoErrorText('abc'), isNotNull);
+      expect(crefitoErrorText('12'), isNotNull);
     });
   });
 }

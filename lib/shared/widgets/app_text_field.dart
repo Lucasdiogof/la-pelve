@@ -22,6 +22,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.onSubmitted,
     this.enableInteractiveSelection = true,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   final IconData icon;
@@ -41,6 +42,7 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
   final bool enableInteractiveSelection;
+  final TextCapitalization textCapitalization;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class AppTextField extends StatelessWidget {
           focusNode: focusNode,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          textCapitalization: textCapitalization,
           readOnly: readOnly,
           enableInteractiveSelection: enableInteractiveSelection,
           onTap: onTap,
