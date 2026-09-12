@@ -128,6 +128,8 @@ Each feature only has the layers it actually needs — simple features skip the 
 
 Business logic that doesn't belong in a widget — like grouping appointments by day, or computing whether a slot is "next" vs. "already happened" — lives in small, pure, unit-tested functions instead of inline in `build()` methods.
 
+Localization (English/Portuguese) doesn't use `flutter gen_l10n` or ARB files — each feature owns a small `*_strings.dart` class under its own `l10n/` folder (e.g. `lib/features/patients/l10n/patients_strings.dart`), exposing plain Dart getters that switch on the `AppLanguage` enum (`lib/core/l10n/app_language.dart`). `AppStrings` (`lib/shared/l10n/app_strings.dart`) aggregates every feature's strings behind a single `context.strings` accessor.
+
 ## Deployment
 
 - **Android / iOS**: standard `flutter build apk` / `flutter build ios`, not published to the Play Store or App Store — distributed as an installable PWA and direct builds instead.
