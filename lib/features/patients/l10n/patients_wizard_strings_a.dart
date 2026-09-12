@@ -32,7 +32,7 @@ class PatientsWizardStringsA {
 
   String get occupationHint => switch (language) {
     AppLanguage.portuguese => 'Profissão',
-    AppLanguage.english => 'Profession',
+    AppLanguage.english => 'Occupation',
   };
 
   String get genderSectionHeader => switch (language) {
