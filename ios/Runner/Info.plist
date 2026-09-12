@@ -41,6 +41,8 @@
 		<string>Usado para anexar fotos da galeria à ficha do paciente.</string>
 		<key>NSFaceIDUsageDescription</key>
 		<string>Usado para desbloquear o app e proteger os dados dos pacientes.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Usado para exibir a localização de fotos anexadas à ficha do paciente, quando disponível.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>
