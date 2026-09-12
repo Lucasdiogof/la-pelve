@@ -15,24 +15,31 @@ class PaymentsTab extends StatelessWidget {
     final t = FinancialStrings(context.watch<LocaleCubit>().state);
     return BlocBuilder<FinancialCubit, List<FinancialEntry>>(
       builder: (context, entries) {
-        if (entries.isEmpty) {
-          return AppEmptyState(
-            icon: Icons.payments_outlined,
-            title: t.emptyPaymentsTitle,
-            message: t.emptyPaymentsMessage,
-          );
-        }
-
         final sorted = entries.toList()
           ..sort((a, b) => b.date.compareTo(a.date));
 
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-          itemCount: sorted.length,
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: FinancialEntryRow(entry: sorted[index]),
-          ),
+        return RefreshIndicator(
+          onRefresh: () => context.read<FinancialCubit>().reload(),
+          child: sorted.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    AppEmptyState(
+                      icon: Icons.payments_outlined,
+                      title: t.emptyPaymentsTitle,
+                      message: t.emptyPaymentsMessage,
+                    ),
+                  ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: sorted.length,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: FinancialEntryRow(entry: sorted[index]),
+                  ),
+                ),
         );
       },
     );

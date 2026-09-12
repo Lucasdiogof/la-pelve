@@ -189,6 +189,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                       controller: _nomeController,
                       icon: Icons.person_outline,
                       hintText: t.patientNameHint,
+                      textCapitalization: TextCapitalization.words,
                       suffixIcon: hasPatients
                           ? IconButton(
                               icon: Icon(

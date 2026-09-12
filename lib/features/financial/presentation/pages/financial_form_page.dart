@@ -192,6 +192,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                       controller: _patientNameController,
                       icon: Icons.person_outline,
                       hintText: t.patientNameHint,
+                      textCapitalization: TextCapitalization.words,
                       suffixIcon: hasPatients
                           ? IconButton(
                               icon: Icon(

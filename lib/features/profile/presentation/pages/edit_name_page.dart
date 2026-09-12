@@ -84,6 +84,7 @@ class _EditNamePageState extends State<EditNamePage> {
                         controller: _controller,
                         icon: Icons.person_outline,
                         hintText: t.editNameHint,
+                        textCapitalization: TextCapitalization.words,
                       ),
                       const SizedBox(height: 20),
                       PrimaryButton(

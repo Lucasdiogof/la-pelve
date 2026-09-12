@@ -72,23 +72,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           return Scaffold(
             backgroundColor: context.colors.background,
             body: SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 24),
-                children: [
-                  const HomeHeader(),
-                  const SizedBox(height: 20),
-                  TodaySummaryCard(
-                    schedule: schedule,
-                    onTap: () => widget.onNavigateToTab(2),
-                  ),
-                  const SizedBox(height: 24),
-                  QuickActionsSection(onNavigateToTab: widget.onNavigateToTab),
-                  const SizedBox(height: 24),
-                  ClinicOverviewSection(
-                    overview: overview,
-                    onNavigateToTab: widget.onNavigateToTab,
-                  ),
-                ],
+              child: RefreshIndicator(
+                onRefresh: () => Future.wait([
+                  context.read<PatientsCubit>().reload(),
+                  context.read<AgendaCubit>().reload(),
+                  context.read<FinancialCubit>().reload(),
+                ]),
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    const HomeHeader(),
+                    const SizedBox(height: 20),
+                    TodaySummaryCard(
+                      schedule: schedule,
+                      onTap: () => widget.onNavigateToTab(2),
+                    ),
+                    const SizedBox(height: 24),
+                    QuickActionsSection(
+                      onNavigateToTab: widget.onNavigateToTab,
+                    ),
+                    const SizedBox(height: 24),
+                    ClinicOverviewSection(
+                      overview: overview,
+                      onNavigateToTab: widget.onNavigateToTab,
+                    ),
+                  ],
+                ),
               ),
             ),
           );

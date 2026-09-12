@@ -66,7 +66,7 @@ class SharedStrings {
   };
 
   String get invalidCrefito => switch (language) {
-    AppLanguage.portuguese => 'Informe um Crefito válido (ex: 11/338376-F).',
-    AppLanguage.english => 'Enter a valid Crefito number (e.g. 11/338376-F).',
+    AppLanguage.portuguese => 'Informe um Crefito com 4 a 10 números.',
+    AppLanguage.english => 'Enter a Crefito number with 4 to 10 digits.',
   };
 }

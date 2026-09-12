@@ -135,11 +135,10 @@ class _LoginPageState extends State<LoginPage> {
                                 fit: BoxFit.cover,
                               ),
                               Align(
-                                alignment: const Alignment(0, -0.3),
+                                alignment: const Alignment(0, 0.1),
                                 child: Image.asset(
-                                  'lib/assets/app_icon.png',
-                                  width: 160,
-                                  height: 160,
+                                  'lib/assets/logo_extenso.png',
+                                  width: 260,
                                 ),
                               ),
                             ],
