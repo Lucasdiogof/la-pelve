@@ -1,0 +1,19 @@
+# Copie para android/key.properties (NUNCA commitar o real: key.properties,
+# *.jks e *.keystore ja estao no android/.gitignore).
+#
+# Gere o keystore UMA VEZ, num terminal seu (a senha nunca deve passar por
+# chat/IA):
+#
+#   keytool -genkeypair -v -keystore ~/lapelve-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias lapelve
+#
+# Guarde o .jks e as senhas num cofre de senhas. Toda atualizacao futura na
+# Play Store precisa ser assinada com a MESMA chave de upload.
+#
+# Em CI, em vez deste arquivo: ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD,
+# ANDROID_KEY_ALIAS e ANDROID_KEY_PASSWORD.
+
+storePassword=SUA_SENHA_DO_KEYSTORE
+keyPassword=SUA_SENHA_DA_CHAVE
+keyAlias=lapelve
+storeFile=/caminho/absoluto/para/lapelve-release.jks
