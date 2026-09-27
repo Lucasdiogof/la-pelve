@@ -50,7 +50,8 @@ const int kMaxCrefitoLength = 10;
 
 bool isValidCrefito(String value) {
   final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-  return digits.length >= kMinCrefitoLength && digits.length <= kMaxCrefitoLength;
+  return digits.length >= kMinCrefitoLength &&
+      digits.length <= kMaxCrefitoLength;
 }
 
 String? crefitoErrorText(
