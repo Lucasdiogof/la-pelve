@@ -32,7 +32,9 @@ void main() {
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
 
-  runApp(App(bootstrap: _bootstrap()));
+  final bootstrap = _bootstrap();
+  appBootstrapFuture = bootstrap;
+  runApp(App(bootstrap: bootstrap));
 }
 
 Future<void> _bootstrap() async {

@@ -33,9 +33,15 @@ import 'package:la_pelve/features/profile/presentation/pages/theme_settings_page
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Set by `main()` before `runApp` to the app's bootstrap future
+/// (Supabase session restore + DI setup). The initial redirect awaits it
+/// so the router never resolves `/` before the real session state is known.
+Future<void>? appBootstrapFuture;
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
-  redirect: (context, state) {
+  redirect: (context, state) async {
+    if (appBootstrapFuture != null) await appBootstrapFuture;
     final hasSession = Supabase.instance.client.auth.currentSession != null;
     if (hasSession && state.matchedLocation == '/') return '/home';
     return null;
