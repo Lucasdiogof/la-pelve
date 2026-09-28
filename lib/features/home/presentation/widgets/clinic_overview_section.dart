@@ -176,7 +176,7 @@ class _OverviewStat extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         content,
-        Positioned(top: -4, right: 0, child: corner!),
+        Positioned(top: -8, right: -6, child: corner!),
       ],
     );
   }
