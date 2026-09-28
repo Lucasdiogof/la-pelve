@@ -20,7 +20,6 @@ import 'package:la_pelve/features/profile/presentation/widgets/profile_avatar_se
 import 'package:la_pelve/features/profile/presentation/widgets/profile_photo_picker_sheet.dart';
 import 'package:la_pelve/features/profile/presentation/widgets/profile_row.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
-import 'package:la_pelve/shared/widgets/app_bottom_action_bar.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
@@ -261,39 +260,26 @@ class ProfilePage extends StatelessWidget {
                                 onTap: () => context.push('/perfil/idioma'),
                               ),
                             ),
+                            const SizedBox(height: 32),
+                            OutlinedButton(
+                              onPressed: () => _signOut(context),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: context.colors.error,
+                                side: BorderSide(color: context.colors.error),
+                              ),
+                              child: Text(t.signOutButtonLabel),
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () => _deleteAccount(context),
+                              style: TextButton.styleFrom(
+                                foregroundColor: context.colors.error,
+                              ),
+                              child: Text(t.deleteAccountLabel),
+                            ),
                           ],
                         ),
                 ),
-                if (!state.loading)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: context.colors.border),
-                      ),
-                    ),
-                    child: AppBottomActionBar(
-                      child: Column(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () => _signOut(context),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: context.colors.error,
-                              side: BorderSide(color: context.colors.error),
-                            ),
-                            child: Text(t.signOutButtonLabel),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => _deleteAccount(context),
-                            style: TextButton.styleFrom(
-                              foregroundColor: context.colors.error,
-                            ),
-                            child: Text(t.deleteAccountLabel),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
               ],
             ),
           );
