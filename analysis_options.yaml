@@ -16,6 +16,11 @@ analyzer:
     strict-raw-types: true
   errors:
     invalid_annotation_target: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
 
 linter:
   # Extra rules on top of flutter_lints, chosen to keep the Clean
