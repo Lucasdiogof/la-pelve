@@ -6,7 +6,6 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/router/app_router.dart';
-import 'package:la_pelve/core/security/screen_privacy.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_theme.dart';
 import 'package:la_pelve/core/theme/theme_cubit.dart';
@@ -74,11 +73,8 @@ class App extends StatelessWidget {
                                 constraints: const BoxConstraints(
                                   maxWidth: 480,
                                 ),
-                                child: SensitiveContentGuard(
-                                  router: appRouter,
-                                  child: AppLockGate(
-                                    child: child ?? const SizedBox.shrink(),
-                                  ),
+                                child: AppLockGate(
+                                  child: child ?? const SizedBox.shrink(),
                                 ),
                               ),
                             ),
