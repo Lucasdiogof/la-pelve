@@ -1,0 +1,5 @@
+project_id = "lchaboncmgcimafpupad"
+
+# A Meta chama o webhook sem JWT do Supabase.
+[functions.whatsapp-webhook]
+verify_jwt = false
