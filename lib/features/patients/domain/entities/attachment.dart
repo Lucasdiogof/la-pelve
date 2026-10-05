@@ -10,12 +10,17 @@ extension AttachmentCategoryLabel on AttachmentCategory {
       'Ficha de avaliação física',
     (AttachmentCategory.assessmentForm, AppLanguage.english) =>
       'Physical assessment form',
+    (AttachmentCategory.assessmentForm, AppLanguage.spanish) =>
+      'Ficha de evaluación física',
     (AttachmentCategory.document, AppLanguage.portuguese) => 'Documento',
     (AttachmentCategory.document, AppLanguage.english) => 'Document',
+    (AttachmentCategory.document, AppLanguage.spanish) => 'Documento',
     (AttachmentCategory.image, AppLanguage.portuguese) => 'Imagem',
     (AttachmentCategory.image, AppLanguage.english) => 'Image',
+    (AttachmentCategory.image, AppLanguage.spanish) => 'Imagen',
     (AttachmentCategory.other, AppLanguage.portuguese) => 'Anexo',
     (AttachmentCategory.other, AppLanguage.english) => 'Attachment',
+    (AttachmentCategory.other, AppLanguage.spanish) => 'Adjunto',
   };
 }
 

@@ -25,6 +25,7 @@ class ServerFailure extends Failure {
   static String _defaultMessage() => switch (_currentLanguage()) {
     AppLanguage.portuguese => 'Erro no servidor. Tente novamente.',
     AppLanguage.english => 'Server error. Please try again.',
+    AppLanguage.spanish => 'Error en el servidor. Inténtalo de nuevo.',
   };
 }
 
@@ -34,6 +35,7 @@ class NetworkFailure extends Failure {
   static String _defaultMessage() => switch (_currentLanguage()) {
     AppLanguage.portuguese => 'Sem conexão com a internet.',
     AppLanguage.english => 'No internet connection.',
+    AppLanguage.spanish => 'Sin conexión a internet.',
   };
 }
 
@@ -43,6 +45,7 @@ class CacheFailure extends Failure {
   static String _defaultMessage() => switch (_currentLanguage()) {
     AppLanguage.portuguese => 'Erro ao ler os dados salvos localmente.',
     AppLanguage.english => 'Error reading locally saved data.',
+    AppLanguage.spanish => 'Error al leer los datos guardados localmente.',
   };
 }
 
@@ -55,6 +58,7 @@ class AuthFailure extends Failure {
   static String _defaultMessage() => switch (_currentLanguage()) {
     AppLanguage.portuguese => 'Falha de autenticação.',
     AppLanguage.english => 'Authentication failed.',
+    AppLanguage.spanish => 'Fallo de autenticación.',
   };
 
   @override
@@ -67,5 +71,6 @@ class UnexpectedFailure extends Failure {
   static String _defaultMessage() => switch (_currentLanguage()) {
     AppLanguage.portuguese => 'Erro inesperado.',
     AppLanguage.english => 'Unexpected error.',
+    AppLanguage.spanish => 'Error inesperado.',
   };
 }

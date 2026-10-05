@@ -223,6 +223,8 @@ class AuthRepositoryImpl implements AuthRepository {
     AppLanguage.portuguese =>
       'Confirme o e-mail enviado para concluir o cadastro.',
     AppLanguage.english => 'Confirm the email we sent to finish signing up.',
+    AppLanguage.spanish =>
+      'Confirma el correo que enviamos para completar el registro.',
   };
 
   String _mapAuthError(AuthException e) {
@@ -232,10 +234,14 @@ class AuthRepositoryImpl implements AuthRepository {
         'E-mail ou senha incorretos.',
       ('invalid_credentials', AppLanguage.english) =>
         'Incorrect email or password.',
+      ('invalid_credentials', AppLanguage.spanish) =>
+        'Correo electrónico o contraseña incorrectos.',
       ('email_address_invalid', AppLanguage.portuguese) =>
         'Endereço de e-mail inválido. Verifique e tente novamente.',
       ('email_address_invalid', AppLanguage.english) =>
         'Invalid email address. Check it and try again.',
+      ('email_address_invalid', AppLanguage.spanish) =>
+        'Dirección de correo inválida. Verifícala e inténtalo de nuevo.',
       (
         'email_already_in_use' ||
             'user_already_registered' ||
@@ -250,16 +256,29 @@ class AuthRepositoryImpl implements AuthRepository {
         AppLanguage.english,
       ) =>
         'An account with this email already exists.',
+      (
+        'email_already_in_use' ||
+            'user_already_registered' ||
+            'user_already_exists',
+        AppLanguage.spanish,
+      ) =>
+        'Ya existe una cuenta con este correo electrónico.',
       ('weak_password', AppLanguage.portuguese) =>
         'A senha deve ter no mínimo 8 caracteres.',
       ('weak_password', AppLanguage.english) =>
         'The password must be at least 8 characters long.',
+      ('weak_password', AppLanguage.spanish) =>
+        'La contraseña debe tener al menos 8 caracteres.',
       ('over_email_send_rate_limit', AppLanguage.portuguese) =>
         'Muitos cadastros em pouco tempo. Aguarde alguns minutos e tente novamente.',
       ('over_email_send_rate_limit', AppLanguage.english) =>
         'Too many attempts in a short time. Wait a few minutes and try again.',
+      ('over_email_send_rate_limit', AppLanguage.spanish) =>
+        'Demasiados intentos en poco tiempo. Espera unos minutos e inténtalo de nuevo.',
       (_, AppLanguage.portuguese) => 'Erro de autenticação. Tente novamente.',
       (_, AppLanguage.english) => 'Authentication error. Please try again.',
+      (_, AppLanguage.spanish) =>
+        'Error de autenticación. Inténtalo de nuevo.',
     };
   }
 }

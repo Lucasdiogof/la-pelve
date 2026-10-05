@@ -9,6 +9,7 @@ class LocalePreference {
     return switch (prefs.getString(_key)) {
       'english' => AppLanguage.english,
       'portuguese' => AppLanguage.portuguese,
+      'spanish' => AppLanguage.spanish,
       _ => null,
     };
   }

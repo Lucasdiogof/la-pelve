@@ -180,7 +180,6 @@ class _WhatsappConsentSwitch extends StatelessWidget {
             onChanged: phoneValid ? cubit.setWhatsappConsent : null,
             activeThumbColor: context.colors.primary,
             title: Text(t.whatsappConsentLabel),
-            subtitle: Text(t.whatsappConsentDescription),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
