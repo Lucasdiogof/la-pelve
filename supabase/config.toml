@@ -3,3 +3,9 @@ project_id = "lchaboncmgcimafpupad"
 # A Meta chama o webhook sem JWT do Supabase.
 [functions.whatsapp-webhook]
 verify_jwt = false
+
+# Ferramenta administrativa de diagnóstico (dry-run do scheduler), não uma
+# API para usuário final -- autenticação própria via SCHEDULER_DRY_RUN_ADMIN_TOKEN
+# (ver index.ts), não o JWT de usuário final do Supabase.
+[functions.whatsapp-scheduler-dry-run]
+verify_jwt = false
