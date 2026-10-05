@@ -7,6 +7,7 @@ import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart
 import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
 import 'package:la_pelve/features/financial/l10n/financial_strings.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/shared/utils/money_format.dart';
 
 class FinancialEntryRow extends StatelessWidget {
   const FinancialEntryRow({required this.entry, super.key});
@@ -48,7 +49,7 @@ class FinancialEntryRow extends StatelessWidget {
                       style: TextStyle(
                         color: entry.status == PaymentStatus.paid
                             ? context.colors.success
-                            : context.colors.primaryButton,
+                            : context.colors.primary,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -58,7 +59,7 @@ class FinancialEntryRow extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'R\$ ${entry.amount.toStringAsFixed(2)}',
+                formatBrl(entry.amount, language: t.language),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: context.colors.primary,

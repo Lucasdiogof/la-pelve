@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 
 class AppBottomActionBar extends StatelessWidget {
   const AppBottomActionBar({required this.child, super.key});
@@ -17,7 +18,12 @@ class AppBottomActionBar extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: maxContentWidth),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.s12,
+                AppSpacing.gutter,
+                AppSpacing.s12,
+              ),
               child: child,
             ),
           ),

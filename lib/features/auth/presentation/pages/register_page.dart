@@ -17,6 +17,7 @@ import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/password_visibility_toggle.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -205,6 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               AppTextField(
                                 controller: _phoneController,
                                 icon: Icons.phone_outlined,
+                                label: PatientsStrings(t.language).fieldPhone,
                                 hintText: '(XX) X XXXX-XXXX',
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [PhoneInputFormatter()],

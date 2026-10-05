@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 
 class AppConfirmSheet extends StatelessWidget {
   const AppConfirmSheet({
@@ -30,7 +32,6 @@ class AppConfirmSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
       builder: (_) => AppConfirmSheet(
         title: title,
         description: description,
@@ -44,68 +45,35 @@ class AppConfirmSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = isDestructive
-        ? context.colors.error
-        : context.colors.primaryButton;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.colors.border,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: context.colors.primaryButton,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: context.colors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  foregroundColor: context.colors.primaryButtonText,
-                  minimumSize: const Size.fromHeight(56),
-                  shape: const StadiumBorder(),
-                ),
-                child: Text(confirmLabel),
-              ),
-              const SizedBox(height: 4),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(cancelLabel ?? context.strings.shared.cancel),
-              ),
-            ],
+    final textTheme = Theme.of(context).textTheme;
+    return AppSheet(
+      children: [
+        Text(title, style: textTheme.titleLarge),
+        const SizedBox(height: AppSpacing.s8),
+        Text(
+          description,
+          style: textTheme.bodyLarge?.copyWith(
+            color: context.colors.textSecondary,
           ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.s24),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          // Confirmação destrutiva é o único lugar com botão cheio em danger.
+          style: isDestructive
+              ? ElevatedButton.styleFrom(
+                  backgroundColor: context.colors.danger,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                )
+              : null,
+          child: Text(confirmLabel),
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(cancelLabel ?? context.strings.shared.cancel),
+        ),
+      ],
     );
   }
 }

@@ -54,18 +54,18 @@ class ProfileAvatarSection extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: isSaving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: context.colors.onPrimary,
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.camera_alt_outlined,
                           size: 16,
-                          color: Colors.white,
+                          color: context.colors.onPrimary,
                         ),
                 ),
               ),

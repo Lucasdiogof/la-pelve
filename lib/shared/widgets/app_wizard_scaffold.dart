@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
 import 'package:la_pelve/shared/widgets/app_bottom_action_bar.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
@@ -45,21 +46,26 @@ class AppWizardScaffold extends StatelessWidget {
             onBack: onBack,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: (stepIndex + 1) / stepCount,
-                backgroundColor: context.colors.border,
-                color: context.colors.primary,
-                minHeight: 6,
-              ),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.gutter,
+              0,
+              AppSpacing.gutter,
+              AppSpacing.s16,
+            ),
+            child: LinearProgressIndicator(
+              value: (stepIndex + 1) / stepCount,
+              minHeight: 2,
             ),
           ),
           Expanded(
             child: SingleChildScrollView(
               key: ValueKey(stepIndex),
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                0,
+                AppSpacing.gutter,
+                AppSpacing.s24,
+              ),
               child: body,
             ),
           ),
@@ -72,11 +78,6 @@ class AppWizardScaffold extends StatelessWidget {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: isLoading ? null : onSave,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(56),
-                        shape: const StadiumBorder(),
-                        side: BorderSide(color: context.colors.border),
-                      ),
                       child: Text(t.saveEditButton),
                     ),
                   ),

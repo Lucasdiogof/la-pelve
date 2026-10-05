@@ -63,8 +63,8 @@ class HomeHeader extends StatelessWidget {
                   ? null
                   : Text(
                       firstName[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.colors.onPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
                       ),

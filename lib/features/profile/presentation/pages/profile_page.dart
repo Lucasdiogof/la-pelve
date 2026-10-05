@@ -274,8 +274,8 @@ class ProfilePage extends StatelessWidget {
                             OutlinedButton(
                               onPressed: () => _signOut(context),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: context.colors.error,
-                                side: BorderSide(color: context.colors.error),
+                                foregroundColor: context.colors.danger,
+                                side: BorderSide(color: context.colors.danger),
                               ),
                               child: Text(t.signOutButtonLabel),
                             ),
@@ -283,7 +283,7 @@ class ProfilePage extends StatelessWidget {
                             TextButton(
                               onPressed: () => _deleteAccount(context),
                               style: TextButton.styleFrom(
-                                foregroundColor: context.colors.error,
+                                foregroundColor: context.colors.danger,
                               ),
                               child: Text(t.deleteAccountLabel),
                             ),

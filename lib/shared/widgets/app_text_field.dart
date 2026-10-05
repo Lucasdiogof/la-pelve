@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 
+/// Campo de texto com label permanente acima.
+///
+/// - [label]: texto fixo acima do campo. **Campos novos devem sempre passar
+///   [label] explícito.**
+/// - [hintText]: exemplo/placeholder dentro do campo (opcional quando há
+///   [label]).
+/// - [icon]: opcional, neutro, sem círculo decorativo.
+///
+/// Fallback LEGADO: quando [label] é omitido, o [hintText] vira o label e o
+/// campo fica sem placeholder. Existe só para os call sites anteriores ao
+/// Design System V2 cujo hint já é um rótulo real (auditados na Fase 2);
+/// não crie novos call sites dependendo dele.
 class AppTextField extends StatelessWidget {
   const AppTextField({
-    required this.icon,
-    required this.hintText,
     super.key,
+    this.label,
+    this.hintText,
+    this.icon,
     this.controller,
     this.obscureText = false,
     this.suffixIcon,
@@ -23,10 +37,14 @@ class AppTextField extends StatelessWidget {
     this.onSubmitted,
     this.enableInteractiveSelection = true,
     this.textCapitalization = TextCapitalization.none,
-  });
+  }) : assert(
+         label != null || hintText != null,
+         'Passe label (preferível) ou, no legado, hintText.',
+       );
 
-  final IconData icon;
-  final String hintText;
+  final String? label;
+  final IconData? icon;
+  final String? hintText;
   final TextEditingController? controller;
   final bool obscureText;
   final Widget? suffixIcon;
@@ -46,50 +64,63 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        TextField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          textCapitalization: textCapitalization,
-          readOnly: readOnly,
-          enableInteractiveSelection: enableInteractiveSelection,
-          onTap: onTap,
-          maxLines: obscureText ? 1 : maxLines,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          textInputAction: textInputAction,
-          inputFormatters: inputFormatters,
-          style: TextStyle(color: context.colors.textPrimary),
-          decoration: InputDecoration(
-            hintText: hintText,
-            errorText: errorText,
-            suffixIcon: suffixIcon,
-            contentPadding: const EdgeInsets.fromLTRB(58, 18, 20, 18),
-          ),
-        ),
-        Positioned(
-          left: 10,
-          top: 11,
-          child: IgnorePointer(
-            child: Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor ?? context.colors.primary),
+    final textTheme = Theme.of(context).textTheme;
+    // Fallback legado (ver doc da classe).
+    final effectiveLabel = label ?? hintText ?? '';
+    final placeholder = label == null ? null : hintText;
+    // O label visual e o campo viram um único nó de acessibilidade: o leitor
+    // de tela anuncia "Nome, campo de texto".
+    return MergeSemantics(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (effectiveLabel.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                effectiveLabel,
+                style: textTheme.labelMedium?.copyWith(
+                  color: context.colors.textPrimary,
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 16,
-                color: iconColor ?? context.colors.primary,
+            ),
+          TextField(
+            controller: controller,
+            focusNode: focusNode,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            textCapitalization: textCapitalization,
+            readOnly: readOnly,
+            enableInteractiveSelection: enableInteractiveSelection,
+            onTap: onTap,
+            maxLines: obscureText ? 1 : maxLines,
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
+            textInputAction: textInputAction,
+            inputFormatters: inputFormatters,
+            style: textTheme.bodyLarge,
+            decoration: InputDecoration(
+              hintText: placeholder,
+              errorText: errorText,
+              suffixIcon: suffixIcon,
+              prefixIcon: icon == null
+                  ? null
+                  : Icon(
+                      icon,
+                      size: 20,
+                      color: iconColor ?? context.colors.textSecondary,
+                    ),
+              contentPadding: EdgeInsets.fromLTRB(
+                icon == null ? AppSpacing.s16 : 0,
+                14,
+                AppSpacing.s16,
+                14,
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

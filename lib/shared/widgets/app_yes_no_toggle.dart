@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
 
+/// Pergunta sim/não com segmented control compacto. Tocar de novo na opção
+/// selecionada desmarca (volta a `null`).
 class AppYesNoToggle extends StatelessWidget {
   const AppYesNoToggle({
     required this.label,
@@ -21,22 +24,48 @@ class AppYesNoToggle extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(
-            label,
-            style: TextStyle(color: context.colors.textPrimary),
+          child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+        ),
+        const SizedBox(width: AppSpacing.s12),
+        // Visual de 36px; a área de toque de cada opção ocupa 48px de altura.
+        SizedBox(
+          height: 48,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                top: 6,
+                bottom: 6,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadius.controlAll,
+                    border: Border.all(color: context.colors.borderStrong),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _Segment(
+                    label: t.yes,
+                    selected: value == true,
+                    onTap: () => onChanged(value == true ? null : true),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Container(
+                      width: 1,
+                      color: context.colors.borderStrong,
+                    ),
+                  ),
+                  _Segment(
+                    label: t.no,
+                    selected: value == false,
+                    onTap: () => onChanged(value == false ? null : false),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: 12),
-        _Segment(
-          label: t.yes,
-          selected: value == true,
-          onTap: () => onChanged(value == true ? null : true),
-        ),
-        const SizedBox(width: 8),
-        _Segment(
-          label: t.no,
-          selected: value == false,
-          onTap: () => onChanged(value == false ? null : false),
         ),
       ],
     );
@@ -56,23 +85,31 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? context.colors.primary : context.colors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? context.colors.primary : context.colors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? Colors.white : context.colors.textSecondary,
-            fontWeight: FontWeight.w600,
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 56),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? c.primary : Colors.transparent,
+              borderRadius: AppRadius.controlAll,
+            ),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected ? c.onPrimary : c.textSecondary,
+              ),
+            ),
           ),
         ),
       ),

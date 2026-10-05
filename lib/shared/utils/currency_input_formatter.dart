@@ -1,17 +1,9 @@
 import 'package:flutter/services.dart';
+import 'package:la_pelve/shared/utils/money_format.dart';
 
 class CurrencyInputFormatter extends TextInputFormatter {
-  static String format(double value) {
-    final fixed = value.toStringAsFixed(2);
-    final parts = fixed.split('.');
-    final intDigits = parts[0].replaceAll('-', '');
-    final buffer = StringBuffer();
-    for (var i = 0; i < intDigits.length; i++) {
-      if (i > 0 && (intDigits.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(intDigits[i]);
-    }
-    return 'R\$ $buffer,${parts[1]}';
-  }
+  /// Campo de valor é sempre no formato brasileiro e sem sinal.
+  static String format(double value) => formatBrl(value.abs());
 
   static double parse(String text) {
     final digits = text.replaceAll(RegExp(r'[^0-9]'), '');

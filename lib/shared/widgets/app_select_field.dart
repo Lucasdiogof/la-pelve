@@ -8,8 +8,10 @@ class AppSelectField extends StatefulWidget {
     required this.displayText,
     required this.onTap,
     super.key,
+    this.label,
   });
 
+  final String? label;
   final IconData icon;
   final String hintText;
   final String displayText;
@@ -41,7 +43,9 @@ class _AppSelectFieldState extends State<AppSelectField> {
     return ExcludeFocus(
       child: AppTextField(
         icon: widget.icon,
+        label: widget.label,
         hintText: widget.hintText,
+        suffixIcon: const Icon(Icons.expand_more),
         readOnly: true,
         enableInteractiveSelection: false,
         controller: _controller,

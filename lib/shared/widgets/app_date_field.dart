@@ -9,8 +9,10 @@ class AppDateField extends StatelessWidget {
     super.key,
     this.firstDate,
     this.lastDate,
+    this.label,
   });
 
+  final String? label;
   final String hintText;
   final DateTime? value;
   final ValueChanged<DateTime> onChanged;
@@ -28,6 +30,7 @@ class AppDateField extends StatelessWidget {
     return ExcludeFocus(
       child: AppTextField(
         icon: Icons.calendar_today_outlined,
+        label: label,
         hintText: hintText,
         readOnly: true,
         enableInteractiveSelection: false,

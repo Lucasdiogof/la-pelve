@@ -100,7 +100,7 @@ class _FileRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.close, color: context.colors.error),
+            icon: Icon(Icons.close, color: context.colors.danger),
             onPressed: onRemove,
           ),
         ],

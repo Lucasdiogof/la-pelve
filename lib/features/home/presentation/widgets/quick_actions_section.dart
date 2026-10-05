@@ -21,7 +21,7 @@ class QuickActionsSection extends StatelessWidget {
           Expanded(
             child: _QuickActionCard(
               icon: Icons.person_add_alt_outlined,
-              iconColor: context.colors.logoTeal,
+              iconColor: context.colors.primary,
               label: t.newPatientAction,
               onTap: () => context.push('/pacientes/novo'),
             ),
@@ -39,7 +39,7 @@ class QuickActionsSection extends StatelessWidget {
           Expanded(
             child: _QuickActionCard(
               icon: Icons.note_add_outlined,
-              iconColor: context.colors.logoPurple,
+              iconColor: context.colors.primary,
               label: t.addProgressNoteAction,
               onTap: () => onNavigateToTab(1),
             ),

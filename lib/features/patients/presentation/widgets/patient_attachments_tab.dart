@@ -144,7 +144,7 @@ class _PatientAttachmentsView extends StatelessWidget {
           children: [
             PrimaryButton(
               label: t.addAttachmentButton,
-              icon: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.add),
               isLoading: state.uploading,
               onPressed: () => _addAttachment(context),
             ),
@@ -256,7 +256,7 @@ class _AttachmentRow extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.delete_outline, color: context.colors.error),
+                icon: Icon(Icons.delete_outline, color: context.colors.danger),
                 onPressed: onDelete,
               ),
             ],

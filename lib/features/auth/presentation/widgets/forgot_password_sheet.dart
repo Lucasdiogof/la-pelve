@@ -12,6 +12,7 @@ import 'package:la_pelve/shared/utils/validators.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 
 Future<bool?> showForgotPasswordSheet(BuildContext context) {
   return showModalBottomSheet<bool>(
@@ -82,66 +83,37 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(28),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 42,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: context.colors.border,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      t.forgotPasswordLabel,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.primaryButton,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      t.forgotPasswordDescription,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: context.colors.textSecondary),
-                    ),
-                    const SizedBox(height: 20),
-                    AppTextField(
-                      controller: _emailController,
-                      icon: Icons.email_outlined,
-                      hintText: t.emailHint,
-                      keyboardType: TextInputType.emailAddress,
-                      errorText: _emailError(t),
-                    ),
-                    const SizedBox(height: 20),
-                    PrimaryButton(
-                      label: t.sendLinkButton,
-                      isLoading: formState.sending,
-                      onPressed: isValidEmail(_emailController.text)
-                          ? _send
-                          : null,
-                    ),
-                  ],
+          child: AppSheet(
+            children: [
+              Text(
+                t.forgotPasswordLabel,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.primary,
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                t.forgotPasswordDescription,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: context.colors.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              AppTextField(
+                controller: _emailController,
+                icon: Icons.email_outlined,
+                hintText: t.emailHint,
+                keyboardType: TextInputType.emailAddress,
+                errorText: _emailError(t),
+              ),
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: t.sendLinkButton,
+                isLoading: formState.sending,
+                onPressed: isValidEmail(_emailController.text) ? _send : null,
+              ),
+            ],
           ),
         ),
       ),

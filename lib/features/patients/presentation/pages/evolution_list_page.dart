@@ -159,7 +159,7 @@ class EvolutionListPage extends StatelessWidget {
                                         IconButton(
                                           icon: Icon(
                                             Icons.delete_outline,
-                                            color: context.colors.error,
+                                            color: context.colors.danger,
                                           ),
                                           tooltip: t.deleteEvolutionTooltip,
                                           onPressed: () => _delete(

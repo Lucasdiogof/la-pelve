@@ -40,63 +40,38 @@ class _HomeShellPageState extends State<HomeShellPage> {
           ];
           return Scaffold(
             body: IndexedStack(index: shellState.index, children: pages),
-            bottomNavigationBar: Container(
-              clipBehavior: Clip.antiAlias,
+            // Barra inferior: superfície + linha de 1px no topo, sem pílula,
+            // sem sombra e sem cantos arredondados (cores no
+            // navigationBarTheme).
+            bottomNavigationBar: DecoratedBox(
               decoration: BoxDecoration(
                 color: context.colors.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
                 border: Border(top: BorderSide(color: context.colors.border)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
               ),
               child: SafeArea(
                 top: false,
                 child: NavigationBar(
                   selectedIndex: shellState.index,
                   onDestinationSelected: _shellCubit.navigateToTab,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  indicatorColor: context.colors.primary.withValues(
-                    alpha: 0.15,
-                  ),
                   destinations: [
                     NavigationDestination(
                       icon: const Icon(Icons.home_outlined),
-                      selectedIcon: Icon(
-                        Icons.home,
-                        color: context.colors.primary,
-                      ),
+                      selectedIcon: const Icon(Icons.home),
                       label: t.navHome,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.people_outline),
-                      selectedIcon: Icon(
-                        Icons.people,
-                        color: context.colors.primary,
-                      ),
+                      selectedIcon: const Icon(Icons.people),
                       label: t.navPatients,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.calendar_month_outlined),
-                      selectedIcon: Icon(
-                        Icons.calendar_month,
-                        color: context.colors.primary,
-                      ),
+                      selectedIcon: const Icon(Icons.calendar_month),
                       label: t.navAgenda,
                     ),
                     NavigationDestination(
-                      icon: const Icon(Icons.attach_money_outlined),
-                      selectedIcon: Icon(
-                        Icons.attach_money,
-                        color: context.colors.primary,
-                      ),
+                      icon: const Icon(Icons.receipt_long_outlined),
+                      selectedIcon: const Icon(Icons.receipt_long),
                       label: t.navFinancial,
                     ),
                   ],

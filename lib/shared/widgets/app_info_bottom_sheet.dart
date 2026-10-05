@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 enum AppInfoBottomSheetVariant { error, success, info }
@@ -71,7 +73,6 @@ class AppInfoBottomSheet extends StatelessWidget {
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
       builder: (_) => AppInfoBottomSheet(
         title: title,
         description: description,
@@ -83,7 +84,7 @@ class AppInfoBottomSheet extends StatelessWidget {
   }
 
   Color _accentColor(BuildContext context) => switch (variant) {
-    AppInfoBottomSheetVariant.error => context.colors.error,
+    AppInfoBottomSheetVariant.error => context.colors.danger,
     AppInfoBottomSheetVariant.success => context.colors.success,
     AppInfoBottomSheetVariant.info => context.colors.primary,
   };
@@ -103,76 +104,43 @@ class AppInfoBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final accentColor = _accentColor(context);
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.colors.border,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: 0.16),
-                  ),
-                ),
-                child: Icon(_icon, color: accentColor, size: 30),
-              ),
-              const SizedBox(height: 20),
-              Text(
+    return AppSheet(
+      children: [
+        Row(
+          children: [
+            Icon(_icon, color: _accentColor(context), size: 24),
+            const SizedBox(width: AppSpacing.s12),
+            Expanded(
+              child: Text(
                 title ?? _defaultTitle(context),
-                textAlign: TextAlign.center,
-                style: textTheme.titleLarge?.copyWith(
-                  color: context.colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: textTheme.titleLarge,
               ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: context.colors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 28),
-              PrimaryButton(
-                label: context.strings.shared.understood,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              if (secondaryActionLabel != null)
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onSecondaryAction?.call();
-                  },
-                  child: Text(secondaryActionLabel!),
-                ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        Text(
+          description,
+          style: textTheme.bodyLarge?.copyWith(
+            color: context.colors.textSecondary,
           ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.s24),
+        PrimaryButton(
+          label: context.strings.shared.understood,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        if (secondaryActionLabel != null) ...[
+          const SizedBox(height: AppSpacing.s8),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              onSecondaryAction?.call();
+            },
+            child: Text(secondaryActionLabel!),
+          ),
+        ],
+      ],
     );
   }
 }

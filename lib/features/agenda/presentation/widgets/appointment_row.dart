@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/agenda/presentation/widgets/appointment_status_style.dart';
 import 'package:la_pelve/features/agenda/presentation/widgets/status_picker_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_status_badge.dart';
 
 class AppointmentRow extends StatelessWidget {
   const AppointmentRow({required this.appointment, super.key});
@@ -27,7 +30,6 @@ class AppointmentRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final language = context.watch<LocaleCubit>().state;
-    final foreground = appointment.status.foreground(context.colors);
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -68,23 +70,18 @@ class AppointmentRow extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               InkWell(
-                borderRadius: BorderRadius.circular(100),
+                borderRadius: AppRadius.smAll,
                 onTap: () => _changeStatus(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 48,
+                    minWidth: 48,
                   ),
-                  decoration: BoxDecoration(
-                    color: foreground.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    appointment.status.label(language),
-                    style: TextStyle(
-                      color: foreground,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                  child: Center(
+                    widthFactor: 1,
+                    child: AppStatusBadge(
+                      label: appointment.status.label(language),
+                      tone: appointment.status.tone,
                     ),
                   ),
                 ),
@@ -95,15 +92,4 @@ class AppointmentRow extends StatelessWidget {
       ),
     );
   }
-}
-
-extension _AppointmentStatusColor on AppointmentStatus {
-  Color foreground(AppColors colors) => switch (this) {
-    AppointmentStatus.scheduled => colors.primary,
-    AppointmentStatus.confirmed => colors.primaryButton,
-    AppointmentStatus.fulfilled => colors.success,
-    AppointmentStatus.cancelled => colors.error,
-    AppointmentStatus.noShow => colors.error,
-    AppointmentStatus.rescheduled => colors.textSecondary,
-  };
 }

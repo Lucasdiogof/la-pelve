@@ -89,13 +89,15 @@ class _AgendaMonthlyReportView extends StatelessWidget {
                 children: [
                   Text(
                     t.appointmentsInMonth,
-                    style: const TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      color: context.colors.onPrimary.withValues(alpha: 0.8),
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${inMonth.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.colors.onPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                     ),

@@ -8,6 +8,7 @@ import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_b.dart';
 import 'package:la_pelve/shared/widgets/app_chip_select.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/app_yes_no_toggle.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 
 class UrinaryFunctionStep extends StatefulWidget {
   const UrinaryFunctionStep({
@@ -52,13 +53,14 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
   @override
   Widget build(BuildContext context) {
     final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
+    final p = PatientsStrings(t.language);
     final funcao = widget.patient.urinaryFunction;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _YesNoWithText(
           label: t.urinaryUrgencyLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldUrgencyDetail,
           value: funcao.urgency,
           controller: _controllerFor('urgencia', funcao.urgencyDescription),
           onToggle: (value) => _update((f) => f.copyWith(urgency: value)),
@@ -162,7 +164,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
         const SizedBox(height: 12),
         _YesNoWithText(
           label: t.nocturnalEnuresisLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldEnuresisDetail,
           value: funcao.nocturnalEnuresis,
           controller: _controllerFor('enurese', funcao.enuresisDescription),
           onToggle: (value) =>
@@ -173,7 +175,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
         const SizedBox(height: 12),
         _YesNoWithText(
           label: t.hesitancyLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldHesitancyDetail,
           value: funcao.hesitancy,
           controller: _controllerFor('hesitacao', funcao.hesitancyDescription),
           onToggle: (value) => _update((f) => f.copyWith(hesitancy: value)),
@@ -183,7 +185,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
         const SizedBox(height: 12),
         _YesNoWithText(
           label: t.urinaryStrainingLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldUrinaryStrainingDetail,
           value: funcao.urinaryStraining,
           controller: _controllerFor(
             'esforco',
@@ -197,7 +199,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
         const SizedBox(height: 12),
         _YesNoWithText(
           label: t.postVoidDribblingLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldDribblingDetail,
           value: funcao.postVoidDribbling,
           controller: _controllerFor(
             'gotejamento',
@@ -211,7 +213,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
         const SizedBox(height: 12),
         _YesNoWithText(
           label: t.incompleteEmptyingUrinaryLabel,
-          detailHint: t.detailHint,
+          detailLabel: p.fieldIncompleteEmptyingDetail,
           value: funcao.incompleteEmptying,
           controller: _controllerFor(
             'esvaziamento',
@@ -230,7 +232,7 @@ class _UrinaryFunctionStepState extends State<UrinaryFunctionStep> {
 class _YesNoWithText extends StatelessWidget {
   const _YesNoWithText({
     required this.label,
-    required this.detailHint,
+    required this.detailLabel,
     required this.value,
     required this.controller,
     required this.onToggle,
@@ -238,7 +240,7 @@ class _YesNoWithText extends StatelessWidget {
   });
 
   final String label;
-  final String detailHint;
+  final String detailLabel;
   final bool? value;
   final TextEditingController controller;
   final ValueChanged<bool?> onToggle;
@@ -255,7 +257,7 @@ class _YesNoWithText extends StatelessWidget {
           AppTextField(
             controller: controller,
             icon: Icons.description_outlined,
-            hintText: detailHint,
+            label: detailLabel,
             onChanged: onText,
           ),
         ],

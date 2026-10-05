@@ -12,6 +12,7 @@ import 'package:la_pelve/shared/widgets/app_scale_field.dart';
 import 'package:la_pelve/shared/utils/validators.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/app_yes_no_toggle.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 
 class GynecologicalHistoryStep extends StatefulWidget {
   const GynecologicalHistoryStep({
@@ -147,7 +148,7 @@ class _GynecologicalHistoryStepState extends State<GynecologicalHistoryStep> {
           AppTextField(
             controller: _reposicaoHormonalController,
             icon: Icons.medication_outlined,
-            hintText: t.hormoneReplacementTherapyDetailHint,
+            label: PatientsStrings(t.language).fieldHormoneReplacementDetail,
             onChanged: (value) => _update(
               (h) => h.copyWith(hormoneReplacementTherapyDescription: value),
             ),

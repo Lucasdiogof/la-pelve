@@ -310,10 +310,9 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                       OutlinedButton(
                         onPressed: _delete,
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: context.colors.error,
-                          side: BorderSide(color: context.colors.error),
-                          minimumSize: const Size.fromHeight(56),
-                          shape: const StadiumBorder(),
+                          foregroundColor: context.colors.danger,
+                          side: BorderSide(color: context.colors.danger),
+                          minimumSize: const Size.fromHeight(52),
                         ),
                         child: Text(t.deleteLabel),
                       ),

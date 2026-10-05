@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 
 class AppScaleField extends StatelessWidget {
   const AppScaleField({
@@ -20,51 +21,32 @@ class AppScaleField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final current = value ?? min;
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: context.colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: context.colors.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Text(
-                '$current',
-                style: TextStyle(
-                  color: context.colors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
+            Expanded(child: Text(label, style: textTheme.bodyLarge)),
+            const SizedBox(width: 12),
+            Text(
+              '$current',
+              textAlign: TextAlign.end,
+              style: textTheme.metricSmall.copyWith(
+                color: context.colors.primary,
               ),
             ),
           ],
         ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: context.colors.primary,
-            inactiveTrackColor: context.colors.border,
-            thumbColor: context.colors.primary,
-            overlayColor: context.colors.primary.withValues(alpha: 0.15),
-          ),
-          child: Slider(
-            value: current.toDouble(),
-            min: min.toDouble(),
-            max: max.toDouble(),
-            divisions: max - min,
-            label: '$current',
-            onChanged: (newValue) => onChanged(newValue.round()),
-          ),
+        Slider(
+          value: current.toDouble(),
+          min: min.toDouble(),
+          max: max.toDouble(),
+          divisions: max - min,
+          label: '$current',
+          onChanged: (newValue) => onChanged(newValue.round()),
         ),
       ],
     );

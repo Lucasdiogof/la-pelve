@@ -11,6 +11,7 @@ import 'package:la_pelve/shared/widgets/app_chip_select.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/app_yes_no_toggle.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 
 class ObstetricHistoryStep extends StatefulWidget {
   const ObstetricHistoryStep({
@@ -146,7 +147,7 @@ class _ObstetricHistoryStepState extends State<ObstetricHistoryStep> {
             AppTextField(
               controller: _gestacaoRiscoController,
               icon: Icons.description_outlined,
-              hintText: t.highRiskPregnancyDetailHint,
+              label: PatientsStrings(t.language).fieldHighRiskPregnancyDetail,
               onChanged: (value) => _update(
                 (h) => h.copyWith(highRiskPregnancyDescription: value),
               ),
@@ -260,7 +261,7 @@ class _PregnancyCardState extends State<_PregnancyCard> {
             AppTextField(
               controller: _perdaController,
               icon: Icons.description_outlined,
-              hintText: t.pregnancyLossDetailHint,
+              label: PatientsStrings(t.language).fieldLossDetail,
               onChanged: (value) => widget.onChanged(
                 widget.pregnancy.copyWith(lossDescription: value),
               ),
@@ -326,7 +327,7 @@ class _PregnancyCardState extends State<_PregnancyCard> {
               AppTextField(
                 controller: _complicacaoController,
                 icon: Icons.description_outlined,
-                hintText: t.complicationsDetailHint,
+                label: PatientsStrings(t.language).fieldComplicationDetail,
                 onChanged: (value) => widget.onChanged(
                   widget.pregnancy.copyWith(complicationDescription: value),
                 ),

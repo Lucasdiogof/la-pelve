@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
-import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
 import 'package:la_pelve/features/home/l10n/home_strings.dart';
+import 'package:la_pelve/shared/widgets/app_status_badge.dart';
 
 enum ScheduleStatus { completed, next, waiting, cancelled }
 
@@ -158,11 +158,14 @@ ClinicOverview buildClinicOverview({
   );
 }
 
+/// Tom de cada [ScheduleStatus], no mesmo vocabulário do mapa de
+/// AppointmentStatus (`appointment_status_style.dart`): concluído = success
+/// (como fulfilled), cancelado = muted (como cancelled).
 extension ScheduleStatusStyle on ScheduleStatus {
-  Color foreground(AppColors colors) => switch (this) {
-    ScheduleStatus.completed => colors.success,
-    ScheduleStatus.next => colors.primary,
-    ScheduleStatus.waiting => colors.primaryButton,
-    ScheduleStatus.cancelled => colors.textSecondary,
+  AppStatusTone get tone => switch (this) {
+    ScheduleStatus.completed => AppStatusTone.success,
+    ScheduleStatus.next => AppStatusTone.primary,
+    ScheduleStatus.waiting => AppStatusTone.neutral,
+    ScheduleStatus.cancelled => AppStatusTone.muted,
   };
 }

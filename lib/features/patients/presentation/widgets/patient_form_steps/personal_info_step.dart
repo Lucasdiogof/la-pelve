@@ -11,6 +11,7 @@ import 'package:la_pelve/shared/utils/phone_input_formatter.dart';
 import 'package:la_pelve/shared/utils/validators.dart';
 import 'package:la_pelve/shared/widgets/app_chip_select.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 
 class PersonalInfoStep extends StatefulWidget {
   const PersonalInfoStep({
@@ -113,6 +114,7 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
         AppTextField(
           controller: _telefoneController,
           icon: Icons.phone_outlined,
+          label: PatientsStrings(t.language).fieldPhone,
           hintText: t.phoneHint,
           keyboardType: TextInputType.phone,
           inputFormatters: [PhoneInputFormatter()],
@@ -178,7 +180,6 @@ class _WhatsappConsentSwitch extends StatelessWidget {
           SwitchListTile(
             value: cubit.whatsappReminderConsent,
             onChanged: phoneValid ? cubit.setWhatsappConsent : null,
-            activeThumbColor: context.colors.primary,
             title: Text(t.whatsappConsentLabel),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -189,7 +190,7 @@ class _WhatsappConsentSwitch extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(
                 t.whatsappConsentInvalidPhoneHint,
-                style: TextStyle(color: context.colors.error, fontSize: 12),
+                style: TextStyle(color: context.colors.danger, fontSize: 12),
               ),
             )
           else if (cubit.whatsappConsentPhoneChanged)

@@ -6,6 +6,7 @@ import 'package:la_pelve/features/home/l10n/home_strings.dart';
 import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_styles.dart';
+import 'package:la_pelve/shared/utils/money_format.dart';
 
 class ClinicOverviewSection extends StatelessWidget {
   const ClinicOverviewSection({
@@ -47,7 +48,7 @@ class ClinicOverviewSection extends StatelessWidget {
                   Expanded(
                     child: _OverviewStat(
                       icon: Icons.groups_outlined,
-                      iconColor: context.colors.logoTeal,
+                      iconColor: context.colors.primary,
                       value: '${overview.activePatients}',
                       label: t.activePatientsLabel,
                       onTap: () => onNavigateToTab(1),
@@ -80,7 +81,10 @@ class ClinicOverviewSection extends StatelessWidget {
                       iconColor: context.colors.success,
                       value: hideFinancial
                           ? 'R\$ ••••'
-                          : 'R\$ ${overview.receivedThisMonth.toStringAsFixed(0)}',
+                          : formatBrl(
+                              overview.receivedThisMonth,
+                              language: context.watch<LocaleCubit>().state,
+                            ),
                       label: t.receivedThisMonthLabel,
                       onTap: () => onNavigateToTab(3),
                       corner: IconButton(

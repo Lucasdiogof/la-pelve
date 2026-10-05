@@ -165,7 +165,7 @@ class PatientDetailPage extends StatelessWidget {
                           IconButton(
                             icon: Icon(
                               Icons.delete_outline,
-                              color: context.colors.error,
+                              color: context.colors.danger,
                             ),
                             tooltip: t.deletePatientTooltip,
                             onPressed: () => _confirmDelete(context, current),
@@ -276,12 +276,9 @@ class PatientDetailPage extends StatelessWidget {
                         OutlinedButton.icon(
                           onPressed: () => _closeTreatment(context, current),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: context.colors.primaryButton,
-                            side: BorderSide(
-                              color: context.colors.primaryButton,
-                            ),
-                            minimumSize: const Size.fromHeight(56),
-                            shape: const StadiumBorder(),
+                            foregroundColor: context.colors.primary,
+                            side: BorderSide(color: context.colors.primary),
+                            minimumSize: const Size.fromHeight(52),
                           ),
                           icon: const Icon(Icons.event_busy_outlined),
                           label: Text(t.closeTreatmentButton),

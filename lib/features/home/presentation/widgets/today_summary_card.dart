@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
+import 'package:la_pelve/shared/widgets/app_status_badge.dart';
 import 'package:la_pelve/features/home/l10n/home_strings.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_styles.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
@@ -33,7 +35,7 @@ class TodaySummaryCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [context.colors.primary, context.colors.primaryButton],
+              colors: [context.colors.primary, context.colors.primary],
             ),
             boxShadow: [
               BoxShadow(
@@ -48,8 +50,8 @@ class TodaySummaryCard extends StatelessWidget {
             children: [
               Text(
                 t.upcomingAppointmentsTitle,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.colors.onPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
@@ -63,7 +65,7 @@ class TodaySummaryCard extends StatelessWidget {
                       t.noUpcomingAppointmentsMessage,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: context.colors.onPrimary.withValues(alpha: 0.85),
                       ),
                     ),
                   ),
@@ -95,7 +97,7 @@ class _ScheduleRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Container(
               height: 1,
-              color: Colors.white.withValues(alpha: 0.2),
+              color: context.colors.onPrimary.withValues(alpha: 0.2),
             ),
           ),
         Padding(
@@ -110,15 +112,15 @@ class _ScheduleRow extends StatelessWidget {
                     Text(
                       item.dayLabel,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
+                        color: context.colors.onPrimary.withValues(alpha: 0.75),
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                       ),
                     ),
                     Text(
                       item.time,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.colors.onPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -130,8 +132,8 @@ class _ScheduleRow extends StatelessWidget {
                 child: Text(
                   item.patientName,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.colors.onPrimary,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -142,14 +144,14 @@ class _ScheduleRow extends StatelessWidget {
                   horizontal: 10,
                   vertical: 5,
                 ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: AppRadius.xsAll,
                 ),
                 child: Text(
                   item.status.label(language),
                   style: TextStyle(
-                    color: item.status.foreground(context.colors),
+                    color: item.status.tone.foreground(context.colors),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),

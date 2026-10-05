@@ -8,6 +8,7 @@ import 'package:la_pelve/features/financial/l10n/financial_strings.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_report_month_cubit.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/shared/utils/money_format.dart';
 
 class MonthlyReportTab extends StatelessWidget {
   const MonthlyReportTab({super.key});
@@ -95,13 +96,15 @@ class _MonthlyReportView extends StatelessWidget {
                 children: [
                   Text(
                     t.totalReceived,
-                    style: const TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      color: context.colors.onPrimary.withValues(alpha: 0.8),
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'R\$ ${total.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    formatBrl(total, language: t.language),
+                    style: TextStyle(
+                      color: context.colors.onPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                     ),

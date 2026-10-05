@@ -57,7 +57,7 @@ class LoginCard extends StatelessWidget {
                       style: GoogleFonts.cormorantGaramond(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: context.colors.primaryButton,
+                        color: context.colors.primary,
                       ),
                     ),
                   ),
@@ -110,8 +110,8 @@ class LoginCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           decoration: TextDecoration.underline,
-                          decorationColor: context.colors.primaryButton,
-                          color: context.colors.primaryButton,
+                          decorationColor: context.colors.primary,
+                          color: context.colors.primary,
                         ),
                       ),
                     ),
@@ -137,23 +137,21 @@ class LoginCard extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onCreateAccount,
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(56),
-                    shape: const StadiumBorder(),
-                    side: BorderSide(color: context.colors.border),
+                    minimumSize: const Size.fromHeight(52),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.person_outline,
-                        color: context.colors.primaryButton,
+                        color: context.colors.primary,
                         size: 20,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         t.createAccount,
                         style: TextStyle(
-                          color: context.colors.primaryButton,
+                          color: context.colors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

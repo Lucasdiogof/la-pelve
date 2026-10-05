@@ -1,81 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 
+/// Estado vazio: ícone neutro pequeno, título, descrição e ação opcional.
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({
     required this.icon,
     required this.title,
     required this.message,
     super.key,
+    this.actionLabel,
+    this.onAction,
   });
 
   final IconData icon;
   final String title;
   final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s32,
+          vertical: AppSpacing.s40,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 140,
-              height: 140,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    top: 6,
-                    left: 8,
-                    child: Icon(
-                      Icons.eco_outlined,
-                      size: 30,
-                      color: context.colors.secondary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 6,
-                    right: 8,
-                    child: Transform.rotate(
-                      angle: 3.14159,
-                      child: Icon(
-                        Icons.eco_outlined,
-                        size: 30,
-                        color: context.colors.secondary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: context.colors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, size: 42, color: context.colors.primary),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            Icon(icon, size: 32, color: context.colors.textSecondary),
+            const SizedBox(height: AppSpacing.s16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-                color: context.colors.textPrimary,
-              ),
+              style: textTheme.titleMedium,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.s4),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: context.colors.textSecondary),
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: AppSpacing.s16),
+              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
           ],
         ),
       ),

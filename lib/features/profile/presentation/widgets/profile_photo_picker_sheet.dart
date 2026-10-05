@@ -5,6 +5,7 @@ import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 
 enum ProfilePhotoAction { camera, gallery, remove }
 
@@ -52,72 +53,43 @@ class _ProfilePhotoSourceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = ProfileStrings(context.watch<LocaleCubit>().state);
-    return Material(
-      color: context.colors.surface,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 42,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: context.colors.border,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                t.photoPickerTitle,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                onTap: () =>
-                    Navigator.of(context).pop(ProfilePhotoAction.camera),
-                leading: Icon(
-                  Icons.photo_camera_outlined,
-                  color: context.colors.primary,
-                ),
-                title: Text(t.takePhotoLabel),
-              ),
-              ListTile(
-                onTap: () =>
-                    Navigator.of(context).pop(ProfilePhotoAction.gallery),
-                leading: Icon(
-                  Icons.photo_library_outlined,
-                  color: context.colors.primary,
-                ),
-                title: Text(t.chooseFromGalleryLabel),
-              ),
-              if (canRemove)
-                ListTile(
-                  onTap: () =>
-                      Navigator.of(context).pop(ProfilePhotoAction.remove),
-                  leading: Icon(
-                    Icons.delete_outline,
-                    color: context.colors.error,
-                  ),
-                  title: Text(
-                    t.removePhotoTitle,
-                    style: TextStyle(color: context.colors.error),
-                  ),
-                ),
-            ],
+    return AppSheet(
+      children: [
+        Text(
+          t.photoPickerTitle,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: context.colors.textPrimary,
           ),
         ),
-      ),
+        const SizedBox(height: 12),
+        ListTile(
+          onTap: () => Navigator.of(context).pop(ProfilePhotoAction.camera),
+          leading: Icon(
+            Icons.photo_camera_outlined,
+            color: context.colors.primary,
+          ),
+          title: Text(t.takePhotoLabel),
+        ),
+        ListTile(
+          onTap: () => Navigator.of(context).pop(ProfilePhotoAction.gallery),
+          leading: Icon(
+            Icons.photo_library_outlined,
+            color: context.colors.primary,
+          ),
+          title: Text(t.chooseFromGalleryLabel),
+        ),
+        if (canRemove)
+          ListTile(
+            onTap: () => Navigator.of(context).pop(ProfilePhotoAction.remove),
+            leading: Icon(Icons.delete_outline, color: context.colors.danger),
+            title: Text(
+              t.removePhotoTitle,
+              style: TextStyle(color: context.colors.danger),
+            ),
+          ),
+      ],
     );
   }
 }

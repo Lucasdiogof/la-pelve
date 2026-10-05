@@ -3,6 +3,7 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_consent.dart';
 import 'package:la_pelve/features/patients/domain/entities/pregnancy.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
@@ -10,6 +11,7 @@ import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
 import 'package:la_pelve/features/patients/domain/repositories/patient_consent_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/shared/utils/money_format.dart';
 
 class PatientDetailFormat {
   const PatientDetailFormat._();
@@ -53,7 +55,7 @@ class PatientDetailFormat {
     AppLanguage language = AppLanguage.portuguese,
   }) => value == null
       ? naoInformado(language: language)
-      : 'R\$ ${value.toStringAsFixed(2)}';
+      : formatBrl(value, language: language);
 
   static String enumValue<T>(
     T? value,
@@ -70,15 +72,15 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 12),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.s32,
+        bottom: AppSpacing.s8,
+      ),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
-          color: context.colors.primary,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.overline.copyWith(color: context.colors.textSecondary),
       ),
     );
   }
@@ -89,47 +91,54 @@ class InfoRow extends StatelessWidget {
     this.label,
     this.value, {
     this.language = AppLanguage.portuguese,
+    this.showDivider = false,
     super.key,
   });
 
   final String label;
   final String value;
   final AppLanguage language;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     final isMissing =
         value == PatientDetailFormat.naoInformado(language: language);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: textTheme.bodyLarge?.copyWith(
                 color: context.colors.textSecondary,
-                fontSize: 13,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.s16),
           Expanded(
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: TextStyle(
+              style: textTheme.bodyLarge?.copyWith(
                 color: isMissing
                     ? context.colors.textHint
                     : context.colors.textPrimary,
                 fontStyle: isMissing ? FontStyle.italic : FontStyle.normal,
-                fontWeight: FontWeight.w600,
+                fontWeight: isMissing ? FontWeight.w400 : FontWeight.w500,
               ),
             ),
           ),
         ],
       ),
+    );
+    if (!showDivider) return row;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [row, const Divider(height: 1)],
     );
   }
 }
@@ -163,12 +172,10 @@ class WhatsappReminderStatusRow extends StatelessWidget {
         };
         final value = consent == null
             ? t.whatsappReminderInactive
-            : t.whatsappReminderActiveSince(AppDateField.format(consent.grantedAt));
-        return InfoRow(
-          t.whatsappReminderFieldLabel,
-          value,
-          language: language,
-        );
+            : t.whatsappReminderActiveSince(
+                AppDateField.format(consent.grantedAt),
+              );
+        return InfoRow(t.whatsappReminderFieldLabel, value, language: language);
       },
     );
   }

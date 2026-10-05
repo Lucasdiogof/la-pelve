@@ -159,7 +159,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
                 Icon(
                   Icons.error_outline_rounded,
                   size: 48,
-                  color: context.colors.error,
+                  color: context.colors.danger,
                 ),
                 const SizedBox(height: 16),
                 Text(

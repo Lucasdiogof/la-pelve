@@ -22,7 +22,6 @@ class AppChipSelect<T> extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      alignment: WrapAlignment.center,
       children: options.map((option) {
         final isSelected = selected.contains(option);
         return FilterChip(
@@ -42,16 +41,16 @@ class AppChipSelect<T> extends StatelessWidget {
             }
           },
           showCheckmark: false,
-          selectedColor: context.colors.primary,
-          backgroundColor: context.colors.surface,
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : context.colors.textPrimary,
-            fontWeight: FontWeight.w600,
+            color: isSelected
+                ? context.colors.onPrimary
+                : context.colors.textPrimary,
           ),
           side: BorderSide(
-            color: isSelected ? context.colors.primary : context.colors.border,
+            color: isSelected
+                ? context.colors.primary
+                : context.colors.borderStrong,
           ),
-          shape: const StadiumBorder(),
         );
       }).toList(),
     );

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 
 class PickedAttachmentFile {
   const PickedAttachmentFile({
@@ -79,65 +80,42 @@ class _AttachmentSourceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
-    return Material(
-      color: context.colors.surface,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 42,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: context.colors.border,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                t.addAttachmentButton,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                onTap: () => Navigator.of(context).pop(_PickSource.camera),
-                leading: Icon(
-                  Icons.photo_camera_outlined,
-                  color: context.colors.primary,
-                ),
-                title: Text(t.takePhotoOption),
-              ),
-              ListTile(
-                onTap: () => Navigator.of(context).pop(_PickSource.gallery),
-                leading: Icon(
-                  Icons.photo_library_outlined,
-                  color: context.colors.primary,
-                ),
-                title: Text(t.chooseFromGalleryOption),
-              ),
-              ListTile(
-                onTap: () => Navigator.of(context).pop(_PickSource.file),
-                leading: Icon(
-                  Icons.picture_as_pdf_outlined,
-                  color: context.colors.primary,
-                ),
-                title: Text(t.chooseFileOption),
-              ),
-            ],
+    return AppSheet(
+      children: [
+        Text(
+          t.addAttachmentButton,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: context.colors.textPrimary,
           ),
         ),
-      ),
+        const SizedBox(height: 12),
+        ListTile(
+          onTap: () => Navigator.of(context).pop(_PickSource.camera),
+          leading: Icon(
+            Icons.photo_camera_outlined,
+            color: context.colors.primary,
+          ),
+          title: Text(t.takePhotoOption),
+        ),
+        ListTile(
+          onTap: () => Navigator.of(context).pop(_PickSource.gallery),
+          leading: Icon(
+            Icons.photo_library_outlined,
+            color: context.colors.primary,
+          ),
+          title: Text(t.chooseFromGalleryOption),
+        ),
+        ListTile(
+          onTap: () => Navigator.of(context).pop(_PickSource.file),
+          leading: Icon(
+            Icons.picture_as_pdf_outlined,
+            color: context.colors.primary,
+          ),
+          title: Text(t.chooseFileOption),
+        ),
+      ],
     );
   }
 }

@@ -179,7 +179,7 @@ class _WhatsappConnectionBody extends StatelessWidget {
       ),
       WhatsappConnectionError() => _InfoCard(
         icon: Icons.error_outline_rounded,
-        iconColor: context.colors.error,
+        iconColor: context.colors.danger,
         title: t.whatsappConnectionErrorMessage,
         message: null,
         children: const [],
@@ -193,7 +193,7 @@ class _WhatsappConnectionBody extends StatelessWidget {
               Icon(
                 Icons.error_outline_rounded,
                 size: 48,
-                color: context.colors.error,
+                color: context.colors.danger,
               ),
               const SizedBox(height: 16),
               Text(
