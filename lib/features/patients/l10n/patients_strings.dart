@@ -156,6 +156,26 @@ class PatientsStrings {
     AppLanguage.english => 'Occupation',
   };
 
+  String get whatsappReminderFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Lembretes pelo WhatsApp',
+    AppLanguage.english => 'WhatsApp reminders',
+  };
+
+  String get whatsappReminderInactive => switch (language) {
+    AppLanguage.portuguese => 'desativados',
+    AppLanguage.english => 'disabled',
+  };
+
+  String get whatsappReminderActive => switch (language) {
+    AppLanguage.portuguese => 'ativados',
+    AppLanguage.english => 'enabled',
+  };
+
+  String whatsappReminderActiveSince(String date) => switch (language) {
+    AppLanguage.portuguese => 'ativados desde $date',
+    AppLanguage.english => 'enabled since $date',
+  };
+
   String get sectionConsultationFee => switch (language) {
     AppLanguage.portuguese => 'Valor da consulta',
     AppLanguage.english => 'Consultation fee',

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:la_pelve/features/patients/domain/entities/pregnancy.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/shared/utils/br_phone_e164.dart';
 import 'package:la_pelve/shared/utils/enum_from_name.dart';
 import 'package:la_pelve/shared/utils/unset.dart';
 
@@ -20,6 +21,10 @@ class PersonalInfo extends Equatable {
   final String phone;
   final String occupation;
   final Gender? gender;
+
+  /// Telefone normalizado para E.164, derivado de [phone]. Null quando
+  /// [phone] nao e um celular brasileiro valido (nao pode receber WhatsApp).
+  String? get phoneE164 => normalizeBrMobileToE164(phone);
 
   PersonalInfo copyWith({
     String? name,
@@ -1045,6 +1050,7 @@ class Patient extends Equatable {
     'social_name': personalInfo.socialName,
     'age': personalInfo.age,
     'phone': personalInfo.phone,
+    'phone_e164': personalInfo.phoneE164,
     'occupation': personalInfo.occupation,
     'gender': personalInfo.gender?.name,
     'medical_history': medicalHistory.toJson(),

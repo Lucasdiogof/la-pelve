@@ -228,6 +228,10 @@ class PatientDetailPage extends StatelessWidget {
                             ),
                             language: t.language,
                           ),
+                          WhatsappReminderStatusRow(
+                            patientId: current.id,
+                            language: t.language,
+                          ),
                           InfoRow(
                             t.fieldOccupation,
                             PatientDetailFormat.text(

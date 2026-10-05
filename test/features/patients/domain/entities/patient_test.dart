@@ -59,6 +59,32 @@ void main() {
       expect(patient.medicalHistory.chiefComplaint, '');
       expect(patient.discharge, isNull);
     });
+
+    test('toJson keeps phone untouched and adds the normalized phone_e164', () {
+      final patient = Patient(
+        id: 'p4',
+        createdAt: DateTime.utc(2026, 1, 1),
+        personalInfo: const PersonalInfo(
+          name: 'Ana',
+          phone: '(62) 9 9999-9999',
+        ),
+      );
+
+      final json = patient.toJson();
+
+      expect(json['phone'], '(62) 9 9999-9999');
+      expect(json['phone_e164'], '+5562999999999');
+    });
+
+    test('toJson sends a null phone_e164 for an invalid mobile number', () {
+      final patient = Patient(
+        id: 'p5',
+        createdAt: DateTime.utc(2026, 1, 1),
+        personalInfo: const PersonalInfo(name: 'Ana', phone: '6233334444'),
+      );
+
+      expect(patient.toJson()['phone_e164'], isNull);
+    });
   });
 
   group('Patient.copyWith', () {

@@ -289,4 +289,38 @@ class PatientsWizardStringsB {
     AppLanguage.portuguese => 'Paciente atualizado com sucesso.',
     AppLanguage.english => 'Patient successfully updated.',
   };
+
+  String get whatsappConsentSaveErrorMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'O paciente foi salvo, mas não foi possível atualizar o '
+          'consentimento de lembretes pelo WhatsApp. Tente novamente na '
+          'edição do paciente.',
+    AppLanguage.english =>
+      'The patient was saved, but the WhatsApp reminder consent could '
+          'not be updated. Try again from the patient edit screen.',
+  };
+
+  String get whatsappConsentSaveErrorTitle => switch (language) {
+    AppLanguage.portuguese => 'Paciente salvo',
+    AppLanguage.english => 'Patient saved',
+  };
+
+  String get consentLoadErrorMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível verificar o consentimento de lembretes pelo '
+          'WhatsApp deste paciente. Tente novamente.',
+    AppLanguage.english =>
+      "Couldn't check this patient's WhatsApp reminder consent. "
+          'Try again.',
+  };
+
+  String get retryButton => switch (language) {
+    AppLanguage.portuguese => 'Tentar novamente',
+    AppLanguage.english => 'Try again',
+  };
+
+  String get backButton => switch (language) {
+    AppLanguage.portuguese => 'Voltar',
+    AppLanguage.english => 'Back',
+  };
 }

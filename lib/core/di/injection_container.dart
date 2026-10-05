@@ -12,8 +12,10 @@ import 'package:la_pelve/features/financial/data/financial_repository_supabase.d
 import 'package:la_pelve/features/financial/domain/repositories/financial_repository.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:la_pelve/features/patients/data/attachment_repository_supabase.dart';
+import 'package:la_pelve/features/patients/data/patient_consent_repository_supabase.dart';
 import 'package:la_pelve/features/patients/data/patient_repository_supabase.dart';
 import 'package:la_pelve/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:la_pelve/features/patients/domain/repositories/patient_consent_repository.dart';
 import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:la_pelve/features/profile/data/profile_repository_supabase.dart';
@@ -42,6 +44,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<AttachmentRepository>(
     () => AttachmentRepositorySupabase(sl()),
+  );
+  sl.registerLazySingleton<PatientConsentRepository>(
+    () => PatientConsentRepositorySupabase(sl()),
   );
   sl.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositorySupabase(sl()),

@@ -40,6 +40,39 @@ class PatientsWizardStringsA {
     AppLanguage.english => 'GENDER',
   };
 
+  String get whatsappConsentLabel => switch (language) {
+    AppLanguage.portuguese =>
+      'Receber lembretes de agendamento pelo WhatsApp',
+    AppLanguage.english => 'Receive appointment reminders via WhatsApp',
+  };
+
+  String get whatsappConsentDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'Confirmo que o paciente autorizou receber lembretes de agendamento '
+          'pelo WhatsApp. O lembrete não inclui informações de saúde.',
+    AppLanguage.english =>
+      'I confirm the patient authorized receiving appointment reminders '
+          'via WhatsApp. The reminder does not include health information.',
+  };
+
+  String get whatsappConsentInvalidPhoneHint => switch (language) {
+    AppLanguage.portuguese =>
+      'É necessário um número de celular brasileiro válido (com DDD e o 9) '
+          'para ativar os lembretes pelo WhatsApp.',
+    AppLanguage.english =>
+      'A valid Brazilian mobile number (with area code and the leading 9) '
+          'is required to enable WhatsApp reminders.',
+  };
+
+  String get whatsappConsentPhoneChangedHint => switch (language) {
+    AppLanguage.portuguese =>
+      'O telefone foi alterado: o consentimento anterior não vale para o '
+          'novo número. Ative novamente se o paciente autorizar.',
+    AppLanguage.english =>
+      'The phone number changed: the previous consent no longer applies '
+          'to the new number. Turn it back on if the patient authorizes it.',
+  };
+
   String get chiefComplaintHint => switch (language) {
     AppLanguage.portuguese => 'Queixa principal',
     AppLanguage.english => 'Chief complaint',

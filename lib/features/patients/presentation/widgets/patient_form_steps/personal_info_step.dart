@@ -6,6 +6,7 @@ import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
 import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_a.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patient_form_cubit.dart';
 import 'package:la_pelve/shared/utils/phone_input_formatter.dart';
 import 'package:la_pelve/shared/utils/validators.dart';
 import 'package:la_pelve/shared/widgets/app_chip_select.dart';
@@ -119,6 +120,8 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
           onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
+        const _WhatsappConsentSwitch(),
+        const SizedBox(height: 12),
         AppTextField(
           controller: _profissaoController,
           icon: Icons.work_outline,
@@ -152,6 +155,57 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _WhatsappConsentSwitch extends StatelessWidget {
+  const _WhatsappConsentSwitch();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = PatientsWizardStringsA(context.watch<LocaleCubit>().state);
+    final cubit = context.watch<PatientFormCubit>();
+    final state = cubit.state;
+    final phoneValid = state.patient.personalInfo.phoneE164 != null;
+
+    return Material(
+      color: context.colors.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SwitchListTile(
+            value: cubit.whatsappReminderConsent,
+            onChanged: phoneValid ? cubit.setWhatsappConsent : null,
+            activeThumbColor: context.colors.primary,
+            title: Text(t.whatsappConsentLabel),
+            subtitle: Text(t.whatsappConsentDescription),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          if (!phoneValid)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                t.whatsappConsentInvalidPhoneHint,
+                style: TextStyle(color: context.colors.error, fontSize: 12),
+              ),
+            )
+          else if (cubit.whatsappConsentPhoneChanged)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                t.whatsappConsentPhoneChangedHint,
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

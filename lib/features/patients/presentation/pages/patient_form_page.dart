@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
-import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/utils/app_loading.dart';
-import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/repositories/attachment_repository.dart';
+import 'package:la_pelve/features/patients/domain/repositories/patient_consent_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_wizard_strings_b.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patient_consent_load_result.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patient_form_cubit.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patient_form_save_controller.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patient_form_state.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
@@ -26,6 +28,7 @@ import 'package:la_pelve/features/patients/presentation/widgets/patient_form_ste
 import 'package:la_pelve/features/patients/presentation/widgets/patient_form_steps/urinary_function_step.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_wizard_scaffold.dart';
+import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class PatientFormPage extends StatefulWidget {
   const PatientFormPage({this.patient, super.key});
@@ -37,46 +40,102 @@ class PatientFormPage extends StatefulWidget {
 }
 
 class _PatientFormPageState extends State<PatientFormPage> {
-  late final _formCubit = PatientFormCubit(existingPatient: widget.patient);
+  PatientFormCubit? _formCubit;
+
+  /// true = a leitura do consentimento ativo falhou (ou deu timeout); a UI
+  /// mostra um estado de erro com "tentar novamente"/"voltar" em vez de
+  /// montar o formulário com uma informação que pode estar errada.
+  bool _consentLoadFailed = false;
+
+  bool _isSaving = false;
+
+  late final PatientFormSaveController _saveController = PatientFormSaveController(
+    patientsCubit: context.read<PatientsCubit>(),
+    attachmentRepository: sl<AttachmentRepository>(),
+    consentRepository: sl<PatientConsentRepository>(),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConsentAndInitCubit();
+  }
+
+  Future<void> _loadConsentAndInitCubit() async {
+    setState(() {
+      _consentLoadFailed = false;
+      _formCubit = null;
+    });
+
+    if (widget.patient == null) {
+      // Paciente novo: não existe consentimento prévio para carregar.
+      setState(() {
+        _formCubit = PatientFormCubit();
+      });
+      return;
+    }
+
+    final loadResult = await loadActiveWhatsappConsent(
+      repository: sl<PatientConsentRepository>(),
+      patientId: widget.patient!.id,
+    );
+    if (!mounted) return;
+
+    switch (loadResult) {
+      case PatientConsentLoadSucceeded(:final consent):
+        setState(() {
+          _formCubit = PatientFormCubit(
+            existingPatient: widget.patient,
+            existingConsent: consent,
+          );
+        });
+      case PatientConsentLoadFailed():
+        // Nunca trate uma falha de leitura como "não há consentimento": o
+        // formulário só é montado com Success (consentimento ou null).
+        setState(() => _consentLoadFailed = true);
+    }
+  }
 
   @override
   void dispose() {
-    _formCubit.close();
+    _formCubit?.close();
     super.dispose();
   }
 
-  Future<void> _save(PatientFormState state) async {
+  Future<void> _save(PatientFormCubit formCubit, PatientFormState state) async {
+    // Guarda de UI: evita até disparar uma segunda chamada enquanto a
+    // primeira está em andamento. O controller tem a mesma guarda por
+    // dentro, então qualquer outro chamador (ou um teste) está protegido
+    // mesmo sem passar por este widget.
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
     showAppLoading();
-    final patientsCubit = context.read<PatientsCubit>();
-    final result = _formCubit.isEditing
-        ? await patientsCubit.updatePatient(state.patient)
-        : await patientsCubit.addPatient(state.patient);
-    if (result case Success() when state.assessmentFiles.isNotEmpty) {
-      final attachmentRepository = sl<AttachmentRepository>();
-      for (final file in state.assessmentFiles) {
-        await attachmentRepository.upload(
-          patientId: state.patient.id,
-          category: AttachmentCategory.assessmentForm,
-          bytes: file.bytes,
-          fileName: file.fileName,
-          contentType: file.contentType,
-        );
-      }
-    }
+    final outcome = await _saveController.save(formCubit: formCubit, state: state);
     hideAppLoading();
-    if (!mounted) return;
-    final isEditing = _formCubit.isEditing;
+    if (mounted) setState(() => _isSaving = false);
+    if (!mounted || outcome == null) return;
+
     final t = PatientsWizardStringsB(context.read<LocaleCubit>().state);
-    switch (result) {
-      case Success():
+    switch (outcome) {
+      case PatientSaveSucceeded(:final isEditing, :final consentFailed):
         context.pop();
-        await AppInfoBottomSheet.showSuccess(
-          context,
-          description: isEditing
-              ? t.patientUpdatedSuccessMessage
-              : t.patientCreatedSuccessMessage,
-        );
-      case Error(:final failure):
+        if (consentFailed) {
+          // Componente de erro padronizado do app (não o "informativo"):
+          // algo precisa de atenção, mesmo que o paciente já esteja salvo.
+          await AppInfoBottomSheet.showError(
+            context,
+            title: t.whatsappConsentSaveErrorTitle,
+            description: t.whatsappConsentSaveErrorMessage,
+          );
+        } else {
+          await AppInfoBottomSheet.showSuccess(
+            context,
+            description: isEditing
+                ? t.patientUpdatedSuccessMessage
+                : t.patientCreatedSuccessMessage,
+          );
+        }
+      case PatientSaveFailed(:final failure):
         await AppInfoBottomSheet.showError(
           context,
           description: failure.message,
@@ -87,41 +146,94 @@ class _PatientFormPageState extends State<PatientFormPage> {
   @override
   Widget build(BuildContext context) {
     final t = PatientsWizardStringsB(context.watch<LocaleCubit>().state);
+
+    if (_consentLoadFailed) {
+      return Scaffold(
+        backgroundColor: context.colors.background,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 48,
+                  color: context.colors.error,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  t.consentLoadErrorMessage,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.colors.textSecondary),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: t.retryButton,
+                    onPressed: _loadConsentAndInitCubit,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: Text(t.backButton),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final formCubit = _formCubit;
+    if (formCubit == null) {
+      return Scaffold(
+        backgroundColor: context.colors.background,
+        body: Center(
+          child: CircularProgressIndicator(color: context.colors.primary),
+        ),
+      );
+    }
     return BlocProvider.value(
-      value: _formCubit,
+      value: formCubit,
       child: BlocBuilder<PatientFormCubit, PatientFormState>(
         builder: (context, state) {
           return AppWizardScaffold(
-            title: _formCubit.currentStepTitle(t.language),
+            title: formCubit.currentStepTitle(t.language),
             stepIndex: state.stepIndex,
-            stepCount: _formCubit.stepCount,
-            nextLabel: _formCubit.isLastStep
-                ? (_formCubit.isEditing ? t.saveChangesButton : t.saveButton)
+            stepCount: formCubit.stepCount,
+            isLoading: _isSaving,
+            nextLabel: formCubit.isLastStep
+                ? (formCubit.isEditing ? t.saveChangesButton : t.saveButton)
                 : t.nextButton,
             onBack: () {
               if (state.stepIndex == 0) {
                 context.pop();
               } else {
-                _formCubit.previousStep();
+                formCubit.previousStep();
               }
             },
-            onNext: _formCubit.canProceed
+            onNext: formCubit.canProceed
                 ? () {
-                    if (_formCubit.isLastStep) {
-                      _save(state);
+                    if (formCubit.isLastStep) {
+                      _save(formCubit, state);
                     } else {
-                      _formCubit.nextStep();
+                      formCubit.nextStep();
                     }
                   }
                 : null,
-            showSaveButton: _formCubit.isEditing && !_formCubit.isLastStep,
-            onSave: _formCubit.canSave ? () => _save(state) : null,
+            showSaveButton: formCubit.isEditing && !formCubit.isLastStep,
+            onSave: formCubit.canSave
+                ? () => _save(formCubit, state)
+                : null,
             body: _StepBody(
-              step: _formCubit.currentStep,
+              step: formCubit.currentStep,
               state: state,
-              onChanged: _formCubit.updatePatient,
-              onAssessmentFileAdd: _formCubit.addAssessmentFile,
-              onAssessmentFileRemove: _formCubit.removeAssessmentFile,
+              onChanged: formCubit.updatePatient,
+              onAssessmentFileAdd: formCubit.addAssessmentFile,
+              onAssessmentFileRemove: formCubit.removeAssessmentFile,
             ),
           );
         },

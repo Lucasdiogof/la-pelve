@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_consent.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patient_form_state.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/whatsapp_consent_choice.dart';
 import 'package:la_pelve/features/patients/presentation/widgets/attachment_picker_sheet.dart';
 import 'package:la_pelve/shared/utils/id_generator.dart';
 import 'package:la_pelve/shared/utils/validators.dart';
@@ -42,8 +44,9 @@ extension PatientFormStepTitle on PatientFormStep {
 }
 
 class PatientFormCubit extends Cubit<PatientFormState> {
-  PatientFormCubit({Patient? existingPatient})
+  PatientFormCubit({Patient? existingPatient, PatientConsent? existingConsent})
     : isEditing = existingPatient != null,
+      originalConsent = existingConsent,
       super(
         PatientFormState(
           patient:
@@ -53,6 +56,11 @@ class PatientFormCubit extends Cubit<PatientFormState> {
       );
 
   final bool isEditing;
+
+  /// Consentimento ativo (whatsapp/appointment_reminder) que já existia
+  /// quando o formulário foi aberto, carregado antes da criação deste cubit.
+  /// Null quando o paciente é novo ou não havia consentimento ativo.
+  final PatientConsent? originalConsent;
 
   List<PatientFormStep> get _visibleSteps {
     // "Outro" gets the full superset of anatomy-specific sections: better to
@@ -83,6 +91,37 @@ class PatientFormCubit extends Cubit<PatientFormState> {
   String currentStepTitle(AppLanguage language) => currentStep.title(language);
 
   void updatePatient(Patient patient) => emit(state.copyWith(patient: patient));
+
+  /// Valor exibido do switch "Receber lembretes pelo WhatsApp" para o
+  /// telefone atual. Nunca é guardado como um booleano solto: é sempre
+  /// resolvido na hora a partir do telefone atual, de uma eventual escolha
+  /// manual já feita para esse número (ver [PatientFormState.manualConsentChoices])
+  /// e do consentimento que já existia quando o formulário abriu. Isso evita
+  /// que trocar o telefone e voltar ao original (A -> B -> A) dependa do
+  /// caminho percorrido.
+  bool get whatsappReminderConsent => resolveWhatsappConsentChoice(
+    originalConsent: originalConsent,
+    formState: state,
+  );
+
+  /// true quando havia consentimento ativo para um número diferente do
+  /// telefone atual do paciente (telefone foi trocado desde então).
+  bool get whatsappConsentPhoneChanged =>
+      originalConsent != null &&
+      originalConsent!.contactValue != state.patient.personalInfo.phoneE164;
+
+  /// Registra a escolha manual do profissional para o telefone atual. É
+  /// um no-op quando o telefone atual não é um celular BR válido (nada para
+  /// autorizar). A escolha fica associada a esse número especificamente:
+  /// trocar de telefone não a apaga, só deixa de valer até, se for o caso,
+  /// o profissional voltar para esse mesmo número.
+  void setWhatsappConsent(bool value) {
+    final phoneE164 = state.patient.personalInfo.phoneE164;
+    if (phoneE164 == null) return;
+    final updatedChoices = Map<String, bool>.from(state.manualConsentChoices)
+      ..[phoneE164] = value;
+    emit(state.copyWith(manualConsentChoices: updatedChoices));
+  }
 
   void addAssessmentFile(PickedAttachmentFile file) {
     emit(state.copyWith(assessmentFiles: [...state.assessmentFiles, file]));

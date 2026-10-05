@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient_consent.dart';
 import 'package:la_pelve/features/patients/domain/entities/pregnancy.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
+import 'package:la_pelve/features/patients/domain/repositories/patient_consent_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
 
@@ -126,6 +130,46 @@ class InfoRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Mostra, discretamente, se o paciente tem consentimento ativo para
+/// lembretes de agendamento pelo WhatsApp. Só leitura: não altera o banco.
+class WhatsappReminderStatusRow extends StatelessWidget {
+  const WhatsappReminderStatusRow({
+    required this.patientId,
+    this.language = AppLanguage.portuguese,
+    super.key,
+  });
+
+  final String patientId;
+  final AppLanguage language;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = PatientsStrings(language);
+    return FutureBuilder<Result<PatientConsent?>>(
+      future: sl<PatientConsentRepository>().getActive(
+        patientId: patientId,
+        channel: kWhatsappChannel,
+        purpose: kAppointmentReminderPurpose,
+      ),
+      builder: (context, snapshot) {
+        final result = snapshot.data;
+        final consent = switch (result) {
+          Success(:final data) => data,
+          _ => null,
+        };
+        final value = consent == null
+            ? t.whatsappReminderInactive
+            : t.whatsappReminderActiveSince(AppDateField.format(consent.grantedAt));
+        return InfoRow(
+          t.whatsappReminderFieldLabel,
+          value,
+          language: language,
+        );
+      },
     );
   }
 }
