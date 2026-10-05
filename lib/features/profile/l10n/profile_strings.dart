@@ -275,4 +275,111 @@ class ProfileStrings {
     AppLanguage.portuguese => 'Não informado',
     AppLanguage.english => 'Not informed',
   };
+
+  String get whatsappRowLabel => switch (language) {
+    AppLanguage.portuguese => 'WhatsApp',
+    AppLanguage.english => 'WhatsApp',
+  };
+
+  String get whatsappPageTitle => switch (language) {
+    AppLanguage.portuguese => 'WhatsApp',
+    AppLanguage.english => 'WhatsApp',
+  };
+
+  String get whatsappPageSubtitle => switch (language) {
+    AppLanguage.portuguese => 'Lembretes de agendamento',
+    AppLanguage.english => 'Appointment reminders',
+  };
+
+  String get whatsappNotConnectedTitle => switch (language) {
+    AppLanguage.portuguese => 'WhatsApp não conectado',
+    AppLanguage.english => 'WhatsApp not connected',
+  };
+
+  String get whatsappNotConnectedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Conecte seu WhatsApp Business para que o La Pelve possa enviar '
+          'lembretes de agendamento aos pacientes que autorizaram esse '
+          'contato.',
+    AppLanguage.english =>
+      'Connect your WhatsApp Business so La Pelve can send appointment '
+          'reminders to patients who authorized this contact.',
+  };
+
+  String get connectWhatsappButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Conectar WhatsApp',
+    AppLanguage.english => 'Connect WhatsApp',
+  };
+
+  String get whatsappIntegrationInProgressNote => switch (language) {
+    AppLanguage.portuguese => 'Integração em configuração',
+    AppLanguage.english => 'Integration being configured',
+  };
+
+  String get whatsappPendingTitle => switch (language) {
+    AppLanguage.portuguese => 'Conexão em andamento',
+    AppLanguage.english => 'Connection in progress',
+  };
+
+  String get whatsappPendingMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Estamos aguardando a confirmação dessa conexão. Isso pode levar '
+          'alguns minutos.',
+    AppLanguage.english =>
+      "We're waiting for this connection to be confirmed. This can take "
+          'a few minutes.',
+  };
+
+  String get refreshStatusButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Atualizar status',
+    AppLanguage.english => 'Refresh status',
+  };
+
+  String get whatsappConnectedStatusLabel => switch (language) {
+    AppLanguage.portuguese => 'Conectado',
+    AppLanguage.english => 'Connected',
+  };
+
+  String get connectedPhoneNumberLabel => switch (language) {
+    AppLanguage.portuguese => 'Número conectado',
+    AppLanguage.english => 'Connected number',
+  };
+
+  String whatsappConnectedSinceLabel(String date) => switch (language) {
+    AppLanguage.portuguese => 'Conectado desde $date',
+    AppLanguage.english => 'Connected since $date',
+  };
+
+  String get whatsappDisconnectedTitle => switch (language) {
+    AppLanguage.portuguese => 'WhatsApp desconectado',
+    AppLanguage.english => 'WhatsApp disconnected',
+  };
+
+  String whatsappDisconnectedSinceLabel(String date) => switch (language) {
+    AppLanguage.portuguese => 'Desconectado em $date',
+    AppLanguage.english => 'Disconnected on $date',
+  };
+
+  String get whatsappConnectionErrorMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível concluir a conexão com o WhatsApp.',
+    AppLanguage.english => 'The WhatsApp connection could not be completed.',
+  };
+
+  String get whatsappLoadErrorMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível carregar o status da conexão com o WhatsApp.',
+    AppLanguage.english =>
+      "Couldn't load the WhatsApp connection status.",
+  };
+
+  String get retryButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Tentar novamente',
+    AppLanguage.english => 'Try again',
+  };
+
+  String get backButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Voltar',
+    AppLanguage.english => 'Back',
+  };
 }

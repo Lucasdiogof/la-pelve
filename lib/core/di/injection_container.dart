@@ -19,7 +19,9 @@ import 'package:la_pelve/features/patients/domain/repositories/patient_consent_r
 import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:la_pelve/features/profile/data/profile_repository_supabase.dart';
+import 'package:la_pelve/features/profile/data/whatsapp_connection_repository_supabase.dart';
 import 'package:la_pelve/features/profile/domain/repositories/profile_repository.dart';
+import 'package:la_pelve/features/profile/domain/repositories/whatsapp_connection_repository.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
 
 final GetIt sl = GetIt.instance;
@@ -50,6 +52,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositorySupabase(sl()),
+  );
+  sl.registerLazySingleton<WhatsappConnectionRepository>(
+    () => WhatsappConnectionRepositorySupabase(sl()),
   );
 
   sl.registerLazySingleton<PatientsCubit>(() => PatientsCubit(sl()));

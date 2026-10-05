@@ -8,7 +8,7 @@ class ProfileRow extends StatelessWidget {
   const ProfileRow({
     required this.icon,
     required this.label,
-    required this.value,
+    this.value,
     this.trailing,
     this.onTap,
     super.key,
@@ -16,7 +16,12 @@ class ProfileRow extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final String value;
+
+  /// Valor atual do campo, mostrado como uma segunda linha abaixo do
+  /// [label]. Quando omitido, a linha mostra só o [label] — para entradas
+  /// de navegação sem um "valor atual" barato de obter (ex.: abrir uma
+  /// seção que precisa da própria consulta para saber o status).
+  final String? value;
   final Widget? trailing;
   final VoidCallback? onTap;
 
@@ -43,16 +48,19 @@ class ProfileRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.textSecondary,
+                    if (value != null)
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: context.colors.textSecondary,
+                        ),
                       ),
-                    ),
                     Text(
-                      value.isEmpty ? t.notInformedLabel : value,
+                      value == null
+                          ? label
+                          : (value!.isEmpty ? t.notInformedLabel : value!),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: context.colors.textPrimary,

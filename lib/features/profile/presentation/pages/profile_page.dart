@@ -235,6 +235,16 @@ class ProfilePage extends StatelessWidget {
                                   context.push('/perfil/alterar-senha'),
                             ),
                             const SizedBox(height: 8),
+                            ProfileRow(
+                              icon: Icons.chat_outlined,
+                              label: t.whatsappRowLabel,
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                color: context.colors.textSecondary,
+                              ),
+                              onTap: () => context.push('/perfil/whatsapp'),
+                            ),
+                            const SizedBox(height: 8),
                             BlocBuilder<ThemeCubit, ThemeMode>(
                               builder: (context, mode) => ProfileRow(
                                 icon: Icons.palette_outlined,

@@ -30,6 +30,7 @@ import 'package:la_pelve/features/profile/presentation/pages/edit_name_page.dart
 import 'package:la_pelve/features/profile/presentation/pages/language_settings_page.dart';
 import 'package:la_pelve/features/profile/presentation/pages/profile_page.dart';
 import 'package:la_pelve/features/profile/presentation/pages/theme_settings_page.dart';
+import 'package:la_pelve/features/profile/presentation/pages/whatsapp_connection_page.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -165,6 +166,11 @@ final GoRouter appRouter = GoRouter(
       path: '/perfil/alterar-senha',
       pageBuilder: (context, state) =>
           appPage(state, const ChangePasswordPage()),
+    ),
+    GoRoute(
+      path: '/perfil/whatsapp',
+      pageBuilder: (context, state) =>
+          appPage(state, const WhatsappConnectionPage()),
     ),
     GoRoute(
       path: '/financeiro/novo',
