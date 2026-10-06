@@ -19,15 +19,15 @@ class FinancialPage extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: context.colors.background,
-        floatingActionButton: FloatingActionButton.extended(
-          heroTag: 'financial-fab',
-          onPressed: () => context.push('/financeiro/novo'),
-          icon: const Icon(Icons.add),
-          label: Text(t.registerPaymentFab),
-        ),
         body: Column(
           children: [
-            ModernAppBar(title: t.pageTitle, subtitle: t.pageSubtitle),
+            ModernAppBar(
+              title: t.pageTitle,
+              subtitle: t.pageSubtitle,
+              actionIcon: Icons.add,
+              actionTooltip: t.registerPaymentFab,
+              onAction: () => context.push('/financeiro/novo'),
+            ),
             AppSegmentedTabBar(
               tabs: [
                 Tab(text: t.paymentsTab),

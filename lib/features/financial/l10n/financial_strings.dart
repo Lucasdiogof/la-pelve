@@ -188,6 +188,18 @@ class FinancialStrings {
     AppLanguage.spanish => 'Total recibido',
   };
 
+  String get unnamedEntryFallback => switch (language) {
+    AppLanguage.portuguese => 'Sem nome',
+    AppLanguage.english => 'No name',
+    AppLanguage.spanish => 'Sin nombre',
+  };
+
+  String monthYearLabel(DateTime month) => switch (language) {
+    AppLanguage.portuguese => '${monthName(month.month)} de ${month.year}',
+    AppLanguage.english => '${monthName(month.month)} ${month.year}',
+    AppLanguage.spanish => '${monthName(month.month)} de ${month.year}',
+  };
+
   String monthName(int month) => switch (language) {
     AppLanguage.portuguese => switch (month) {
       1 => 'Janeiro',
