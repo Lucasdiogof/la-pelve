@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/l10n/agenda_strings.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_report_month_cubit.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/shared/widgets/app_metric.dart';
 
 class AgendaMonthlyReportTab extends StatelessWidget {
   const AgendaMonthlyReportTab({super.key});
@@ -44,25 +46,39 @@ class _AgendaMonthlyReportView extends StatelessWidget {
             )
             .toList();
 
+        final textTheme = Theme.of(context).textTheme;
         return ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.gutter,
+            AppSpacing.s16,
+            AppSpacing.gutter,
+            AppSpacing.s32,
+          ),
           children: [
+            // Seletor de mês: chevrons com área de 48 e o mês no centro
+            // (pode quebrar em 2 linhas com fonte ampliada).
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
+                  tooltip: MaterialLocalizations.of(
+                    context,
+                  ).previousMonthTooltip,
                   onPressed: () => monthCubit.shift(-1),
                 ),
-                Text(
-                  '${t.monthName(month.month)} ${month.year}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    '${t.monthName(month.month)} ${month.year}',
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
+                  tooltip: MaterialLocalizations.of(context).nextMonthTooltip,
                   onPressed: () => monthCubit.shift(1),
                 ),
               ],
@@ -73,36 +89,25 @@ class _AgendaMonthlyReportView extends StatelessWidget {
                 AppDateField.format(lastDay),
               ),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: textTheme.bodySmall?.copyWith(
                 color: context.colors.textSecondary,
-                fontSize: 12,
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: context.colors.primary,
-                borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: AppSpacing.s24),
+            // Um único agrupamento: surface + borda, raio md, sem sombra e
+            // sem fundo de cor -- o número carrega a hierarquia.
+            Material(
+              color: context.colors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: AppRadius.mdAll,
+                side: BorderSide(color: context.colors.border),
               ),
-              child: Column(
-                children: [
-                  Text(
-                    t.appointmentsInMonth,
-                    style: TextStyle(
-                      color: context.colors.onPrimary.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${inMonth.length}',
-                    style: TextStyle(
-                      color: context.colors.onPrimary,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.s20),
+                child: AppMetric(
+                  label: t.appointmentsInMonth,
+                  value: '${inMonth.length}',
+                ),
               ),
             ),
           ],
