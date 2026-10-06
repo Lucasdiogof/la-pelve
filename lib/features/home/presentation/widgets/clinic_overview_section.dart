@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/home/l10n/home_strings.dart';
 import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
+import 'package:la_pelve/features/home/presentation/widgets/home_panel.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
-import 'package:la_pelve/features/home/presentation/widgets/home_styles.dart';
 import 'package:la_pelve/shared/utils/money_format.dart';
+import 'package:la_pelve/shared/widgets/app_metric.dart';
 
+/// Visão geral da clínica num único painel, em composição 1 + 2: a receita do
+/// mês em destaque (com o botão de ocultar) e, abaixo, pacientes e
+/// atendimentos da semana. Assim o valor em reais nunca disputa uma coluna
+/// estreita com as outras métricas.
 class ClinicOverviewSection extends StatelessWidget {
   const ClinicOverviewSection({
     required this.overview,
@@ -20,95 +26,100 @@ class ClinicOverviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = HomeStrings(context.watch<LocaleCubit>().state);
+    final language = context.watch<LocaleCubit>().state;
+    final t = HomeStrings(language);
     final hideFinancial = context.watch<HomeFinancialVisibilityCubit>().state;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+    // Os rótulos têm quebra embutida do layout antigo; aqui quebram sozinhos.
+    String label(String raw) => raw.replaceAll('\n', ' ');
+    return HomePanel(
+      title: t.clinicOverviewTitle,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            t.clinicOverviewTitle,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: context.colors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(kHomeCardRadius),
-              boxShadow: kHomeCardShadow,
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _OverviewStat(
-                      icon: Icons.groups_outlined,
-                      iconColor: context.colors.primary,
-                      value: '${overview.activePatients}',
-                      label: t.activePatientsLabel,
-                      onTap: () => onNavigateToTab(1),
-                    ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _TappableMetric(
+                  onTap: () => onNavigateToTab(3),
+                  padding: const EdgeInsets.fromLTRB(
+                    HomePanel.inset,
+                    AppSpacing.s8,
+                    AppSpacing.s8,
+                    AppSpacing.s16,
                   ),
-                  VerticalDivider(
-                    color: context.colors.border,
-                    width: 1,
-                    indent: 4,
-                    endIndent: 4,
+                  child: AppMetric(
+                    label: label(t.receivedThisMonthLabel),
+                    value: hideFinancial
+                        ? 'R\$ ••••'
+                        : formatBrl(
+                            overview.receivedThisMonth,
+                            language: language,
+                          ),
                   ),
-                  Expanded(
-                    child: _OverviewStat(
-                      icon: Icons.calendar_month_outlined,
-                      iconColor: context.colors.primary,
-                      value: '${overview.appointmentsThisWeek}',
-                      label: t.appointmentsThisWeekLabel,
-                      onTap: () => onNavigateToTab(2),
-                    ),
-                  ),
-                  VerticalDivider(
-                    color: context.colors.border,
-                    width: 1,
-                    indent: 4,
-                    endIndent: 4,
-                  ),
-                  Expanded(
-                    child: _OverviewStat(
-                      icon: Icons.payments_outlined,
-                      iconColor: context.colors.success,
-                      value: hideFinancial
-                          ? 'R\$ ••••'
-                          : formatBrl(
-                              overview.receivedThisMonth,
-                              language: context.watch<LocaleCubit>().state,
-                            ),
-                      label: t.receivedThisMonthLabel,
-                      onTap: () => onNavigateToTab(3),
-                      corner: IconButton(
-                        icon: Icon(
-                          hideFinancial
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 16,
-                          color: context.colors.textSecondary,
-                        ),
-                        tooltip: hideFinancial
-                            ? t.showFinancialValueTooltip
-                            : t.hideFinancialValueTooltip,
-                        onPressed: () => context
-                            .read<HomeFinancialVisibilityCubit>()
-                            .toggle(),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    hideFinancial
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 20,
+                  ),
+                  color: context.colors.textSecondary,
+                  tooltip: hideFinancial
+                      ? t.showFinancialValueTooltip
+                      : t.hideFinancialValueTooltip,
+                  onPressed: () =>
+                      context.read<HomeFinancialVisibilityCubit>().toggle(),
+                ),
+              ),
+            ],
+          ),
+          Divider(height: 1, color: context.colors.border),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _TappableMetric(
+                    onTap: () => onNavigateToTab(1),
+                    padding: const EdgeInsets.fromLTRB(
+                      HomePanel.inset,
+                      AppSpacing.s16,
+                      AppSpacing.s12,
+                      AppSpacing.s16,
+                    ),
+                    child: AppMetric(
+                      label: label(t.activePatientsLabel),
+                      value: '${overview.activePatients}',
+                      large: false,
+                    ),
+                  ),
+                ),
+                VerticalDivider(width: 1, color: context.colors.border),
+                Expanded(
+                  child: _TappableMetric(
+                    onTap: () => onNavigateToTab(2),
+                    padding: const EdgeInsets.fromLTRB(
+                      HomePanel.inset,
+                      AppSpacing.s16,
+                      HomePanel.inset,
+                      AppSpacing.s16,
+                    ),
+                    child: AppMetric(
+                      label: label(t.appointmentsThisWeekLabel),
+                      value: '${overview.appointmentsThisWeek}',
+                      large: false,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -117,71 +128,27 @@ class ClinicOverviewSection extends StatelessWidget {
   }
 }
 
-class _OverviewStat extends StatelessWidget {
-  const _OverviewStat({
-    required this.icon,
-    required this.iconColor,
-    required this.value,
-    required this.label,
+/// Métrica tocável (leva à aba correspondente, como antes), com o número
+/// alinhado embaixo para as duas colunas baterem mesmo se um rótulo quebrar.
+class _TappableMetric extends StatelessWidget {
+  const _TappableMetric({
     required this.onTap,
-    this.corner,
+    required this.padding,
+    required this.child,
   });
 
-  final IconData icon;
-  final Color iconColor;
-  final String value;
-  final String label;
   final VoidCallback onTap;
-  final Widget? corner;
+  final EdgeInsets padding;
+  final AppMetric child;
 
   @override
   Widget build(BuildContext context) {
-    final content = InkWell(
-      borderRadius: BorderRadius.circular(12),
+    return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                color: context.colors.textPrimary,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: context.colors.textSecondary,
-                fontSize: 11,
-                height: 1.2,
-              ),
-            ),
-          ],
-        ),
+        padding: padding,
+        child: Align(alignment: Alignment.bottomLeft, child: child),
       ),
-    );
-    if (corner == null) return content;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        content,
-        Positioned(top: -8, right: -6, child: corner!),
-      ],
     );
   }
 }

@@ -3,12 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/core/utils/current_user.dart';
 import 'package:la_pelve/features/home/l10n/home_strings.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:la_pelve/shared/l10n/app_strings.dart';
+import 'package:la_pelve/shared/widgets/app_list_row.dart';
 
+/// Cabeçalho da Home: saudação, nome, data e avatar (abre o Perfil).
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
+
+  static const double _avatarSize = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,12 @@ class HomeHeader extends StatelessWidget {
     final firstName = name?.split(' ').first ?? t.defaultUserName;
     final photoUrl = context.watch<ProfileCubit>().state.photoUrl;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.gutter,
+        AppSpacing.s16,
+        AppSpacing.s8,
+        0,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -29,19 +40,12 @@ class HomeHeader extends StatelessWidget {
               children: [
                 Text(
                   t.greetingFor(now.hour),
-                  style: textTheme.bodyLarge?.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     color: context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  firstName,
-                  style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
+                Text(firstName, style: textTheme.headlineSmall),
+                const SizedBox(height: AppSpacing.s4),
                 Text(
                   t.dateLine(now.weekday, now.day, now.month),
                   style: textTheme.bodySmall?.copyWith(
@@ -51,24 +55,31 @@ class HomeHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          InkWell(
-            borderRadius: BorderRadius.circular(100),
-            onTap: () => context.push('/perfil'),
-            child: CircleAvatar(
+          const SizedBox(width: AppSpacing.s8),
+          Semantics(
+            button: true,
+            label: context.strings.profile.profilePageTitle,
+            child: InkResponse(
+              onTap: () => context.push('/perfil'),
               radius: 24,
-              backgroundColor: context.colors.primary,
-              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-              child: photoUrl != null
-                  ? null
-                  : Text(
-                      firstName[0].toUpperCase(),
-                      style: TextStyle(
-                        color: context.colors.onPrimary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: Center(
+                  child: photoUrl != null
+                      ? CircleAvatar(
+                          radius: _avatarSize / 2,
+                          backgroundColor: context.colors.primaryContainer,
+                          backgroundImage: NetworkImage(photoUrl),
+                        )
+                      : ExcludeSemantics(
+                          child: AppInitialAvatar(
+                            name: firstName,
+                            size: _avatarSize,
+                          ),
+                        ),
+                ),
+              ),
             ),
           ),
         ],

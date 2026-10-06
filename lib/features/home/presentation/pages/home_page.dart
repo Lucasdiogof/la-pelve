@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
 import 'package:la_pelve/features/home/presentation/cubit/home_clock_cubit.dart';
@@ -9,7 +10,7 @@ import 'package:la_pelve/features/home/presentation/widgets/clinic_overview_sect
 import 'package:la_pelve/features/home/presentation/widgets/home_header.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
 import 'package:la_pelve/features/home/presentation/widgets/quick_actions_section.dart';
-import 'package:la_pelve/features/home/presentation/widgets/today_summary_card.dart';
+import 'package:la_pelve/features/home/presentation/widgets/upcoming_schedule_section.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 
 class HomePage extends StatefulWidget {
@@ -79,20 +80,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   context.read<FinancialCubit>().reload(),
                 ]),
                 child: ListView(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.s32),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     const HomeHeader(),
-                    const SizedBox(height: 20),
-                    TodaySummaryCard(
+                    const SizedBox(height: AppSpacing.s24),
+                    UpcomingScheduleSection(
                       schedule: schedule,
-                      onTap: () => widget.onNavigateToTab(2),
+                      onOpenAgenda: () => widget.onNavigateToTab(2),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.s20),
                     QuickActionsSection(
                       onNavigateToTab: widget.onNavigateToTab,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.s20),
                     ClinicOverviewSection(
                       overview: overview,
                       onNavigateToTab: widget.onNavigateToTab,

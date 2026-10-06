@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
@@ -41,6 +43,10 @@ class AppTimeRow extends StatelessWidget {
 
   static const double timeColumnWidth = 64;
 
+  /// Largura mínima (em escala 1.0) para nome e status lado a lado; abaixo
+  /// disso o status desce para baixo do nome.
+  static const double minInlineWidth = 220;
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -59,87 +65,164 @@ class AppTimeRow extends StatelessWidget {
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
               padding: padding,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: timeWidth,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (timeCaption != null)
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              timeCaption!.toUpperCase(),
-                              maxLines: 1,
-                              style: textTheme.overline.copyWith(
-                                color: context.colors.textSecondary,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final scaler = MediaQuery.textScalerOf(context);
+                  final titleStyle = textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.w500,
+                  );
+                  final badgeStyle = textTheme.bodySmall!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  );
+                  // Largura que sobraria para o nome com o status ao lado.
+                  final badgeWidth = math.max(
+                    _textWidth(statusLabel, badgeStyle, scaler) +
+                        AppSpacing.s16,
+                    onStatusTap == null ? 0.0 : 48.0,
+                  );
+                  final inlineNameWidth =
+                      constraints.maxWidth -
+                      timeWidth -
+                      AppSpacing.s8 -
+                      badgeWidth;
+                  // Se a palavra mais longa do nome não cabe ao lado do
+                  // status, o status desce para baixo do nome: nenhuma
+                  // palavra é quebrada no meio.
+                  final longestWord = title
+                      .split(RegExp(r'\s+'))
+                      .map((w) => _textWidth(w, titleStyle, scaler))
+                      .fold<double>(0, math.max);
+                  // Regra uniforme por largura/escala (todas as linhas da lista
+                  // ficam iguais) + garantias: nenhuma palavra quebrada no
+                  // meio e nome em no máximo 2 linhas.
+                  final narrow =
+                      constraints.maxWidth - timeWidth <
+                      scaler.scale(minInlineWidth);
+                  final namePainter = TextPainter(
+                    text: TextSpan(text: title, style: titleStyle),
+                    textDirection: TextDirection.ltr,
+                    textScaler: scaler,
+                    maxLines: 2,
+                  )..layout(maxWidth: math.max(0, inlineNameWidth));
+                  final overflowsInline = namePainter.didExceedMaxLines;
+                  namePainter.dispose();
+                  final stacked =
+                      narrow ||
+                      overflowsInline ||
+                      longestWord > inlineNameWidth;
+                  final status = onStatusTap == null
+                      ? badge
+                      : InkWell(
+                          onTap: onStatusTap,
+                          borderRadius: AppRadius.smAll,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minHeight: 48,
+                              minWidth: 48,
+                            ),
+                            child: Align(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              alignment: stacked
+                                  ? Alignment.centerLeft
+                                  : Alignment.center,
+                              child: badge,
+                            ),
+                          ),
+                        );
+                  return Row(
+                    children: [
+                      SizedBox(
+                        width: timeWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (timeCaption != null)
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  timeCaption!.toUpperCase(),
+                                  maxLines: 1,
+                                  style: textTheme.overline.copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        Text(
-                          time,
-                          style: textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.s12,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (subtitle != null)
                             Text(
-                              subtitle!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: context.colors.textSecondary,
+                              time,
+                              style: textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.s8),
-                  if (onStatusTap == null)
-                    badge
-                  else
-                    InkWell(
-                      onTap: onStatusTap,
-                      borderRadius: AppRadius.smAll,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minHeight: 48,
-                          minWidth: 48,
+                          ],
                         ),
-                        child: Center(widthFactor: 1, child: badge),
                       ),
-                    ),
-                ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.s12,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Até 2 linhas: com fonte ampliada o nome não
+                              // vira só reticências.
+                              Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: titleStyle,
+                              ),
+                              if (subtitle != null)
+                                Text(
+                                  subtitle!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
+                                ),
+                              if (stacked) ...[
+                                const SizedBox(height: AppSpacing.s4),
+                                status,
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (!stacked) ...[
+                        const SizedBox(width: AppSpacing.s8),
+                        status,
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
-          if (showDivider) Divider(indent: padding.left + timeWidth, height: 1),
+          if (showDivider)
+            Divider(
+              indent: padding.left + timeWidth,
+              endIndent: padding.right,
+              height: 1,
+            ),
         ],
       ),
     );
   }
+}
+
+double _textWidth(String text, TextStyle style, TextScaler scaler) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: TextDirection.ltr,
+    textScaler: scaler,
+    maxLines: 1,
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return width;
 }

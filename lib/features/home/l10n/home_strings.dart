@@ -235,6 +235,18 @@ class HomeStrings {
     AppLanguage.spanish => 'Próximas citas',
   };
 
+  String get viewAgendaAction => switch (language) {
+    AppLanguage.portuguese => 'Ver agenda',
+    AppLanguage.english => 'View schedule',
+    AppLanguage.spanish => 'Ver agenda',
+  };
+
+  String get quickActionsTitle => switch (language) {
+    AppLanguage.portuguese => 'Ações rápidas',
+    AppLanguage.english => 'Quick actions',
+    AppLanguage.spanish => 'Acciones rápidas',
+  };
+
   String get noUpcomingAppointmentsMessage => switch (language) {
     AppLanguage.portuguese => 'Nenhum atendimento nos próximos 7 dias.',
     AppLanguage.english => 'No appointments in the next 7 days.',
