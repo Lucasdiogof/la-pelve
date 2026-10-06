@@ -365,6 +365,18 @@ class PatientsStrings {
     AppLanguage.spanish => 'Nueva evolución',
   };
 
+  String get moreOptionsTooltip => switch (language) {
+    AppLanguage.portuguese => 'Mais opções',
+    AppLanguage.english => 'More options',
+    AppLanguage.spanish => 'Más opciones',
+  };
+
+  String get evolutionsPageTitle => switch (language) {
+    AppLanguage.portuguese => 'Evoluções',
+    AppLanguage.english => 'Evolutions',
+    AppLanguage.spanish => 'Evoluciones',
+  };
+
   String get evolutionPageTitle => switch (language) {
     AppLanguage.portuguese => 'Evolução',
     AppLanguage.english => 'Evolution',

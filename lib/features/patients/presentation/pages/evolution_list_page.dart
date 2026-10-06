@@ -5,21 +5,50 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/evolution_list_cubit.dart';
+import 'package:la_pelve/features/patients/presentation/widgets/evolution/evolution_timeline.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
-import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_sheet.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class EvolutionListPage extends StatelessWidget {
   const EvolutionListPage({required this.patient, super.key});
 
   final Patient patient;
+
+  /// Menu pequeno do item: a única ação é excluir (em danger, só aqui).
+  Future<void> _showActions(
+    BuildContext context,
+    EvolutionListCubit cubit,
+    PatientsStrings t,
+    String entryId,
+  ) async {
+    final delete = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => AppSheet(
+        children: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: sheetContext.colors.danger,
+            ),
+            onPressed: () => Navigator.of(sheetContext).pop(true),
+            child: Text(t.deleteEvolutionTitle),
+          ),
+        ],
+      ),
+    );
+    if (delete != true || !context.mounted) return;
+    await _delete(context, cubit, t, entryId);
+  }
 
   Future<void> _delete(
     BuildContext context,
@@ -50,23 +79,23 @@ class EvolutionListPage extends StatelessWidget {
         builder: (context) {
           final cubit = context.read<EvolutionListCubit>();
           final t = PatientsStrings(context.watch<LocaleCubit>().state);
+          Future<void> create() async {
+            await context.push('/pacientes/${patient.id}/evolucao/novo');
+            if (context.mounted) await cubit.reload();
+          }
+
+          final name = patient.personalInfo.name;
           return Scaffold(
             backgroundColor: context.colors.background,
-            floatingActionButton: FloatingActionButton.extended(
-              heroTag: 'evolution-fab',
-              onPressed: () async {
-                await context.push('/pacientes/${patient.id}/evolucao/novo');
-                if (context.mounted) await cubit.reload();
-              },
-              icon: const Icon(Icons.add),
-              label: Text(t.newEvolutionButton),
-            ),
             body: Column(
               children: [
                 ModernAppBar(
-                  title: t.evolutionPageTitle,
-                  subtitle: t.evolutionPageSubtitle,
+                  title: t.evolutionsPageTitle,
+                  subtitle: name.isEmpty ? null : name,
                   showBackButton: true,
+                  actionIcon: Icons.add,
+                  actionTooltip: t.newEvolutionButton,
+                  onAction: create,
                 ),
                 Expanded(
                   child:
@@ -75,106 +104,67 @@ class EvolutionListPage extends StatelessWidget {
                         Result<List<EvolutionEntry>>?
                       >(
                         builder: (context, result) {
-                          final entries = switch (result) {
-                            Success(:final data) => data,
-                            _ => const <EvolutionEntry>[],
-                          };
+                          // Estado inicial (null): ainda carregando; não é
+                          // "vazio".
+                          if (result == null) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
                           if (result is Error<List<EvolutionEntry>>) {
                             return Center(
-                              child: Text(
-                                result.failure.message,
-                                style: TextStyle(
-                                  color: context.colors.textSecondary,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.gutter,
+                                ),
+                                child: Text(
+                                  result.failure.message,
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: context.colors.textSecondary,
+                                      ),
                                 ),
                               ),
                             );
                           }
+                          final entries = switch (result) {
+                            Success(:final data) => data,
+                            _ => const <EvolutionEntry>[],
+                          };
                           if (entries.isEmpty) {
                             return AppEmptyState(
                               icon: Icons.timeline_outlined,
                               title: t.evolutionEmptyTitle,
                               message: t.evolutionEmptyMessage,
+                              actionLabel: t.newEvolutionButton,
+                              onAction: create,
                             );
                           }
                           final sorted = [...entries]
                             ..sort((a, b) => b.date.compareTo(a.date));
-                          return ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                            itemCount: sorted.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, index) {
-                              final entry = sorted[index];
-                              return Material(
-                                color: context.colors.surface,
-                                borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(16),
-                                  onTap: () async {
-                                    await context.push(
-                                      '/pacientes/${patient.id}/evolucao/${entry.id}/editar',
-                                      extra: entry,
-                                    );
-                                    if (context.mounted) await cubit.reload();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                AppDateField.format(entry.date),
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: context.colors.primary,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 6),
-                                              Text(entry.description),
-                                              if (entry.updatedAt != null) ...[
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  t.editedOn(
-                                                    AppDateField.format(
-                                                      entry.updatedAt!,
-                                                    ),
-                                                  ),
-                                                  style: TextStyle(
-                                                    color: context
-                                                        .colors
-                                                        .textSecondary,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.delete_outline,
-                                            color: context.colors.danger,
-                                          ),
-                                          tooltip: t.deleteEvolutionTooltip,
-                                          onPressed: () => _delete(
-                                            context,
-                                            cubit,
-                                            t,
-                                            entry.id,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                          return ListView(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.gutter,
+                              AppSpacing.s8,
+                              AppSpacing.gutter,
+                              AppSpacing.s32,
+                            ),
+                            children: [
+                              EvolutionTimeline(
+                                entries: sorted,
+                                t: t,
+                                onEdit: (entry) async {
+                                  await context.push(
+                                    '/pacientes/${patient.id}/evolucao/${entry.id}/editar',
+                                    extra: entry,
+                                  );
+                                  if (context.mounted) await cubit.reload();
+                                },
+                                onMore: (entry) =>
+                                    _showActions(context, cubit, t, entry.id),
+                              ),
+                            ],
                           );
                         },
                       ),
