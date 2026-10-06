@@ -41,6 +41,27 @@ class PatientsStrings {
     AppLanguage.spanish => 'Gestiona tus pacientes',
   };
 
+  String patientCount(int count) => switch (language) {
+    AppLanguage.portuguese => count == 1 ? '1 paciente' : '$count pacientes',
+    AppLanguage.english => count == 1 ? '1 patient' : '$count patients',
+    AppLanguage.spanish => count == 1 ? '1 paciente' : '$count pacientes',
+  };
+
+  String patientCountWithDischarged(
+    int count,
+    int discharged,
+  ) => switch (language) {
+    AppLanguage.portuguese => '${patientCount(count)} · $discharged com alta',
+    AppLanguage.english => '${patientCount(count)} · $discharged discharged',
+    AppLanguage.spanish => '${patientCount(count)} · $discharged con alta',
+  };
+
+  String get dischargedSectionTitle => switch (language) {
+    AppLanguage.portuguese => 'Com alta',
+    AppLanguage.english => 'Discharged',
+    AppLanguage.spanish => 'Con alta',
+  };
+
   String get emptyPatientsTitle => switch (language) {
     AppLanguage.portuguese => 'Nenhum paciente cadastrado',
     AppLanguage.english => 'No patients registered',

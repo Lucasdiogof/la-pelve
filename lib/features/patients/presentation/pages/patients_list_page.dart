@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient_enums.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
+import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
+import 'package:la_pelve/shared/widgets/app_list_row.dart';
+import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class PatientsListPage extends StatelessWidget {
@@ -16,27 +20,32 @@ class PatientsListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'patients-fab',
-        onPressed: () => context.push('/pacientes/novo'),
-        icon: const Icon(Icons.add),
-        label: Text(t.newPatientButton),
-      ),
-      body: Column(
-        children: [
-          ModernAppBar(title: t.listTitle, subtitle: t.listSubtitle),
-          Expanded(
-            child: BlocBuilder<PatientsCubit, List<Patient>>(
-              builder: (context, patients) {
-                final sorted = [
-                  ...patients.where((p) => p.discharge == null),
-                  ...patients.where((p) => p.discharge != null),
-                ];
-                return RefreshIndicator(
+    void create() => context.push('/pacientes/novo');
+    return BlocBuilder<PatientsCubit, List<Patient>>(
+      builder: (context, patients) {
+        // Regra existente, preservada: ativos primeiro e pacientes com alta
+        // depois; dentro de cada grupo vale a ordem original do repositório.
+        final active = patients.where((p) => p.discharge == null).toList();
+        final discharged = patients.where((p) => p.discharge != null).toList();
+        return Scaffold(
+          backgroundColor: context.colors.background,
+          body: Column(
+            children: [
+              ModernAppBar(
+                title: t.listTitle,
+                subtitle: _subtitle(
+                  t,
+                  total: patients.length,
+                  discharged: discharged.length,
+                ),
+                actionIcon: Icons.add,
+                actionTooltip: t.newPatientButton,
+                onAction: create,
+              ),
+              Expanded(
+                child: RefreshIndicator(
                   onRefresh: () => context.read<PatientsCubit>().reload(),
-                  child: sorted.isEmpty
+                  child: patients.isEmpty
                       ? ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           children: [
@@ -44,113 +53,144 @@ class PatientsListPage extends StatelessWidget {
                               icon: Icons.people_outline,
                               title: t.emptyPatientsTitle,
                               message: t.emptyPatientsMessage,
+                              actionLabel: t.newPatientButton,
+                              onAction: create,
                             ),
                           ],
                         )
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                      : ListView(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.gutter,
+                            AppSpacing.s8,
+                            AppSpacing.gutter,
+                            AppSpacing.s32,
+                          ),
                           physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: sorted.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) =>
-                              _PatientTile(patient: sorted[index]),
+                          children: [
+                            // Um painel por bloco (ativos / com alta), nunca
+                            // um card por paciente. Só o bloco histórico leva
+                            // overline; a lista principal não.
+                            if (active.isNotEmpty) _PatientsPanel(active, t),
+                            if (active.isNotEmpty && discharged.isNotEmpty)
+                              const SizedBox(height: AppSpacing.s24),
+                            if (discharged.isNotEmpty)
+                              _PatientsPanel(
+                                discharged,
+                                t,
+                                title: t.dischargedSectionTitle,
+                              ),
+                          ],
                         ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  /// Lista vazia mantém o subtítulo fixo: loading e falha também começam
+  /// como lista vazia, então "0 pacientes" seria enganoso.
+  String _subtitle(
+    PatientsStrings t, {
+    required int total,
+    required int discharged,
+  }) {
+    if (total == 0) return t.listSubtitle;
+    if (discharged == 0) return t.patientCount(total);
+    return t.patientCountWithDischarged(total, discharged);
+  }
+}
+
+/// Um bloco de pacientes dentro de um painel (surface + borda, sem sombra),
+/// com divisores entre as linhas e nenhum depois da última.
+class _PatientsPanel extends StatelessWidget {
+  const _PatientsPanel(this.patients, this.t, {this.title});
+
+  final List<Patient> patients;
+  final PatientsStrings t;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSection(
+      title: title,
+      children: [
+        for (var i = 0; i < patients.length; i++)
+          _PatientRow(
+            patient: patients[i],
+            t: t,
+            showDivider: i != patients.length - 1,
+          ),
+      ],
     );
   }
 }
 
-class _PatientTile extends StatelessWidget {
-  const _PatientTile({required this.patient});
+class _PatientRow extends StatelessWidget {
+  const _PatientRow({
+    required this.patient,
+    required this.t,
+    required this.showDivider,
+  });
 
   final Patient patient;
+  final PatientsStrings t;
+  final bool showDivider;
+
+  // Largura que o AppListRow reserva ao redor do texto (padding da linha,
+  // leading 36 + 12 e trailing 12 + ícone 20). Usada só para decidir se
+  // "motivo · data" cabe numa linha; o teste de varredura de larguras em
+  // patients_list_page_test.dart pega qualquer divergência com o componente.
+  static const double _rowPadding = AppSpacing.s16 * 2;
+  static const double _leadingSlot = 36 + AppSpacing.s12;
+  static const double _trailingSlot = AppSpacing.s12 + 20;
+
+  /// Telefone (se houver) e, para paciente com alta, o motivo e a data.
+  /// Se "motivo · data" cabe numa linha, fica numa linha; se não cabe, vira
+  /// duas linhas ("motivo" / "data") SEM o separador, para o "·" nunca ficar
+  /// pendurado no fim da linha. Sem linha vazia artificial.
+  String? _subtitle(BuildContext context, double rowWidth) {
+    final lines = <String>[
+      if (patient.personalInfo.phone.isNotEmpty) patient.personalInfo.phone,
+    ];
+    final discharge = patient.discharge;
+    if (discharge != null) {
+      final reason = discharge.reason.label(t.language);
+      final date = AppDateField.format(discharge.date);
+      final oneLine = '$reason · $date';
+      final painter = TextPainter(
+        text: TextSpan(
+          text: oneLine,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final available = rowWidth - _rowPadding - _leadingSlot - _trailingSlot;
+      final fits = painter.width <= available - 1;
+      painter.dispose();
+      lines.add(fits ? oneLine : '$reason\n$date');
+    }
+    return lines.isEmpty ? null : lines.join('\n');
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = PatientsStrings(context.watch<LocaleCubit>().state);
-    return Material(
-      color: context.colors.surface,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+    final name = patient.personalInfo.name;
+    return LayoutBuilder(
+      builder: (context, constraints) => AppListRow(
+        leading: AppInitialAvatar(name: name),
+        title: name.isEmpty ? t.noNamePlaceholder : name,
+        // Nome de paciente precisa ficar identificável: até 3 linhas.
+        titleMaxLines: 3,
+        subtitle: _subtitle(context, constraints.maxWidth),
+        trailing: const Icon(Icons.chevron_right),
         onTap: () => context.push('/pacientes/${patient.id}', extra: patient),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: context.colors.primary.withValues(alpha: 0.15),
-                child: Text(
-                  patient.personalInfo.name.isEmpty
-                      ? '?'
-                      : patient.personalInfo.name[0].toUpperCase(),
-                  style: TextStyle(
-                    color: context.colors.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            patient.personalInfo.name.isEmpty
-                                ? t.noNamePlaceholder
-                                : patient.personalInfo.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        if (patient.discharge != null) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colors.textHint.withValues(
-                                alpha: 0.15,
-                              ),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Text(
-                              patient.discharge!.reason.label(t.language),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: context.colors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (patient.personalInfo.phone.isNotEmpty)
-                      Text(
-                        patient.personalInfo.phone,
-                        style: TextStyle(
-                          color: context.colors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right, color: context.colors.textSecondary),
-            ],
-          ),
-        ),
+        showDivider: showDivider,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
       ),
     );
   }

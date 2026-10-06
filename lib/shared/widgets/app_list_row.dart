@@ -16,6 +16,7 @@ class AppListRow extends StatelessWidget {
     this.onTap,
     this.showDivider = true,
     this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+    this.titleMaxLines = 2,
   });
 
   final String title;
@@ -28,6 +29,10 @@ class AppListRow extends StatelessWidget {
   /// Recuo horizontal da linha. Dentro de uma [AppSection], use
   /// `EdgeInsets.symmetric(horizontal: AppSpacing.s16)`.
   final EdgeInsets padding;
+
+  /// Máximo de linhas do título antes das reticências. Padrão 2; telas em que
+  /// o nome precisa ficar identificável (ex.: pacientes) podem pedir mais.
+  final int titleMaxLines;
 
   /// Leading padrão de 36px + espaço de 12 até o texto.
   static const double _leadingSlot = 36 + AppSpacing.s12;
@@ -61,7 +66,7 @@ class AppListRow extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          maxLines: 2,
+                          maxLines: titleMaxLines,
                           overflow: TextOverflow.ellipsis,
                           style: textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w500,
