@@ -98,6 +98,36 @@ class FinancialStrings {
     AppLanguage.spanish => 'Nombre del paciente',
   };
 
+  String get patientFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Paciente',
+    AppLanguage.english => 'Patient',
+    AppLanguage.spanish => 'Paciente',
+  };
+
+  String get dateFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Data',
+    AppLanguage.english => 'Date',
+    AppLanguage.spanish => 'Fecha',
+  };
+
+  String get amountFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Valor',
+    AppLanguage.english => 'Amount',
+    AppLanguage.spanish => 'Monto',
+  };
+
+  String get statusFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Status',
+    AppLanguage.english => 'Status',
+    AppLanguage.spanish => 'Estado',
+  };
+
+  String get paymentMethodFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Forma de pagamento',
+    AppLanguage.english => 'Payment method',
+    AppLanguage.spanish => 'Forma de pago',
+  };
+
   String get selectRegisteredPatientTooltip => switch (language) {
     AppLanguage.portuguese => 'Selecionar paciente cadastrado',
     AppLanguage.english => 'Select a registered patient',
@@ -156,6 +186,12 @@ class FinancialStrings {
     AppLanguage.portuguese => 'Registrar pagamento',
     AppLanguage.english => 'Register payment',
     AppLanguage.spanish => 'Registrar pago',
+  };
+
+  String get saveChangesButton => switch (language) {
+    AppLanguage.portuguese => 'Salvar alterações',
+    AppLanguage.english => 'Save changes',
+    AppLanguage.spanish => 'Guardar cambios',
   };
 
   String get paymentRegisteredSuccess => switch (language) {

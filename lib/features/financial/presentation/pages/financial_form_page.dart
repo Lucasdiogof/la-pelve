@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/core/utils/app_loading.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_enums.dart';
@@ -166,6 +167,16 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     }
   }
 
+  Widget _fieldLabel(BuildContext context, String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 6),
+    child: Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(color: context.colors.textPrimary),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final hasPatients = context.watch<PatientsCubit>().state.isNotEmpty;
@@ -173,162 +184,157 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<PaymentFormCubit, PaymentFormState>(
-        builder: (context, formState) => Scaffold(
-          backgroundColor: context.colors.background,
-          body: Column(
-            children: [
-              ModernAppBar(
-                title: _isEditing ? t.editFormPageTitle : t.formPageTitle,
-                subtitle: _isEditing
-                    ? t.editFormPageSubtitle
-                    : t.formPageSubtitle,
-                showBackButton: true,
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                    AppTextField(
-                      controller: _patientNameController,
-                      icon: Icons.person_outline,
-                      hintText: t.patientNameHint,
-                      textCapitalization: TextCapitalization.words,
-                      suffixIcon: hasPatients
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.list_alt_outlined,
-                                color: context.colors.textSecondary,
-                              ),
-                              tooltip: t.selectRegisteredPatientTooltip,
-                              onPressed: _selectPatient,
-                            )
-                          : null,
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      onChanged: (_) => _formCubit.onNomeChanged(),
+        builder: (context, formState) {
+          // Lido aqui, acima do Scaffold: dentro do body o Scaffold já
+          // consome o inset do teclado.
+          final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+          return Scaffold(
+            backgroundColor: context.colors.background,
+            body: Column(
+              children: [
+                ModernAppBar(
+                  title: _isEditing ? t.editFormPageTitle : t.formPageTitle,
+                  subtitle: _isEditing
+                      ? t.editFormPageSubtitle
+                      : t.formPageSubtitle,
+                  showBackButton: true,
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.gutter,
+                      AppSpacing.s16,
+                      AppSpacing.gutter,
+                      keyboardOpen ? AppSpacing.s32 : AppSpacing.s24,
                     ),
-                    const SizedBox(height: 12),
-                    AppDateField(
-                      hintText: t.paymentDateHint,
-                      value: formState.date,
-                      onChanged: _formCubit.setData,
-                    ),
-                    const SizedBox(height: 12),
-                    AppTextField(
-                      controller: _valorController,
-                      icon: Icons.attach_money,
-                      hintText: t.amountPaidHint,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [CurrencyInputFormatter()],
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      onChanged: (_) => _formCubit.notifyFieldChanged(),
-                    ),
-                    const SizedBox(height: 12),
-                    AppTextField(
-                      controller: _observacoesController,
-                      icon: Icons.description_outlined,
-                      hintText: t.notesHint,
-                      maxLines: 3,
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      t.paymentMethodSectionTitle,
-                      style: TextStyle(
-                        color: context.colors.textSecondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    AppChipSelect<PaymentMethod>(
-                      options: PaymentMethod.values,
-                      labelBuilder: (option) => option.label(t.language),
-                      selected: formState.paymentMethod == null
-                          ? {}
-                          : {formState.paymentMethod!},
-                      onChanged: (selected) => _formCubit.setFormaPagamento(
-                        selected.isEmpty ? null : selected.first,
-                      ),
-                    ),
-                    if (formState.paymentMethod == PaymentMethod.other) ...[
-                      const SizedBox(height: 12),
+                    children: [
                       AppTextField(
-                        controller: _formaPagamentoOutroController,
-                        icon: Icons.edit_outlined,
-                        hintText: t.whichPaymentMethodHint,
+                        controller: _patientNameController,
+                        label: t.patientFieldLabel,
+                        hintText: t.patientNameHint,
+                        textCapitalization: TextCapitalization.words,
+                        maxLines: 2,
+                        suffixIcon: hasPatients
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.list_alt_outlined,
+                                  color: context.colors.textSecondary,
+                                ),
+                                tooltip: t.selectRegisteredPatientTooltip,
+                                onPressed: _selectPatient,
+                              )
+                            : null,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                        onChanged: (_) => _formCubit.onNomeChanged(),
+                      ),
+                      const SizedBox(height: AppSpacing.s16),
+                      AppDateField(
+                        label: t.dateFieldLabel,
+                        hintText: '',
+                        value: formState.date,
+                        onChanged: _formCubit.setData,
+                      ),
+                      const SizedBox(height: AppSpacing.s16),
+                      AppTextField(
+                        controller: _valorController,
+                        label: t.amountFieldLabel,
+                        hintText: t.amountPaidHint,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [CurrencyInputFormatter()],
                         textInputAction: TextInputAction.next,
                         onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                         onChanged: (_) => _formCubit.notifyFieldChanged(),
                       ),
-                    ],
-                    const SizedBox(height: 16),
-                    Text(
-                      t.statusSectionTitle,
-                      style: TextStyle(
-                        color: context.colors.textSecondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    AppChipSelect<PaymentStatus>(
-                      options: PaymentStatus.values,
-                      labelBuilder: (option) => option.label(t.language),
-                      selected: {formState.status},
-                      onChanged: (selected) => _formCubit.setStatus(
-                        selected.isEmpty ? PaymentStatus.paid : selected.first,
-                      ),
-                    ),
-                    if (formState.status == PaymentStatus.other) ...[
-                      const SizedBox(height: 12),
-                      AppTextField(
-                        controller: _statusOutroController,
-                        icon: Icons.edit_outlined,
-                        hintText: t.whichStatusHint,
-                        errorText:
-                            _statusOutroController.text.isEmpty ||
-                                _statusOutroController.text.trim().length > 3
-                            ? null
-                            : t.statusMinCharsError,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => FocusScope.of(context).unfocus(),
-                        onChanged: (_) => _formCubit.notifyFieldChanged(),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              AppBottomActionBar(
-                child: Column(
-                  children: [
-                    if (_isEditing) ...[
-                      OutlinedButton(
-                        onPressed: _delete,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: context.colors.danger,
-                          side: BorderSide(color: context.colors.danger),
-                          minimumSize: const Size.fromHeight(52),
+                      const SizedBox(height: AppSpacing.s24),
+                      _fieldLabel(context, t.statusFieldLabel),
+                      AppChipSelect<PaymentStatus>(
+                        options: PaymentStatus.values,
+                        labelBuilder: (option) => option.label(t.language),
+                        selected: {formState.status},
+                        onChanged: (selected) => _formCubit.setStatus(
+                          selected.isEmpty
+                              ? PaymentStatus.paid
+                              : selected.first,
                         ),
-                        child: Text(t.deleteLabel),
                       ),
-                      const SizedBox(height: 12),
+                      if (formState.status == PaymentStatus.other) ...[
+                        const SizedBox(height: AppSpacing.s12),
+                        AppTextField(
+                          controller: _statusOutroController,
+                          label: t.whichStatusHint,
+                          errorText:
+                              _statusOutroController.text.isEmpty ||
+                                  _statusOutroController.text.trim().length >
+                                      3
+                              ? null
+                              : t.statusMinCharsError,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) =>
+                              FocusScope.of(context).nextFocus(),
+                          onChanged: (_) => _formCubit.notifyFieldChanged(),
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.s16),
+                      _fieldLabel(context, t.paymentMethodFieldLabel),
+                      AppChipSelect<PaymentMethod>(
+                        options: PaymentMethod.values,
+                        labelBuilder: (option) => option.label(t.language),
+                        selected: formState.paymentMethod == null
+                            ? {}
+                            : {formState.paymentMethod!},
+                        onChanged: (selected) => _formCubit.setFormaPagamento(
+                          selected.isEmpty ? null : selected.first,
+                        ),
+                      ),
+                      if (formState.paymentMethod == PaymentMethod.other) ...[
+                        const SizedBox(height: AppSpacing.s12),
+                        AppTextField(
+                          controller: _formaPagamentoOutroController,
+                          label: t.whichPaymentMethodHint,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) =>
+                              FocusScope.of(context).unfocus(),
+                          onChanged: (_) => _formCubit.notifyFieldChanged(),
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.s24),
+                      AppTextField(
+                        controller: _observacoesController,
+                        label: t.notesHint,
+                        minLines: 3,
+                        maxLines: null,
+                      ),
+                      if (_isEditing) ...[
+                        const SizedBox(height: AppSpacing.s32),
+                        Center(
+                          child: TextButton(
+                            onPressed: _delete,
+                            style: TextButton.styleFrom(
+                              foregroundColor: context.colors.danger,
+                            ),
+                            child: Text(t.deletePaymentTitle),
+                          ),
+                        ),
+                      ],
                     ],
-                    PrimaryButton(
-                      label: t.registerPaymentButton,
-                      isLoading: formState.saving,
-                      onPressed: _canSave(formState) ? _save : null,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
+                if (keyboardOpen)
+                  Divider(height: 1, color: context.colors.border),
+                AppBottomActionBar(
+                  child: PrimaryButton(
+                    label: _isEditing
+                        ? t.saveChangesButton
+                        : t.registerPaymentButton,
+                    isLoading: formState.saving,
+                    onPressed: _canSave(formState) ? _save : null,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
