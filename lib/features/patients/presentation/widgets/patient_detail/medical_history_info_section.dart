@@ -15,19 +15,20 @@ class MedicalHistoryInfoSection extends StatelessWidget {
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final language = t.language;
     final a = medicalHistory;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionAnamnesis,
       children: [
-        SectionTitle(t.sectionAnamnesis),
         InfoRow(
           t.fieldChiefComplaint,
           PatientDetailFormat.text(a.chiefComplaint, language: language),
           language: language,
+          vertical: true,
         ),
         InfoRow(
           t.fieldSymptomsOnset,
           PatientDetailFormat.text(a.symptomsOnset, language: language),
           language: language,
+          vertical: true,
         ),
         InfoRow(
           t.fieldHasMedicalDiagnosis,
@@ -39,6 +40,7 @@ class MedicalHistoryInfoSection extends StatelessWidget {
             t.fieldWhichDiagnosis,
             PatientDetailFormat.text(a.medicalDiagnosis, language: language),
             language: language,
+            vertical: true,
           ),
         InfoRow(
           t.fieldHadPreviousTreatment,
@@ -53,6 +55,7 @@ class MedicalHistoryInfoSection extends StatelessWidget {
               language: language,
             ),
             language: language,
+            vertical: true,
           ),
         InfoRow(
           t.fieldChronicDiseases,
@@ -67,6 +70,7 @@ class MedicalHistoryInfoSection extends StatelessWidget {
               language: language,
             ),
             language: language,
+            vertical: true,
           ),
         InfoRow(
           t.fieldContinuousMedication,
@@ -84,6 +88,7 @@ class MedicalHistoryInfoSection extends StatelessWidget {
               language: language,
             ),
             language: language,
+            vertical: true,
           ),
         InfoRow(
           t.fieldSmoking,
@@ -107,6 +112,7 @@ class MedicalHistoryInfoSection extends StatelessWidget {
           t.fieldImagingExams,
           PatientDetailFormat.text(a.imagingExams, language: language),
           language: language,
+          vertical: true,
         ),
       ],
     );

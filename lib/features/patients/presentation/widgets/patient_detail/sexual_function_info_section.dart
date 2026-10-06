@@ -16,10 +16,9 @@ class SexualFunctionInfoSection extends StatelessWidget {
     final f = sexualFunction;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionSexualFunction,
       children: [
-        SectionTitle(t.sectionSexualFunction),
         InfoRow(
           t.fieldSexuallyActive,
           PatientDetailFormat.yesNo(f.sexuallyActive, language: l),
@@ -30,6 +29,7 @@ class SexualFunctionInfoSection extends StatelessWidget {
             t.fieldSexualActivityFrequency,
             PatientDetailFormat.text(f.sexualActivityFrequency, language: l),
             language: l,
+            vertical: true,
           ),
           InfoRow(
             t.fieldNeedsLubricant,
@@ -54,6 +54,7 @@ class SexualFunctionInfoSection extends StatelessWidget {
                 language: l,
               ),
               language: l,
+              vertical: true,
             ),
           InfoRow(
             t.fieldPainDuringPenetration,

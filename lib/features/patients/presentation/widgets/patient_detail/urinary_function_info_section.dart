@@ -16,10 +16,9 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
     final f = urinaryFunction;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionUrinaryFunction,
       children: [
-        SectionTitle(t.sectionUrinaryFunction),
         InfoRow(
           t.fieldUrgency,
           PatientDetailFormat.yesNo(f.urgency, language: l),
@@ -30,6 +29,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
             t.fieldUrgencyDetail,
             PatientDetailFormat.text(f.urgencyDescription, language: l),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldUrgencyAssociatedLeakage,
@@ -48,12 +48,14 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
                 ? PatientDetailFormat.naoInformado(language: l)
                 : f.incontinenceTriggers.map((g) => g.label(l)).join(', '),
             language: l,
+            vertical: true,
           ),
           if (f.incontinenceTriggers.contains(IncontinenceTrigger.other))
             InfoRow(
               t.fieldWhichOtherTrigger,
               PatientDetailFormat.text(f.otherTriggerDescription, language: l),
               language: l,
+              vertical: true,
             ),
         ],
         if (f.urgencyAssociatedLeakage == true || f.stressIncontinence == true)
@@ -97,6 +99,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
             t.fieldEnuresisDetail,
             PatientDetailFormat.text(f.enuresisDescription, language: l),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldHesitancy,
@@ -108,6 +111,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
             t.fieldHesitancyDetail,
             PatientDetailFormat.text(f.hesitancyDescription, language: l),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldUrinaryStraining,
@@ -122,6 +126,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
               language: l,
             ),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldPostVoidDribbling,
@@ -133,6 +138,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
             t.fieldDribblingDetail,
             PatientDetailFormat.text(f.dribblingDescription, language: l),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldIncompleteEmptying,
@@ -147,6 +153,7 @@ class UrinaryFunctionInfoSection extends StatelessWidget {
               language: l,
             ),
             language: l,
+            vertical: true,
           ),
       ],
     );

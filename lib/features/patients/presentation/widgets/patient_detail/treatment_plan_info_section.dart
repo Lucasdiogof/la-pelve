@@ -15,29 +15,32 @@ class TreatmentPlanInfoSection extends StatelessWidget {
     final p = treatmentPlan;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionTreatmentPlan,
       children: [
-        SectionTitle(t.sectionTreatmentPlan),
         InfoRow(
           t.fieldPhysiotherapyDiagnosis,
           PatientDetailFormat.text(p.physiotherapyDiagnosis, language: l),
           language: l,
+          vertical: true,
         ),
         InfoRow(
           t.fieldTreatmentGoal,
           PatientDetailFormat.text(p.treatmentGoal, language: l),
           language: l,
+          vertical: true,
         ),
         InfoRow(
           t.fieldTreatmentApproach,
           PatientDetailFormat.text(p.treatmentApproach, language: l),
           language: l,
+          vertical: true,
         ),
         InfoRow(
           t.fieldSuggestedFrequency,
           PatientDetailFormat.text(p.suggestedFrequency, language: l),
           language: l,
+          vertical: true,
         ),
       ],
     );

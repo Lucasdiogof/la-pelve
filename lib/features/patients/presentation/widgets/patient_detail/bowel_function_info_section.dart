@@ -16,10 +16,9 @@ class BowelFunctionInfoSection extends StatelessWidget {
     final f = bowelFunction;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionBowelFunction,
       children: [
-        SectionTitle(t.sectionBowelFunction),
         InfoRow(
           t.fieldBowelFrequency,
           PatientDetailFormat.enumValue(
@@ -45,6 +44,7 @@ class BowelFunctionInfoSection extends StatelessWidget {
             t.fieldWhichLaxative,
             PatientDetailFormat.text(f.laxativeDescription, language: l),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldStrainsToDefecate,

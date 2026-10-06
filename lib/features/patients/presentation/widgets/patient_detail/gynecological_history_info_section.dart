@@ -16,10 +16,9 @@ class GynecologicalHistoryInfoSection extends StatelessWidget {
     final h = gynecologicalHistory;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionGynecologicalHistory,
       children: [
-        SectionTitle(t.sectionGynecologicalHistory),
         InfoRow(
           t.fieldAgeAtMenarche,
           PatientDetailFormat.intValue(h.ageAtMenarche, language: l),
@@ -82,6 +81,7 @@ class GynecologicalHistoryInfoSection extends StatelessWidget {
               language: l,
             ),
             language: l,
+            vertical: true,
           ),
         InfoRow(
           t.fieldContraceptiveMethod,

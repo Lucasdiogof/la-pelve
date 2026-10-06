@@ -16,10 +16,9 @@ class ObstetricHistoryInfoSection extends StatelessWidget {
     final h = obstetricHistory;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionObstetricHistory,
       children: [
-        SectionTitle(t.sectionObstetricHistory),
         InfoRow(
           t.fieldCurrentlyPregnant,
           PatientDetailFormat.yesNo(h.currentlyPregnant, language: l),
@@ -58,6 +57,7 @@ class ObstetricHistoryInfoSection extends StatelessWidget {
                 language: l,
               ),
               language: l,
+              vertical: true,
             ),
         ],
         InfoRow(
@@ -72,7 +72,7 @@ class ObstetricHistoryInfoSection extends StatelessWidget {
             language: l,
           ),
           for (var i = 0; i < h.pregnancies.length; i++)
-            PregnancyCard(index: i, pregnancy: h.pregnancies[i], language: l),
+            PregnancyBlock(index: i, pregnancy: h.pregnancies[i], language: l),
         ],
       ],
     );

@@ -56,6 +56,36 @@ class PatientsStrings {
     AppLanguage.spanish => '${patientCount(count)} · $discharged con alta',
   };
 
+  String ageYears(int age) => switch (language) {
+    AppLanguage.portuguese => age == 1 ? '1 ano' : '$age anos',
+    AppLanguage.english => age == 1 ? '1 year' : '$age years',
+    AppLanguage.spanish => age == 1 ? '1 año' : '$age años',
+  };
+
+  String get sectionTreatmentStatus => switch (language) {
+    AppLanguage.portuguese => 'Tratamento',
+    AppLanguage.english => 'Treatment',
+    AppLanguage.spanish => 'Tratamiento',
+  };
+
+  String get fieldTreatmentStatus => switch (language) {
+    AppLanguage.portuguese => 'Status',
+    AppLanguage.english => 'Status',
+    AppLanguage.spanish => 'Estado',
+  };
+
+  String get fieldDischargeReason => switch (language) {
+    AppLanguage.portuguese => 'Motivo',
+    AppLanguage.english => 'Reason',
+    AppLanguage.spanish => 'Motivo',
+  };
+
+  String get fieldFinalNote => switch (language) {
+    AppLanguage.portuguese => 'Observação final',
+    AppLanguage.english => 'Final note',
+    AppLanguage.spanish => 'Observación final',
+  };
+
   String get dischargedSectionTitle => switch (language) {
     AppLanguage.portuguese => 'Com alta',
     AppLanguage.english => 'Discharged',

@@ -16,22 +16,23 @@ class SurgicalHistoryInfoSection extends StatelessWidget {
     final h = surgicalHistory;
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     final l = t.language;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return InfoSection(
+      title: t.sectionSurgicalHistory,
       children: [
-        SectionTitle(t.sectionSurgicalHistory),
         InfoRow(
           t.fieldSurgeries,
           h.surgeries.isEmpty
               ? PatientDetailFormat.naoInformado(language: l)
               : h.surgeries.map((c) => c.label(l)).join(', '),
           language: l,
+          vertical: true,
         ),
         if (h.surgeries.contains(GynecologicalSurgery.other))
           InfoRow(
             t.fieldWhichSurgery,
             PatientDetailFormat.text(h.otherSurgeryDescription, language: l),
             language: l,
+            vertical: true,
           ),
       ],
     );
