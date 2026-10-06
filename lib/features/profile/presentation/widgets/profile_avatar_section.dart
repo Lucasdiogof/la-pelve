@@ -25,7 +25,7 @@ class ProfileAvatarSection extends StatelessWidget {
           GestureDetector(
             onTap: onViewPhoto,
             child: CircleAvatar(
-              radius: 48,
+              radius: 32,
               backgroundColor: context.colors.primary.withValues(alpha: 0.15),
               backgroundImage: photoUrl != null
                   ? NetworkImage(photoUrl!)
@@ -36,7 +36,7 @@ class ProfileAvatarSection extends StatelessWidget {
                       style: TextStyle(
                         color: context.colors.primary,
                         fontWeight: FontWeight.w800,
-                        fontSize: 32,
+                        fontSize: 22,
                       ),
                     )
                   : null,
@@ -52,11 +52,11 @@ class ProfileAvatarSection extends StatelessWidget {
                 customBorder: const CircleBorder(),
                 onTap: isSaving ? null : onTap,
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   child: isSaving
                       ? SizedBox(
-                          width: 16,
-                          height: 16,
+                          width: 14,
+                          height: 14,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: context.colors.onPrimary,
@@ -64,7 +64,7 @@ class ProfileAvatarSection extends StatelessWidget {
                         )
                       : Icon(
                           Icons.camera_alt_outlined,
-                          size: 16,
+                          size: 14,
                           color: context.colors.onPrimary,
                         ),
                 ),

@@ -8,6 +8,7 @@ import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/router/app_page.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/core/theme/theme_cubit.dart';
 import 'package:la_pelve/core/theme/theme_mode_label.dart';
 import 'package:la_pelve/core/utils/app_loading.dart';
@@ -22,6 +23,7 @@ import 'package:la_pelve/features/profile/presentation/widgets/profile_row.dart'
 import 'package:la_pelve/shared/l10n/app_strings.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -142,6 +144,78 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  Widget _header(BuildContext context, ProfileState state, ProfileStrings t) {
+    final name = (state.profile?.name.trim().isNotEmpty ?? false)
+        ? state.profile!.name.trim()
+        : t.notInformedLabel;
+    final email = state.profile?.email.trim() ?? '';
+    final avatar = ProfileAvatarSection(
+      photoUrl: state.photoUrl,
+      initial: (state.profile?.name.isNotEmpty ?? false)
+          ? state.profile!.name[0].toUpperCase()
+          : '?',
+      isSaving: state.savingPhoto,
+      onTap: () => _changePhoto(context, hasPhoto: state.photoUrl != null),
+      onViewPhoto: state.photoUrl == null
+          ? null
+          : () => _viewPhoto(context, state.photoUrl!),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Composição horizontal (avatar + nome/e-mail à esquerda) é o padrão;
+        // só empilha em tela estreita com texto bem ampliado, pra não
+        // esmagar o nome.
+        final textScale = MediaQuery.textScalerOf(context).scale(100);
+        final stacked = constraints.maxWidth < 300 && textScale >= 115;
+        final nameText = Text(
+          name,
+          maxLines: 3,
+          textAlign: stacked ? TextAlign.center : TextAlign.start,
+          style: Theme.of(context).textTheme.titleLarge,
+        );
+        final emailText = email.isEmpty
+            ? null
+            : Text(
+                email,
+                textAlign: stacked ? TextAlign.center : TextAlign.start,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              );
+        if (stacked) {
+          return Column(
+            children: [
+              avatar,
+              const SizedBox(height: AppSpacing.s12),
+              nameText,
+              if (emailText != null) ...[const SizedBox(height: 2), emailText],
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            avatar,
+            const SizedBox(width: AppSpacing.s16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  nameText,
+                  if (emailText != null) ...[
+                    const SizedBox(height: 2),
+                    emailText,
+                  ],
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.strings.profile;
@@ -166,126 +240,127 @@ class ProfilePage extends StatelessWidget {
                           ),
                         )
                       : ListView(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 2),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.gutter,
+                            AppSpacing.s16,
+                            AppSpacing.gutter,
+                            AppSpacing.s32,
+                          ),
                           children: [
-                            ProfileAvatarSection(
-                              photoUrl: state.photoUrl,
-                              initial: (state.profile?.name.isNotEmpty ?? false)
-                                  ? state.profile!.name[0].toUpperCase()
-                                  : '?',
-                              isSaving: state.savingPhoto,
-                              onTap: () => _changePhoto(
-                                context,
-                                hasPhoto: state.photoUrl != null,
-                              ),
-                              onViewPhoto: state.photoUrl == null
-                                  ? null
-                                  : () => _viewPhoto(context, state.photoUrl!),
-                            ),
-                            const SizedBox(height: 32),
-                            ProfileRow(
-                              icon: Icons.person_outline,
-                              label: t.nameRowLabel,
-                              value: state.profile?.name ?? '',
-                              trailing: Icon(
-                                Icons.edit_outlined,
-                                size: 18,
-                                color: context.colors.primary,
-                              ),
-                              onTap: () =>
-                                  _editNome(context, state.profile?.name),
-                            ),
-                            const SizedBox(height: 8),
-                            ProfileRow(
-                              icon: Icons.email_outlined,
-                              label: t.emailRowLabel,
-                              value: state.profile?.email ?? '',
-                            ),
-                            const SizedBox(height: 8),
-                            ProfileRow(
-                              icon: Icons.verified_user_outlined,
-                              label: t.crefitoRowLabel,
-                              value: state.profile?.crefito ?? '',
-                            ),
-                            if (!kIsWeb) ...[
-                              const SizedBox(height: 8),
-                              ProfileRow(
-                                icon: Icons.fingerprint,
-                                label: t.biometricsRowLabel,
-                                value: state.biometriaEnabled
-                                    ? t.statusEnabled
-                                    : t.statusDisabled,
-                                trailing: Icon(
-                                  Icons.chevron_right,
-                                  color: context.colors.textSecondary,
+                            _header(context, state, t),
+                            const SizedBox(height: AppSpacing.s24),
+                            AppSection(
+                              title: t.profileSectionTitle,
+                              children: [
+                                ProfileRow(
+                                  icon: Icons.person_outline,
+                                  label: t.nameRowLabel,
+                                  value: state.profile?.name ?? '',
+                                  trailing: Icon(
+                                    Icons.edit_outlined,
+                                    size: 18,
+                                    color: context.colors.primary,
+                                  ),
+                                  onTap: () =>
+                                      _editNome(context, state.profile?.name),
                                 ),
-                                onTap: () => _openBiometria(context),
-                              ),
-                            ],
-                            const SizedBox(height: 8),
-                            ProfileRow(
-                              icon: Icons.password_outlined,
-                              label: t.changePasswordRowLabel,
-                              value: '••••••••',
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                color: context.colors.textSecondary,
-                              ),
-                              onTap: () =>
-                                  context.push('/perfil/alterar-senha'),
-                            ),
-                            const SizedBox(height: 8),
-                            ProfileRow(
-                              icon: Icons.chat_outlined,
-                              label: t.whatsappRowLabel,
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                color: context.colors.textSecondary,
-                              ),
-                              onTap: () => context.push('/perfil/whatsapp'),
-                            ),
-                            const SizedBox(height: 8),
-                            BlocBuilder<ThemeCubit, ThemeMode>(
-                              builder: (context, mode) => ProfileRow(
-                                icon: Icons.palette_outlined,
-                                label: t.themeRowLabel,
-                                value: themeModeLabel(mode, t.language),
-                                trailing: Icon(
-                                  Icons.chevron_right,
-                                  color: context.colors.textSecondary,
+                                ProfileRow(
+                                  icon: Icons.email_outlined,
+                                  label: t.emailRowLabel,
+                                  value: state.profile?.email ?? '',
                                 ),
-                                onTap: () => context.push('/perfil/tema'),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            BlocBuilder<LocaleCubit, AppLanguage>(
-                              builder: (context, language) => ProfileRow(
-                                icon: Icons.translate,
-                                label: context.strings.profile.languageRowLabel,
-                                value: language.label,
-                                trailing: Icon(
-                                  Icons.chevron_right,
-                                  color: context.colors.textSecondary,
+                                ProfileRow(
+                                  icon: Icons.verified_user_outlined,
+                                  label: t.crefitoRowLabel,
+                                  value: state.profile?.crefito ?? '',
+                                  showDivider: false,
                                 ),
-                                onTap: () => context.push('/perfil/idioma'),
-                              ),
+                              ],
                             ),
-                            const SizedBox(height: 32),
-                            OutlinedButton(
-                              onPressed: () => _signOut(context),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: context.colors.danger,
-                                side: BorderSide(color: context.colors.danger),
-                              ),
-                              child: Text(t.signOutButtonLabel),
+                            const SizedBox(height: AppSpacing.s20),
+                            AppSection(
+                              title: t.preferencesSectionTitle,
+                              children: [
+                                BlocBuilder<ThemeCubit, ThemeMode>(
+                                  builder: (context, mode) => ProfileRow(
+                                    icon: Icons.palette_outlined,
+                                    label: t.themeRowLabel,
+                                    value: themeModeLabel(mode, t.language),
+                                    trailing: Icon(
+                                      Icons.chevron_right,
+                                      color: context.colors.textSecondary,
+                                    ),
+                                    onTap: () => context.push('/perfil/tema'),
+                                  ),
+                                ),
+                                BlocBuilder<LocaleCubit, AppLanguage>(
+                                  builder: (context, language) => ProfileRow(
+                                    icon: Icons.translate,
+                                    label: t.languageRowLabel,
+                                    value: language.label,
+                                    trailing: Icon(
+                                      Icons.chevron_right,
+                                      color: context.colors.textSecondary,
+                                    ),
+                                    onTap: () => context.push('/perfil/idioma'),
+                                    showDivider: false,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () => _deleteAccount(context),
-                              style: TextButton.styleFrom(
-                                foregroundColor: context.colors.danger,
+                            const SizedBox(height: AppSpacing.s20),
+                            AppSection(
+                              title: t.accountSectionTitle,
+                              children: [
+                                if (!kIsWeb)
+                                  ProfileRow(
+                                    icon: Icons.fingerprint,
+                                    label: t.biometricsRowLabel,
+                                    value: state.biometriaEnabled
+                                        ? t.statusEnabled
+                                        : t.statusDisabled,
+                                    trailing: Icon(
+                                      Icons.chevron_right,
+                                      color: context.colors.textSecondary,
+                                    ),
+                                    onTap: () => _openBiometria(context),
+                                  ),
+                                ProfileRow(
+                                  icon: Icons.password_outlined,
+                                  label: t.changePasswordRowLabel,
+                                  trailing: Icon(
+                                    Icons.chevron_right,
+                                    color: context.colors.textSecondary,
+                                  ),
+                                  onTap: () =>
+                                      context.push('/perfil/alterar-senha'),
+                                ),
+                                ProfileRow(
+                                  icon: Icons.chat_outlined,
+                                  label: t.whatsappRowLabel,
+                                  trailing: Icon(
+                                    Icons.chevron_right,
+                                    color: context.colors.textSecondary,
+                                  ),
+                                  onTap: () => context.push('/perfil/whatsapp'),
+                                ),
+                                ProfileRow(
+                                  icon: Icons.logout,
+                                  label: t.signOutButtonLabel,
+                                  onTap: () => _signOut(context),
+                                  showDivider: false,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.s32),
+                            Center(
+                              child: TextButton(
+                                onPressed: () => _deleteAccount(context),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: context.colors.danger,
+                                ),
+                                child: Text(t.deleteAccountLabel),
                               ),
-                              child: Text(t.deleteAccountLabel),
                             ),
                           ],
                         ),

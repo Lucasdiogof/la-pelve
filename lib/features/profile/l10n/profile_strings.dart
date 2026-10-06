@@ -54,6 +54,24 @@ class ProfileStrings {
     AppLanguage.spanish => 'Gestiona tu perfil',
   };
 
+  String get profileSectionTitle => switch (language) {
+    AppLanguage.portuguese => 'Perfil profissional',
+    AppLanguage.english => 'Professional profile',
+    AppLanguage.spanish => 'Perfil profesional',
+  };
+
+  String get preferencesSectionTitle => switch (language) {
+    AppLanguage.portuguese => 'Preferências',
+    AppLanguage.english => 'Preferences',
+    AppLanguage.spanish => 'Preferencias',
+  };
+
+  String get accountSectionTitle => switch (language) {
+    AppLanguage.portuguese => 'Conta',
+    AppLanguage.english => 'Account',
+    AppLanguage.spanish => 'Cuenta',
+  };
+
   String get profilePhotoTitle => switch (language) {
     AppLanguage.portuguese => 'Foto de perfil',
     AppLanguage.english => 'Profile photo',
@@ -71,8 +89,7 @@ class ProfileStrings {
       'Tem certeza que deseja remover sua foto de perfil?',
     AppLanguage.english =>
       'Are you sure you want to remove your profile photo?',
-    AppLanguage.spanish =>
-      '¿Seguro que deseas eliminar tu foto de perfil?',
+    AppLanguage.spanish => '¿Seguro que deseas eliminar tu foto de perfil?',
   };
 
   String get nameRowLabel => switch (language) {
@@ -453,8 +470,7 @@ class ProfileStrings {
   String get whatsappLoadErrorMessage => switch (language) {
     AppLanguage.portuguese =>
       'Não foi possível carregar o status da conexão com o WhatsApp.',
-    AppLanguage.english =>
-      "Couldn't load the WhatsApp connection status.",
+    AppLanguage.english => "Couldn't load the WhatsApp connection status.",
     AppLanguage.spanish =>
       'No fue posible cargar el estado de la conexión con WhatsApp.',
   };
