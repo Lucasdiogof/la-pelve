@@ -446,6 +446,12 @@ class PatientsStrings {
     AppLanguage.spanish => 'Fecha',
   };
 
+  String get evolutionFieldLabel => switch (language) {
+    AppLanguage.portuguese => 'Evolução',
+    AppLanguage.english => 'Evolution',
+    AppLanguage.spanish => 'Evolución',
+  };
+
   String get evolutionDescriptionHint => switch (language) {
     AppLanguage.portuguese => 'O que foi feito no atendimento',
     AppLanguage.english => 'What was done during the session',

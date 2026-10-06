@@ -29,6 +29,7 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.maxLines = 1,
+    this.minLines,
     this.onChanged,
     this.inputFormatters,
     this.iconColor,
@@ -53,6 +54,7 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final int? maxLines;
+  final int? minLines;
   final ValueChanged<String>? onChanged;
   final List<TextInputFormatter>? inputFormatters;
   final Color? iconColor;
@@ -95,6 +97,7 @@ class AppTextField extends StatelessWidget {
             enableInteractiveSelection: enableInteractiveSelection,
             onTap: onTap,
             maxLines: obscureText ? 1 : maxLines,
+            minLines: obscureText ? null : minLines,
             onChanged: onChanged,
             onSubmitted: onSubmitted,
             textInputAction: textInputAction,

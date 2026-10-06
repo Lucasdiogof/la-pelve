@@ -5,16 +5,19 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
 import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/evolution_form_cubit.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/evolution_form_state.dart';
+import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:la_pelve/shared/utils/id_generator.dart';
 import 'package:la_pelve/shared/widgets/app_bottom_action_bar.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_text_field.dart';
+import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class EvolutionFormPage extends StatefulWidget {
@@ -57,6 +60,20 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
       ..dispose();
     _formCubit.close();
     super.dispose();
+  }
+
+  /// Nome do paciente para o contexto da tela. Defensivo: se o PatientsCubit
+  /// não estiver registrado ou não tiver o paciente carregado, não há subtítulo
+  /// (o formulário não depende disso).
+  String? get _patientName {
+    if (!sl.isRegistered<PatientsCubit>()) return null;
+    for (final patient in sl<PatientsCubit>().state) {
+      if (patient.id == widget.patientId) {
+        final name = patient.personalInfo.name.trim();
+        return name.isEmpty ? null : name;
+      }
+    }
+    return null;
   }
 
   bool _canSave(EvolutionFormState state) =>
@@ -107,45 +124,66 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<EvolutionFormCubit, EvolutionFormState>(
-        builder: (context, formState) => Scaffold(
-          backgroundColor: context.colors.background,
-          appBar: AppBar(
-            title: Text(
-              _isEditing ? t.editEvolutionTitle : t.newEvolutionTitle,
+        builder: (context, formState) {
+          // Lido aqui, acima do Scaffold: dentro do body o Scaffold já consome
+          // o inset do teclado.
+          final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+          return Scaffold(
+            backgroundColor: context.colors.background,
+            body: Column(
+              children: [
+                ModernAppBar(
+                  title: _isEditing
+                      ? t.editEvolutionTitle
+                      : t.newEvolutionTitle,
+                  subtitle: _patientName,
+                  showBackButton: true,
+                ),
+                Expanded(
+                  child: ListView(
+                    // Com teclado aberto a viewport fica baixa: folga extra no fim
+                    // para a textarea poder rolar para cima sem encostar na barra.
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.gutter,
+                      AppSpacing.s16,
+                      AppSpacing.gutter,
+                      keyboardOpen ? AppSpacing.s32 : AppSpacing.s24,
+                    ),
+                    children: [
+                      AppDateField(
+                        label: t.dateHint,
+                        // Vazio de propósito: o rótulo "Data" já está acima.
+                        hintText: '',
+                        value: formState.date,
+                        lastDate: _today,
+                        onChanged: _formCubit.setData,
+                      ),
+                      const SizedBox(height: AppSpacing.s24),
+                      AppTextField(
+                        controller: _descricaoController,
+                        label: t.evolutionFieldLabel,
+                        hintText: t.evolutionDescriptionHint,
+                        minLines: 6,
+                        maxLines: null,
+                      ),
+                    ],
+                  ),
+                ),
+                // Só com teclado: separa de verdade o conteúdo rolável (cortado na
+                // borda da viewport) da barra do botão.
+                if (keyboardOpen)
+                  Divider(height: 1, color: context.colors.border),
+                AppBottomActionBar(
+                  child: PrimaryButton(
+                    label: _isEditing ? t.saveChangesLabel : t.saveLabel,
+                    isLoading: formState.saving,
+                    onPressed: _canSave(formState) ? _save : null,
+                  ),
+                ),
+              ],
             ),
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                    AppDateField(
-                      hintText: t.dateHint,
-                      value: formState.date,
-                      lastDate: _today,
-                      onChanged: _formCubit.setData,
-                    ),
-                    const SizedBox(height: 12),
-                    AppTextField(
-                      controller: _descricaoController,
-                      icon: Icons.description_outlined,
-                      hintText: t.evolutionDescriptionHint,
-                      maxLines: 6,
-                    ),
-                  ],
-                ),
-              ),
-              AppBottomActionBar(
-                child: PrimaryButton(
-                  label: _isEditing ? t.saveChangesLabel : t.saveLabel,
-                  isLoading: formState.saving,
-                  onPressed: _canSave(formState) ? _save : null,
-                ),
-              ),
-            ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
