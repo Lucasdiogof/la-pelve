@@ -4,10 +4,12 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/services/biometric_service.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/biometric_settings_cubit.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/biometric_settings_state.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class BiometricSettingsPage extends StatelessWidget {
@@ -39,6 +41,7 @@ class BiometricSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = ProfileStrings(context.watch<LocaleCubit>().state);
+    final textTheme = Theme.of(context).textTheme;
     return BlocProvider(
       create: (_) => BiometricSettingsCubit(),
       child: BlocBuilder<BiometricSettingsCubit, BiometricSettingsState>(
@@ -59,21 +62,35 @@ class BiometricSettingsPage extends StatelessWidget {
                         ),
                       )
                     : ListView(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.gutter,
+                          AppSpacing.s8,
+                          AppSpacing.gutter,
+                          AppSpacing.s32,
+                        ),
                         children: [
-                          Material(
-                            color: context.colors.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            child: SwitchListTile(
-                              value: state.enabled,
-                              onChanged: (value) => _toggle(context, value),
-                              activeThumbColor: context.colors.primary,
-                              title: Text(t.biometricSwitchTitle),
-                              subtitle: Text(t.biometricSwitchSubtitle),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                          AppSection(
+                            children: [
+                              SwitchListTile(
+                                value: state.enabled,
+                                onChanged: (value) => _toggle(context, value),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.s16,
+                                ),
+                                title: Text(
+                                  t.biometricSwitchTitle,
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  t.biometricSwitchSubtitle,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
