@@ -107,6 +107,7 @@ class _AgendaMonthlyReportView extends StatelessWidget {
                 child: AppMetric(
                   label: t.appointmentsInMonth,
                   value: '${inMonth.length}',
+                  crossAxisAlignment: CrossAxisAlignment.center,
                 ),
               ),
             ),
