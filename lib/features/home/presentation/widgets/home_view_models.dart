@@ -23,12 +23,15 @@ extension ScheduleStatusLabel on ScheduleStatus {
 
 class ScheduleItem {
   const ScheduleItem({
+    required this.day,
     required this.dayLabel,
     required this.time,
     required this.patientName,
     required this.status,
   });
 
+  /// Dia do atendimento (sem hora): é a chave do agrupamento por dia.
+  final DateTime day;
   final String dayLabel;
   final String time;
   final String patientName;
@@ -59,10 +62,22 @@ String _formatTime(TimeOfDay time) =>
     '${time.minute.toString().padLeft(2, '0')}';
 
 String _dayLabel(DateTime day, DateTime today, HomeStrings t) {
-  final diff = day.difference(today).inDays;
+  // Em UTC para a contagem de dias não sofrer com horário de verão.
+  final diff = DateTime.utc(
+    day.year,
+    day.month,
+    day.day,
+  ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
   if (diff == 0) return t.today;
   if (diff == 1) return t.tomorrow;
-  return t.weekdayShortName(day.weekday);
+  final weekday = t.weekdayShortName(day.weekday);
+  // A partir de uma semana o dia da semana se repete: a data desfaz a
+  // ambiguidade ("Qua, 14/10").
+  if (diff >= 7) {
+    return '$weekday, ${day.day.toString().padLeft(2, '0')}/'
+        '${day.month.toString().padLeft(2, '0')}';
+  }
+  return weekday;
 }
 
 ScheduleStatus _statusFor(
@@ -87,6 +102,16 @@ ScheduleStatus _statusFor(
   }
 }
 
+/// Mínimo de atendimentos que a Home procura mostrar em "Próximos
+/// atendimentos".
+const int kUpcomingScheduleMinItems = 5;
+
+/// Próximos atendimentos da Home. A unidade é o DIA: a partir de hoje, em
+/// ordem cronológica, entra o dia INTEIRO (todos os atendimentos dele) até o
+/// total chegar a [kUpcomingScheduleMinItems] ou mais; nesse ponto para. Dias
+/// sem atendimento são pulados e um dia nunca é cortado ao meio, então o
+/// total pode passar de 5 (ex.: 4 hoje + 3 amanhã = 7). Sem limite de janela:
+/// se os próximos atendimentos estão longe, eles aparecem mesmo assim.
 List<ScheduleItem> buildUpcomingSchedule(
   List<Appointment> appointments,
   AppLanguage language,
@@ -94,27 +119,36 @@ List<ScheduleItem> buildUpcomingSchedule(
   final t = HomeStrings(language);
   final now = DateTime.now();
   final today = _dateOnly(now);
-  final endDate = today.add(const Duration(days: 7));
   final upcoming =
-      appointments.where((a) {
-        final date = _dateOnly(a.date);
-        return !date.isBefore(today) && !date.isAfter(endDate);
-      }).toList()..sort((a, b) {
-        final byDate = a.date.compareTo(b.date);
-        if (byDate != 0) return byDate;
-        return _minutesOf(a.time).compareTo(_minutesOf(b.time));
-      });
+      appointments.where((a) => !_dateOnly(a.date).isBefore(today)).toList()
+        ..sort((a, b) {
+          final byDate = _dateOnly(a.date).compareTo(_dateOnly(b.date));
+          if (byDate != 0) return byDate;
+          return _minutesOf(a.time).compareTo(_minutesOf(b.time));
+        });
+
+  // Dias inteiros, em ordem, até atingir o mínimo.
+  final selected = <Appointment>[];
+  for (var i = 0; i < upcoming.length;) {
+    if (selected.length >= kUpcomingScheduleMinItems) break;
+    final day = _dateOnly(upcoming[i].date);
+    while (i < upcoming.length && _dateOnly(upcoming[i].date) == day) {
+      selected.add(upcoming[i++]);
+    }
+  }
 
   final nowMinutes = _minutesOf(TimeOfDay.fromDateTime(now));
   var nextAssigned = false;
   final result = <ScheduleItem>[];
-  for (final appointment in upcoming) {
+  for (final appointment in selected) {
     final isToday = _isSameDay(appointment.date, now);
     final status = _statusFor(appointment, isToday, nowMinutes, nextAssigned);
     if (status == ScheduleStatus.next) nextAssigned = true;
+    final day = _dateOnly(appointment.date);
     result.add(
       ScheduleItem(
-        dayLabel: _dayLabel(_dateOnly(appointment.date), today, t),
+        day: day,
+        dayLabel: _dayLabel(day, today, t),
         time: _formatTime(appointment.time),
         patientName: appointment.patientName.trim().isEmpty
             ? t.noNamePatient

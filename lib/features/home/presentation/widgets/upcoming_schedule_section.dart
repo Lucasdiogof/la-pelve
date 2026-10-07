@@ -9,8 +9,8 @@ import 'package:la_pelve/features/home/presentation/widgets/home_panel.dart';
 import 'package:la_pelve/features/home/presentation/widgets/home_view_models.dart';
 import 'package:la_pelve/shared/widgets/app_time_row.dart';
 
-/// Próximos atendimentos (7 dias, regra de `buildUpcomingSchedule`) num único
-/// painel, agrupados pelo rótulo de dia que o view model já entrega. As
+/// Próximos atendimentos (dias inteiros até somar 5+, regra de
+/// `buildUpcomingSchedule`) num único painel, agrupados por dia. As
 /// linhas não viram cards: ficam dentro do painel, com divisores.
 class UpcomingScheduleSection extends StatelessWidget {
   const UpcomingScheduleSection({
@@ -23,6 +23,10 @@ class UpcomingScheduleSection extends StatelessWidget {
   final VoidCallback onOpenAgenda;
 
   static const _rowPadding = EdgeInsets.symmetric(horizontal: HomePanel.inset);
+
+  /// Linha mais baixa que a da Agenda (56): o nome fica a ~12 do rótulo do
+  /// dia e do fechamento do grupo, mantendo 48 de área de toque.
+  static const double _rowMinHeight = 48;
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +46,14 @@ class UpcomingScheduleSection extends StatelessWidget {
                   for (final (index, group) in _groupByDay(
                     schedule,
                   ).indexed) ...[
-                    // Entre dias: espaço maior que entre consultas + um
-                    // divisor discreto na largura do conteúdo.
-                    if (index > 0) ...[
-                      const SizedBox(height: AppSpacing.s8),
+                    // Entre dias: divisor discreto na largura do conteúdo; o
+                    // respiro vem do topo do rótulo do dia seguinte.
+                    if (index > 0)
                       const Divider(
                         height: 1,
                         indent: HomePanel.inset,
                         endIndent: HomePanel.inset,
                       ),
-                    ],
                     _DayHeader(group.label, isFirst: index == 0),
                     for (var i = 0; i < group.items.length; i++)
                       AppTimeRow(
@@ -62,6 +64,7 @@ class UpcomingScheduleSection extends StatelessWidget {
                         onTap: onOpenAgenda,
                         padding: _rowPadding,
                         showDivider: i != group.items.length - 1,
+                        minHeight: _rowMinHeight,
                       ),
                   ],
                 ],
@@ -70,15 +73,15 @@ class UpcomingScheduleSection extends StatelessWidget {
     );
   }
 
-  /// Agrupa itens consecutivos com o mesmo rótulo de dia (a lista já vem
-  /// ordenada por data e horário).
-  static List<({String label, List<ScheduleItem> items})> _groupByDay(
-    List<ScheduleItem> schedule,
-  ) {
-    final groups = <({String label, List<ScheduleItem> items})>[];
+  /// Agrupa itens consecutivos do mesmo dia (a lista já vem ordenada por
+  /// data e horário). A chave é a data, não o rótulo: dois dias diferentes
+  /// nunca se fundem.
+  static List<({DateTime day, String label, List<ScheduleItem> items})>
+  _groupByDay(List<ScheduleItem> schedule) {
+    final groups = <({DateTime day, String label, List<ScheduleItem> items})>[];
     for (final item in schedule) {
-      if (groups.isEmpty || groups.last.label != item.dayLabel) {
-        groups.add((label: item.dayLabel, items: [item]));
+      if (groups.isEmpty || groups.last.day != item.day) {
+        groups.add((day: item.day, label: item.dayLabel, items: [item]));
       } else {
         groups.last.items.add(item);
       }
@@ -102,7 +105,7 @@ class _DayHeader extends StatelessWidget {
         HomePanel.inset,
         isFirst ? AppSpacing.s12 : AppSpacing.s16,
         HomePanel.inset,
-        AppSpacing.s4,
+        0,
       ),
       child: Text(
         label.toUpperCase(),

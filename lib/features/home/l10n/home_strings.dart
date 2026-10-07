@@ -248,9 +248,9 @@ class HomeStrings {
   };
 
   String get noUpcomingAppointmentsMessage => switch (language) {
-    AppLanguage.portuguese => 'Nenhum atendimento nos próximos 7 dias.',
-    AppLanguage.english => 'No appointments in the next 7 days.',
-    AppLanguage.spanish => 'Ninguna cita en los próximos 7 días.',
+    AppLanguage.portuguese => 'Nenhum atendimento agendado.',
+    AppLanguage.english => 'No upcoming appointments.',
+    AppLanguage.spanish => 'Ninguna cita programada.',
   };
 
   String get newPatientAction => switch (language) {

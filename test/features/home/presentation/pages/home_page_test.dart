@@ -115,7 +115,7 @@ void main() {
     // Status da Home continua sendo o ScheduleStatus derivado.
     expect(find.text('Próximo'), findsOneWidget);
     expect(find.text('Aguardando'), findsOneWidget);
-    expect(find.text('Nenhum atendimento nos próximos 7 dias.'), findsNothing);
+    expect(find.text('Nenhum atendimento agendado.'), findsNothing);
   });
 
   testWidgets('sem atendimentos mostra mensagem compacta e ação de agendar', (
@@ -123,10 +123,7 @@ void main() {
   ) async {
     await pumpHome(tester);
 
-    expect(
-      find.text('Nenhum atendimento nos próximos 7 dias.'),
-      findsOneWidget,
-    );
+    expect(find.text('Nenhum atendimento agendado.'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Agendar consulta'), findsOneWidget);
     expect(find.byType(AppTimeRow), findsNothing);
   });

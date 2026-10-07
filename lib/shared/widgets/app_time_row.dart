@@ -23,6 +23,7 @@ class AppTimeRow extends StatelessWidget {
     this.onStatusTap,
     this.showDivider = true,
     this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+    this.minHeight = 56,
   });
 
   /// Horário já formatado ("10:04").
@@ -40,6 +41,10 @@ class AppTimeRow extends StatelessWidget {
   final VoidCallback? onStatusTap;
   final bool showDivider;
   final EdgeInsets padding;
+
+  /// Altura mínima da linha (área de toque). Padrão 56 (Agenda); a Home usa
+  /// 48 para o grupo do dia ficar mais coeso. Não usar menos de 48.
+  final double minHeight;
 
   static const double timeColumnWidth = 64;
 
@@ -62,7 +67,7 @@ class AppTimeRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
+            constraints: BoxConstraints(minHeight: minHeight),
             child: Padding(
               padding: padding,
               child: LayoutBuilder(

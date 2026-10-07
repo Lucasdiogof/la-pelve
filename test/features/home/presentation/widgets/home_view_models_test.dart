@@ -36,15 +36,71 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('includes today and the 7-day boundary, excludes day 8', () {
-      final result = buildUpcomingSchedule([
-        appointmentOn(today, id: 'today'),
-        appointmentOn(today.add(const Duration(days: 7)), id: 'day7'),
-        appointmentOn(today.add(const Duration(days: 8)), id: 'day8'),
-      ], AppLanguage.portuguese);
+    List<Appointment> perDay(List<int> counts) => [
+      for (var d = 0; d < counts.length; d++)
+        for (var i = 0; i < counts[d]; i++)
+          appointmentOn(
+            today.add(Duration(days: d)),
+            id: 'd$d-$i',
+            time: TimeOfDay(hour: 8 + i, minute: 0),
+          ),
+    ];
 
-      expect(result.map((e) => e.dayLabel), containsAll(['Hoje']));
-      expect(result.length, 2);
+    test('A) 5 hoje + 3 amanhã mostra só os 5 de hoje', () {
+      final result = buildUpcomingSchedule(
+        perDay([5, 3]),
+        AppLanguage.portuguese,
+      );
+      expect(result.length, 5);
+      expect(result.every((e) => e.dayLabel == 'Hoje'), isTrue);
+    });
+
+    test('B) 4 hoje + 3 amanhã mostra os 7 (nunca corta o dia)', () {
+      final result = buildUpcomingSchedule(
+        perDay([4, 3, 2]),
+        AppLanguage.portuguese,
+      );
+      expect(result.length, 7);
+      expect(result.where((e) => e.dayLabel == 'Amanhã').length, 3);
+    });
+
+    test('C) 4 hoje, 0 amanhã, 2 depois de amanhã mostra 6', () {
+      final result = buildUpcomingSchedule(
+        perDay([4, 0, 2, 3]),
+        AppLanguage.portuguese,
+      );
+      expect(result.length, 6);
+    });
+
+    test('D) 2 + 1 + 1 + 3 mostra 7', () {
+      final result = buildUpcomingSchedule(
+        perDay([2, 1, 1, 3, 4]),
+        AppLanguage.portuguese,
+      );
+      expect(result.length, 7);
+    });
+
+    test('E) 0, 0 e 5 depois de amanhã mostra os 5', () {
+      final result = buildUpcomingSchedule(
+        perDay([0, 0, 5, 2]),
+        AppLanguage.portuguese,
+      );
+      expect(result.length, 5);
+    });
+
+    test('sem limite de janela: atendimentos distantes aparecem com data', () {
+      final far = today.add(const Duration(days: 20));
+      final result = buildUpcomingSchedule([
+        appointmentOn(far, id: 'far'),
+      ], AppLanguage.portuguese);
+      expect(result.single.day, far);
+      expect(
+        result.single.dayLabel,
+        endsWith(
+          '${far.day.toString().padLeft(2, '0')}/'
+          '${far.month.toString().padLeft(2, '0')}',
+        ),
+      );
     });
 
     test('sorts by date then by time', () {

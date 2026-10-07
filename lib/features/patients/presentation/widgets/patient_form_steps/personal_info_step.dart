@@ -185,15 +185,9 @@ class _WhatsappConsentSwitch extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          if (!phoneValid)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text(
-                t.whatsappConsentInvalidPhoneHint,
-                style: TextStyle(color: context.colors.danger, fontSize: 12),
-              ),
-            )
-          else if (cubit.whatsappConsentPhoneChanged)
+          // A validade do telefone é mostrada só no campo Telefone; aqui o
+          // switch apenas fica indisponível sem um celular BR válido.
+          if (phoneValid && cubit.whatsappConsentPhoneChanged)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(

@@ -48,22 +48,9 @@ class PatientsWizardStringsA {
   };
 
   String get whatsappConsentLabel => switch (language) {
-    AppLanguage.portuguese =>
-      'Receber lembretes de agendamento pelo WhatsApp',
-    AppLanguage.english => 'Receive appointment reminders via WhatsApp',
-    AppLanguage.spanish => 'Recibir recordatorios de citas por WhatsApp',
-  };
-
-  String get whatsappConsentInvalidPhoneHint => switch (language) {
-    AppLanguage.portuguese =>
-      'É necessário um número de celular brasileiro válido (com DDD e o 9) '
-          'para ativar os lembretes pelo WhatsApp.',
-    AppLanguage.english =>
-      'A valid Brazilian mobile number (with area code and the leading 9) '
-          'is required to enable WhatsApp reminders.',
-    AppLanguage.spanish =>
-      'Se necesita un número de celular brasileño válido (con código de '
-          'área y el 9 inicial) para activar los recordatorios por WhatsApp.',
+    AppLanguage.portuguese => 'Receber lembretes pelo WhatsApp',
+    AppLanguage.english => 'Receive reminders via WhatsApp',
+    AppLanguage.spanish => 'Recibir recordatorios por WhatsApp',
   };
 
   String get whatsappConsentPhoneChangedHint => switch (language) {
