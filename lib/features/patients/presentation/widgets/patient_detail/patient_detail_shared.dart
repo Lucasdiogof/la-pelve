@@ -175,7 +175,12 @@ class InfoRow extends StatelessWidget {
 
 /// Mostra, discretamente, se o paciente tem consentimento ativo para
 /// lembretes de agendamento pelo WhatsApp. Só leitura: não altera o banco.
-class WhatsappReminderStatusRow extends StatelessWidget {
+///
+/// A consulta é feita uma vez por paciente (não a cada rebuild). Enquanto
+/// carrega, mostra "carregando…"; numa falha, diz que não foi possível
+/// verificar e permite tentar de novo. Nunca mostra "desativados" sem ter
+/// confirmado no banco.
+class WhatsappReminderStatusRow extends StatefulWidget {
   const WhatsappReminderStatusRow({
     required this.patientId,
     this.language = AppLanguage.portuguese,
@@ -186,30 +191,50 @@ class WhatsappReminderStatusRow extends StatelessWidget {
   final AppLanguage language;
 
   @override
-  Widget build(BuildContext context) {
-    final t = PatientsStrings(language);
-    return FutureBuilder<Result<PatientConsent?>>(
-      future: sl<PatientConsentRepository>().getActive(
-        patientId: patientId,
+  State<WhatsappReminderStatusRow> createState() =>
+      _WhatsappReminderStatusRowState();
+}
+
+class _WhatsappReminderStatusRowState extends State<WhatsappReminderStatusRow> {
+  late Future<Result<PatientConsent?>> _future = _load();
+
+  Future<Result<PatientConsent?>> _load() =>
+      sl<PatientConsentRepository>().getActive(
+        patientId: widget.patientId,
         channel: kWhatsappChannel,
         purpose: kAppointmentReminderPurpose,
-      ),
+      );
+
+  @override
+  void didUpdateWidget(WhatsappReminderStatusRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.patientId != widget.patientId) _future = _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = PatientsStrings(widget.language);
+    return FutureBuilder<Result<PatientConsent?>>(
+      future: _future,
       builder: (context, snapshot) {
         final result = snapshot.data;
-        final consent = switch (result) {
-          Success(:final data) => data,
-          _ => null,
-        };
-        final value = consent == null
-            ? t.whatsappReminderInactive
-            : t.whatsappReminderActiveSince(
-                AppDateField.format(consent.grantedAt),
-              );
-        return InfoRow(
+        final row = InfoRow(
           t.whatsappReminderFieldLabel,
-          value,
-          language: language,
+          switch (result) {
+            null => t.whatsappReminderLoading,
+            Error() => t.whatsappReminderLoadError,
+            Success(data: null) => t.whatsappReminderInactive,
+            Success(:final data?) => t.whatsappReminderActiveSince(
+              AppDateField.format(data.grantedAt),
+            ),
+          },
+          language: widget.language,
           vertical: true,
+        );
+        if (result is! Error) return row;
+        return InkWell(
+          onTap: () => setState(() => _future = _load()),
+          child: row,
         );
       },
     );

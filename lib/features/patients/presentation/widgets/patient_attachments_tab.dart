@@ -18,6 +18,7 @@ import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/data_state_view.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
 
 class PatientAttachmentsTab extends StatelessWidget {
@@ -149,21 +150,10 @@ class _PatientAttachmentsView extends StatelessWidget {
               onPressed: () => _addAttachment(context),
             ),
             const SizedBox(height: 20),
-            Builder(
-              builder: (context) {
-                final result = state.result;
-                final attachments = switch (result) {
-                  Success(:final data) => data,
-                  _ => const <Attachment>[],
-                };
-                if (result is Error<List<Attachment>>) {
-                  return Center(
-                    child: Text(
-                      result.failure.message,
-                      style: TextStyle(color: context.colors.textSecondary),
-                    ),
-                  );
-                }
+            DataStateView<List<Attachment>>(
+              state: state.attachments,
+              onRetry: () => context.read<PatientAttachmentsCubit>().reload(),
+              builder: (context, attachments) {
                 if (attachments.isEmpty) {
                   return AppEmptyState(
                     icon: Icons.attach_file,

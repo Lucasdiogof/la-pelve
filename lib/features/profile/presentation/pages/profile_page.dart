@@ -23,6 +23,7 @@ import 'package:la_pelve/features/profile/presentation/widgets/profile_row.dart'
 import 'package:la_pelve/shared/l10n/app_strings.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_error_state.dart';
 import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
@@ -233,7 +234,17 @@ class ProfilePage extends StatelessWidget {
                   showBackButton: true,
                 ),
                 Expanded(
-                  child: state.loading
+                  child: state.profile == null && state.failure != null
+                      // Falha sem perfil carregado: erro + tentar de novo,
+                      // nunca os campos em branco como se fossem os dados.
+                      ? AppErrorState(
+                          title: context.strings.shared.loadErrorTitle,
+                          message: context.strings.shared.loadErrorMessage,
+                          retryLabel: context.strings.shared.retry,
+                          retrying: state.loading,
+                          onRetry: () => context.read<ProfileCubit>().load(),
+                        )
+                      : state.profile == null
                       ? Center(
                           child: CircularProgressIndicator(
                             color: context.colors.primary,

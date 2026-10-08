@@ -10,6 +10,7 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/network/logging_http_client.dart';
 import 'package:la_pelve/core/router/app_router.dart';
+import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:la_pelve/core/theme/theme_cubit.dart';
 import 'package:la_pelve/features/home/presentation/cubit/home_financial_visibility_cubit.dart';
 
@@ -46,7 +47,15 @@ Future<void> _bootstrap() async {
 
   await initDependencies();
 
-  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+  final sessionData = sl<SessionDataController>();
+  final auth = Supabase.instance.client.auth;
+  // Sessão restaurada no cold start: os dados ficam associados a este usuário.
+  sessionData.onSessionUser(auth.currentUser?.id);
+
+  auth.onAuthStateChange.listen((data) {
+    // Antes de qualquer navegação: usuário diferente (ou nenhum) apaga da
+    // memória os dados do anterior, para nada dele aparecer nem por um frame.
+    sessionData.onSessionUser(data.session?.user.id);
     switch (data.event) {
       case AuthChangeEvent.signedIn:
         if (data.session != null) {

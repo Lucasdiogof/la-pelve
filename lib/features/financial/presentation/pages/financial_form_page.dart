@@ -78,7 +78,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
           _statusOutroController.text.trim().length > 3);
 
   Future<void> _selectPatient() async {
-    final patients = context.read<PatientsCubit>().state;
+    final patients = context.read<PatientsCubit>().state.data ?? const [];
     final selected = await showModalBottomSheet<Patient>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -179,7 +179,8 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final hasPatients = context.watch<PatientsCubit>().state.isNotEmpty;
+    final hasPatients =
+        context.watch<PatientsCubit>().state.data?.isNotEmpty ?? false;
     final t = FinancialStrings(context.watch<LocaleCubit>().state);
     return BlocProvider.value(
       value: _formCubit,

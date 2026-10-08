@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/router/app_page.dart';
+import 'package:la_pelve/core/session/session_data_controller.dart';
+import 'package:la_pelve/core/session/session_data_gate.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/pages/agenda_form_page.dart';
@@ -39,13 +41,31 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 /// so the router never resolves `/` before the real session state is known.
 Future<void>? appBootstrapFuture;
 
+/// Rotas acessíveis sem sessão. Todas as outras são da área logada.
+const publicRoutes = {'/', '/cadastro', '/redefinir-senha'};
+
+/// Decide o redirecionamento só a partir da sessão e do destino (puro, para
+/// teste): com sessão, a tela de login leva à Home; sem sessão, qualquer
+/// rota da área logada (ex.: link direto na web) leva ao login.
+String? authRedirect({required bool hasSession, required String location}) {
+  if (hasSession && location == '/') return '/home';
+  if (!hasSession && !publicRoutes.contains(location)) return '/';
+  return null;
+}
+
+/// Envolve uma tela da área logada: ela só é montada com os dados críticos
+/// da sessão carregados (ver [SessionDataGate]).
+Widget _authenticated(Widget child) =>
+    SessionDataGate(controller: sl<SessionDataController>(), child: child);
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   redirect: (context, state) async {
     if (appBootstrapFuture != null) await appBootstrapFuture;
-    final hasSession = Supabase.instance.client.auth.currentSession != null;
-    if (hasSession && state.matchedLocation == '/') return '/home';
-    return null;
+    return authRedirect(
+      hasSession: Supabase.instance.client.auth.currentSession != null,
+      location: state.matchedLocation,
+    );
   },
   routes: [
     GoRoute(
@@ -74,15 +94,17 @@ final GoRouter appRouter = GoRouter(
       path: '/home',
       pageBuilder: (context, state) => appPage(
         state,
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<PatientsCubit>()),
-            BlocProvider.value(value: sl<FinancialCubit>()),
-            BlocProvider.value(value: sl<AgendaCubit>()),
-            BlocProvider.value(value: sl<ProfileCubit>()),
-            BlocProvider.value(value: sl<HomeFinancialVisibilityCubit>()),
-          ],
-          child: const HomeShellPage(),
+        _authenticated(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: sl<PatientsCubit>()),
+              BlocProvider.value(value: sl<FinancialCubit>()),
+              BlocProvider.value(value: sl<AgendaCubit>()),
+              BlocProvider.value(value: sl<ProfileCubit>()),
+              BlocProvider.value(value: sl<HomeFinancialVisibilityCubit>()),
+            ],
+            child: const HomeShellPage(),
+          ),
         ),
       ),
     ),
@@ -90,9 +112,11 @@ final GoRouter appRouter = GoRouter(
       path: '/pacientes/novo',
       pageBuilder: (context, state) => appPage(
         state,
-        BlocProvider.value(
-          value: sl<PatientsCubit>(),
-          child: const PatientFormPage(),
+        _authenticated(
+          BlocProvider.value(
+            value: sl<PatientsCubit>(),
+            child: const PatientFormPage(),
+          ),
         ),
       ),
     ),
@@ -100,9 +124,11 @@ final GoRouter appRouter = GoRouter(
       path: '/pacientes/:id',
       pageBuilder: (context, state) => appPage(
         state,
-        BlocProvider.value(
-          value: sl<PatientsCubit>(),
-          child: PatientDetailPage(patient: state.extra! as Patient),
+        _authenticated(
+          BlocProvider.value(
+            value: sl<PatientsCubit>(),
+            child: PatientDetailPage(patient: state.extra! as Patient),
+          ),
         ),
       ),
     ),
@@ -110,78 +136,91 @@ final GoRouter appRouter = GoRouter(
       path: '/pacientes/:id/editar',
       pageBuilder: (context, state) => appPage(
         state,
-        BlocProvider.value(
-          value: sl<PatientsCubit>(),
-          child: PatientFormPage(patient: state.extra! as Patient),
+        _authenticated(
+          BlocProvider.value(
+            value: sl<PatientsCubit>(),
+            child: PatientFormPage(patient: state.extra! as Patient),
+          ),
         ),
       ),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao',
-      pageBuilder: (context, state) =>
-          appPage(state, EvolutionListPage(patient: state.extra! as Patient)),
+      pageBuilder: (context, state) => appPage(
+        state,
+        _authenticated(EvolutionListPage(patient: state.extra! as Patient)),
+      ),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao/novo',
       pageBuilder: (context, state) => appPage(
         state,
-        EvolutionFormPage(patientId: state.pathParameters['id']!),
+        _authenticated(
+          EvolutionFormPage(patientId: state.pathParameters['id']!),
+        ),
       ),
     ),
     GoRoute(
       path: '/pacientes/:id/evolucao/:entryId/editar',
       pageBuilder: (context, state) => appPage(
         state,
-        EvolutionFormPage(
-          patientId: state.pathParameters['id']!,
-          existingEntry: state.extra! as EvolutionEntry,
+        _authenticated(
+          EvolutionFormPage(
+            patientId: state.pathParameters['id']!,
+            existingEntry: state.extra! as EvolutionEntry,
+          ),
         ),
       ),
     ),
     GoRoute(
       path: '/perfil',
-      pageBuilder: (context, state) => appPage(state, const ProfilePage()),
+      pageBuilder: (context, state) =>
+          appPage(state, _authenticated(const ProfilePage())),
     ),
     GoRoute(
       path: '/perfil/editar-nome',
-      pageBuilder: (context, state) =>
-          appPage(state, EditNamePage(initialNome: state.extra! as String)),
+      pageBuilder: (context, state) => appPage(
+        state,
+        _authenticated(EditNamePage(initialNome: state.extra! as String)),
+      ),
     ),
     GoRoute(
       path: '/perfil/tema',
       pageBuilder: (context, state) =>
-          appPage(state, const ThemeSettingsPage()),
+          appPage(state, _authenticated(const ThemeSettingsPage())),
     ),
     GoRoute(
       path: '/perfil/idioma',
       pageBuilder: (context, state) =>
-          appPage(state, const LanguageSettingsPage()),
+          appPage(state, _authenticated(const LanguageSettingsPage())),
     ),
     GoRoute(
       path: '/perfil/biometria',
       pageBuilder: (context, state) =>
-          appPage(state, const BiometricSettingsPage()),
+          appPage(state, _authenticated(const BiometricSettingsPage())),
     ),
     GoRoute(
       path: '/perfil/alterar-senha',
       pageBuilder: (context, state) =>
-          appPage(state, const ChangePasswordPage()),
+          appPage(state, _authenticated(const ChangePasswordPage())),
     ),
     GoRoute(
       path: '/perfil/whatsapp',
       pageBuilder: (context, state) =>
-          appPage(state, const WhatsappConnectionPage()),
+          appPage(state, _authenticated(const WhatsappConnectionPage())),
     ),
     GoRoute(
       path: '/financeiro/novo',
       pageBuilder: (context, state) => appPage(
         state,
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<FinancialCubit>()),
-            BlocProvider.value(value: sl<PatientsCubit>()),
-          ],
-          child: const FinancialFormPage(),
+        _authenticated(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: sl<FinancialCubit>()),
+              BlocProvider.value(value: sl<PatientsCubit>()),
+            ],
+            child: const FinancialFormPage(),
+          ),
         ),
       ),
     ),
@@ -189,13 +228,15 @@ final GoRouter appRouter = GoRouter(
       path: '/financeiro/:id/editar',
       pageBuilder: (context, state) => appPage(
         state,
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<FinancialCubit>()),
-            BlocProvider.value(value: sl<PatientsCubit>()),
-          ],
-          child: FinancialFormPage(
-            existingEntry: state.extra! as FinancialEntry,
+        _authenticated(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: sl<FinancialCubit>()),
+              BlocProvider.value(value: sl<PatientsCubit>()),
+            ],
+            child: FinancialFormPage(
+              existingEntry: state.extra! as FinancialEntry,
+            ),
           ),
         ),
       ),
@@ -204,12 +245,14 @@ final GoRouter appRouter = GoRouter(
       path: '/agenda/novo',
       pageBuilder: (context, state) => appPage(
         state,
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<AgendaCubit>()),
-            BlocProvider.value(value: sl<PatientsCubit>()),
-          ],
-          child: const AgendaFormPage(),
+        _authenticated(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: sl<AgendaCubit>()),
+              BlocProvider.value(value: sl<PatientsCubit>()),
+            ],
+            child: const AgendaFormPage(),
+          ),
         ),
       ),
     ),
@@ -217,13 +260,15 @@ final GoRouter appRouter = GoRouter(
       path: '/agenda/:id/editar',
       pageBuilder: (context, state) => appPage(
         state,
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: sl<AgendaCubit>()),
-            BlocProvider.value(value: sl<PatientsCubit>()),
-          ],
-          child: AgendaFormPage(
-            existingAppointment: state.extra! as Appointment,
+        _authenticated(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: sl<AgendaCubit>()),
+              BlocProvider.value(value: sl<PatientsCubit>()),
+            ],
+            child: AgendaFormPage(
+              existingAppointment: state.extra! as Appointment,
+            ),
           ),
         ),
       ),

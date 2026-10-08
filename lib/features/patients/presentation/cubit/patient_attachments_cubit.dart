@@ -1,11 +1,14 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
 import 'package:la_pelve/features/patients/domain/repositories/attachment_repository.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patient_attachments_state.dart';
 
+/// Anexos de UM paciente (sob demanda). A lista atual continua na tela
+/// durante as recargas e quando uma recarga falha; só a primeira carga mostra
+/// loading, e uma falha sem lista anterior vira erro com "tentar novamente".
 class PatientAttachmentsCubit extends Cubit<PatientAttachmentsState> {
   PatientAttachmentsCubit(this._repository, this._patientId)
     : super(const PatientAttachmentsState()) {
@@ -14,11 +17,20 @@ class PatientAttachmentsCubit extends Cubit<PatientAttachmentsState> {
 
   final AttachmentRepository _repository;
   final String _patientId;
+  int _generation = 0;
 
   Future<void> reload() async {
-    emit(state.copyWith(clearResult: true));
+    final generation = ++_generation;
+    emit(state.copyWith(attachments: state.attachments.loadingStarted()));
     final result = await _repository.getForPatient(_patientId);
-    emit(state.copyWith(result: result));
+    if (isClosed || generation != _generation) return;
+    switch (result) {
+      case Success(:final data):
+        emit(state.copyWith(attachments: DataState.success(data)));
+      case Error(:final failure):
+        debugPrint('[DataLoad] attachments falhou (${failure.runtimeType})');
+        emit(state.copyWith(attachments: state.attachments.failed(failure)));
+    }
   }
 
   Future<Result<Attachment>> upload({

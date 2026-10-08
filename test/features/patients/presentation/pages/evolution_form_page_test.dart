@@ -93,7 +93,9 @@ void main() {
     );
     sl.registerSingleton<PatientRepository>(repository);
     if (registerPatients) {
-      sl.registerSingleton<PatientsCubit>(PatientsCubit(repository));
+      final patientsCubit = PatientsCubit(repository);
+      sl.registerSingleton<PatientsCubit>(patientsCubit);
+      unawaited(patientsCubit.ensureLoaded());
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     }
 

@@ -61,7 +61,7 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
   }
 
   Future<void> _selectPatient() async {
-    final patients = context.read<PatientsCubit>().state;
+    final patients = context.read<PatientsCubit>().state.data ?? const [];
     final selected = await showModalBottomSheet<Patient>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -151,7 +151,8 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
   @override
   Widget build(BuildContext context) {
     final t = AgendaStrings(context.watch<LocaleCubit>().state);
-    final hasPatients = context.watch<PatientsCubit>().state.isNotEmpty;
+    final hasPatients =
+        context.watch<PatientsCubit>().state.data?.isNotEmpty ?? false;
     return BlocProvider.value(
       value: _formCubit,
       child: BlocBuilder<AgendaFormCubit, AgendaFormState>(

@@ -58,10 +58,19 @@ void main() {
         theme: AppTheme.light,
         home: MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => PatientsCubit(patientRepository)),
-            BlocProvider(create: (_) => AgendaCubit(agendaRepository)),
-            BlocProvider(create: (_) => FinancialCubit(financialRepository)),
-            BlocProvider(create: (_) => ProfileCubit(profileRepository)),
+            BlocProvider(
+              create: (_) => PatientsCubit(patientRepository)..ensureLoaded(),
+            ),
+            BlocProvider(
+              create: (_) => AgendaCubit(agendaRepository)..ensureLoaded(),
+            ),
+            BlocProvider(
+              create: (_) =>
+                  FinancialCubit(financialRepository)..ensureLoaded(),
+            ),
+            BlocProvider(
+              create: (_) => ProfileCubit(profileRepository)..ensureLoaded(),
+            ),
             BlocProvider(create: (_) => LocaleCubit()),
             BlocProvider(create: (_) => HomeFinancialVisibilityCubit()),
           ],
@@ -72,9 +81,6 @@ void main() {
     await tester.pump();
 
     expect(find.text('Próximos atendimentos'), findsOneWidget);
-    expect(
-      find.text('Nenhum atendimento nos próximos 7 dias.'),
-      findsOneWidget,
-    );
+    expect(find.text('Nenhum atendimento agendado.'), findsOneWidget);
   });
 }

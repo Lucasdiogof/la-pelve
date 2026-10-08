@@ -82,4 +82,37 @@ class SharedStrings {
     AppLanguage.english => 'Enter a Crefito number with 4 to 10 digits.',
     AppLanguage.spanish => 'Ingresa un Crefito con 4 a 10 números.',
   };
+
+  String get loadErrorTitle => switch (language) {
+    AppLanguage.portuguese => 'Não foi possível carregar',
+    AppLanguage.english => "Couldn't load",
+    AppLanguage.spanish => 'No fue posible cargar',
+  };
+
+  String get loadErrorMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Verifique sua conexão. Seus dados continuam salvos.',
+    AppLanguage.english => 'Check your connection. Your data is still saved.',
+    AppLanguage.spanish => 'Verifica tu conexión. Tus datos siguen guardados.',
+  };
+
+  String get sessionLoadErrorTitle => switch (language) {
+    AppLanguage.portuguese => 'Não foi possível carregar sua clínica',
+    AppLanguage.english => "Couldn't load your clinic",
+    AppLanguage.spanish => 'No fue posible cargar tu clínica',
+  };
+
+  String get retry => switch (language) {
+    AppLanguage.portuguese => 'Tentar novamente',
+    AppLanguage.english => 'Try again',
+    AppLanguage.spanish => 'Intentar de nuevo',
+  };
+
+  String get refreshFailed => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível atualizar. Mostrando os últimos dados carregados.',
+    AppLanguage.english => "Couldn't refresh. Showing the last loaded data.",
+    AppLanguage.spanish =>
+      'No fue posible actualizar. Mostrando los últimos datos cargados.',
+  };
 }
