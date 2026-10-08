@@ -3,18 +3,19 @@
 Última atualização: 2026-10-08. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
 Nenhum segredo está neste arquivo; só os NOMES dos secrets.
 
-## >>> RETOMAR DAQUI (estado em 2026-10-08, ~02:15 UTC)
+## >>> RETOMAR DAQUI (estado em 2026-10-08, ~03:40 UTC)
 
 Branch `wip/sleepy-keller-gplahy` (não mergeada em `main`). Commits relevantes:
 `f04eefd` (telefone no cadastro), `bc34ba5` (inbound: confirmação pela resposta),
 `d4f7cc5` (outbound: dispatcher + Vault). Todo o código está no remoto.
+Continuação (a partir de `dcd426c`): branch `wip/intelligent-thompson-68i38m`.
 
 **Estado REAL de produção (verificado pelo conector Supabase):**
 
 | Item | Estado |
 |---|---|
 | Migration 0025 (`whatsapp_inbound_messages` + `process_whatsapp_confirmation_reply`) | **APLICADA** — pre-flight 6/6 PASS, pós-check 9/9 PASS, md5 do corpo da função idêntico ao testado localmente (`d80443d971500d7b9674d3a25e778735`), 70 appointments intactos |
-| Migration 0026 (dispatch + credenciais no Vault) | **NÃO aplicada** — pre-flight 5/5 PASS (Vault 0.3.1 instalado; `postgres` tem usage/delete/select/execute no Vault). Duas tentativas pelo conector estouraram o limite de 60s da ferramenta e foram desfeitas por inteiro (0 tabelas/colunas/funções novas, nenhuma query presa). Não é lock (testado). |
+| Migration 0026 (dispatch + credenciais no Vault) | **APLICADA** (2026-10-08 ~03:35 UTC, pelo SQL Editor) — pre-flight 10/10 PASS; pós-check 19/19 PASS (RLS, grants só `service_role`, 5 colunas, 2 triggers, 2 constraints, índice, FK cascade, 0 credenciais, 0 segredos no Vault, contagens 4/18/70 intactas, md5 da função da 0025 inalterado). Corpo das 6 funções idêntico ao do repositório (md5 normalizado, sem comentários/espaços). |
 | Edge Function `whatsapp-webhook` | ainda a v10 antiga (diagnóstico, só loga). Nova versão NÃO deployada |
 | Edge Function `whatsapp-dispatcher` | NÃO deployada |
 | `whatsapp-scheduler-dry-run` | v7, sem mudança |
@@ -24,7 +25,7 @@ Branch `wip/sleepy-keller-gplahy` (não mergeada em `main`). Commits relevantes:
 
 **Próximos passos, nesta ordem:**
 
-1. Aplicar `supabase/migrations/0026_whatsapp_dispatch.sql` (arquivo inteiro) pelo SQL Editor do Supabase ou `npx supabase db query -f ... --linked`. Antes: `supabase/rollout-0026/01_preflight_readonly.sql` (tudo PASS). Depois: `03_postcheck_readonly.sql` (7 PASS). Pelo conector MCP, dividir em partes menores (estoura 60s inteiro).
+1. ~~Aplicar a 0026~~ FEITO. Observação: o conector MCP do Supabase pede confirmação para qualquer `DROP` (até `drop ... if exists` que não faz nada) e, sem essa confirmação, a chamada estoura os 60s antes de chegar ao Postgres. Não é tempo de execução nem lock. Migrations com `DROP` vão pelo SQL Editor.
 2. Conferir que o secret `WHATSAPP_APP_SECRET` existe na Edge Function `whatsapp-webhook` e então deployar a nova versão (arquivos: `whatsapp-webhook/index.ts`, `handler.ts` e `_shared/inbound/*.ts` sem os `.test.ts`; `verify_jwt=false`). Sem o secret, a nova versão responde 500 aos POSTs da Meta.
 3. Deployar `whatsapp-dispatcher` (`verify_jwt=false`, autenticação própria). Fica inerte (401) até configurar os secrets `WHATSAPP_DISPATCHER_TOKEN` (>= 32 chars), `WHATSAPP_GRAPH_API_VERSION` (ex.: `v23.0`), `WHATSAPP_TEMPLATE_LANGUAGE` (`pt_BR`) e os `WHATSAPP_TEMPLATE_APPOINTMENT_*`.
 4. Só depois de templates aprovados na Meta + uma conexão `connected` com token (`set_whatsapp_connection_access_token`): `supabase/rollout-0026/05_schedule_cron.sql`.
@@ -106,7 +107,7 @@ Decisões pendentes do usuário:
 - O dispatch (seção seguinte) grava `wamid`/`sent_at`/`status` da `appointment_12h` e manda o template com o botão de resposta rápida com aquele payload.
 - Testes: `node --test --experimental-strip-types $(find supabase/functions -name "*.test.ts")` e, com um Postgres local, `supabase/tests/run_sql_tests.sh` e o E2E `whatsapp-webhook/integration.test.ts` (`LA_PELVE_TEST_PGHOST`).
 
-## Envio real (outbound) — código pronto; migration 0026 e deploy PENDENTES
+## Envio real (outbound) — código pronto; migration 0026 APLICADA; deploy PENDENTE
 
 - Decisão confirmada: o lembrete `appointment_12h` É a solicitação de confirmação (template com botão de resposta rápida, payload `LA_PELVE_CONFIRM_APPOINTMENT`). O aviso de agendamento (`appointment_confirmation`) e o de remarcação são só informativos.
 - Credenciais: access token da Meta por conexão no **Supabase Vault** (`whatsapp_connection_credentials.vault_secret_id`), nunca em coluna comum nem no app. Gravado só por `set_whatsapp_connection_access_token` (só escrita) e lido só dentro de `prepare_whatsapp_message_send` para a mensagem reservada. Apagar a conexão apaga o segredo.
