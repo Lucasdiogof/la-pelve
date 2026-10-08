@@ -3,7 +3,7 @@
 Última atualização: 2026-10-08. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
 Nenhum segredo está neste arquivo; só os NOMES dos secrets.
 
-## >>> RETOMAR DAQUI (estado em 2026-10-08, ~04:10 UTC)
+## >>> RETOMAR DAQUI (estado em 2026-10-08, ~05:20 UTC)
 
 Branch `wip/sleepy-keller-gplahy` (não mergeada em `main`). Commits relevantes:
 `f04eefd` (telefone no cadastro), `bc34ba5` (inbound: confirmação pela resposta),
@@ -17,7 +17,7 @@ Continuação (a partir de `dcd426c`): branch `wip/intelligent-thompson-68i38m`.
 | Migration 0025 (`whatsapp_inbound_messages` + `process_whatsapp_confirmation_reply`) | **APLICADA** — pre-flight 6/6 PASS, pós-check 9/9 PASS, md5 do corpo da função idêntico ao testado localmente (`d80443d971500d7b9674d3a25e778735`), 70 appointments intactos |
 | Migration 0026 (dispatch + credenciais no Vault) | **APLICADA** (2026-10-08 ~03:35 UTC, pelo SQL Editor) — pre-flight 10/10 PASS; pós-check 19/19 PASS (RLS, grants só `service_role`, 5 colunas, 2 triggers, 2 constraints, índice, FK cascade, 0 credenciais, 0 segredos no Vault, contagens 4/18/70 intactas, md5 da função da 0025 inalterado). Corpo das 6 funções idêntico ao do repositório (md5 normalizado, sem comentários/espaços). |
 | Edge Function `whatsapp-webhook` | **NOVA VERSÃO EM PRODUÇÃO E VALIDADA — inbound FECHADO.** Deploy 2026-10-08 ~03:44 UTC como v11 (8 arquivos: `whatsapp-webhook/{index,handler}.ts` + `_shared/inbound/*.ts` sem testes; `verify_jwt=false`; bundle `ezbr_sha256` `13cd63e7…`). A plataforma passou a numerar v13 depois de uma atualização de secrets, com o MESMO bundle (mesmo sha). Smoke tests (04:02 UTC): GET válido 200 + challenge; GET token errado 403; POST sem assinatura 401; POST com assinatura inválida 401. Logs: só `webhook_verified`, `webhook_verify_rejected`, `invalid_signature`; nenhum 500, nenhum erro/exceção. Dados: 0 linhas em todas as tabelas WhatsApp, 70 appointments, 0 segredos no Vault. |
-| Edge Function `whatsapp-dispatcher` | NÃO deployada |
+| Edge Function `whatsapp-dispatcher` | **PUBLICADA EM MODO INERTE e validada** (v1, ACTIVE, `verify_jwt=false`, também em `supabase/config.toml`). Sem `WHATSAPP_DISPATCHER_TOKEN` toda chamada recebe 401 antes de ler qualquer dado. Smoke tests (05:12 UTC): 3 POSTs (sem Authorization, Bearer falso, Bearer vazio) = 401 `whatsapp_dispatcher_unauthorized`; GET = 405. Nenhum 500, nenhuma exceção, nenhuma escrita no banco. Nenhum secret do dispatcher configurado. |
 | `whatsapp-scheduler-dry-run` | sem mudança de código (a numeração foi para v9 pela mesma atualização de secrets) |
 | pg_cron / pg_net | não instalados (cron não agendado) |
 | Dados | 0 whatsapp_messages, 0 whatsapp_connections, 0 patient_consents, 0 segredos no Vault |
@@ -26,8 +26,8 @@ Continuação (a partir de `dcd426c`): branch `wip/intelligent-thompson-68i38m`.
 **Próximos passos, nesta ordem:**
 
 1. ~~Aplicar a 0026~~ FEITO. Observação: o conector MCP do Supabase pede confirmação para qualquer `DROP` (até `drop ... if exists` que não faz nada) e, sem essa confirmação, a chamada estoura os 60s antes de chegar ao Postgres. Não é tempo de execução nem lock. Migrations com `DROP` vão pelo SQL Editor.
-2. ~~Deployar a nova `whatsapp-webhook`~~ FEITO e validado (ver tabela). Atenção: a verificação GET da Meta manda `hub.verify_token` na URL, e os logs de borda do Supabase gravam a URL inteira. O valor atual de `WHATSAPP_VERIFY_TOKEN` está nesses logs e já foi compartilhado fora do cofre de segredos: rotacionar antes (ou logo depois) de configurar o webhook no app Meta.
-3. Deployar `whatsapp-dispatcher` (`verify_jwt=false`, autenticação própria). Fica inerte (401) até configurar os secrets `WHATSAPP_DISPATCHER_TOKEN` (>= 32 chars), `WHATSAPP_GRAPH_API_VERSION` (ex.: `v23.0`), `WHATSAPP_TEMPLATE_LANGUAGE` (`pt_BR`) e os `WHATSAPP_TEMPLATE_APPOINTMENT_*`.
+2. ~~Deployar a nova `whatsapp-webhook`~~ FEITO e validado (ver tabela). A Meta também executou "Verificar e salvar" com sucesso. O `hub.verify_token` aparece nos logs de borda do Supabase porque a Meta o envia na query string da verificação; isso é esperado. Rotacionar `WHATSAPP_VERIFY_TOKEN` só se houver exposição externa ou necessidade operacional.
+3. ~~Deployar `whatsapp-dispatcher` inerte~~ FEITO e validado (ver tabela). Próximo: primeiro E2E real só com `appointment_12h` (template criado na Meta: Utility, pt_BR, 3 variáveis posicionais, 1 botão de resposta rápida "Confirmar"; aguardando aprovação). Secrets do E2E: `WHATSAPP_GRAPH_API_VERSION=v25.0`, `WHATSAPP_TEMPLATE_LANGUAGE=pt_BR`, `WHATSAPP_TEMPLATE_APPOINTMENT_12H=appointment_12h`, `WHATSAPP_DISPATCHER_TOKEN`. NÃO configurar `..._CONFIRMATION` nem `..._RESCHEDULED` por enquanto.
 4. Só depois de templates aprovados na Meta + uma conexão `connected` com token (`set_whatsapp_connection_access_token`): `supabase/rollout-0026/05_schedule_cron.sql`.
 
 Rollbacks: `supabase/rollout-0025/02_rollback.sql`, `supabase/rollout-0026/02_rollback.sql`, `06_unschedule_cron.sql`.
@@ -119,6 +119,9 @@ Decisões pendentes do usuário:
 - Falta: Embedded Signup (provisionar conexão + token), templates aprovados na Meta em cada WABA, status de entrega (delivered/read/failed) vindos do webhook.
 
 ## Depois disso
+
+- **Backlog antes do rollout geral (não implementado):** tipos de mensagem sem template configurado (hoje `appointment_confirmation` e `appointment_rescheduled`) continuam sendo materializados e ficam `scheduled`, porque o claim só reserva os tipos com template. Se um template desses tipos for configurado mais tarde, mensagens antigas que ainda forem elegíveis (consulta futura, mesma revisão, consentimento ativo) podem sair atrasadas. Antes do rollout geral, garantir que esse backlog antigo não seja enviado sem querer (por exemplo, cancelar ou não materializar tipos sem template, ou limitar o atraso máximo no envio).
+- Depois do primeiro E2E: resposta automática "Agendamento confirmado com sucesso! ✅ Esperamos você no dia DD/MM, às HH:MM." quando a consulta for confirmada pelo WhatsApp. Não faz parte do `appointment_12h`.
 
 - Cron do dispatcher: script pronto (`rollout-0026/05_schedule_cron.sql`), não aplicado. `pg_cron`/`pg_net` não estão ativos.
 - Conexão do WhatsApp de cada profissional (Embedded Signup): exige que a Lucksrei seja Tech Provider na Meta. Credenciais da Meta NÃO ficam nas tabelas deste schema; como serão entregues ainda é decisão em aberto.
