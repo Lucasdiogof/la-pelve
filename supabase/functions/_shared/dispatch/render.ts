@@ -8,10 +8,12 @@
 //   appointment_confirmation (aviso de agendamento, informativo):
 //     "Olá, {{1}}! Seu atendimento foi agendado para {{2}}, às {{3}}."
 //       {{1}} primeiro nome  {{2}} data "30/10"  {{3}} hora "08:00"
-//   appointment_12h (SOLICITAÇÃO DE CONFIRMAÇÃO):
-//     "Olá, {{1}}! Podemos confirmar seu atendimento de {{2}}, às {{3}}?"
-//       {{2}} "hoje" | "amanhã" | "30/10"
-//       + botão de resposta rápida (índice 0), ex. "Sim, confirmo", com o
+//   appointment_12h (SOLICITAÇÃO DE CONFIRMAÇÃO), template aprovado na Meta:
+//     "Olá, {{1}}! Podemos confirmar seu atendimento no dia {{2}}, às {{3}}?
+//      Se sim, toque em Confirmar abaixo."
+//       {{2}} SEMPRE "dd/MM" (ex.: "30/10"), nunca "hoje"/"amanhã" e sem ano:
+//         o texto fixo do template diz "no dia {{2}}"
+//       + botão de resposta rápida único (índice 0), "Confirmar", com o
 //         payload LA_PELVE_CONFIRM_APPOINTMENT enviado aqui -- é o que o
 //         webhook (inbound, migration 0025) reconhece como confirmação.
 //   appointment_rescheduled (aviso de remarcação, informativo):
@@ -48,23 +50,21 @@ function civilDate(instant: Date, timeZone: string): string {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
-function addDays(date: string, days: number): string {
-  const [y, m, d] = date.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
-}
-
 /** "30/10"; com o ano quando não é o ano corrente ("15/01/2027"). */
 export function formatShortDate(date: string, today: string): string {
   const [, y, m, d] = DATE_RE.exec(date)!;
   return y === today.slice(0, 4) ? `${d}/${m}` : `${d}/${m}/${y}`;
 }
 
-/** "hoje", "amanhã" ou a data curta, no fuso do profissional. */
-export function relativeDayLabel(date: string, now: Date, timeZone: string): string {
-  const today = civilDate(now, timeZone);
-  if (date === today) return "hoje";
-  if (date === addDays(today, 1)) return "amanhã";
-  return formatShortDate(date, today);
+/**
+ * "dd/MM" direto da data civil 'YYYY-MM-DD' da consulta, sem ano e sem
+ * conversão de fuso: appointments.date já é o dia local no fuso do
+ * profissional (o banco devolve to_char(appointments.date)). Nunca passa por
+ * Date/UTC, então a virada do dia em UTC não muda o dia enviado.
+ */
+export function formatDayMonth(date: string): string {
+  const [, , m, d] = DATE_RE.exec(date)!;
+  return `${d}/${m}`;
 }
 
 function text(value: string) {
@@ -91,7 +91,7 @@ export function renderTemplateMessage(
   const dayParam: Record<MessageType, string> = {
     appointment_confirmation: formatShortDate(send.appointmentDate, today),
     appointment_rescheduled: formatShortDate(send.appointmentDate, today),
-    appointment_12h: relativeDayLabel(send.appointmentDate, now, send.timeZone),
+    appointment_12h: formatDayMonth(send.appointmentDate),
   };
 
   const components: Array<Record<string, unknown>> = [
