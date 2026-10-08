@@ -76,6 +76,17 @@ Decisões pendentes do usuário:
 - Pré-requisito para funcionar de verdade: o dispatch (envio real à Meta) ainda não existe. Ele precisa gravar `wamid`/`sent_at`/`status` da `appointment_12h` e mandar o template com o botão de resposta rápida com aquele payload.
 - Testes: `node --test --experimental-strip-types $(find supabase/functions -name "*.test.ts")` e, com um Postgres local, `supabase/tests/run_sql_tests.sh` e o E2E `whatsapp-webhook/integration.test.ts` (`LA_PELVE_TEST_PGHOST`).
 
+## Envio real (outbound) — código pronto, NÃO aplicado/deployado
+
+- Decisão confirmada: o lembrete `appointment_12h` É a solicitação de confirmação (template com botão de resposta rápida, payload `LA_PELVE_CONFIRM_APPOINTMENT`). O aviso de agendamento (`appointment_confirmation`) e o de remarcação são só informativos.
+- Credenciais: access token da Meta por conexão no **Supabase Vault** (`whatsapp_connection_credentials.vault_secret_id`), nunca em coluna comum nem no app. Gravado só por `set_whatsapp_connection_access_token` (só escrita) e lido só dentro de `prepare_whatsapp_message_send` para a mensagem reservada. Apagar a conexão apaga o segredo.
+- Migration `0026_whatsapp_dispatch.sql` (rollout em `supabase/rollout-0026/`; aborta sem `supabase_vault`): lease/tentativas em `whatsapp_messages` + RPCs `claim_…` (SKIP LOCKED), `prepare_…` (revalida consentimento, telefone, revisão, status, conexão e credencial) e `complete_…`.
+- Edge Function `whatsapp-dispatcher` (pipeline: materialização → reconciliação → envio). Autenticação própria (`WHATSAPP_DISPATCHER_TOKEN`). Secrets: `WHATSAPP_GRAPH_API_VERSION` (obrigatório, sem default), `WHATSAPP_TEMPLATE_LANGUAGE`, `WHATSAPP_TEMPLATE_APPOINTMENT_{CONFIRMATION,12H,RESCHEDULED}` (tipo sem template não sai).
+- Cron: `supabase/rollout-0026/05_schedule_cron.sql` (pg_cron + pg_net, a cada 5 min, URL/token no Vault). Não é migration; só depois de deploy e templates aprovados.
+- Retry: 429/limite e 5xx tentam de novo (1, 5, 15, 60 min; até 5 envios). 4xx/token inválido falham. Timeout/rede/resposta 2xx inválida: `failed` `send_outcome_unknown`, nunca reenviado.
+- Testes: `supabase/tests/run_sql_tests.sh` (precisa de `supabase_vault` compilada localmente) e `supabase/tests/e2e/run_e2e.sh` (supabase-js → PostgREST → Postgres + Vault, provider falso).
+- Falta: Embedded Signup (provisionar conexão + token), templates aprovados na Meta em cada WABA, status de entrega (delivered/read/failed) vindos do webhook.
+
 ## Depois disso
 
 - Scheduler de lembretes (cron + função de envio), ainda não existe. `pg_cron`/`pg_net` não estão ativos.

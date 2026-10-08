@@ -9,3 +9,9 @@ verify_jwt = false
 # (ver index.ts), não o JWT de usuário final do Supabase.
 [functions.whatsapp-scheduler-dry-run]
 verify_jwt = false
+
+# Pipeline outbound (materialização -> reconciliação -> envio). Chamado só
+# pelo cron, com autenticação própria (WHATSAPP_DISPATCHER_TOKEN, ver
+# whatsapp-dispatcher/handler.ts), não pelo JWT de usuário do app.
+[functions.whatsapp-dispatcher]
+verify_jwt = false

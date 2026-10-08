@@ -51,4 +51,20 @@ $$;
 alter table storage.objects enable row level security;
 
 grant usage on schema public to anon, authenticated, service_role;
+
+-- Privilégios padrão do Supabase para objetos criados pelo postgres no
+-- schema public (as migrations revogam onde precisam).
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+
+-- Supabase Vault REAL (extensão supabase_vault, pré-instalada nos projetos
+-- Supabase). Localmente precisa estar compilada e com shared_preload_libraries
+-- + vault.getkey_script configurados; sem ela a migration 0026 aborta.
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'supabase_vault') then
+    create extension if not exists supabase_vault;
+  end if;
+end $$;
 grant usage on schema auth to anon, authenticated, service_role;
