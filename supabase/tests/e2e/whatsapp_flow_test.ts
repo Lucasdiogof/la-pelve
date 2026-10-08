@@ -165,8 +165,8 @@ Deno.test({
     assertEquals(twelve.message.to, "5562911118888");
     const params = twelve.message.template.components[0].parameters as Array<{ text: string }>;
     assertEquals(params[0].text, "Camila");
-    // Consulta daqui a ~11h50 em meio-dia local: "hoje" (ou "amanhã" se virar o dia).
-    assert(["hoje", "amanhã"].includes(params[1].text));
+    // {{2}} do pedido de confirmação é sempre a data "dd/MM" (nunca hoje/amanhã).
+    assert(/^\d{2}\/\d{2}$/.test(params[1].text));
     assert(/^\d{2}:\d{2}$/.test(params[2].text));
     assertEquals(twelve.message.template.components[1], {
       type: "button",
