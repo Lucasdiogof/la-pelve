@@ -1,7 +1,37 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
-Última atualização: 2026-10-04. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
+Última atualização: 2026-10-08. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
 Nenhum segredo está neste arquivo; só os NOMES dos secrets.
+
+## >>> RETOMAR DAQUI (estado em 2026-10-08, ~02:15 UTC)
+
+Branch `wip/sleepy-keller-gplahy` (não mergeada em `main`). Commits relevantes:
+`f04eefd` (telefone no cadastro), `bc34ba5` (inbound: confirmação pela resposta),
+`d4f7cc5` (outbound: dispatcher + Vault). Todo o código está no remoto.
+
+**Estado REAL de produção (verificado pelo conector Supabase):**
+
+| Item | Estado |
+|---|---|
+| Migration 0025 (`whatsapp_inbound_messages` + `process_whatsapp_confirmation_reply`) | **APLICADA** — pre-flight 6/6 PASS, pós-check 9/9 PASS, md5 do corpo da função idêntico ao testado localmente (`d80443d971500d7b9674d3a25e778735`), 70 appointments intactos |
+| Migration 0026 (dispatch + credenciais no Vault) | **NÃO aplicada** — pre-flight 5/5 PASS (Vault 0.3.1 instalado; `postgres` tem usage/delete/select/execute no Vault). Duas tentativas pelo conector estouraram o limite de 60s da ferramenta e foram desfeitas por inteiro (0 tabelas/colunas/funções novas, nenhuma query presa). Não é lock (testado). |
+| Edge Function `whatsapp-webhook` | ainda a v10 antiga (diagnóstico, só loga). Nova versão NÃO deployada |
+| Edge Function `whatsapp-dispatcher` | NÃO deployada |
+| `whatsapp-scheduler-dry-run` | v7, sem mudança |
+| pg_cron / pg_net | não instalados (cron não agendado) |
+| Dados | 0 whatsapp_messages, 0 whatsapp_connections, 0 patient_consents, 0 segredos no Vault |
+| Histórico de migrations do Supabase | vazio (o projeto aplica arquivos via `db query`, sem histórico; manter assim) |
+
+**Próximos passos, nesta ordem:**
+
+1. Aplicar `supabase/migrations/0026_whatsapp_dispatch.sql` (arquivo inteiro) pelo SQL Editor do Supabase ou `npx supabase db query -f ... --linked`. Antes: `supabase/rollout-0026/01_preflight_readonly.sql` (tudo PASS). Depois: `03_postcheck_readonly.sql` (7 PASS). Pelo conector MCP, dividir em partes menores (estoura 60s inteiro).
+2. Conferir que o secret `WHATSAPP_APP_SECRET` existe na Edge Function `whatsapp-webhook` e então deployar a nova versão (arquivos: `whatsapp-webhook/index.ts`, `handler.ts` e `_shared/inbound/*.ts` sem os `.test.ts`; `verify_jwt=false`). Sem o secret, a nova versão responde 500 aos POSTs da Meta.
+3. Deployar `whatsapp-dispatcher` (`verify_jwt=false`, autenticação própria). Fica inerte (401) até configurar os secrets `WHATSAPP_DISPATCHER_TOKEN` (>= 32 chars), `WHATSAPP_GRAPH_API_VERSION` (ex.: `v23.0`), `WHATSAPP_TEMPLATE_LANGUAGE` (`pt_BR`) e os `WHATSAPP_TEMPLATE_APPOINTMENT_*`.
+4. Só depois de templates aprovados na Meta + uma conexão `connected` com token (`set_whatsapp_connection_access_token`): `supabase/rollout-0026/05_schedule_cron.sql`.
+
+Rollbacks: `supabase/rollout-0025/02_rollback.sql`, `supabase/rollout-0026/02_rollback.sql`, `06_unschedule_cron.sql`.
+
+Testes locais (precisam de Postgres 16 com `supabase_vault` compilada, PostgREST e Deno; ver cabeçalhos dos scripts): `node --test --experimental-strip-types $(find supabase/functions -name "*.test.ts")` (340), `supabase/tests/run_sql_tests.sh` (121), `supabase/tests/e2e/run_e2e.sh` (8 etapas).
 
 ## O que já está em produção
 
@@ -68,15 +98,15 @@ Decisões pendentes do usuário:
 - Ao trocar o número: revogar o consentimento automaticamente ou só avisar?
 - Backfill opcional de `phone_e164` só dos 14 válidos, ou preencher aos poucos?
 
-## Confirmação da consulta pela resposta da paciente (código pronto, NÃO aplicado/deployado)
+## Confirmação da consulta pela resposta da paciente (migration 0025 APLICADA; webhook novo NÃO deployado)
 
 - Solicitação de confirmação = lembrete `appointment_12h` já enviado (`whatsapp_messages` com `status` sent/delivered/read, `wamid` e `sent_at` preenchidos pelo dispatch).
 - Migration `0025_whatsapp_confirmation_reply.sql` (rollout em `supabase/rollout-0025/`): tabela `whatsapp_inbound_messages` (dedup por `wamid` da Meta, sem texto nem telefone, só backend), colunas `confirmation_reply_id`/`confirmation_consumed_at` em `whatsapp_messages` e a RPC `process_whatsapp_confirmation_reply` (só `service_role`), que correlaciona, trava e muda `scheduled -> confirmed` numa transação.
 - `whatsapp-webhook`: mesma validação GET e de assinatura; POST agora EXIGE `WHATSAPP_APP_SECRET`. Só respostas inequívocas ("sim", "sim, confirmo", "confirmo", "confirmado", "pode confirmar" ou o botão com payload `LA_PELVE_CONFIRM_APPOINTMENT`) chamam a RPC. Logs só com contagens.
-- Pré-requisito para funcionar de verdade: o dispatch (envio real à Meta) ainda não existe. Ele precisa gravar `wamid`/`sent_at`/`status` da `appointment_12h` e mandar o template com o botão de resposta rápida com aquele payload.
+- O dispatch (seção seguinte) grava `wamid`/`sent_at`/`status` da `appointment_12h` e manda o template com o botão de resposta rápida com aquele payload.
 - Testes: `node --test --experimental-strip-types $(find supabase/functions -name "*.test.ts")` e, com um Postgres local, `supabase/tests/run_sql_tests.sh` e o E2E `whatsapp-webhook/integration.test.ts` (`LA_PELVE_TEST_PGHOST`).
 
-## Envio real (outbound) — código pronto, NÃO aplicado/deployado
+## Envio real (outbound) — código pronto; migration 0026 e deploy PENDENTES
 
 - Decisão confirmada: o lembrete `appointment_12h` É a solicitação de confirmação (template com botão de resposta rápida, payload `LA_PELVE_CONFIRM_APPOINTMENT`). O aviso de agendamento (`appointment_confirmation`) e o de remarcação são só informativos.
 - Credenciais: access token da Meta por conexão no **Supabase Vault** (`whatsapp_connection_credentials.vault_secret_id`), nunca em coluna comum nem no app. Gravado só por `set_whatsapp_connection_access_token` (só escrita) e lido só dentro de `prepare_whatsapp_message_send` para a mensagem reservada. Apagar a conexão apaga o segredo.
@@ -89,14 +119,14 @@ Decisões pendentes do usuário:
 
 ## Depois disso
 
-- Scheduler de lembretes (cron + função de envio), ainda não existe. `pg_cron`/`pg_net` não estão ativos.
+- Cron do dispatcher: script pronto (`rollout-0026/05_schedule_cron.sql`), não aplicado. `pg_cron`/`pg_net` não estão ativos.
 - Conexão do WhatsApp de cada profissional (Embedded Signup): exige que a Lucksrei seja Tech Provider na Meta. Credenciais da Meta NÃO ficam nas tabelas deste schema; como serão entregues ainda é decisão em aberto.
-- A exclusão de conta (`delete_own_account`) cascateia as tabelas novas, mas não apaga segredos do Vault nem desconecta o número na Meta.
+- A exclusão de conta (`delete_own_account`) cascateia as tabelas novas; com a 0026, apagar a conexão apaga o token no Vault (trigger). Não desconecta o número na Meta.
 
 ## Como trabalhamos aqui (para quem retomar)
 
 - SQL em produção: `npx.cmd supabase db query -f <arquivo> --linked --project-ref lchaboncmgcimafpupad`. Nunca `db push`. Sempre pre-flight read-only, aplicar só a migration, pós-check, e só então commit.
-- Scripts em `supabase/rollout-0018/` e `supabase/rollout-0019/` (pre-flight, rollback, pós-check). O `03_postcheck.sql` da 0018 é gerado com snapshot de produção e fica fora do Git (`.gitignore`); regenere com `node supabase/rollout-0018/make_postcheck.mjs` imediatamente antes de aplicar.
+- Scripts em `supabase/rollout-00XX/` (pre-flight, rollback, pós-check). O `03_postcheck.sql` da 0018 é gerado com snapshot de produção e fica fora do Git (`.gitignore`); regenere com `node supabase/rollout-0018/make_postcheck.mjs` imediatamente antes de aplicar.
 - O Git neste PC não tem identidade configurada: commitar com `git -c user.name="Lucas Diogo" -c user.email="lucasdiogo1234@gmail.com" commit ...`.
 - `core.autocrlf=true`: arquivos viram CRLF no checkout. Ao comparar texto de função/SQL com produção, normalize CRLF para LF.
 - Antes de qualquer commit: busca por secrets (nada de tokens, App Secret, service_role no repo).
