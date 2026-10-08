@@ -62,7 +62,9 @@ void main() {
     when(
       () => profiles.getCurrent(),
     ).thenAnswer((_) => gate ?? Future.value(Success(loaded ?? profile())));
-    sl.registerSingleton<ProfileCubit>(ProfileCubit(profiles));
+    final profileCubit = ProfileCubit(profiles);
+    sl.registerSingleton<ProfileCubit>(profileCubit);
+    unawaited(profileCubit.ensureLoaded());
     sl.registerSingleton<AuthRepository>(auth);
 
     GoRoute fake(String path) => GoRoute(

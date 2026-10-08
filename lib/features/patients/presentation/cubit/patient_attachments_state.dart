@@ -1,19 +1,21 @@
-import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/features/patients/domain/entities/attachment.dart';
 
 class PatientAttachmentsState {
-  const PatientAttachmentsState({this.result, this.uploading = false});
+  const PatientAttachmentsState({
+    this.attachments = const DataState<List<Attachment>>.loading(),
+    this.uploading = false,
+  });
 
-  final Result<List<Attachment>>? result;
+  final DataState<List<Attachment>> attachments;
   final bool uploading;
 
   PatientAttachmentsState copyWith({
-    Result<List<Attachment>>? result,
-    bool clearResult = false,
+    DataState<List<Attachment>>? attachments,
     bool? uploading,
   }) {
     return PatientAttachmentsState(
-      result: clearResult ? null : (result ?? this.result),
+      attachments: attachments ?? this.attachments,
       uploading: uploading ?? this.uploading,
     );
   }

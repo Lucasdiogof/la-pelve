@@ -7,6 +7,7 @@ import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
+import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/domain/repositories/patient_repository.dart';
 import 'package:la_pelve/features/patients/l10n/patients_strings.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/evolution_form_cubit.dart';
@@ -67,7 +68,7 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
   /// (o formulário não depende disso).
   String? get _patientName {
     if (!sl.isRegistered<PatientsCubit>()) return null;
-    for (final patient in sl<PatientsCubit>().state) {
+    for (final patient in sl<PatientsCubit>().state.data ?? const <Patient>[]) {
       if (patient.id == widget.patientId) {
         final name = patient.personalInfo.name.trim();
         return name.isEmpty ? null : name;

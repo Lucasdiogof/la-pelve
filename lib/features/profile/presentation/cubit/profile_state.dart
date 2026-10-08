@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/features/profile/domain/entities/profile.dart';
 import 'package:la_pelve/shared/utils/unset.dart';
 
@@ -9,6 +10,7 @@ class ProfileState extends Equatable {
     this.biometriaEnabled = false,
     this.loading = true,
     this.savingPhoto = false,
+    this.failure,
   });
 
   final Profile? profile;
@@ -17,12 +19,17 @@ class ProfileState extends Equatable {
   final bool loading;
   final bool savingPhoto;
 
+  /// Falha ao carregar o perfil. Com [profile] presente, os dados anteriores
+  /// continuam valendo; sem ele, a tela mostra erro + tentar novamente.
+  final Failure? failure;
+
   ProfileState copyWith({
     Profile? profile,
     Object? photoUrl = kUnset,
     bool? biometriaEnabled,
     bool? loading,
     bool? savingPhoto,
+    Object? failure = kUnset,
   }) {
     return ProfileState(
       profile: profile ?? this.profile,
@@ -30,6 +37,7 @@ class ProfileState extends Equatable {
       biometriaEnabled: biometriaEnabled ?? this.biometriaEnabled,
       loading: loading ?? this.loading,
       savingPhoto: savingPhoto ?? this.savingPhoto,
+      failure: unsetOr(failure, this.failure),
     );
   }
 
@@ -40,5 +48,6 @@ class ProfileState extends Equatable {
     biometriaEnabled,
     loading,
     savingPhoto,
+    failure,
   ];
 }

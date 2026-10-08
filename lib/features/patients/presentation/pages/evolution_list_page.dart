@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
@@ -16,6 +17,7 @@ import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_sheet.dart';
+import 'package:la_pelve/shared/widgets/data_state_view.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class EvolutionListPage extends StatelessWidget {
@@ -81,7 +83,7 @@ class EvolutionListPage extends StatelessWidget {
           final t = PatientsStrings(context.watch<LocaleCubit>().state);
           Future<void> create() async {
             await context.push('/pacientes/${patient.id}/evolucao/novo');
-            if (context.mounted) await cubit.reload();
+            if (context.mounted) await cubit.refresh();
           }
 
           final name = patient.personalInfo.name;
@@ -101,72 +103,58 @@ class EvolutionListPage extends StatelessWidget {
                   child:
                       BlocBuilder<
                         EvolutionListCubit,
-                        Result<List<EvolutionEntry>>?
+                        DataState<List<EvolutionEntry>>
                       >(
-                        builder: (context, result) {
-                          // Estado inicial (null): ainda carregando; não é
-                          // "vazio".
-                          if (result == null) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (result is Error<List<EvolutionEntry>>) {
-                            return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.gutter,
-                                ),
-                                child: Text(
-                                  result.failure.message,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: context.colors.textSecondary,
-                                      ),
-                                ),
-                              ),
-                            );
-                          }
-                          final entries = switch (result) {
-                            Success(:final data) => data,
-                            _ => const <EvolutionEntry>[],
-                          };
-                          if (entries.isEmpty) {
-                            return AppEmptyState(
-                              icon: Icons.timeline_outlined,
-                              title: t.evolutionEmptyTitle,
-                              message: t.evolutionEmptyMessage,
-                              actionLabel: t.newEvolutionButton,
-                              onAction: create,
-                            );
-                          }
-                          final sorted = [...entries]
-                            ..sort((a, b) => b.date.compareTo(a.date));
-                          return ListView(
-                            padding: const EdgeInsets.fromLTRB(
-                              AppSpacing.gutter,
-                              AppSpacing.s8,
-                              AppSpacing.gutter,
-                              AppSpacing.s32,
-                            ),
-                            children: [
-                              EvolutionTimeline(
-                                entries: sorted,
-                                t: t,
-                                onEdit: (entry) async {
-                                  await context.push(
-                                    '/pacientes/${patient.id}/evolucao/${entry.id}/editar',
-                                    extra: entry,
+                        // Primeira carga: loading (não "vazio"); falha sem
+                        // dados: erro + tentar novamente; recargas mantêm a
+                        // lista atual na tela.
+                        builder: (context, state) =>
+                            DataStateView<List<EvolutionEntry>>(
+                              state: state,
+                              onRetry: cubit.refresh,
+                              builder: (context, entries) {
+                                if (entries.isEmpty) {
+                                  return AppEmptyState(
+                                    icon: Icons.timeline_outlined,
+                                    title: t.evolutionEmptyTitle,
+                                    message: t.evolutionEmptyMessage,
+                                    actionLabel: t.newEvolutionButton,
+                                    onAction: create,
                                   );
-                                  if (context.mounted) await cubit.reload();
-                                },
-                                onMore: (entry) =>
-                                    _showActions(context, cubit, t, entry.id),
-                              ),
-                            ],
-                          );
-                        },
+                                }
+                                final sorted = [...entries]
+                                  ..sort((a, b) => b.date.compareTo(a.date));
+                                return ListView(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AppSpacing.gutter,
+                                    AppSpacing.s8,
+                                    AppSpacing.gutter,
+                                    AppSpacing.s32,
+                                  ),
+                                  children: [
+                                    EvolutionTimeline(
+                                      entries: sorted,
+                                      t: t,
+                                      onEdit: (entry) async {
+                                        await context.push(
+                                          '/pacientes/${patient.id}/evolucao/${entry.id}/editar',
+                                          extra: entry,
+                                        );
+                                        if (context.mounted) {
+                                          await cubit.refresh();
+                                        }
+                                      },
+                                      onMore: (entry) => _showActions(
+                                        context,
+                                        cubit,
+                                        t,
+                                        entry.id,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                       ),
                 ),
               ],

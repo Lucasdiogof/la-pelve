@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
+import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/profile/domain/repositories/whatsapp_connection_repository.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/whatsapp_connection_cubit.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/whatsapp_connection_state.dart';
-import 'package:la_pelve/shared/widgets/app_bottom_action_bar.dart';
-import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_date_field.dart';
+import 'package:la_pelve/shared/widgets/app_error_state.dart';
+import 'package:la_pelve/shared/widgets/app_list_row.dart';
+import 'package:la_pelve/shared/widgets/app_section.dart';
+import 'package:la_pelve/shared/widgets/app_status_badge.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
+
+/// A conexão do número pelo próprio app (Embedded Signup da Meta) ainda não
+/// existe. Enquanto for `false`, quem não tem conexão vê "Integração em
+/// preparação" em vez de um botão desabilitado. Quando o fluxo existir, basta
+/// ligar isto e passar o callback em [_ConnectArea].
+const bool kWhatsappSelfConnectEnabled = false;
 
 class WhatsappConnectionPage extends StatelessWidget {
   const WhatsappConnectionPage({super.key});
@@ -33,276 +41,344 @@ class _WhatsappConnectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = ProfileStrings(context.watch<LocaleCubit>().state);
-    return BlocBuilder<WhatsappConnectionCubit, WhatsappConnectionState>(
-      builder: (context, state) {
-        final bottomAction = _bottomActionFor(context, t, state);
-        return Scaffold(
-          backgroundColor: context.colors.background,
-          body: Column(
-            children: [
-              ModernAppBar(
-                title: t.whatsappPageTitle,
-                subtitle: t.whatsappPageSubtitle,
-                showBackButton: true,
-              ),
-              Expanded(
-                child: _WhatsappConnectionBody(state: state, strings: t),
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: Column(
+        children: [
+          ModernAppBar(
+            title: t.whatsappPageTitle,
+            subtitle: t.whatsappPageSubtitle,
+            showBackButton: true,
           ),
-          bottomNavigationBar: bottomAction == null
-              ? null
-              : AppBottomActionBar(child: bottomAction),
-        );
-      },
+          Expanded(
+            child: BlocBuilder<WhatsappConnectionCubit, WhatsappConnectionState>(
+              builder: (context, state) {
+                // Falha ao CONSULTAR a conexão: erro + tentar de novo, nunca
+                // um "não conectado" que pode não ser verdade.
+                if (state is WhatsappConnectionLoadFailure) {
+                  return AppErrorState(
+                    title: t.whatsappLoadErrorMessage,
+                    message: state.failure.message,
+                    retryLabel: t.retryButtonLabel,
+                    onRetry: () =>
+                        context.read<WhatsappConnectionCubit>().load(),
+                  );
+                }
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    AppSpacing.s16,
+                    AppSpacing.gutter,
+                    AppSpacing.s32,
+                  ),
+                  children: [_WhatsappPanel(state: state, t: t)],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  Widget? _bottomActionFor(
-    BuildContext context,
-    ProfileStrings t,
-    WhatsappConnectionState state,
-  ) {
-    switch (state) {
-      case WhatsappConnectionLoading():
-        return null;
-      case WhatsappConnectionNotConnected():
-      case WhatsappConnectionDisconnected():
-        // Nesta etapa o botão não dispara nenhum fluxo da Meta: fica
-        // desabilitado, só para o lugar já existir quando a integração
-        // (Embedded Signup) for liberada pela Meta.
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PrimaryButton(
-              label: t.connectWhatsappButtonLabel,
-              onPressed: null,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t.whatsappIntegrationInProgressNote,
-              style: TextStyle(
-                color: context.colors.textSecondary,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        );
-      case WhatsappConnectionPending():
-      case WhatsappConnectionError():
-        return PrimaryButton(
-          label: t.refreshStatusButtonLabel,
-          onPressed: () => context.read<WhatsappConnectionCubit>().load(),
-        );
-      case WhatsappConnectionConnected():
-        return null;
-      case WhatsappConnectionLoadFailure():
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PrimaryButton(
-              label: t.retryButtonLabel,
-              onPressed: () => context.read<WhatsappConnectionCubit>().load(),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => context.pop(),
-              child: Text(t.backButtonLabel),
-            ),
-          ],
-        );
-    }
   }
 }
 
-class _WhatsappConnectionBody extends StatelessWidget {
-  const _WhatsappConnectionBody({required this.state, required this.strings});
+/// O painel único da tela: cabeçalho com status, descrição, benefícios e,
+/// no fim, a área que muda conforme o estado da conexão.
+class _WhatsappPanel extends StatelessWidget {
+  const _WhatsappPanel({required this.state, required this.t});
 
   final WhatsappConnectionState state;
-  final ProfileStrings strings;
+  final ProfileStrings t;
 
   @override
   Widget build(BuildContext context) {
-    final t = strings;
-    return switch (state) {
-      WhatsappConnectionLoading() => Center(
-        child: CircularProgressIndicator(color: context.colors.primary),
-      ),
-      WhatsappConnectionNotConnected() => Padding(
-        padding: const EdgeInsets.all(24),
-        child: AppEmptyState(
-          icon: Icons.chat_outlined,
-          title: t.whatsappNotConnectedTitle,
-          message: t.whatsappNotConnectedMessage,
-        ),
-      ),
-      WhatsappConnectionPending() => _InfoCard(
-        icon: Icons.hourglass_top_outlined,
-        iconColor: context.colors.primary,
-        title: t.whatsappPendingTitle,
-        message: t.whatsappPendingMessage,
-        children: const [],
-      ),
-      WhatsappConnectionConnected(:final connection) => _InfoCard(
-        icon: Icons.check_circle_outline,
-        iconColor: context.colors.success,
-        title: t.whatsappConnectedStatusLabel,
-        message: null,
-        children: [
-          _ConnectionField(
-            label: t.connectedPhoneNumberLabel,
-            value: connection.displayPhoneNumber ?? t.notInformedLabel,
+    final divider = Divider(height: 1, color: context.colors.border);
+    const rowPadding = EdgeInsets.symmetric(horizontal: AppSpacing.s16);
+    return AppSection(
+      children: [
+        _PanelHeader(badge: _badgeFor(state, t), t: t),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.s16,
+            0,
+            AppSpacing.s16,
+            AppSpacing.s16,
           ),
-          if (connection.connectedAt != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                t.whatsappConnectedSinceLabel(
-                  AppDateField.format(connection.connectedAt!),
-                ),
-                style: TextStyle(color: context.colors.textSecondary),
-              ),
+          child: Text(
+            t.whatsappIntroMessage,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.colors.textSecondary,
             ),
-        ],
-      ),
-      WhatsappConnectionDisconnected(:final connection) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: AppEmptyState(
-          icon: Icons.chat_outlined,
-          title: t.whatsappDisconnectedTitle,
-          message: connection.disconnectedAt == null
-              ? t.whatsappNotConnectedMessage
-              : t.whatsappDisconnectedSinceLabel(
-                  AppDateField.format(connection.disconnectedAt!),
-                ),
-        ),
-      ),
-      WhatsappConnectionError() => _InfoCard(
-        icon: Icons.error_outline_rounded,
-        iconColor: context.colors.danger,
-        title: t.whatsappConnectionErrorMessage,
-        message: null,
-        children: const [],
-      ),
-      WhatsappConnectionLoadFailure() => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.error_outline_rounded,
-                size: 48,
-                color: context.colors.danger,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                t.whatsappLoadErrorMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: context.colors.textSecondary),
-              ),
-            ],
           ),
         ),
+        divider,
+        for (final (icon, label) in [
+          (Icons.notifications_none_outlined, t.whatsappBenefitReminders),
+          (Icons.task_alt_outlined, t.whatsappBenefitConfirmation),
+          (Icons.event_available_outlined, t.whatsappBenefitAgendaSync),
+        ])
+          AppListRow(
+            leading: Icon(icon, size: 20, color: context.colors.textSecondary),
+            title: label,
+            titleMaxLines: 3,
+            padding: rowPadding,
+          ),
+        divider,
+        _StatusArea(state: state, t: t),
+      ],
+    );
+  }
+
+  static AppStatusBadge? _badgeFor(
+    WhatsappConnectionState state,
+    ProfileStrings t,
+  ) {
+    return switch (state) {
+      WhatsappConnectionLoading() || WhatsappConnectionLoadFailure() => null,
+      WhatsappConnectionNotConnected() => AppStatusBadge(
+        label: t.whatsappStatusInSetup,
+        tone: AppStatusTone.neutral,
+      ),
+      WhatsappConnectionPending() => AppStatusBadge(
+        label: t.whatsappStatusPending,
+        tone: AppStatusTone.primary,
+      ),
+      WhatsappConnectionConnected() => AppStatusBadge(
+        label: t.whatsappConnectedStatusLabel,
+        tone: AppStatusTone.success,
+      ),
+      WhatsappConnectionDisconnected() => AppStatusBadge(
+        label: t.whatsappStatusDisconnected,
+        tone: AppStatusTone.muted,
+      ),
+      WhatsappConnectionError() => AppStatusBadge(
+        label: t.whatsappStatusError,
+        tone: AppStatusTone.danger,
       ),
     };
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.message,
-    required this.children,
-  });
+class _PanelHeader extends StatelessWidget {
+  const _PanelHeader({required this.badge, required this.t});
 
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String? message;
-  final List<Widget> children;
+  final AppStatusBadge? badge;
+  final ProfileStrings t;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Material(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.colors.border),
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      child: Row(
+        children: [
+          // Container discreto; o verde de sucesso só no ícone e bem suave.
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colors.surfaceMuted,
+              borderRadius: AppRadius.smAll,
+            ),
+            child: Icon(
+              Icons.chat_outlined,
+              size: 20,
+              color: colors.success.withValues(alpha: 0.85),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: iconColor, size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (message != null) ...[
-                const SizedBox(height: 8),
+          const SizedBox(width: AppSpacing.s12),
+          Expanded(
+            child: Wrap(
+              spacing: AppSpacing.s8,
+              runSpacing: AppSpacing.s4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
                 Text(
-                  message!,
-                  style: TextStyle(color: context.colors.textSecondary),
+                  t.clinicWhatsappTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
+                ?badge,
               ],
-              if (children.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                ...children,
-              ],
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _ConnectionField extends StatelessWidget {
-  const _ConnectionField({required this.label, required this.value});
+/// Fim do painel: o que fazer agora, conforme o estado da conexão.
+class _StatusArea extends StatelessWidget {
+  const _StatusArea({required this.state, required this.t});
 
-  final String label;
-  final String value;
+  final WhatsappConnectionState state;
+  final ProfileStrings t;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = textTheme.bodyMedium?.copyWith(
+      color: context.colors.textSecondary,
+    );
+    void refresh() => context.read<WhatsappConnectionCubit>().load();
+
+    final Widget content = switch (state) {
+      // Só enquanto a consulta realmente está em andamento.
+      WhatsappConnectionLoading() => Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: AppSpacing.s12),
+          Expanded(child: Text(t.whatsappCheckingStatus, style: secondary)),
+        ],
+      ),
+      WhatsappConnectionNotConnected() => _ConnectArea(t: t),
+      WhatsappConnectionDisconnected(:final connection) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (connection.disconnectedAt != null) ...[
+            Text(
+              t.whatsappDisconnectedSinceLabel(
+                AppDateField.format(connection.disconnectedAt!),
+              ),
+              style: secondary,
+            ),
+            const SizedBox(height: AppSpacing.s16),
+          ],
+          _ConnectArea(t: t),
+        ],
+      ),
+      WhatsappConnectionPending() => _MessageWithAction(
+        title: t.whatsappPendingTitle,
+        message: t.whatsappPendingMessage,
+        actionLabel: t.refreshStatusButtonLabel,
+        onAction: refresh,
+      ),
+      WhatsappConnectionError() => _MessageWithAction(
+        title: t.whatsappConnectionErrorMessage,
+        message: null,
+        actionLabel: t.refreshStatusButtonLabel,
+        onAction: refresh,
+      ),
+      WhatsappConnectionConnected(:final connection) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(color: context.colors.textSecondary),
-            ),
-          ),
+          Text(t.connectedPhoneNumberLabel, style: secondary),
+          const SizedBox(height: 2),
           Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: context.colors.textPrimary,
+            connection.displayPhoneNumber ?? t.notInformedLabel,
+            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          if (connection.connectedAt != null) ...[
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              t.whatsappConnectedSinceLabel(
+                AppDateField.format(connection.connectedAt!),
+              ),
+              style: secondary,
+            ),
+          ],
+        ],
+      ),
+      // Tratado pela página (erro de tela cheia); nunca chega aqui.
+      WhatsappConnectionLoadFailure() => const SizedBox.shrink(),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      child: content,
+    );
+  }
+}
+
+/// Sem conexão. Hoje: "Integração em preparação" (informativo). Quando
+/// [kWhatsappSelfConnectEnabled] for ligado, vira o botão primário
+/// "Conectar WhatsApp" que inicia o fluxo da Meta.
+class _ConnectArea extends StatelessWidget {
+  const _ConnectArea({required this.t});
+
+  final ProfileStrings t;
+
+  @override
+  Widget build(BuildContext context) {
+    if (kWhatsappSelfConnectEnabled) {
+      return PrimaryButton(
+        label: t.connectWhatsappButtonLabel,
+        // O fluxo de conexão ainda não existe: ligar o flag exige passar o
+        // callback real aqui.
+        onPressed: null,
+      );
+    }
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: AppSpacing.s8,
+          runSpacing: AppSpacing.s4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              t.whatsappPreparingTitle,
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            AppStatusBadge(label: t.comingSoonBadge, tone: AppStatusTone.muted),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        Text(
+          t.whatsappPreparingMessage,
+          style: textTheme.bodyMedium?.copyWith(
+            color: context.colors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MessageWithAction extends StatelessWidget {
+  const _MessageWithAction({
+    required this.title,
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final String title;
+  final String? message;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        if (message != null) ...[
+          const SizedBox(height: AppSpacing.s4),
+          Text(
+            message!,
+            style: textTheme.bodyMedium?.copyWith(
+              color: context.colors.textSecondary,
             ),
           ),
         ],
-      ),
+        const SizedBox(height: AppSpacing.s12),
+        OutlinedButton.icon(
+          onPressed: onAction,
+          icon: const Icon(Icons.refresh, size: 18),
+          label: Text(actionLabel),
+        ),
+      ],
     );
   }
 }

@@ -251,6 +251,20 @@ class PatientsStrings {
     AppLanguage.spanish => 'desactivados',
   };
 
+  String get whatsappReminderLoading => switch (language) {
+    AppLanguage.portuguese => 'carregando…',
+    AppLanguage.english => 'loading…',
+    AppLanguage.spanish => 'cargando…',
+  };
+
+  String get whatsappReminderLoadError => switch (language) {
+    AppLanguage.portuguese =>
+      'não foi possível verificar. Toque para tentar de novo.',
+    AppLanguage.english => "couldn't check. Tap to try again.",
+    AppLanguage.spanish =>
+      'no fue posible verificar. Toca para intentar de nuevo.',
+  };
+
   String get whatsappReminderActive => switch (language) {
     AppLanguage.portuguese => 'ativados',
     AppLanguage.english => 'enabled',

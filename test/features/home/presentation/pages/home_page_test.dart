@@ -69,10 +69,14 @@ void main() {
         theme: AppTheme.light,
         home: MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => PatientsCubit(patients)),
-            BlocProvider(create: (_) => AgendaCubit(agenda)),
-            BlocProvider(create: (_) => FinancialCubit(financial)),
-            BlocProvider(create: (_) => ProfileCubit(profile)),
+            BlocProvider(
+              create: (_) => PatientsCubit(patients)..ensureLoaded(),
+            ),
+            BlocProvider(create: (_) => AgendaCubit(agenda)..ensureLoaded()),
+            BlocProvider(
+              create: (_) => FinancialCubit(financial)..ensureLoaded(),
+            ),
+            BlocProvider(create: (_) => ProfileCubit(profile)..ensureLoaded()),
             BlocProvider(create: (_) => LocaleCubit()),
             BlocProvider(create: (_) => HomeFinancialVisibilityCubit()),
           ],

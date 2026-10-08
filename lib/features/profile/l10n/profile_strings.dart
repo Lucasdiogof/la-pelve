@@ -369,41 +369,15 @@ class ProfileStrings {
   };
 
   String get whatsappPageSubtitle => switch (language) {
-    AppLanguage.portuguese => 'Lembretes de agendamento',
-    AppLanguage.english => 'Appointment reminders',
-    AppLanguage.spanish => 'Recordatorios de citas',
-  };
-
-  String get whatsappNotConnectedTitle => switch (language) {
-    AppLanguage.portuguese => 'WhatsApp não conectado',
-    AppLanguage.english => 'WhatsApp not connected',
-    AppLanguage.spanish => 'WhatsApp no conectado',
-  };
-
-  String get whatsappNotConnectedMessage => switch (language) {
-    AppLanguage.portuguese =>
-      'Conecte seu WhatsApp Business para que o La Pelve possa enviar '
-          'lembretes de agendamento aos pacientes que autorizaram esse '
-          'contato.',
-    AppLanguage.english =>
-      'Connect your WhatsApp Business so La Pelve can send appointment '
-          'reminders to patients who authorized this contact.',
-    AppLanguage.spanish =>
-      'Conecta tu WhatsApp Business para que La Pelve pueda enviar '
-          'recordatorios de citas a los pacientes que autorizaron este '
-          'contacto.',
+    AppLanguage.portuguese => 'Lembretes e confirmações',
+    AppLanguage.english => 'Reminders and confirmations',
+    AppLanguage.spanish => 'Recordatorios y confirmaciones',
   };
 
   String get connectWhatsappButtonLabel => switch (language) {
     AppLanguage.portuguese => 'Conectar WhatsApp',
     AppLanguage.english => 'Connect WhatsApp',
     AppLanguage.spanish => 'Conectar WhatsApp',
-  };
-
-  String get whatsappIntegrationInProgressNote => switch (language) {
-    AppLanguage.portuguese => 'Integração em configuração',
-    AppLanguage.english => 'Integration being configured',
-    AppLanguage.spanish => 'Integración en configuración',
   };
 
   String get whatsappPendingTitle => switch (language) {
@@ -481,9 +455,95 @@ class ProfileStrings {
     AppLanguage.spanish => 'Intentar de nuevo',
   };
 
-  String get backButtonLabel => switch (language) {
-    AppLanguage.portuguese => 'Voltar',
-    AppLanguage.english => 'Back',
-    AppLanguage.spanish => 'Volver',
+  String get clinicWhatsappTitle => switch (language) {
+    AppLanguage.portuguese => 'WhatsApp da clínica',
+    AppLanguage.english => "Clinic's WhatsApp",
+    AppLanguage.spanish => 'WhatsApp de la clínica',
+  };
+
+  String get whatsappIntroMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Conecte o WhatsApp da sua clínica para automatizar a comunicação com '
+          'suas pacientes.',
+    AppLanguage.english =>
+      "Connect your clinic's WhatsApp to automate communication with your "
+          'patients.',
+    AppLanguage.spanish =>
+      'Conecta el WhatsApp de tu clínica para automatizar la comunicación '
+          'con tus pacientes.',
+  };
+
+  String get whatsappBenefitReminders => switch (language) {
+    AppLanguage.portuguese => 'Lembretes automáticos de consultas',
+    AppLanguage.english => 'Automatic appointment reminders',
+    AppLanguage.spanish => 'Recordatorios automáticos de citas',
+  };
+
+  String get whatsappBenefitConfirmation => switch (language) {
+    AppLanguage.portuguese => 'Confirmação de atendimento pelo WhatsApp',
+    AppLanguage.english => 'Appointment confirmation via WhatsApp',
+    AppLanguage.spanish => 'Confirmación de la cita por WhatsApp',
+  };
+
+  String get whatsappBenefitAgendaSync => switch (language) {
+    AppLanguage.portuguese =>
+      'Atualização automática da agenda após a confirmação',
+    AppLanguage.english => 'Schedule updated automatically after confirmation',
+    AppLanguage.spanish =>
+      'Actualización automática de la agenda tras la confirmación',
+  };
+
+  String get whatsappStatusInSetup => switch (language) {
+    AppLanguage.portuguese => 'Em configuração',
+    AppLanguage.english => 'Being set up',
+    AppLanguage.spanish => 'En configuración',
+  };
+
+  String get whatsappStatusPending => switch (language) {
+    AppLanguage.portuguese => 'Em andamento',
+    AppLanguage.english => 'In progress',
+    AppLanguage.spanish => 'En curso',
+  };
+
+  String get whatsappStatusDisconnected => switch (language) {
+    AppLanguage.portuguese => 'Desconectado',
+    AppLanguage.english => 'Disconnected',
+    AppLanguage.spanish => 'Desconectado',
+  };
+
+  String get whatsappStatusError => switch (language) {
+    AppLanguage.portuguese => 'Erro na conexão',
+    AppLanguage.english => 'Connection error',
+    AppLanguage.spanish => 'Error de conexión',
+  };
+
+  String get whatsappPreparingTitle => switch (language) {
+    AppLanguage.portuguese => 'Integração em preparação',
+    AppLanguage.english => 'Integration in preparation',
+    AppLanguage.spanish => 'Integración en preparación',
+  };
+
+  String get whatsappPreparingMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Estamos finalizando a configuração para que você possa conectar o '
+          'número da sua clínica com segurança.',
+    AppLanguage.english =>
+      "We're finishing the setup so you can safely connect your clinic's "
+          'number.',
+    AppLanguage.spanish =>
+      'Estamos terminando la configuración para que puedas conectar el '
+          'número de tu clínica con seguridad.',
+  };
+
+  String get comingSoonBadge => switch (language) {
+    AppLanguage.portuguese => 'Em breve',
+    AppLanguage.english => 'Coming soon',
+    AppLanguage.spanish => 'Próximamente',
+  };
+
+  String get whatsappCheckingStatus => switch (language) {
+    AppLanguage.portuguese => 'Verificando a conexão…',
+    AppLanguage.english => 'Checking the connection…',
+    AppLanguage.spanish => 'Verificando la conexión…',
   };
 }

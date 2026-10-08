@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
@@ -12,6 +13,7 @@ import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_list_row.dart';
 import 'package:la_pelve/shared/widgets/app_section.dart';
+import 'package:la_pelve/shared/widgets/data_state_view.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class PatientsListPage extends StatelessWidget {
@@ -21,10 +23,11 @@ class PatientsListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
     void create() => context.push('/pacientes/novo');
-    return BlocBuilder<PatientsCubit, List<Patient>>(
-      builder: (context, patients) {
+    return BlocBuilder<PatientsCubit, DataState<List<Patient>>>(
+      builder: (context, state) {
         // Regra existente, preservada: ativos primeiro e pacientes com alta
         // depois; dentro de cada grupo vale a ordem original do repositório.
+        final patients = state.data ?? const <Patient>[];
         final active = patients.where((p) => p.discharge == null).toList();
         final discharged = patients.where((p) => p.discharge != null).toList();
         return Scaffold(
@@ -33,54 +36,63 @@ class PatientsListPage extends StatelessWidget {
             children: [
               ModernAppBar(
                 title: t.listTitle,
-                subtitle: _subtitle(
-                  t,
-                  total: patients.length,
-                  discharged: discharged.length,
-                ),
+                subtitle: state.hasData
+                    ? _subtitle(
+                        t,
+                        total: patients.length,
+                        discharged: discharged.length,
+                      )
+                    : t.listSubtitle,
                 actionIcon: Icons.add,
                 actionTooltip: t.newPatientButton,
                 onAction: create,
               ),
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => context.read<PatientsCubit>().reload(),
-                  child: patients.isEmpty
-                      ? ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: [
-                            AppEmptyState(
-                              icon: Icons.people_outline,
-                              title: t.emptyPatientsTitle,
-                              message: t.emptyPatientsMessage,
-                              actionLabel: t.newPatientButton,
-                              onAction: create,
-                            ),
-                          ],
-                        )
-                      : ListView(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.gutter,
-                            AppSpacing.s8,
-                            AppSpacing.gutter,
-                            AppSpacing.s32,
-                          ),
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: [
-                            // Um painel por bloco (ativos / com alta), nunca
-                            // um card por paciente. Só o bloco histórico leva
-                            // overline; a lista principal não.
-                            if (active.isNotEmpty) _PatientsPanel(active, t),
-                            if (active.isNotEmpty && discharged.isNotEmpty)
-                              const SizedBox(height: AppSpacing.s24),
-                            if (discharged.isNotEmpty)
-                              _PatientsPanel(
-                                discharged,
-                                t,
-                                title: t.dischargedSectionTitle,
+                child: DataStateView<List<Patient>>(
+                  state: state,
+                  onRetry: () => context.read<PatientsCubit>().refresh(),
+                  builder: (context, patients) => RefreshIndicator(
+                    onRefresh: () => refreshKeepingData(
+                      context,
+                      context.read<PatientsCubit>(),
+                    ),
+                    child: patients.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              AppEmptyState(
+                                icon: Icons.people_outline,
+                                title: t.emptyPatientsTitle,
+                                message: t.emptyPatientsMessage,
+                                actionLabel: t.newPatientButton,
+                                onAction: create,
                               ),
-                          ],
-                        ),
+                            ],
+                          )
+                        : ListView(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.gutter,
+                              AppSpacing.s8,
+                              AppSpacing.gutter,
+                              AppSpacing.s32,
+                            ),
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              // Um painel por bloco (ativos / com alta), nunca
+                              // um card por paciente. Só o bloco histórico leva
+                              // overline; a lista principal não.
+                              if (active.isNotEmpty) _PatientsPanel(active, t),
+                              if (active.isNotEmpty && discharged.isNotEmpty)
+                                const SizedBox(height: AppSpacing.s24),
+                              if (discharged.isNotEmpty)
+                                _PatientsPanel(
+                                  discharged,
+                                  t,
+                                  title: t.dischargedSectionTitle,
+                                ),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ],
@@ -90,8 +102,8 @@ class PatientsListPage extends StatelessWidget {
     );
   }
 
-  /// Lista vazia mantém o subtítulo fixo: loading e falha também começam
-  /// como lista vazia, então "0 pacientes" seria enganoso.
+  /// Lista realmente vazia mantém o subtítulo fixo ("0 pacientes" não
+  /// ajuda). Sem dados carregados o subtítulo também é o fixo.
   String _subtitle(
     PatientsStrings t, {
     required int total,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
@@ -14,6 +15,7 @@ import 'package:la_pelve/shared/widgets/app_date_field.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/app_segmented_tab_bar.dart';
+import 'package:la_pelve/shared/widgets/data_state_view.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 
 class AgendaPage extends StatelessWidget {
@@ -46,60 +48,69 @@ class AgendaPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  BlocBuilder<AgendaCubit, List<Appointment>>(
-                    builder: (context, appointments) {
-                      final porDia = groupUpcomingAppointmentsByDay(
-                        appointments,
-                        today: today,
-                      );
-                      final dias = porDia.keys.toList()..sort();
+                  BlocBuilder<AgendaCubit, DataState<List<Appointment>>>(
+                    builder: (context, state) => DataStateView<List<Appointment>>(
+                      state: state,
+                      onRetry: () => context.read<AgendaCubit>().refresh(),
+                      builder: (context, appointments) {
+                        final porDia = groupUpcomingAppointmentsByDay(
+                          appointments,
+                          today: today,
+                        );
+                        final dias = porDia.keys.toList()..sort();
 
-                      return RefreshIndicator(
-                        onRefresh: () => context.read<AgendaCubit>().reload(),
-                        child: dias.isEmpty
-                            ? ListView(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                children: [
-                                  AppEmptyState(
-                                    icon: Icons.calendar_month_outlined,
-                                    title: t.emptyTitle,
-                                    message: t.emptyMessage,
-                                    actionLabel: t.createAppointment,
-                                    onAction: create,
+                        return RefreshIndicator(
+                          onRefresh: () => refreshKeepingData(
+                            context,
+                            context.read<AgendaCubit>(),
+                          ),
+                          child: dias.isEmpty
+                              ? ListView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    AppEmptyState(
+                                      icon: Icons.calendar_month_outlined,
+                                      title: t.emptyTitle,
+                                      message: t.emptyMessage,
+                                      actionLabel: t.createAppointment,
+                                      onAction: create,
+                                    ),
+                                  ],
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AppSpacing.gutter,
+                                    AppSpacing.s20,
+                                    AppSpacing.gutter,
+                                    AppSpacing.s32,
                                   ),
-                                ],
-                              )
-                            : ListView.separated(
-                                padding: const EdgeInsets.fromLTRB(
-                                  AppSpacing.gutter,
-                                  AppSpacing.s20,
-                                  AppSpacing.gutter,
-                                  AppSpacing.s32,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  itemCount: dias.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: AppSpacing.s24),
+                                  itemBuilder: (context, index) {
+                                    final dia = dias[index];
+                                    final doDia = porDia[dia]!;
+                                    // Um painel por dia (overline fora); as
+                                    // consultas ficam dentro, com divisores --
+                                    // nunca um card por consulta.
+                                    return AppSection(
+                                      title: _dayLabel(dia, today, t),
+                                      children: [
+                                        for (var i = 0; i < doDia.length; i++)
+                                          AppointmentRow(
+                                            appointment: doDia[i],
+                                            showDivider: i != doDia.length - 1,
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                itemCount: dias.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: AppSpacing.s24),
-                                itemBuilder: (context, index) {
-                                  final dia = dias[index];
-                                  final doDia = porDia[dia]!;
-                                  // Um painel por dia (overline fora); as
-                                  // consultas ficam dentro, com divisores --
-                                  // nunca um card por consulta.
-                                  return AppSection(
-                                    title: _dayLabel(dia, today, t),
-                                    children: [
-                                      for (var i = 0; i < doDia.length; i++)
-                                        AppointmentRow(
-                                          appointment: doDia[i],
-                                          showDivider: i != doDia.length - 1,
-                                        ),
-                                    ],
-                                  );
-                                },
-                              ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                   const AgendaMonthlyReportTab(),
                 ],

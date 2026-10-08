@@ -277,7 +277,8 @@ class PatientDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = PatientsStrings(context.watch<LocaleCubit>().state);
-    final patients = context.watch<PatientsCubit>().state;
+    final patients =
+        context.watch<PatientsCubit>().state.data ?? const <Patient>[];
     final current = patients.firstWhere(
       (p) => p.id == patient.id,
       orElse: () => patient,

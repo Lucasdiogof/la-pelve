@@ -30,6 +30,8 @@ import 'package:la_pelve/features/patients/presentation/pages/evolution_list_pag
 import 'package:la_pelve/features/patients/presentation/widgets/evolution/evolution_timeline.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_info_bottom_sheet.dart';
+import 'package:la_pelve/shared/widgets/app_error_state.dart';
+import 'package:la_pelve/shared/widgets/app_empty_state.dart';
 
 class _FakePatientRepository extends Mock implements PatientRepository {}
 
@@ -448,7 +450,11 @@ void main() {
       );
 
       expect(find.text('FALHA-LISTA-X'), findsOneWidget);
+      expect(find.byType(AppErrorState), findsOneWidget);
+      expect(find.text('Tentar novamente'), findsOneWidget);
       expect(find.byType(EvolutionTimelineItem), findsNothing);
+      // Erro não é "sem evoluções".
+      expect(find.byType(AppEmptyState), findsNothing);
     });
   });
 }

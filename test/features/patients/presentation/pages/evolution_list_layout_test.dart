@@ -32,6 +32,7 @@ import 'package:la_pelve/features/patients/presentation/pages/evolution_list_pag
 import 'package:la_pelve/features/patients/presentation/widgets/evolution/evolution_timeline.dart';
 import 'package:la_pelve/shared/widgets/app_confirm_sheet.dart';
 import 'package:la_pelve/shared/widgets/app_empty_state.dart';
+import 'package:la_pelve/shared/widgets/app_loading_widget.dart';
 
 class _FakePatientRepository extends Mock implements PatientRepository {}
 
@@ -224,12 +225,12 @@ void main() {
       final pending = Completer<Result<List<EvolutionEntry>>>();
       await pumpList(tester, const [], pending: pending);
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppLoadingWidget), findsOneWidget);
       expect(find.text(_t.evolutionEmptyTitle), findsNothing);
 
       pending.complete(const Success([]));
       await tester.pumpAndSettle();
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppLoadingWidget), findsNothing);
       expect(find.text(_t.evolutionEmptyTitle), findsOneWidget);
     });
 

@@ -33,7 +33,7 @@ void main() {
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => FinancialCubit(repository)),
+          BlocProvider(create: (_) => FinancialCubit(repository)..ensureLoaded()),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp(

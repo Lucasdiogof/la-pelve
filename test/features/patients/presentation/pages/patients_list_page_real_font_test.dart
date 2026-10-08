@@ -90,7 +90,9 @@ void main() {
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => PatientsCubit(repository)),
+          BlocProvider(
+            create: (_) => PatientsCubit(repository)..ensureLoaded(),
+          ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp.router(

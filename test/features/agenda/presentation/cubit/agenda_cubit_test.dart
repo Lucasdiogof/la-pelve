@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/result.dart';
+import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
 import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
@@ -26,28 +27,45 @@ void main() {
   });
 
   group('AgendaCubit initial load', () {
-    blocTest<AgendaCubit, List<Appointment>>(
-      'emits the loaded appointments on start',
+    test(
+      'starts as loading (not an empty success) and loads nothing by itself',
+      () async {
+        final cubit = AgendaCubit(repository);
+        expect(cubit.state.isInitialLoading, isTrue);
+        expect(cubit.state.hasData, isFalse);
+        await Future<void>.delayed(Duration.zero);
+        verifyNever(() => repository.getAll());
+        await cubit.close();
+      },
+    );
+
+    blocTest<AgendaCubit, DataState<List<Appointment>>>(
+      'ensureLoaded emits the loaded appointments',
       setUp: () {
         when(
           () => repository.getAll(),
         ).thenAnswer((_) async => Success([appointment]));
       },
       build: () => AgendaCubit(repository),
+      act: (cubit) => cubit.ensureLoaded(),
       expect: () => [
-        [appointment],
+        DataState<List<Appointment>>.success([appointment]),
       ],
     );
 
-    blocTest<AgendaCubit, List<Appointment>>(
-      'keeps the previous state when the initial load fails',
+    blocTest<AgendaCubit, DataState<List<Appointment>>>(
+      'a failed first load is a failure, never an empty success',
       setUp: () {
         when(
           () => repository.getAll(),
         ).thenAnswer((_) async => Error(ServerFailure()));
       },
       build: () => AgendaCubit(repository),
-      expect: () => <List<Appointment>>[],
+      act: (cubit) => cubit.ensureLoaded(),
+      verify: (cubit) {
+        expect(cubit.state.isFailureWithoutData, isTrue);
+        expect(cubit.state.data, isNull);
+      },
     );
   });
 
@@ -63,7 +81,7 @@ void main() {
         ),
       ).thenAnswer((_) async => const Success(null));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       when(() => repository.getAll()).thenAnswer(
         (_) async => Success([
@@ -76,7 +94,7 @@ void main() {
       );
 
       expect(result, isA<Success<void>>());
-      expect(cubit.state.single.status, AppointmentStatus.fulfilled);
+      expect(cubit.state.data!.single.status, AppointmentStatus.fulfilled);
       await cubit.close();
     });
 
@@ -91,7 +109,7 @@ void main() {
         ),
       ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       final result = await cubit.updateStatus(
         appointment.id,
@@ -99,7 +117,7 @@ void main() {
       );
 
       expect(result, isA<Error<void>>());
-      expect(cubit.state.single.status, AppointmentStatus.scheduled);
+      expect(cubit.state.data!.single.status, AppointmentStatus.scheduled);
       await cubit.close();
     });
   });
@@ -114,7 +132,7 @@ void main() {
         () => repository.update(updated),
       ).thenAnswer((_) async => const Success(null));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       when(
         () => repository.getAll(),
@@ -122,7 +140,7 @@ void main() {
       final result = await cubit.updateAppointment(updated);
 
       expect(result, isA<Success<void>>());
-      expect(cubit.state.single.patientName, 'Joana');
+      expect(cubit.state.data!.single.patientName, 'Joana');
       await cubit.close();
     });
 
@@ -135,12 +153,12 @@ void main() {
         () => repository.update(updated),
       ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       final result = await cubit.updateAppointment(updated);
 
       expect(result, isA<Error<void>>());
-      expect(cubit.state.single.patientName, 'Maria');
+      expect(cubit.state.data!.single.patientName, 'Maria');
       await cubit.close();
     });
   });
@@ -154,7 +172,7 @@ void main() {
         () => repository.delete(appointment.id),
       ).thenAnswer((_) async => const Success(null));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       when(
         () => repository.getAll(),
@@ -162,7 +180,7 @@ void main() {
       final result = await cubit.deleteAppointment(appointment.id);
 
       expect(result, isA<Success<void>>());
-      expect(cubit.state, isEmpty);
+      expect(cubit.state.data, isEmpty);
       await cubit.close();
     });
 
@@ -174,12 +192,12 @@ void main() {
         () => repository.delete(appointment.id),
       ).thenAnswer((_) async => Error(ServerFailure()));
       final cubit = AgendaCubit(repository);
-      await Future<void>.delayed(Duration.zero);
+      await cubit.ensureLoaded();
 
       final result = await cubit.deleteAppointment(appointment.id);
 
       expect(result, isA<Error<void>>());
-      expect(cubit.state, [appointment]);
+      expect(cubit.state.data, [appointment]);
       await cubit.close();
     });
   });

@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/services/biometric_service.dart';
+import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:la_pelve/features/agenda/data/agenda_repository_supabase.dart';
 import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
@@ -61,4 +62,12 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<FinancialCubit>(() => FinancialCubit(sl()));
   sl.registerLazySingleton<AgendaCubit>(() => AgendaCubit(sl()));
   sl.registerLazySingleton<ProfileCubit>(() => ProfileCubit(sl()));
+  sl.registerLazySingleton<SessionDataController>(
+    () => SessionDataController(
+      patients: sl(),
+      agenda: sl(),
+      financial: sl(),
+      profile: sl(),
+    ),
+  );
 }
