@@ -1,136 +1,156 @@
-# La Pelve
-
-<p>
-  <strong>🇺🇸 English</strong>
-  &nbsp;|&nbsp;
-  <a href="README.pt-BR.md">🇧🇷 Português</a>
+<p align="center">
+  <img src="lib/assets/app_icon.png" width="112" alt="La Pelve app icon">
 </p>
 
-A cross-platform practice management app for pelvic physiotherapy clinics, built with Flutter and Supabase. It runs natively on Android and iOS and is also installable as a Progressive Web App (PWA), sharing a single codebase and backend across all three.
+<h1 align="center">La Pelve</h1>
 
-## Overview
+<p align="center">
+  Clinical management for pelvic physiotherapists: schedule, patient records, progress notes and payment tracking in one app.
+</p>
 
-The app replaces spreadsheets and paper charts for a solo or small-team physiotherapy practice: patient intake and clinical history, treatment evolution notes, appointment scheduling, and payment tracking, all backed by a Postgres database with row-level security so each therapist only ever sees their own data.
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white" alt="Flutter">
+  <img src="https://img.shields.io/badge/Dart-0175C2?logo=dart&logoColor=white" alt="Dart">
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/platforms-iOS_·_Android_·_Web-555555" alt="Platforms: iOS, Android and Web">
+</p>
 
-## Features
+<p align="center">
+  <b>English</b> · <a href="README.pt-BR.md">Português</a> · <a href="README.es.md">Español</a>
+</p>
 
-**Patients**
-- Multi-step intake wizard, modeled after a real pelvic physiotherapy clinical assessment form:
-  1. Personal data (name, age, phone, profession)
-  2. Anamnesis (chief complaint, symptom onset, diagnosis, medical/lifestyle history)
-  3. Gynecological history *(female patients only)*
-  4. Obstetric history, including a full pregnancy-by-pregnancy record *(female patients only)*
-  5. Surgical history
-  6. Urinary function
-  7. Sexual function
-  8. Bowel function
-  9. Treatment plan
-  10. Physical assessment file upload (photos/PDFs, optional — can also be done later from the patient's Attachments tab)
-  11. Consultation fee
-- Full read-only clinical record view, organized by section
-- Treatment evolution log (dated progress notes) with edit history
-- File attachments (photos, PDFs) per patient, categorized automatically, with in-app image preview and secure signed-URL delivery
-- Soft delete, and treatment closure with a reason and outcome note (discharged, discontinued, referred, other) — reopenable
+---
 
-**Agenda**
-- Rolling 7-day appointment view, grouped by day
-- One-tap status changes (scheduled, confirmed, attended, cancelled, no-show, rescheduled)
-- Create, edit and delete appointments; link to an existing patient record or type a name freehand
-- Past dates are blocked when scheduling
-- Monthly report tab with the total appointment count for the selected month
+La Pelve is a tool for **physiotherapists** who work with pelvic health. It replaces spreadsheets and paper charts for a solo or small practice: appointment scheduling, patient intake and clinical history, treatment progress notes and a record of payments received. It is used by the professional only; patients do not use the app.
 
-**Financial**
-- Payment entries linked to a patient (or ad-hoc), with payment method and status
-- Monthly report with running total and per-entry breakdown
-- Real-time currency input formatting (BRL)
-- Edit or delete an entry
+## Availability
 
-**Home dashboard**
-- Live-updating "next 7 days" schedule card that recomputes appointment status against the current time, so a past appointment never lingers as "upcoming"
-- Clinic overview: active patients, appointments this week, revenue this month
+<a href="https://apps.apple.com/br/app/la-pelve/id6811234099"><img src="https://img.shields.io/badge/Available_on_the-App_Store-000000?logo=apple&logoColor=white" alt="Available on the App Store"></a>
 
-**Account & profile**
-- Email/password auth with signup, password reset and email confirmation
-- Editable name, profile photo (view full-screen, upload, or remove), Crefito (professional license) number
-- Change password from within the app, re-verifying the current one first
-- Language toggle (English/Portuguese), applied across the whole app
-- Light/dark theme toggle
-- Biometric app lock on mobile (gracefully hidden on web, where the platform doesn't support it)
-- Self-service account deletion, cascading to all owned data and storage files
-
-**Installable everywhere**
-- Native Android and iOS builds
-- Progressive Web App: installable on Android, iOS (Safari "Add to Home Screen") and desktop, opens in standalone mode, works offline for static assets, deep links to password reset/email confirmation adapt automatically between the native URL scheme and the web origin
+- **iOS**: published on the App Store.
+- **Android** and **Web (installable PWA)**: built from the same codebase.
+- **Languages**: Portuguese (Brazil), English and Spanish.
+- **Themes**: light and dark.
 
 ## Screenshots
 
 <table>
-<tr>
-<td align="center"><img src="docs/screenshots/light_login.png" width="220" alt="Login screen"><br>Login</td>
-<td align="center"><img src="docs/screenshots/light_signup.png" width="220" alt="Sign up screen"><br>Sign up</td>
-<td align="center"><img src="docs/screenshots/light_home.png" width="220" alt="Home dashboard"><br>Home</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_patients.png" width="220" alt="Patients list"><br>Patients</td>
-<td align="center"><img src="docs/screenshots/light_patient_wizard.png" width="220" alt="Patient intake wizard"><br>Patient intake wizard</td>
-<td align="center"><img src="docs/screenshots/light_patient_detail.png" width="220" alt="Patient record"><br>Patient record</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_attachments.png" width="220" alt="Attachments tab"><br>Attachments</td>
-<td align="center"><img src="docs/screenshots/light_evolution.png" width="220" alt="Evolution log"><br>Evolution log</td>
-<td align="center"><img src="docs/screenshots/light_agenda.png" width="220" alt="Upcoming appointments"><br>Agenda</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_new_appointment.png" width="220" alt="New appointment form"><br>New appointment</td>
-<td align="center"><img src="docs/screenshots/light_agenda_report.png" width="220" alt="Monthly appointment report"><br>Agenda report</td>
-<td align="center"><img src="docs/screenshots/light_financial.png" width="220" alt="Payment entries"><br>Financial</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/light_new_payment.png" width="220" alt="Add payment form"><br>New payment</td>
-<td align="center"><img src="docs/screenshots/light_financial_report.png" width="220" alt="Monthly financial report"><br>Financial report</td>
-<td align="center"><img src="docs/screenshots/light_profile.png" width="220" alt="Profile screen"><br>Profile</td>
-</tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/en/login.webp" width="220" alt="La Pelve: sign-in screen with the message Built for your clinical routine"><br><sub><b>Sign in</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/en/home.webp" width="220" alt="La Pelve: Home screen with upcoming appointments, quick actions and a clinic overview"><br><sub><b>Home</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/en/schedule.webp" width="220" alt="Schedule with the day&#x27;s appointments and a button to create an appointment"><br><sub><b>Schedule</b></sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/en/patients.webp" width="220" alt="La Pelve: Patients screen with the patient list and a button to add a new patient"><br><sub><b>Patients</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/en/patient-form.webp" width="220" alt="Step-by-step patient registration, step 1 of 9: personal data"><br><sub><b>Step-by-step registration</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/en/financial-report.webp" width="220" alt="Monthly financial report with the total received in the period"><br><sub><b>Financial report</b></sub></td></tr>
 </table>
 
-## Tech stack
+## Features
 
-| Layer | Choice |
-|---|---|
-| Framework | Flutter (Android, iOS, Web) |
-| State management | `flutter_bloc` (Cubit) |
-| Backend | Supabase (Postgres, Auth, Storage, Row Level Security) |
-| Dependency injection | `get_it` |
-| Routing | `go_router` |
-| Hosting (web) | Cloudflare Workers (static assets) |
-| Testing | `flutter_test`, `bloc_test`, `mocktail` |
+**Schedule**
+- Upcoming appointments grouped by day, with quick creation, editing and deletion.
+- Appointments linked to a patient record or entered by name.
+- One-tap status changes: scheduled, confirmed, attended, cancelled, no-show and rescheduled.
+- Monthly schedule report with the total number of appointments.
+
+**Patients and clinical record**
+- Guided intake in up to 11 steps, modeled after a pelvic physiotherapy assessment: personal data, anamnesis, gynecological and obstetric history (shown when applicable), surgical history, urinary, sexual and bowel function, treatment plan, assessment files and consultation fee.
+- Read-only clinical record organized by section.
+- Progress notes (evolution log) with dates and edit history.
+- Attachments per patient (photos and PDFs), with in-app preview.
+- Treatment closure with reason and outcome (discharged, discontinued, referred, other), which can be reopened.
+
+**Finances**
+- Records of payments received, linked to a patient or entered on their own, with payment method and status.
+- Monthly financial report with the total received and a per-entry breakdown.
+- This is record keeping only: the app does not process payments or connect to banks.
+
+**Home**
+- Upcoming appointments and a clinic overview: active patients, appointments this week and amount received this month.
+
+**Profile and account**
+- Email and password sign-in, sign-up with email confirmation and password reset.
+- Professional profile with photo and Crefito (professional license) number.
+- Password change, language and theme settings.
+- Biometric app lock on mobile.
+- Self-service account deletion, removing the account data and stored files.
+
+**In development: WhatsApp appointment reminders**
+- The groundwork for optional appointment reminders through each professional's own WhatsApp Business account is in place: per-patient consent capture and a connection screen in the profile. Sending reminders is not active yet. Reminders are designed to carry only appointment details, never clinical information.
+
+## Privacy and data handling
+
+La Pelve handles sensitive health information, so data access is restricted by design.
+
+- **Professional-only access.** Only the authenticated professional uses the app. There is no patient login and no patient-facing interface.
+- **Authentication** is handled by Supabase Auth (email and password), with an optional biometric lock on mobile devices.
+- **Row-level access control.** Every table with patient or clinical data (patients, progress notes, appointments, attachments and financial entries) is protected by PostgreSQL Row Level Security, so each professional can only read and write their own records.
+- **Private file storage.** Attachments and profile photos live in private storage buckets and are delivered through short-lived signed URLs.
+- **Minimal data in reminders.** The planned WhatsApp reminders are limited to appointment details, sent only to patients who have given consent, with consent history kept on record.
+- **Account deletion** removes the professional's data and files.
+- The app is a record-keeping tool. It does not provide diagnoses, does not prescribe treatment and does not replace the professional's clinical judgment.
+
+No real patient data appears in this repository or in the screenshots.
 
 ## Architecture
 
-The codebase follows a pragmatic Clean Architecture, organized by feature rather than by layer at the top level:
+- **Flutter app** with feature-first Clean Architecture (domain, data, presentation), Cubits for state, `get_it` for dependency injection and `go_router` for navigation.
+- **Supabase** for authentication, PostgreSQL with Row Level Security, private Storage and Edge Functions.
+- **Versioned migrations** in `supabase/migrations`, with production rollouts accompanied by pre-flight checks, rollback scripts and post-checks.
+- **Web build** served as static assets on Cloudflare Workers, with single-page-application routing.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| App | Flutter, Dart |
+| State | `flutter_bloc` (Cubit) |
+| DI / Routing | `get_it`, `go_router` |
+| Backend | Supabase: Auth, PostgreSQL, RLS, Storage, Edge Functions (Deno) |
+| Web hosting | Cloudflare Workers (static assets) |
+| Tests | `flutter_test` |
+
+## Project structure
 
 ```
 lib/
-├── core/            # Cross-cutting concerns: DI, routing, theming, error handling, env config
-├── shared/          # Reusable widgets and utilities with no feature-specific knowledge
+├── core/           DI, routing, theme, l10n, config
+├── shared/         reusable widgets
 └── features/
     ├── auth/
-    ├── patients/
-    ├── agenda/
-    ├── financial/
-    ├── profile/
-    └── home/
-        ├── data/            # Repository implementations (Supabase)
-        ├── domain/          # Entities and repository interfaces
-        └── presentation/    # Cubits, pages, widgets
+    ├── home/
+    ├── agenda/        schedule and appointment reports
+    ├── patients/      intake, clinical record, progress notes, attachments
+    ├── financial/     payment records and reports
+    └── profile/       profile, settings, biometric lock, account deletion
+
+supabase/
+├── migrations/     schema, RLS policies and storage buckets
+├── functions/      Edge Functions
+└── rollout-*/      pre-flight, rollback and post-check scripts
 ```
 
-Each feature only has the layers it actually needs — simple features skip the ceremony a use-case layer would add without real benefit. Errors are modeled explicitly with a `Result<T>` (`Success` / `Error`) type rather than thrown exceptions crossing layer boundaries, so the UI always handles failure states deliberately.
+## Running locally
 
-Business logic that doesn't belong in a widget — like grouping appointments by day, or computing whether a slot is "next" vs. "already happened" — lives in small, pure, unit-tested functions instead of inline in `build()` methods.
+Requirements: Flutter (stable channel) and a Supabase project.
 
-Localization (English/Portuguese) doesn't use `flutter gen_l10n` or ARB files — each feature owns a small `*_strings.dart` class under its own `l10n/` folder (e.g. `lib/features/patients/l10n/patients_strings.dart`), exposing plain Dart getters that switch on the `AppLanguage` enum (`lib/core/l10n/app_language.dart`). `AppStrings` (`lib/shared/l10n/app_strings.dart`) aggregates every feature's strings behind a single `context.strings` accessor.
+1. Copy `env.example.json` to `env.json` and fill in the Supabase project URL and publishable key.
+2. Apply the migrations in `supabase/migrations` to the project.
+3. Run the app:
 
-## Deployment
+```bash
+flutter pub get
+flutter run --dart-define-from-file=env.json
+```
 
-- **Android / iOS**: standard `flutter build apk` / `flutter build ios`, not published to the Play Store or App Store — distributed as an installable PWA and direct builds instead.
-- **Web**: `flutter build web --release --dart-define-from-file=env.json`, deployed as static assets on Cloudflare Workers (see `wrangler.toml`). Client-side routing falls back to `index.html` via `not_found_handling = "single-page-application"`.
+```bash
+flutter analyze
+flutter test
+```
+
+## Project status
+
+Published on the App Store and in active development.
+
+## License
+
+No open-source license is granted. The source code is visible as part of a portfolio; all rights are reserved.
+
+## About
+
+Built by Lucas Diogo França. Case study: [lucksrei.com/projects/la-pelve](https://lucksrei.com/projects/la-pelve/)

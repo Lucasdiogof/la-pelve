@@ -1,134 +1,156 @@
-# La Pelve
-
-<p>
-  <a href="README.md">🇺🇸 English</a>
-  &nbsp;|&nbsp;
-  <strong>🇧🇷 Português</strong>
+<p align="center">
+  <img src="lib/assets/app_icon.png" width="112" alt="Ícone do app La Pelve">
 </p>
 
-Aplicativo de gestão multiplataforma para clínicas de fisioterapia pélvica, feito com Flutter e Supabase. Roda nativamente em Android e iOS, e também é instalável como Progressive Web App (PWA), compartilhando uma única base de código e backend entre as três plataformas.
+<h1 align="center">La Pelve</h1>
 
-## Visão geral
+<p align="center">
+  Gestão clínica para fisioterapeutas pélvicas: agenda, prontuário, evoluções e controle financeiro num só app.
+</p>
 
-O app substitui planilhas e prontuários em papel para uma clínica de fisioterapia solo ou de pequena equipe: cadastro de pacientes e histórico clínico, evolução do tratamento, agendamento de consultas e controle de pagamentos — tudo sobre um banco Postgres com row-level security, garantindo que cada fisioterapeuta veja apenas os próprios dados.
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white" alt="Flutter">
+  <img src="https://img.shields.io/badge/Dart-0175C2?logo=dart&logoColor=white" alt="Dart">
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/plataformas-iOS_·_Android_·_Web-555555" alt="Plataformas: iOS, Android e Web">
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <b>Português</b> · <a href="README.es.md">Español</a>
+</p>
+
+---
+
+O La Pelve é uma ferramenta para **fisioterapeutas** que atuam com saúde pélvica. Ele substitui planilhas e fichas em papel num consultório individual ou pequeno: agendamento, cadastro e histórico clínico das pacientes, evoluções do tratamento e registro dos valores recebidos. Quem usa o app é a profissional; as pacientes não usam o app.
+
+## Disponibilidade
+
+<a href="https://apps.apple.com/br/app/la-pelve/id6811234099"><img src="https://img.shields.io/badge/Dispon%C3%ADvel_na-App_Store-000000?logo=apple&logoColor=white" alt="Disponível na App Store"></a>
+
+- **iOS**: publicado na App Store.
+- **Android** e **Web (PWA instalável)**: gerados a partir da mesma base de código.
+- **Idiomas**: português (Brasil), inglês e espanhol.
+- **Temas**: claro e escuro.
+
+## Telas
+
+<table>
+<tr><td align="center" valign="top"><img src="docs/screenshots/pt-BR/login.webp" width="220" alt="La Pelve: tela de entrada com a mensagem Feito para sua rotina clínica"><br><sub><b>Entrar</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/pt-BR/home.webp" width="220" alt="La Pelve: tela Início com próximos atendimentos, ações rápidas e visão geral da clínica"><br><sub><b>Início</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/pt-BR/schedule.webp" width="220" alt="Agenda com atendimentos do dia e botão para criar atendimento"><br><sub><b>Agenda</b></sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/pt-BR/patients.webp" width="220" alt="La Pelve: tela Pacientes com estado vazio e botão Novo paciente"><br><sub><b>Pacientes</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/pt-BR/patient-form.webp" width="220" alt="Cadastro de paciente em etapas, passo 1 de 9: dados pessoais"><br><sub><b>Cadastro em etapas</b></sub></td><td align="center" valign="top"><img src="docs/screenshots/pt-BR/financial-report.webp" width="220" alt="Relatório financeiro mensal com total recebido no período"><br><sub><b>Relatório financeiro</b></sub></td></tr>
+</table>
 
 ## Funcionalidades
 
-**Pacientes**
-- Wizard de cadastro em várias etapas, modelado a partir de uma ficha real de avaliação clínica de fisioterapia pélvica:
-  1. Dados pessoais (nome, idade, telefone, profissão)
-  2. Anamnese (queixa principal, início dos sintomas, diagnóstico, histórico médico/hábitos de vida)
-  3. Histórico ginecológico *(apenas pacientes do sexo feminino)*
-  4. Histórico obstétrico, incluindo o registro completo gestação a gestação *(apenas pacientes do sexo feminino)*
-  5. Histórico cirúrgico
-  6. Função urinária
-  7. Função sexual
-  8. Função intestinal
-  9. Plano de tratamento
-  10. Envio de arquivos da ficha de avaliação física (fotos/PDFs, opcional — também pode ser feito depois pela aba de Anexos do paciente)
-  11. Valor da consulta
-- Visualização completa do prontuário clínico, somente leitura, organizada por seção
-- Registro de evolução do tratamento (notas datadas) com histórico de edição
-- Anexos (fotos, PDFs) por paciente, categorizados automaticamente, com pré-visualização de imagem no app e entrega via URL assinada segura
-- Exclusão reversível (soft delete), e encerramento de tratamento com motivo e observação final (alta, abandono, encaminhamento, outro) — reabrível
-
 **Agenda**
-- Visão contínua dos próximos 7 dias de agendamentos, agrupados por dia
-- Mudança de status com um toque (agendado, confirmado, atendido, cancelado, faltou, reagendado)
-- Criar, editar e excluir agendamentos; vincular a um paciente já cadastrado ou digitar o nome livremente
-- Bloqueio de agendamento em datas já passadas
-- Aba de relatório mensal com o total de agendamentos do mês selecionado
+- Próximos atendimentos agrupados por dia, com criação, edição e exclusão rápidas.
+- Atendimentos ligados ao cadastro da paciente ou lançados só pelo nome.
+- Mudança de status com um toque: agendado, confirmado, realizado, cancelado, falta e remarcado.
+- Relatório mensal da agenda com o total de atendimentos.
+
+**Pacientes e prontuário**
+- Cadastro guiado em até 11 etapas, baseado numa avaliação de fisioterapia pélvica: dados pessoais, anamnese, histórico ginecológico e obstétrico (quando se aplica), histórico cirúrgico, função urinária, sexual e intestinal, plano de tratamento, arquivos da avaliação e valor da consulta.
+- Prontuário para leitura, organizado por seção.
+- Evoluções do tratamento com data e histórico de edição.
+- Anexos por paciente (fotos e PDFs), com visualização no próprio app.
+- Encerramento do tratamento com motivo e desfecho (alta, abandono, encaminhamento, outro), que pode ser reaberto.
 
 **Financeiro**
-- Lançamentos de pagamento vinculados a um paciente (ou avulsos), com forma de pagamento e status
-- Relatório mensal com total acumulado e detalhamento por lançamento
-- Formatação de valor em tempo real (BRL)
-- Edição ou exclusão de lançamento
+- Registro dos valores recebidos, ligados a uma paciente ou avulsos, com forma de pagamento e status.
+- Relatório financeiro mensal com o total recebido e o detalhe de cada lançamento.
+- É apenas controle: o app não processa pagamentos nem se conecta a bancos.
 
-**Painel inicial**
-- Card de "próximos 7 dias" que se atualiza sozinho, recalculando o status do agendamento em relação ao horário atual, para que um atendimento passado nunca fique parado como "próximo"
-- Visão geral da clínica: pacientes ativos, atendimentos da semana, faturamento do mês
+**Início**
+- Próximos atendimentos e uma visão geral da clínica: pacientes ativas, atendimentos da semana e valor recebido no mês.
 
-**Conta e perfil**
-- Autenticação por e-mail/senha, com cadastro, redefinição de senha e confirmação de e-mail
-- Nome, foto de perfil (visualizar em tela cheia, enviar ou remover) e número do Crefito editáveis
-- Alteração de senha dentro do app, com verificação da senha atual antes de trocar
-- Alternância de idioma (inglês/português), aplicada em todo o app
-- Alternância entre tema claro/escuro
-- Bloqueio biométrico do app no mobile (ocultado automaticamente na web, onde a plataforma não suporta)
-- Exclusão de conta pelo próprio usuário, com exclusão em cascata de todos os dados e arquivos armazenados
+**Perfil e conta**
+- Login com e-mail e senha, cadastro com confirmação de e-mail e recuperação de senha.
+- Perfil profissional com foto e número do Crefito.
+- Troca de senha, idioma e tema.
+- Bloqueio do app por biometria no celular.
+- Exclusão de conta pela própria profissional, removendo os dados e os arquivos da conta.
 
-**Instalável em qualquer lugar**
-- Builds nativos para Android e iOS
-- Progressive Web App: instalável em Android, iOS (Safari "Adicionar à Tela de Início") e desktop, abre em modo standalone, funciona offline para os assets estáticos, e os links de redefinição de senha/confirmação de e-mail se adaptam automaticamente entre o esquema de URL nativo e a origem web
+**Em desenvolvimento: lembretes de consulta pelo WhatsApp**
+- A base para lembretes opcionais de consulta pelo WhatsApp Business de cada profissional já existe: registro de consentimento por paciente e tela de conexão no perfil. O envio dos lembretes ainda não está ativo. Os lembretes foram pensados para levar só os dados do atendimento, nunca informação clínica.
 
-## Screenshots
+## Privacidade e tratamento de dados
 
-<table>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_login.png" width="220" alt="Tela de login"><br>Login</td>
-<td align="center"><img src="docs/screenshots/dark_signup.png" width="220" alt="Tela de criar conta"><br>Criar conta</td>
-<td align="center"><img src="docs/screenshots/dark_home.png" width="220" alt="Painel inicial"><br>Início</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_patients.png" width="220" alt="Lista de pacientes"><br>Pacientes</td>
-<td align="center"><img src="docs/screenshots/dark_patient_wizard.png" width="220" alt="Wizard de cadastro de paciente"><br>Wizard de cadastro</td>
-<td align="center"><img src="docs/screenshots/dark_patient_detail.png" width="220" alt="Prontuário do paciente"><br>Prontuário</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_attachments.png" width="220" alt="Aba de anexos"><br>Anexos</td>
-<td align="center"><img src="docs/screenshots/dark_evolution.png" width="220" alt="Registros de evolução"><br>Evolução</td>
-<td align="center"><img src="docs/screenshots/dark_agenda.png" width="220" alt="Próximos agendamentos"><br>Agenda</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_new_appointment.png" width="220" alt="Formulário de novo agendamento"><br>Novo agendamento</td>
-<td align="center"><img src="docs/screenshots/dark_agenda_report.png" width="220" alt="Relatório mensal de agendamentos"><br>Relatório da agenda</td>
-<td align="center"><img src="docs/screenshots/dark_financial.png" width="220" alt="Lançamentos de pagamento"><br>Financeiro</td>
-</tr>
-<tr>
-<td align="center"><img src="docs/screenshots/dark_new_payment.png" width="220" alt="Formulário de nova cobrança"><br>Nova cobrança</td>
-<td align="center"><img src="docs/screenshots/dark_financial_report.png" width="220" alt="Relatório financeiro mensal"><br>Relatório financeiro</td>
-<td align="center"><img src="docs/screenshots/dark_profile.png" width="220" alt="Tela de perfil"><br>Perfil</td>
-</tr>
-</table>
+O La Pelve lida com informação sensível de saúde, então o acesso aos dados é restrito desde o desenho.
 
-## Stack técnica
+- **Acesso só da profissional.** Apenas a profissional autenticada usa o app. Não existe login nem interface para pacientes.
+- **Autenticação** pelo Supabase Auth (e-mail e senha), com bloqueio opcional por biometria no celular.
+- **Controle de acesso por linha.** Toda tabela com dado de paciente ou clínico (pacientes, evoluções, atendimentos, anexos e lançamentos financeiros) é protegida por Row Level Security no PostgreSQL: cada profissional só lê e grava os próprios registros.
+- **Arquivos em storage privado.** Anexos e fotos de perfil ficam em buckets privados e são entregues por URLs assinadas de curta duração.
+- **Mínimo de dados nos lembretes.** Os lembretes de WhatsApp planejados se limitam aos dados do atendimento, vão só para pacientes que deram consentimento, e o histórico de consentimento fica registrado.
+- **Exclusão de conta** remove os dados e os arquivos da profissional.
+- O app é uma ferramenta de registro e organização. Não faz diagnóstico, não prescreve tratamento e não substitui o julgamento clínico da profissional.
 
-| Camada | Escolha |
-|---|---|
-| Framework | Flutter (Android, iOS, Web) |
-| Gerenciamento de estado | `flutter_bloc` (Cubit) |
-| Backend | Supabase (Postgres, Auth, Storage, Row Level Security) |
-| Injeção de dependência | `get_it` |
-| Roteamento | `go_router` |
-| Hospedagem (web) | Cloudflare Workers (static assets) |
-| Testes | `flutter_test`, `bloc_test`, `mocktail` |
+Nenhum dado real de paciente aparece neste repositório ou nas telas.
 
 ## Arquitetura
 
-O código segue uma Clean Architecture pragmática, organizada por feature em vez de por camada no nível raiz:
+- **App Flutter** com Clean Architecture organizada por feature (domain, data, presentation), Cubits para estado, `get_it` para injeção de dependência e `go_router` para navegação.
+- **Supabase** para autenticação, PostgreSQL com Row Level Security, Storage privado e Edge Functions.
+- **Migrations versionadas** em `supabase/migrations`, com rollouts em produção acompanhados de verificação prévia, script de rollback e pós-checagem.
+- **Versão web** servida como arquivos estáticos no Cloudflare Workers, com roteamento de single-page application.
+
+## Tecnologias
+
+| Camada | Tecnologia |
+| --- | --- |
+| App | Flutter, Dart |
+| Estado | `flutter_bloc` (Cubit) |
+| DI / Navegação | `get_it`, `go_router` |
+| Backend | Supabase: Auth, PostgreSQL, RLS, Storage, Edge Functions (Deno) |
+| Hospedagem web | Cloudflare Workers (arquivos estáticos) |
+| Testes | `flutter_test` |
+
+## Estrutura do projeto
 
 ```
 lib/
-├── core/            # Preocupações transversais: DI, roteamento, tema, tratamento de erros, config de ambiente
-├── shared/          # Widgets e utilitários reutilizáveis, sem conhecimento de nenhuma feature específica
+├── core/           DI, rotas, tema, l10n, config
+├── shared/         widgets reutilizáveis
 └── features/
     ├── auth/
-    ├── patients/
-    ├── agenda/
-    ├── financial/
-    ├── profile/
-    └── home/
-        ├── data/            # Implementações de repositório (Supabase)
-        ├── domain/          # Entidades e interfaces de repositório
-        └── presentation/    # Cubits, páginas, widgets
+    ├── home/
+    ├── agenda/        agenda e relatórios de atendimentos
+    ├── patients/      cadastro, prontuário, evoluções, anexos
+    ├── financial/     lançamentos e relatórios financeiros
+    └── profile/       perfil, configurações, biometria, exclusão de conta
+
+supabase/
+├── migrations/     schema, policies de RLS e buckets de storage
+├── functions/      Edge Functions
+└── rollout-*/      scripts de verificação prévia, rollback e pós-checagem
 ```
 
-Cada feature só tem as camadas que realmente precisa — features simples pulam a cerimônia que uma camada de use-case adicionaria sem benefício real. Erros são modelados explicitamente com um tipo `Result<T>` (`Success` / `Error`) em vez de exceções lançadas atravessando os limites das camadas, então a UI sempre trata os estados de falha de forma deliberada.
+## Rodando localmente
 
-Lógica de negócio que não pertence a um widget — como agrupar agendamentos por dia, ou calcular se um horário é "o próximo" ou "já passou" — vive em funções pequenas, puras e testadas unitariamente, em vez de inline dentro de métodos `build()`.
+Requisitos: Flutter (canal stable) e um projeto Supabase.
 
-## Deploy
+1. Copie `env.example.json` para `env.json` e preencha a URL do projeto Supabase e a publishable key.
+2. Aplique as migrations de `supabase/migrations` no projeto.
+3. Rode o app:
 
-- **Android / iOS**: `flutter build apk` / `flutter build ios` padrão, não publicado na Play Store ou App Store — distribuído como PWA instalável e builds diretos.
-- **Web**: `flutter build web --release --dart-define-from-file=env.json`, hospedado como assets estáticos no Cloudflare Workers (veja `wrangler.toml`). O roteamento client-side cai de volta para `index.html` via `not_found_handling = "single-page-application"`.
+```bash
+flutter pub get
+flutter run --dart-define-from-file=env.json
+```
+
+```bash
+flutter analyze
+flutter test
+```
+
+## Status do projeto
+
+Publicado na App Store e em desenvolvimento ativo.
+
+## Licença
+
+Nenhuma licença open source é concedida. O código está visível como parte de um portfólio; todos os direitos reservados.
+
+## Sobre
+
+Desenvolvido por Lucas Diogo França. Case: [lucksrei.com/projects/la-pelve](https://lucksrei.com/projects/la-pelve/)
