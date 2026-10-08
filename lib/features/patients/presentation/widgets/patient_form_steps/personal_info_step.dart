@@ -44,6 +44,24 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
     text: widget.patient.personalInfo.occupation,
   );
 
+  /// O erro do Telefone só aparece depois que o campo perde o foco com
+  /// conteúdo inválido; enquanto a pessoa digita, nada de vermelho.
+  final _telefoneFocus = FocusNode();
+  bool _telefoneTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _telefoneFocus.addListener(_onTelefoneFocusChange);
+  }
+
+  void _onTelefoneFocusChange() {
+    if (!mounted) return;
+    setState(() {
+      if (!_telefoneFocus.hasFocus) _telefoneTouched = true;
+    });
+  }
+
   @override
   void dispose() {
     _nomeController.dispose();
@@ -51,6 +69,9 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
     _idadeController.dispose();
     _telefoneController.dispose();
     _profissaoController.dispose();
+    _telefoneFocus
+      ..removeListener(_onTelefoneFocusChange)
+      ..dispose();
     super.dispose();
   }
 
@@ -74,6 +95,10 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
   }
 
   String? get _idadeError => ageErrorText(_idadeController.text);
+
+  String? get _telefoneError => _telefoneTouched && !_telefoneFocus.hasFocus
+      ? phoneErrorText(_telefoneController.text)
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -113,12 +138,13 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
         const SizedBox(height: 12),
         AppTextField(
           controller: _telefoneController,
+          focusNode: _telefoneFocus,
           icon: Icons.phone_outlined,
           label: PatientsStrings(t.language).fieldPhone,
           hintText: t.phoneHint,
           keyboardType: TextInputType.phone,
           inputFormatters: [PhoneInputFormatter()],
-          errorText: phoneErrorText(_telefoneController.text),
+          errorText: _telefoneError,
           onChanged: (_) => _emit(),
         ),
         const SizedBox(height: 12),
