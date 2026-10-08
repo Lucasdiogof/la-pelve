@@ -68,6 +68,14 @@ Decisões pendentes do usuário:
 - Ao trocar o número: revogar o consentimento automaticamente ou só avisar?
 - Backfill opcional de `phone_e164` só dos 14 válidos, ou preencher aos poucos?
 
+## Confirmação da consulta pela resposta da paciente (código pronto, NÃO aplicado/deployado)
+
+- Solicitação de confirmação = lembrete `appointment_12h` já enviado (`whatsapp_messages` com `status` sent/delivered/read, `wamid` e `sent_at` preenchidos pelo dispatch).
+- Migration `0025_whatsapp_confirmation_reply.sql` (rollout em `supabase/rollout-0025/`): tabela `whatsapp_inbound_messages` (dedup por `wamid` da Meta, sem texto nem telefone, só backend), colunas `confirmation_reply_id`/`confirmation_consumed_at` em `whatsapp_messages` e a RPC `process_whatsapp_confirmation_reply` (só `service_role`), que correlaciona, trava e muda `scheduled -> confirmed` numa transação.
+- `whatsapp-webhook`: mesma validação GET e de assinatura; POST agora EXIGE `WHATSAPP_APP_SECRET`. Só respostas inequívocas ("sim", "sim, confirmo", "confirmo", "confirmado", "pode confirmar" ou o botão com payload `LA_PELVE_CONFIRM_APPOINTMENT`) chamam a RPC. Logs só com contagens.
+- Pré-requisito para funcionar de verdade: o dispatch (envio real à Meta) ainda não existe. Ele precisa gravar `wamid`/`sent_at`/`status` da `appointment_12h` e mandar o template com o botão de resposta rápida com aquele payload.
+- Testes: `node --test --experimental-strip-types $(find supabase/functions -name "*.test.ts")` e, com um Postgres local, `supabase/tests/run_sql_tests.sh` e o E2E `whatsapp-webhook/integration.test.ts` (`LA_PELVE_TEST_PGHOST`).
+
 ## Depois disso
 
 - Scheduler de lembretes (cron + função de envio), ainda não existe. `pg_cron`/`pg_net` não estão ativos.
