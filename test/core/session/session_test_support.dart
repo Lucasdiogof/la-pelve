@@ -33,6 +33,10 @@ class SessionHarness {
       patientCalls++;
       return patientsAnswer();
     });
+    when(() => agendaRepository.watchAllForUser(any())).thenAnswer((inv) {
+      realtimeUsers.add(inv.positionalArguments.first as String);
+      return agendaRealtime.stream;
+    });
     when(() => agendaRepository.getAll()).thenAnswer((_) {
       agendaCalls++;
       return agendaAnswer();
@@ -60,6 +64,11 @@ class SessionHarness {
 
   int patientCalls = 0;
   int agendaCalls = 0;
+
+  /// Canal Realtime simulado da agenda e usuários com os quais foi aberto.
+  final StreamController<List<Appointment>> agendaRealtime =
+      StreamController<List<Appointment>>.broadcast();
+  final List<String> realtimeUsers = [];
   int financialCalls = 0;
 
   Future<Result<List<Patient>>> Function() patientsAnswer = () async =>
@@ -82,6 +91,7 @@ class SessionHarness {
     await controller.agenda.close();
     await controller.financial.close();
     await controller.profile.close();
+    await agendaRealtime.close();
   }
 }
 

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
+import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 
 import 'session_test_support.dart';
@@ -129,6 +131,55 @@ void main() {
       await h.controller.ensureLoaded();
       h.controller.onSessionUser('user-a');
       expect(h.controller.isReady, isTrue);
+    });
+  });
+
+  group('Realtime da agenda na sessão', () {
+    Appointment appt(String id, AppointmentStatus st) => Appointment(
+      id: id,
+      date: DateTime.utc(2026, 10, 12),
+      time: const TimeOfDay(hour: 9, minute: 0),
+      patientName: 'Paciente',
+      status: st,
+    );
+
+    test('abre uma única inscrição por usuário e reaproveita no mesmo usuário',
+        () async {
+      h.controller.onSessionUser('user-a');
+      h.controller.onSessionUser('user-a');
+      expect(h.realtimeUsers, ['user-a']);
+      expect(h.agendaRealtime.hasListener, isTrue);
+    });
+
+    test('confirmação via webhook aparece sem refresh manual', () async {
+      h.agendaAnswer = () async =>
+          Success([appt('a1', AppointmentStatus.scheduled)]);
+      h.controller.onSessionUser('user-a');
+      await h.controller.ensureLoaded();
+      final callsBefore = h.agendaCalls;
+      h.agendaRealtime.add([appt('a1', AppointmentStatus.confirmed)]);
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        h.controller.agenda.state.data!.single.status,
+        AppointmentStatus.confirmed,
+      );
+      expect(h.agendaCalls, callsBefore, reason: 'sem nova chamada HTTP');
+    });
+
+    test('logout cancela a inscrição e ignora eventos tardios', () async {
+      h.controller.onSessionUser('user-a');
+      h.controller.clear();
+      expect(h.agendaRealtime.hasListener, isFalse);
+      h.agendaRealtime.add([appt('a1', AppointmentStatus.confirmed)]);
+      await Future<void>.delayed(Duration.zero);
+      expect(h.controller.agenda.state.data, isNull);
+    });
+
+    test('troca de conta fecha a inscrição anterior e abre a nova', () async {
+      h.controller.onSessionUser('user-a');
+      h.controller.onSessionUser('user-b');
+      expect(h.realtimeUsers, ['user-a', 'user-b']);
+      expect(h.agendaRealtime.hasListener, isTrue);
     });
   });
 }

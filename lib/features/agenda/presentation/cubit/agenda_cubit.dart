@@ -12,6 +12,8 @@ class AgendaCubit extends ResourceCubit<List<Appointment>> {
 
   final AgendaRepository _repository;
 
+  // Cancelada em stopRealtime (reset/close/nova sessão).
+  // ignore: cancel_subscriptions
   StreamSubscription<List<Appointment>>? _realtimeSubscription;
   int _realtimeGeneration = 0;
 
