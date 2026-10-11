@@ -409,6 +409,73 @@ void main() {
     });
   });
 
+  group('pendências operacionais (nunca parece pronta para enviar)', () {
+    Future<void> pumpPending(
+      WidgetTester tester,
+      String code, {
+      WhatsappConnectionStatus status = WhatsappConnectionStatus.pending,
+    }) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            status,
+            displayPhoneNumber: '+55 62 99999-9999',
+            lastError: {'code': code},
+          ),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+    }
+
+    testWidgets('modelos de mensagem em análise', (tester) async {
+      await pumpPending(tester, 'templates_pending');
+      expect(find.text('Em andamento'), findsOneWidget);
+      expect(find.textContaining('aprovar os modelos de mensagem'), findsOne);
+      expect(find.text('Conectado'), findsNothing);
+    });
+
+    testWidgets('PIN existente: pede ajuda, sem campo de PIN inventado', (
+      tester,
+    ) async {
+      await pumpPending(tester, 'phone_pin_required');
+      expect(find.textContaining('verificação em duas etapas'), findsOne);
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('registro no limite da Meta (72 h)', (tester) async {
+      await pumpPending(tester, 'phone_registration_rate_limited');
+      expect(find.textContaining('72 horas'), findsOneWidget);
+    });
+
+    testWidgets('autorização revogada pela Meta aparece como desconectada', (
+      tester,
+    ) async {
+      await pumpPending(
+        tester,
+        'revoked_by_meta',
+        status: WhatsappConnectionStatus.disconnected,
+      );
+      expect(find.text('Desconectado'), findsOneWidget);
+      expect(find.textContaining('encerrou a autorização'), findsOneWidget);
+    });
+
+    testWidgets('conectada avisa para confirmar o pagamento na Meta', (
+      tester,
+    ) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            WhatsappConnectionStatus.connected,
+            displayPhoneNumber: '+55 62 99999-9999',
+            connectedAt: DateTime(2026, 1, 15),
+          ),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+      expect(find.textContaining('forma de pagamento'), findsOneWidget);
+    });
+  });
+
   group('falha ao consultar (loadFailure)', () {
     testWidgets('erro + tentar novamente, nunca "em configuração"', (
       tester,

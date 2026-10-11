@@ -11,12 +11,16 @@
 
 import { processInboundWebhook } from "../_shared/inbound/process.ts";
 import type { ConfirmationReplyPort, InboundSummary } from "../_shared/inbound/types.ts";
+import { parseAccountUpdates } from "../_shared/account/parse_account_update.ts";
+import type { AccountEventPort } from "../_shared/account/types.ts";
 
 export interface WebhookConfig {
   verifyToken: string | undefined;
   appSecret: string | undefined;
   /** Criada só depois da assinatura validada (ver index.ts). */
   getPort: () => ConfirmationReplyPort;
+  /** Eventos account_update (revogação/restrição). Criada só depois da assinatura validada. */
+  getAccountPort?: () => AccountEventPort;
   log?: (event: string, data: Record<string, unknown>) => void;
 }
 
@@ -100,6 +104,28 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
         // não insistir. Sem logar o corpo.
         log("payload_parse_error", { bytes: raw.length });
         return new Response("EVENT_RECEIVED", { status: 200 });
+      }
+
+      // account_update: revogação/restrição da WABA. Falha => 500 (a Meta
+      // reenvia); aplicar o mesmo evento de novo é idempotente.
+      const accountEvents = config.getAccountPort ? parseAccountUpdates(body) : [];
+      if (config.getAccountPort && accountEvents.length > 0) {
+        try {
+          const accountPort = config.getAccountPort();
+          let applied = 0;
+          for (const accountEvent of accountEvents) {
+            const changed = await accountPort.applyAccountEvent(accountEvent);
+            if (changed === null) {
+              log("account_update_failed", { events: accountEvents.length });
+              return new Response("Processing failed", { status: 500 });
+            }
+            applied += changed;
+          }
+          log("account_update_processed", { events: accountEvents.length, connectionsChanged: applied });
+        } catch {
+          log("account_update_failed", { events: accountEvents.length });
+          return new Response("Processing failed", { status: 500 });
+        }
       }
 
       let summary: InboundSummary;

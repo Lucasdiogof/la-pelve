@@ -1,15 +1,19 @@
 // Chamadas à Graph API do onboarding (Embedded Signup). Só transporte e
 // classificação: nenhuma regra de produto. `fetch` é injetado (testes mockam).
 //
-// - Token e App Secret só em corpo POST / header Authorization, nunca em URL
-//   registrada nem em log. Resultados carregam apenas códigos próprios, jamais
-//   texto livre ou corpo de erro da Meta.
+// - Troca do code: GET /oauth/access_token (contrato da documentação de Tech
+//   Provider), servidor a servidor. Essa URL carrega o App Secret: nunca é
+//   logada nem devolvida; erros viram só códigos próprios.
+// - Demais chamadas: token só no header Authorization.
+// - Listagens seguem `paging.next` (limite defensivo de páginas) e só aceitam
+//   URLs HTTPS de graph.facebook.com.
 // - Timeout explícito em toda chamada.
 
 import { type ConnectConfig } from "./config.ts";
 
 export type MetaFailure = "meta_unreachable" | "meta_rejected" | "meta_invalid_response";
-export type Fail = { ok: false; code: MetaFailure };
+/** `metaCode` = código numérico do erro da Meta (ex.: 133016), nunca texto livre. */
+export type Fail = { ok: false; code: MetaFailure; metaCode?: number };
 export type Ok<T> = { ok: true } & T;
 
 export type TemplateState = "approved" | "pending" | "rejected" | "missing";
@@ -18,26 +22,47 @@ export interface TemplatesReport {
   reminder: TemplateState;
 }
 
+export interface PhoneInfo {
+  displayPhoneNumber: string | null;
+  /** status do número na Cloud API; só "CONNECTED" envia/recebe. */
+  status: string | null;
+  /** null quando a Meta não informa o campo. */
+  isPinEnabled: boolean | null;
+}
+
+export type AccountHealth = "available" | "limited" | "blocked" | "unknown";
+
+/** Código de erro da Meta: limite de 10 registros por número em 72 h. */
+export const META_REGISTRATION_RATE_LIMIT = 133016;
+
 export interface MetaOnboarding {
   exchangeCode(code: string): Promise<Ok<{ accessToken: string }> | Fail>;
-  getPhoneNumber(
-    token: string,
-    phoneNumberId: string,
-  ): Promise<Ok<{ displayPhoneNumber: string | null }> | Fail>;
+  getPhoneInfo(token: string, phoneNumberId: string): Promise<Ok<{ info: PhoneInfo }> | Fail>;
   phoneBelongsToWaba(token: string, wabaId: string, phoneNumberId: string): Promise<Ok<{ belongs: boolean }> | Fail>;
   subscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   unsubscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   registerPhone(token: string, phoneNumberId: string, pin: string): Promise<Ok<unknown> | Fail>;
   ensureTemplates(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
+  getAccountHealth(token: string, wabaId: string): Promise<Ok<{ health: AccountHealth }> | Fail>;
 }
 
 interface Options {
   config: ConnectConfig;
   fetchFn?: typeof fetch;
   timeoutMs?: number;
+  /** Páginas no máximo por listagem (defesa contra laço infinito). */
+  maxPages?: number;
 }
 
-/** Textos idênticos aos aprovados na WABA de teste (não alterar sem nova aprovação). */
+/**
+ * Textos idênticos aos aprovados na WABA de teste (inclui as DUAS quebras de
+ * linha depois do emoji no aviso). Não alterar sem nova aprovação da Meta.
+ */
+export const CONFIRMATION_TEMPLATE_TEXT =
+  "Olá, {{1}}! 👋\n\nSua consulta está agendada para o dia {{2}}, às {{3}}. Obrigado!";
+export const REMINDER_TEMPLATE_TEXT =
+  "Olá, {{1}}! Podemos confirmar seu atendimento no dia {{2}}, às {{3}}? Se sim, toque em Confirmar abaixo.";
+
 export function templateDefinitions(config: ConnectConfig) {
   return [
     {
@@ -46,10 +71,11 @@ export function templateDefinitions(config: ConnectConfig) {
         name: config.confirmationTemplate,
         language: config.languageCode,
         category: "UTILITY",
+        allow_category_change: false,
         components: [
           {
             type: "BODY",
-            text: "Olá, {{1}}! 👋\nSua consulta está agendada para o dia {{2}}, às {{3}}. Obrigado!",
+            text: CONFIRMATION_TEMPLATE_TEXT,
             example: { body_text: [["Maria", "15/10", "14:00"]] },
           },
         ],
@@ -61,10 +87,11 @@ export function templateDefinitions(config: ConnectConfig) {
         name: config.reminderTemplate,
         language: config.languageCode,
         category: "UTILITY",
+        allow_category_change: false,
         components: [
           {
             type: "BODY",
-            text: "Olá, {{1}}! Podemos confirmar seu atendimento no dia {{2}}, às {{3}}? Se sim, toque em Confirmar abaixo.",
+            text: REMINDER_TEMPLATE_TEXT,
             example: { body_text: [["Maria", "15/10", "14:00"]] },
           },
           { type: "BUTTONS", buttons: [{ type: "QUICK_REPLY", text: "Confirmar" }] },
@@ -80,40 +107,43 @@ function stateOf(status: unknown): TemplateState {
   return "pending";
 }
 
+const TOKEN_TEXT_RE = /^[A-Za-z0-9_\-.]{16,2048}$/;
+
 export function createMetaOnboarding(options: Options): MetaOnboarding {
   const { config } = options;
   const fetchFn = options.fetchFn ?? fetch;
   const timeoutMs = options.timeoutMs ?? 10_000;
+  const maxPages = options.maxPages ?? 20;
   const base = `https://graph.facebook.com/${config.graphApiVersion}`;
 
-  async function call(
+  async function request(
     method: "GET" | "POST" | "DELETE",
-    path: string,
-    init: { token?: string; form?: Record<string, string>; json?: unknown } = {},
-  ): Promise<{ ok: true; body: Record<string, unknown> } | Fail> {
+    url: string,
+    init: { token?: string; json?: unknown } = {},
+  ): Promise<{ ok: true; text: string } | Fail> {
     const headers: Record<string, string> = {};
     let body: string | undefined;
     if (init.token) headers.authorization = `Bearer ${init.token}`;
-    if (init.form) {
-      headers["content-type"] = "application/x-www-form-urlencoded";
-      body = new URLSearchParams(init.form).toString();
-    } else if (init.json !== undefined) {
+    if (init.json !== undefined) {
       headers["content-type"] = "application/json";
       body = JSON.stringify(init.json);
     }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetchFn(`${base}${path}`, { method, headers, body, signal: controller.signal });
-      if (!response.ok) return { ok: false, code: "meta_rejected" };
-      let parsed: unknown;
-      try {
-        parsed = await response.json();
-      } catch {
-        return { ok: false, code: "meta_invalid_response" };
+      const response = await fetchFn(url, { method, headers, body, signal: controller.signal });
+      const text = await response.text().catch(() => "");
+      if (!response.ok) {
+        let metaCode: number | undefined;
+        try {
+          const code = (JSON.parse(text) as { error?: { code?: unknown } })?.error?.code;
+          if (typeof code === "number" && Number.isFinite(code)) metaCode = code;
+        } catch {
+          // corpo de erro ilegível: só o status HTTP importa
+        }
+        return { ok: false, code: "meta_rejected", metaCode };
       }
-      if (typeof parsed !== "object" || parsed === null) return { ok: false, code: "meta_invalid_response" };
-      return { ok: true, body: parsed as Record<string, unknown> };
+      return { ok: true, text };
     } catch {
       return { ok: false, code: "meta_unreachable" };
     } finally {
@@ -121,35 +151,98 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
     }
   }
 
+  async function call(
+    method: "GET" | "POST" | "DELETE",
+    path: string,
+    init: { token?: string; json?: unknown } = {},
+  ): Promise<{ ok: true; body: Record<string, unknown> } | Fail> {
+    const result = await request(method, `${base}${path}`, init);
+    if (!result.ok) return result;
+    try {
+      const parsed = JSON.parse(result.text);
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) throw new Error();
+      return { ok: true, body: parsed as Record<string, unknown> };
+    } catch {
+      return { ok: false, code: "meta_invalid_response" };
+    }
+  }
+
+  /** Percorre `data[]` seguindo `paging.next`; devolve todas as linhas (ou falha). */
+  async function listAll(path: string, token: string): Promise<{ ok: true; rows: unknown[] } | Fail> {
+    const rows: unknown[] = [];
+    let url: string | null = `${base}${path}`;
+    for (let page = 0; url && page < maxPages; page++) {
+      const result = await request("GET", url, { token });
+      if (!result.ok) return result;
+      let body: Record<string, unknown>;
+      try {
+        body = JSON.parse(result.text) as Record<string, unknown>;
+      } catch {
+        return { ok: false, code: "meta_invalid_response" };
+      }
+      if (!Array.isArray(body.data)) return { ok: false, code: "meta_invalid_response" };
+      rows.push(...body.data);
+      const next = (body.paging as { next?: unknown } | undefined)?.next;
+      url = null;
+      if (typeof next === "string") {
+        try {
+          const parsed = new URL(next);
+          if (parsed.protocol === "https:" && parsed.hostname === "graph.facebook.com") url = parsed.toString();
+        } catch {
+          // paging.next inválido: encerra a listagem
+        }
+      }
+    }
+    // Ainda havia página e o limite acabou: resultado incompleto não é confiável.
+    if (url) return { ok: false, code: "meta_invalid_response" };
+    return { ok: true, rows };
+  }
+
   return {
     async exchangeCode(code) {
-      const result = await call("POST", "/oauth/access_token", {
-        form: { client_id: config.appId, client_secret: config.appSecret, code },
+      const query = new URLSearchParams({
+        client_id: config.appId,
+        client_secret: config.appSecret,
+        code,
       });
-      if (!result.ok) return result;
-      const token = result.body.access_token;
+      const result = await request("GET", `${base}/oauth/access_token?${query.toString()}`);
+      if (!result.ok) return { ok: false, code: result.code };
+      // A Meta devolve JSON ({access_token}); a documentação também descreve texto puro.
+      let token: unknown;
+      try {
+        token = (JSON.parse(result.text) as { access_token?: unknown })?.access_token;
+      } catch {
+        const trimmed = result.text.trim();
+        token = TOKEN_TEXT_RE.test(trimmed) ? trimmed : undefined;
+      }
       if (typeof token !== "string" || token.length < 16) return { ok: false, code: "meta_invalid_response" };
       return { ok: true, accessToken: token };
     },
 
-    async getPhoneNumber(token, phoneNumberId) {
-      const result = await call("GET", `/${phoneNumberId}?fields=display_phone_number`, { token });
+    async getPhoneInfo(token, phoneNumberId) {
+      const result = await call("GET", `/${phoneNumberId}?fields=display_phone_number,status,is_pin_enabled`, { token });
       if (!result.ok) return result;
-      const display = result.body.display_phone_number;
-      return { ok: true, displayPhoneNumber: typeof display === "string" ? display : null };
+      const b = result.body;
+      return {
+        ok: true,
+        info: {
+          displayPhoneNumber: typeof b.display_phone_number === "string" ? b.display_phone_number : null,
+          status: typeof b.status === "string" ? b.status : null,
+          isPinEnabled: typeof b.is_pin_enabled === "boolean" ? b.is_pin_enabled : null,
+        },
+      };
     },
 
     async phoneBelongsToWaba(token, wabaId, phoneNumberId) {
-      const result = await call("GET", `/${wabaId}/phone_numbers?fields=id&limit=100`, { token });
-      if (!result.ok) return result;
-      const data = result.body.data;
-      if (!Array.isArray(data)) return { ok: false, code: "meta_invalid_response" };
-      return { ok: true, belongs: data.some((row) => (row as { id?: unknown })?.id === phoneNumberId) };
+      const listed = await listAll(`/${wabaId}/phone_numbers?fields=id&limit=100`, token);
+      if (!listed.ok) return listed;
+      return { ok: true, belongs: listed.rows.some((row) => (row as { id?: unknown })?.id === phoneNumberId) };
     },
 
     async subscribeApp(token, wabaId) {
       const result = await call("POST", `/${wabaId}/subscribed_apps`, { token });
-      return result.ok && result.body.success === true ? { ok: true } : result.ok ? { ok: false, code: "meta_rejected" } : result;
+      if (!result.ok) return result;
+      return result.body.success === true ? { ok: true } : { ok: false, code: "meta_rejected" };
     },
 
     async unsubscribeApp(token, wabaId) {
@@ -166,13 +259,15 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
     },
 
     async ensureTemplates(token, wabaId) {
-      const listed = await call("GET", `/${wabaId}/message_templates?fields=name,language,status&limit=200`, { token });
-      if (!listed.ok) return listed;
-      const rows = listed.body.data;
-      if (!Array.isArray(rows)) return { ok: false, code: "meta_invalid_response" };
       const report: TemplatesReport = { confirmation: "missing", reminder: "missing" };
       for (const def of templateDefinitions(config)) {
-        const found = rows.find((row) => {
+        // Filtra por nome (todas as línguas) e segue a paginação.
+        const listed = await listAll(
+          `/${wabaId}/message_templates?name=${encodeURIComponent(def.body.name)}&fields=name,language,status&limit=100`,
+          token,
+        );
+        if (!listed.ok) return listed;
+        const found = listed.rows.find((row) => {
           const r = row as { name?: unknown; language?: unknown };
           return r.name === def.body.name && r.language === def.body.language;
         }) as { status?: unknown } | undefined;
@@ -184,6 +279,16 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
         report[def.key] = created.ok ? "pending" : "missing";
       }
       return { ok: true, report };
+    },
+
+    async getAccountHealth(token, wabaId) {
+      const result = await call("GET", `/${wabaId}?fields=health_status`, { token });
+      if (!result.ok) return result;
+      const status = (result.body.health_status as { can_send_message?: unknown } | undefined)?.can_send_message;
+      if (status === "AVAILABLE") return { ok: true, health: "available" };
+      if (status === "LIMITED") return { ok: true, health: "limited" };
+      if (status === "BLOCKED") return { ok: true, health: "blocked" };
+      return { ok: true, health: "unknown" };
     },
   };
 }

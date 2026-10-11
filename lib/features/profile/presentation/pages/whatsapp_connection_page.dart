@@ -4,6 +4,7 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
+import 'package:la_pelve/features/profile/domain/entities/whatsapp_connection.dart';
 import 'package:la_pelve/features/profile/domain/repositories/whatsapp_connection_repository.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/whatsapp_connection_cubit.dart';
@@ -289,6 +290,11 @@ class _StatusArea extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (t.whatsappReasonMessage(_reasonCode(connection))
+                case final reason?) ...[
+              Text(reason, style: secondary),
+              const SizedBox(height: AppSpacing.s12),
+            ],
             if (connection.disconnectedAt != null) ...[
               Text(
                 t.whatsappDisconnectedSinceLabel(
@@ -305,12 +311,14 @@ class _StatusArea extends StatelessWidget {
             ),
           ],
         ),
-      WhatsappConnectionPending() => Column(
+      WhatsappConnectionPending(:final connection) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _MessageWithAction(
             title: t.whatsappPendingTitle,
-            message: t.whatsappPendingMessage,
+            message:
+                t.whatsappReasonMessage(_reasonCode(connection)) ??
+                t.whatsappPendingMessage,
             actionLabel: t.refreshStatusButtonLabel,
             onAction: refresh,
           ),
@@ -318,12 +326,12 @@ class _StatusArea extends StatelessWidget {
           const _DisconnectButton(),
         ],
       ),
-      WhatsappConnectionError() => Column(
+      WhatsappConnectionError(:final connection) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _MessageWithAction(
             title: t.whatsappConnectionErrorMessage,
-            message: null,
+            message: t.whatsappReasonMessage(_reasonCode(connection)),
             actionLabel: t.refreshStatusButtonLabel,
             onAction: refresh,
           ),
@@ -350,6 +358,8 @@ class _StatusArea extends StatelessWidget {
                 style: secondary,
               ),
             ],
+            const SizedBox(height: AppSpacing.s12),
+            Text(t.whatsappBillingNote, style: secondary),
             if (disconnectFailed) ...[
               const SizedBox(height: AppSpacing.s12),
               Text(
@@ -373,6 +383,9 @@ class _StatusArea extends StatelessWidget {
     );
   }
 }
+
+String? _reasonCode(WhatsappConnection connection) =>
+    connection.lastError?['code'] as String?;
 
 /// Sem conexão. Com o onboarding liberado pelo backend, mostra o botão
 /// primário "Conectar WhatsApp" (fluxo oficial da Meta). Sem ele, mostra

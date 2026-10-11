@@ -7,12 +7,23 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { readConnectConfig } from "./config.ts";
-import { createConnectHandler, type ConnectStore } from "./handler.ts";
+import { createConnectHandler, emptySetup, type ConnectStore, type SetupState } from "./handler.ts";
 import { createMetaOnboarding } from "./meta_onboarding.ts";
 
 const url = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
+
+function normalizeSetup(value: unknown): SetupState {
+  const v = (typeof value === "object" && value !== null ? value : {}) as Partial<SetupState>;
+  return {
+    ...emptySetup(v.mode === "coexistence" ? "coexistence" : "cloud"),
+    register_attempts: Array.isArray(v.register_attempts)
+      ? v.register_attempts.filter((t): t is string => typeof t === "string").slice(-20)
+      : [],
+    ...(typeof v.rate_limited_until === "string" ? { rate_limited_until: v.rate_limited_until } : {}),
+  };
+}
 
 const store: ConnectStore = {
   async createAttempt(userId, stateHash, ttlSeconds) {
@@ -40,10 +51,12 @@ const store: ConnectStore = {
       p_display_phone_number: input.displayPhoneNumber,
       p_status: input.status,
       p_last_error: input.lastError,
+      p_setup_state: input.setupState,
     });
     if (!error && typeof data === "string") return { ok: true, id: data };
     if (error?.code === "WA007") return { ok: false, code: "active_connection" };
     if (error?.code === "WA008") return { ok: false, code: "phone_in_use" };
+    if (error?.code === "WA009") return { ok: false, code: "credential_missing" };
     return { ok: false, code: "error" };
   },
   async setAccessToken(connectionId, token) {
@@ -62,7 +75,7 @@ const store: ConnectStore = {
   async getConnection(userId) {
     const { data, error } = await admin
       .from("whatsapp_connections")
-      .select("id,status,waba_id,phone_number_id,display_phone_number")
+      .select("id,status,waba_id,phone_number_id,display_phone_number,setup_state")
       .eq("fisioterapeuta_id", userId)
       .maybeSingle();
     if (error || !data) return null;
@@ -72,7 +85,15 @@ const store: ConnectStore = {
       wabaId: data.waba_id,
       phoneNumberId: data.phone_number_id,
       displayPhoneNumber: data.display_phone_number,
+      setupState: normalizeSetup(data.setup_state),
     };
+  },
+  async countOtherConnectionsOnWaba(userId, wabaId) {
+    const { data, error } = await admin.rpc("count_other_whatsapp_connections_on_waba", {
+      p_fisioterapeuta_id: userId,
+      p_waba_id: wabaId,
+    });
+    return error || typeof data !== "number" ? -1 : data;
   },
   async disconnect(userId) {
     const { error } = await admin.rpc("disconnect_whatsapp_connection", { p_fisioterapeuta_id: userId });
