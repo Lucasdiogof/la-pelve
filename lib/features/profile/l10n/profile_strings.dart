@@ -546,4 +546,77 @@ class ProfileStrings {
     AppLanguage.english => 'Checking the connection…',
     AppLanguage.spanish => 'Verificando la conexión…',
   };
+
+  String get whatsappConnectingTitle => switch (language) {
+    AppLanguage.portuguese => 'Finalize a conexão na Meta',
+    AppLanguage.english => 'Finish the connection on Meta',
+    AppLanguage.spanish => 'Finaliza la conexión en Meta',
+  };
+
+  String get whatsappConnectingMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Autorize o seu número na janela da Meta. Quando terminar, volte aqui '
+          'e toque em "Atualizar status".',
+    AppLanguage.english =>
+      'Authorize your number in the Meta window. When you are done, come '
+          'back here and tap "Refresh status".',
+    AppLanguage.spanish =>
+      'Autoriza tu número en la ventana de Meta. Al terminar, vuelve aquí y '
+          'toca "Actualizar estado".',
+  };
+
+  String get whatsappStatusConnecting => switch (language) {
+    AppLanguage.portuguese => 'Conectando',
+    AppLanguage.english => 'Connecting',
+    AppLanguage.spanish => 'Conectando',
+  };
+
+  String get whatsappStartFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível iniciar a conexão. Tente novamente em instantes.',
+    AppLanguage.english =>
+      "We couldn't start the connection. Please try again shortly.",
+    AppLanguage.spanish =>
+      'No fue posible iniciar la conexión. Inténtalo de nuevo en unos '
+          'instantes.',
+  };
+
+  String get disconnectWhatsappButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Desconectar',
+    AppLanguage.english => 'Disconnect',
+    AppLanguage.spanish => 'Desconectar',
+  };
+
+  String get disconnectWhatsappDialogTitle => switch (language) {
+    AppLanguage.portuguese => 'Desconectar o WhatsApp?',
+    AppLanguage.english => 'Disconnect WhatsApp?',
+    AppLanguage.spanish => '¿Desconectar WhatsApp?',
+  };
+
+  String get disconnectWhatsappDialogMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Os lembretes e avisos deixarão de ser enviados. Você pode conectar '
+          'novamente depois.',
+    AppLanguage.english =>
+      'Reminders and notices will stop being sent. You can connect again '
+          'later.',
+    AppLanguage.spanish =>
+      'Los recordatorios y avisos dejarán de enviarse. Puedes conectar de '
+          'nuevo después.',
+  };
+
+  String get cancelButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Cancelar',
+    AppLanguage.english => 'Cancel',
+    AppLanguage.spanish => 'Cancelar',
+  };
+
+  String get whatsappDisconnectFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível desconectar. A conexão continua ativa.',
+    AppLanguage.english =>
+      "We couldn't disconnect. The connection is still active.",
+    AppLanguage.spanish =>
+      'No fue posible desconectar. La conexión sigue activa.',
+  };
 }
