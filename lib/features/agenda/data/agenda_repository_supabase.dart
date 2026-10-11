@@ -12,6 +12,23 @@ class AgendaRepositorySupabase implements AgendaRepository {
   final SupabaseClient _client;
 
   @override
+  Stream<List<Appointment>> watchAllForUser(String userId) => _client
+      .from('appointments')
+      .stream(primaryKey: ['id'])
+      .eq('fisioterapeuta_id', userId)
+      .map((rows) {
+        final appointments = rows.map(Appointment.fromJson).toList();
+        appointments.sort((a, b) {
+          final dateOrder = a.date.compareTo(b.date);
+          if (dateOrder != 0) return dateOrder;
+          final aMinutes = a.time.hour * 60 + a.time.minute;
+          final bMinutes = b.time.hour * 60 + b.time.minute;
+          return aMinutes.compareTo(bMinutes);
+        });
+        return appointments;
+      });
+
+  @override
   Future<Result<List<Appointment>>> getAll() async {
     try {
       final rows = await _client
@@ -52,7 +69,7 @@ class AgendaRepositorySupabase implements AgendaRepository {
     try {
       await _client
           .from('appointments')
-          .update(appointment.toJson())
+          .update(appointment.toJson()..remove('status'))
           .eq('id', appointment.id);
       return const Success(null);
     } on PostgrestException catch (e, st) {
