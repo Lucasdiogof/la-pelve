@@ -96,6 +96,7 @@ class SessionDataController {
     if (userId == _userId) return;
     clear();
     _userId = userId;
+    if (userId != null) agenda.startRealtime(userId);
   }
 
   void clear() {
