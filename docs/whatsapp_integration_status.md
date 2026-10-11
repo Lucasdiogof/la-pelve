@@ -1,5 +1,37 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-11 (branch `feature/whatsapp-e2e-20261011`)
+
+**Validado em produção:** E2E real do `appointment_12h` (Meta aceitou, a paciente de teste tocou em
+Confirmar, o webhook mudou a consulta para `confirmed`). Conexão em uso: a de teste da Lucksrei.
+`appointments` está na publicação `supabase_realtime` (RLS por `fisioterapeuta_id`).
+
+**Neste PR (nada disso foi aplicado/deployado em produção):**
+
+| Item | Estado |
+|---|---|
+| Realtime Agenda/Home (`AgendaCubit.startRealtime`) | corrigido (mocks) e testado; edição de consulta não regrava `status` |
+| `0028_whatsapp_informative_gate.sql` | **não aplicada**. Dry-run revertido em produção: antes 5 avisos legados seriam reservados, depois da trava 0 |
+| cron 5 min | script pronto (`rollout-0028/03_cron_5min.sql`), **não aplicado** (hoje `*/30`) |
+| `0029_whatsapp_connect_attempts.sql` + Edge Function `whatsapp-connect` | **não aplicada/deployada**. RPCs validadas em transação revertida |
+| `web/whatsapp-connect.html` (página de onboarding) | vai junto com o deploy web (Cloudflare) |
+| Tela Perfil → WhatsApp | conectar / atualizar / desconectar; sem backend liberado continua "Integração em preparação" |
+
+**Bloqueios externos (Meta), dependem da conta da Lucksrei:** ver a seção "Embedded Signup" abaixo.
+
+### Embedded Signup — como funciona e o que falta ligar
+
+1. App chama `whatsapp-connect` `start` (JWT) -> state aleatório de 256 bits (só o hash no banco, TTL 15 min, uso único) -> URL HTTPS da página.
+2. A página (`web/whatsapp-connect.html`) pega `app_id`/`config_id` via `config` (valida o state sem consumi-lo), abre `FB.login` (Embedded Signup v4) e recebe `code` + `WA_EMBEDDED_SIGNUP` (`waba_id`, `phone_number_id`).
+3. `complete` consome o state, troca o code **no servidor** (30 s de validade), confere que o número pertence à WABA, inscreve o app no webhook da WABA, registra o número (exceto coexistência), garante os templates e grava o token no Vault via `set_whatsapp_connection_access_token`. Só vira `connected` com os dois templates APROVADOS; antes disso fica `pending`.
+4. Sem `WHATSAPP_SELF_CONNECT_ENABLED=true` + `META_APP_ID`, `META_ES_CONFIG_ID`, `WHATSAPP_CONNECT_PAGE_URL` (+ App Secret e versão da Graph já existentes), `availability` devolve `enabled:false` e o app não mostra o botão.
+
+Pré-requisitos na Meta (não verificáveis daqui): Tech Provider aprovado, App Review com `whatsapp_business_management` e `whatsapp_business_messaging` (acesso avançado), configuração Embedded Signup v4 (Facebook Login for Business), domínio da página em *Allowed domains* e *Valid OAuth redirect URIs*, webhook `account_update` assinado. Embedded Signup v2 deixa de existir em 15/10/2026 (usar v4).
+
+Limitações conhecidas: retorno ao app é por "voltar e atualizar" (o app relê ao voltar do background); universal link/deep link fica para uma etapa nativa. O PIN de duas etapas gerado no registro do número não é guardado (recuperável pelo Business Manager). A desconexão remove token e inscrição do webhook, mas não revoga a autorização na Meta.
+
+---
+
 Última atualização: 2026-10-08. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
 Nenhum segredo está neste arquivo; só os NOMES dos secrets.
 
