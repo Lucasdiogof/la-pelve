@@ -18,14 +18,12 @@ import type {
   ReconciliationSummary,
 } from "./types.ts";
 
-/** Log interno sanitizado: só ids técnicos e o código -- nunca telefone/nome/erro bruto. */
+/** Log interno sanitizado: só o código -- nunca ids, telefone, nome ou erro bruto. */
 function logIntegrityFailure(input: ReconciliationInput, code: string) {
   console.error(
     JSON.stringify({
       event: "whatsapp_message_reconciliation_input_invalid",
       code,
-      messageId: input.message.id,
-      appointmentId: input.message.appointmentId,
     }),
   );
 }

@@ -258,4 +258,60 @@ class AgendaStrings {
     AppLanguage.english => 'Appointment status',
     AppLanguage.spanish => 'Estado de la cita',
   };
+
+  String get whatsappRemindersTitle => switch (language) {
+    AppLanguage.portuguese => 'Lembretes pelo WhatsApp',
+    AppLanguage.english => 'WhatsApp reminders',
+    AppLanguage.spanish => 'Recordatorios por WhatsApp',
+  };
+
+  /// Tipo do lembrete (whatsapp_messages.reminder_type).
+  String reminderTypeLabel(String type) => switch (language) {
+    AppLanguage.portuguese => switch (type) {
+      'appointment_12h' => 'Pedido de confirmação',
+      'appointment_rescheduled' => 'Aviso de remarcação',
+      _ => 'Aviso de agendamento',
+    },
+    AppLanguage.english => switch (type) {
+      'appointment_12h' => 'Confirmation request',
+      'appointment_rescheduled' => 'Reschedule notice',
+      _ => 'Booking notice',
+    },
+    AppLanguage.spanish => switch (type) {
+      'appointment_12h' => 'Solicitud de confirmación',
+      'appointment_rescheduled' => 'Aviso de reprogramación',
+      _ => 'Aviso de cita',
+    },
+  };
+
+  /// Situação do lembrete (whatsapp_messages.status).
+  String reminderStatusLabel(String status) => switch (language) {
+    AppLanguage.portuguese => switch (status) {
+      'scheduled' => 'Programado',
+      'processing' => 'Enviando',
+      'sent' => 'Enviado',
+      'delivered' => 'Entregue',
+      'read' => 'Lido',
+      'failed' => 'Não entregue',
+      _ => 'Cancelado',
+    },
+    AppLanguage.english => switch (status) {
+      'scheduled' => 'Scheduled',
+      'processing' => 'Sending',
+      'sent' => 'Sent',
+      'delivered' => 'Delivered',
+      'read' => 'Read',
+      'failed' => 'Not delivered',
+      _ => 'Cancelled',
+    },
+    AppLanguage.spanish => switch (status) {
+      'scheduled' => 'Programado',
+      'processing' => 'Enviando',
+      'sent' => 'Enviado',
+      'delivered' => 'Entregado',
+      'read' => 'Leído',
+      'failed' => 'No entregado',
+      _ => 'Cancelado',
+    },
+  };
 }

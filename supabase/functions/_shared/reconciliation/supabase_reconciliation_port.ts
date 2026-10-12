@@ -60,13 +60,12 @@
 import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import type { CancelOutcome, ReconciliationPort } from "./types.ts";
 
-/** Log interno sanitizado -- só ids técnicos e o contexto, NUNCA erro bruto do Postgres. */
+/** Log interno sanitizado -- só o contexto; NUNCA ids nem erro bruto do Postgres. */
 function logPersistenceFailure(messageId: string, context: string) {
   console.error(
     JSON.stringify({
       event: "whatsapp_message_reconciliation_failed",
       context,
-      messageId,
     }),
   );
 }

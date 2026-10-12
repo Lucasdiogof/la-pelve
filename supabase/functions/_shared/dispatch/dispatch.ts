@@ -65,7 +65,7 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
       prepared = await deps.store.prepare(item.messageId, item.leaseToken);
     } catch {
       // Lease continua; sem send_started_at, a mensagem volta à fila quando vencer.
-      log("whatsapp_dispatch_prepare_failed", { messageId: item.messageId });
+      log("whatsapp_dispatch_prepare_failed", {});
       summary.errors++;
       continue;
     }
@@ -109,7 +109,7 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
       }
     }
     if (written === null) {
-      log("whatsapp_dispatch_complete_failed", { messageId: item.messageId, result: completion.result });
+      log("whatsapp_dispatch_complete_failed", { result: completion.result });
       summary.errors++;
       continue;
     }

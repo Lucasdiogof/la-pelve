@@ -487,3 +487,62 @@ test("sem portas de status/template configuradas, o webhook de confirmação seg
   assert.equal((await handler(await signedPost(templateBody("PAUSED")))).status, 200);
   assert.deepEqual(calls, []);
 });
+
+// --------------------------------------------------------------------------
+// Reavaliação depois de aprovação de template (0034)
+// --------------------------------------------------------------------------
+
+function reevalSetup(templateResult: number | null = 1, withDefer = false) {
+  const logs: Array<{ event: string; data: Record<string, unknown> }> = [];
+  const reevaluated: string[] = [];
+  const deferred: Array<Promise<unknown>> = [];
+  const handler = createWebhookHandler({
+    verifyToken: VERIFY_TOKEN,
+    appSecret: APP_SECRET,
+    getPort: () => fakePort().port,
+    getStatusPort: () => fakeStatusPort().port,
+    getTemplatePort: () => fakeTemplatePort(templateResult).port,
+    templates: { names: ["appointment_confirmation", "appointment_12h"], language: "pt_BR" },
+    reevaluate: async (wabaId) => {
+      reevaluated.push(wabaId);
+      return { candidates: 1, promoted: 1, notReady: 0, stale: 0, errors: 0 };
+    },
+    defer: withDefer ? (task) => deferred.push(task) : undefined,
+    log: (event, data) => logs.push({ event, data }),
+  });
+  return { handler, logs, reevaluated, deferred };
+}
+
+test("reavaliação: APPROVED/REINSTATED/UNARCHIVED de template da prontidão disparam a checagem completa", async () => {
+  for (const event of ["APPROVED", "REINSTATED", "UNARCHIVED"]) {
+    const r = reevalSetup();
+    assert.equal((await r.handler(await signedPost(templateBody(event)))).status, 200);
+    assert.deepEqual(r.reevaluated, ["102290129340398"], event);
+    assert.ok(r.logs.some((l) => l.event === "template_reevaluation" && l.data.promoted === 1));
+  }
+});
+
+test("reavaliação: eventos negativos, FLAGGED e templates de fora NÃO disparam", async () => {
+  for (const body of [templateBody("PAUSED"), templateBody("FLAGGED"), templateBody("APPROVED", "promo_outubro")]) {
+    const r = reevalSetup();
+    await r.handler(await signedPost(body));
+    assert.deepEqual(r.reevaluated, []);
+  }
+});
+
+test("reavaliação: sem assinatura válida ou com falha ao gravar o evento, nada é reavaliado", async () => {
+  const r = reevalSetup();
+  assert.equal((await r.handler(await signedPost(templateBody("APPROVED"), "outro-segredo"))).status, 401);
+  const broken = reevalSetup(null);
+  assert.equal((await broken.handler(await signedPost(templateBody("APPROVED")))).status, 500);
+  assert.deepEqual([...r.reevaluated, ...broken.reevaluated], []);
+});
+
+test("reavaliação: roda depois da resposta quando há defer (não segura o webhook da Meta)", async () => {
+  const r = reevalSetup(1, true);
+  const res = await r.handler(await signedPost(templateBody("APPROVED")));
+  assert.equal(res.status, 200);
+  assert.equal(r.deferred.length, 1);
+  await Promise.all(r.deferred);
+  assert.deepEqual(r.reevaluated, ["102290129340398"]);
+});

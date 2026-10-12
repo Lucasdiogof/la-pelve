@@ -17,6 +17,10 @@ import { createSupabaseAccountEventPort } from "../_shared/account/supabase_acco
 import type { AccountEventPort } from "../_shared/account/types.ts";
 import { createSupabaseDeliveryStatusPort, type DeliveryStatusPort } from "../_shared/delivery/status_port.ts";
 import { createSupabaseTemplateStatusPort, type TemplateStatusPort } from "../_shared/templates/template_port.ts";
+import { reevaluateAfterApproval } from "../_shared/templates/reevaluate.ts";
+import { createSupabaseReevaluationPort } from "../_shared/templates/reevaluation_port.ts";
+import { createMetaOnboarding } from "../whatsapp-connect/meta_onboarding.ts";
+import { isValidGraphApiVersion } from "../_shared/dispatch/meta_provider.ts";
 import { createWebhookHandler } from "./handler.ts";
 
 let port: ConfirmationReplyPort | null = null;
@@ -80,6 +84,30 @@ const templates = {
   language: Deno.env.get("WHATSAPP_TEMPLATE_LANGUAGE") || "pt_BR",
 };
 
+// Reavaliação depois de aprovação: só LEITURAS na Meta (telefone, templates,
+// saúde) com o token da própria conexão. Não depende do onboarding estar
+// ligado; sem versão da Graph válida, fica indisponível.
+const graphApiVersion = Deno.env.get("WHATSAPP_GRAPH_API_VERSION");
+async function reevaluate(wabaId: string) {
+  if (!isValidGraphApiVersion(graphApiVersion)) return null;
+  const meta = createMetaOnboarding({
+    config: {
+      appId: "",
+      configId: "",
+      appSecret: "",
+      graphApiVersion,
+      languageCode: templates.language,
+      connectPageUrl: "",
+      confirmationTemplate: templates.names[0],
+      reminderTemplate: templates.names[1],
+    },
+  });
+  return await reevaluateAfterApproval(wabaId, createSupabaseReevaluationPort(adminClient()), meta);
+}
+
+// deno-lint-ignore no-explicit-any
+const edgeRuntime = (globalThis as any).EdgeRuntime as { waitUntil?: (p: Promise<unknown>) => void } | undefined;
+
 Deno.serve(
   createWebhookHandler({
     verifyToken: Deno.env.get("WHATSAPP_VERIFY_TOKEN"),
@@ -89,5 +117,7 @@ Deno.serve(
     getStatusPort,
     getTemplatePort,
     templates,
+    reevaluate,
+    defer: edgeRuntime?.waitUntil ? (task) => edgeRuntime.waitUntil!(task) : undefined,
   }),
 );

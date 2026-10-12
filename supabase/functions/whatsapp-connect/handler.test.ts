@@ -56,7 +56,9 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
     failCount: false,
     dropTokenBeforePromote: false,
     failReserve: false,
+    staleOnConnect: false,
   };
+  const upserts: Array<Parameters<ConnectStore["upsertConnection"]>[0]> = [];
   let pinSeq = 0;
   let seq = 0;
   const store: ConnectStore = {
@@ -76,6 +78,9 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
     },
     async upsertConnection(i) {
       events.push(`upsert:${i.status}`);
+      upserts.push(i);
+      // 0034: evento negativo de template mais novo que a avaliação (WA010).
+      if (i.status === "connected" && flags.staleOnConnect) return { ok: false, code: "stale_evaluation" };
       for (const c of connections.values()) {
         if (c.phoneNumberId === i.phoneNumberId && c.user !== i.userId) return { ok: false, code: "phone_in_use" };
       }
@@ -163,7 +168,7 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
       return true;
     },
   };
-  return { store, attempts, connections, guards, flags };
+  return { store, attempts, connections, guards, flags, upserts };
 }
 
 interface MetaScript {
@@ -217,6 +222,10 @@ function makeMeta(events: string[]) {
     },
     async ensureTemplates() {
       events.push("meta:templates");
+      return { ok: true, report: script.report };
+    },
+    async getTemplatesReport() {
+      events.push("meta:templates_read");
       return { ok: true, report: script.report };
     },
     async getAccountHealth() {
@@ -779,4 +788,36 @@ test("readinessFrom classifica os estados dos templates", () => {
   assert.equal(readinessFrom({ confirmation: "rejected", reminder: "approved" }).code, "templates_rejected");
   const s: SetupState = emptySetup();
   assert.deepEqual(s, { mode: "cloud", register_attempts: [] });
+});
+
+// --------------------------------------------------------------------------
+// 0034: início da avaliação e recusa de 'connected' com avaliação velha
+// --------------------------------------------------------------------------
+
+test("upsert pós-avaliação leva evaluated_at = início da avaliação (antes das leituras na Meta)", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  assert.equal(h.upserts.at(-1)!.setupState.evaluated_at, NOW.toISOString());
+  assert.equal(h.upserts.at(-1)!.status, "connected");
+});
+
+test("evento negativo de template mais novo que a avaliação (WA010): nunca conecta, fica pendente", async () => {
+  const h = build();
+  h.flags.staleOnConnect = true;
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.deepEqual(res, { ok: true, status: "pending", reason: "templates_pending" });
+  const conn = h.connections.get("user-a")!;
+  assert.equal(conn.status, "pending");
+  assert.equal(conn.lastError?.code, "templates_pending");
+});
+
+test("status: reavaliação com WA010 também não promove", async () => {
+  const h = build();
+  h.script.report = { confirmation: "approved", reminder: "pending" };
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.script.report = { confirmation: "approved", reminder: "approved" };
+  h.flags.staleOnConnect = true;
+  const res = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
+  assert.equal(res.status, "pending");
+  assert.equal(h.connections.get("user-a")!.status, "pending");
 });

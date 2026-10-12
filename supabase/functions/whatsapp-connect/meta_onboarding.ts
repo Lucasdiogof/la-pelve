@@ -43,6 +43,8 @@ export interface MetaOnboarding {
   unsubscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   registerPhone(token: string, phoneNumberId: string, pin: string): Promise<Ok<unknown> | Fail>;
   ensureTemplates(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
+  /** Só LEITURA: estado dos templates na WABA, sem criar nada (ausente = "missing"). */
+  getTemplatesReport(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
   getAccountHealth(token: string, wabaId: string): Promise<Ok<{ health: AccountHealth }> | Fail>;
 }
 
@@ -198,6 +200,35 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
     return { ok: true, rows };
   }
 
+  /** Estado dos dois templates; com `create`, cria os que não existem. */
+  async function templates(
+    token: string,
+    wabaId: string,
+    create: boolean,
+  ): Promise<Ok<{ report: TemplatesReport }> | Fail> {
+    const report: TemplatesReport = { confirmation: "missing", reminder: "missing" };
+    for (const def of templateDefinitions(config)) {
+      // Filtra por nome (todas as línguas) e segue a paginação.
+      const listed = await listAll(
+        `/${wabaId}/message_templates?name=${encodeURIComponent(def.body.name)}&fields=name,language,status&limit=100`,
+        token,
+      );
+      if (!listed.ok) return listed;
+      const found = listed.rows.find((row) => {
+        const r = row as { name?: unknown; language?: unknown };
+        return r.name === def.body.name && r.language === def.body.language;
+      }) as { status?: unknown } | undefined;
+      if (found) {
+        report[def.key] = stateOf(found.status);
+        continue;
+      }
+      if (!create) continue;
+      const created = await call("POST", `/${wabaId}/message_templates`, { token, json: def.body });
+      report[def.key] = created.ok ? "pending" : "missing";
+    }
+    return { ok: true, report };
+  }
+
   return {
     async exchangeCode(code) {
       const query = new URLSearchParams({
@@ -259,26 +290,11 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
     },
 
     async ensureTemplates(token, wabaId) {
-      const report: TemplatesReport = { confirmation: "missing", reminder: "missing" };
-      for (const def of templateDefinitions(config)) {
-        // Filtra por nome (todas as línguas) e segue a paginação.
-        const listed = await listAll(
-          `/${wabaId}/message_templates?name=${encodeURIComponent(def.body.name)}&fields=name,language,status&limit=100`,
-          token,
-        );
-        if (!listed.ok) return listed;
-        const found = listed.rows.find((row) => {
-          const r = row as { name?: unknown; language?: unknown };
-          return r.name === def.body.name && r.language === def.body.language;
-        }) as { status?: unknown } | undefined;
-        if (found) {
-          report[def.key] = stateOf(found.status);
-          continue;
-        }
-        const created = await call("POST", `/${wabaId}/message_templates`, { token, json: def.body });
-        report[def.key] = created.ok ? "pending" : "missing";
-      }
-      return { ok: true, report };
+      return await templates(token, wabaId, true);
+    },
+
+    async getTemplatesReport(token, wabaId) {
+      return await templates(token, wabaId, false);
     },
 
     async getAccountHealth(token, wabaId) {

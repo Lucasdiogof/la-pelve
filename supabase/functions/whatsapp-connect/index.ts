@@ -57,6 +57,7 @@ const store: ConnectStore = {
     if (error?.code === "WA007") return { ok: false, code: "active_connection" };
     if (error?.code === "WA008") return { ok: false, code: "phone_in_use" };
     if (error?.code === "WA009") return { ok: false, code: "credential_missing" };
+    if (error?.code === "WA010") return { ok: false, code: "stale_evaluation" };
     return { ok: false, code: "error" };
   },
   async setAccessToken(connectionId, token) {

@@ -32,9 +32,9 @@ const KNOWN_RESULTS: ReadonlySet<string> = new Set<ConfirmationReplyResult>([
 
 const PERSISTENCE_ERROR: ConfirmationReplyOutcome = { kind: "error", code: "persistence_error" };
 
-/** Log interno sanitizado: só o wamid recebido e o contexto, nunca erro bruto/telefone. */
-function logFailure(wamid: string, context: string) {
-  console.error(JSON.stringify({ event: "whatsapp_confirmation_reply_failed", context, wamid }));
+/** Log interno sanitizado: só o contexto -- nunca wamid, telefone ou erro bruto. */
+function logFailure(_wamid: string, context: string) {
+  console.error(JSON.stringify({ event: "whatsapp_confirmation_reply_failed", context }));
 }
 
 export function createSupabaseConfirmationReplyPort(client: SupabaseClient): ConfirmationReplyPort {

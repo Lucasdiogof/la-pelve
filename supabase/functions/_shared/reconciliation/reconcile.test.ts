@@ -219,7 +219,7 @@ test("input com integridade quebrada conta como erro, não aborta o lote e não 
     assert.equal(logs.length, 1);
     assert.ok(logs[0].includes("whatsapp_message_reconciliation_input_invalid"));
     assert.ok(logs[0].includes("consent_missing"));
-    assert.ok(logs[0].includes('"messageId":"x"'));
+    assert.ok(!logs[0].includes('"x"'), "log sem ids");
   }
   assert.deepEqual(called, ["a", "b"]);
   assert.equal(summary.cancelled, 2);
