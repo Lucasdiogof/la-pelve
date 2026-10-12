@@ -1,5 +1,17 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-12 (token, observabilidade, webhook — verificado em produção)
+
+- Edge Functions ativas (todas `verify_jwt=false`, autenticação própria): `whatsapp-webhook` v30, `whatsapp-connect` v13, `whatsapp-dispatcher` v15, `whatsapp-scheduler-dry-run` v20.
+- **0035** (`flag_whatsapp_connection_token_invalid`): marcação atômica de conexão como `error`/`token_invalid`, vinculada ao SHA-256 do token recusado (reconexão/desconexão/troca não são afetadas por resposta velha). Aplicada em produção; rollout em `supabase/rollout-0035/`.
+- **0036** (`whatsapp_health_summary`): resumo só de agregados (falhas por código, fila, conexões, cron, consentimento). `supabase/ops/whatsapp_health.sql`. Aplicada em produção; rollout em `supabase/rollout-0036/`.
+- `whatsapp-connect` `status`: conexão `connected` consulta `/debug_token` (só leitura); devolve `token_expires_at` quando conhecido e `reason: token_expiring` a <= 7 dias. Indisponibilidade da Meta nunca marca a conexão.
+- `whatsapp-webhook`: corpo limitado (`WHATSAPP_WEBHOOK_MAX_BODY_BYTES`, padrão 3 MiB, faixa 1 KiB–10 MiB), lido em streaming; excedente é drenado e descartado (no runtime da Supabase o 413 só sai depois do corpo consumido; cancelar a leitura travava a resposta); HMAC sobre os bytes originais. Testado em produção: 2 MiB = 401, 3,2 MB = 413, 18 MiB = 413.
+- Dispatcher: o resumo de cada execução (`whatsapp_dispatcher_run`) traz contadores por código (`codes.cancelled.consent_revoked` = barrada por falta de consentimento; `codes.failed.auth_error` = token recusado).
+- App (Perfil -> WhatsApp): selos de estado (inclui "Autorização vencendo/vencida"), validade da autorização, aviso de status desatualizado, Atualizar status, Reconectar à prova de toque repetido.
+- Páginas públicas `/privacy` e `/data-deletion` (pt/en/es) em `web/`. Checklist da Meta: `docs/whatsapp_meta_onboarding_checklist.md`.
+- Cron `la_pelve_whatsapp_dispatcher_30min` = `*/30 * * * *`, lê o token do Vault (`whatsapp_dispatcher_cron_token`) a cada execução.
+
 ## >>> ATUALIZAÇÃO 2026-10-12 (rollout do PR #11 em produção — verificado)
 
 - `main` = `47e462e`. Edge Functions publicadas a partir dela, todas `ACTIVE`, `verify_jwt=false` (autenticação própria): `whatsapp-webhook` **v26**, `whatsapp-connect` **v11**, `whatsapp-dispatcher` **v13**, `whatsapp-scheduler-dry-run` **v20**.
