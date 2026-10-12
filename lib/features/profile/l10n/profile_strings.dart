@@ -629,6 +629,7 @@ class ProfileStrings {
       'webhook_subscription_failed',
       'phone_pin_required',
       'phone_registration_rate_limited',
+      'phone_registration_retry_later',
       'phone_registration_failed',
       'phone_not_connected',
       'account_limited',
@@ -656,6 +657,9 @@ class ProfileStrings {
         'phone_registration_rate_limited' =>
           'O registro do número atingiu o limite da Meta. Tente novamente em '
               'até 72 horas.',
+        'phone_registration_retry_later' =>
+          'A ativação do número está em andamento. Aguarde alguns minutos e '
+              'toque em "Atualizar status".',
         'phone_registration_failed' || 'phone_not_connected' =>
           'O número ainda não está ativo na API do WhatsApp. Toque em '
               '"Atualizar status" para tentar de novo.',
@@ -683,6 +687,9 @@ class ProfileStrings {
         'phone_registration_rate_limited' =>
           "The number's registration hit Meta's limit. Try again within 72 "
               'hours.',
+        'phone_registration_retry_later' =>
+          "The number's activation is in progress. Wait a few minutes and "
+              "tap 'Refresh status'.",
         'phone_registration_failed' || 'phone_not_connected' =>
           "The number is not active on the WhatsApp API yet. Tap 'Refresh "
               "status' to try again.",
@@ -711,6 +718,9 @@ class ProfileStrings {
         'phone_registration_rate_limited' =>
           'El registro del número alcanzó el límite de Meta. Inténtalo de '
               'nuevo en hasta 72 horas.',
+        'phone_registration_retry_later' =>
+          'La activación del número está en curso. Espera unos minutos y '
+              "toca 'Actualizar estado'.",
         'phone_registration_failed' || 'phone_not_connected' =>
           'El número aún no está activo en la API de WhatsApp. Toca '
               "'Actualizar estado' para intentarlo de nuevo.",
