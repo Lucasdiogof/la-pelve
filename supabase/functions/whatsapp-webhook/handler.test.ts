@@ -221,3 +221,65 @@ test("método não suportado -> 405", async () => {
   const { handler } = setup(fakePort().port);
   assert.equal((await handler(new Request(URL_BASE, { method: "PUT" }))).status, 405);
 });
+
+// ---------------------------------------------------------------------------
+// account_update (revogação/restrição da WABA)
+// ---------------------------------------------------------------------------
+
+import type { AccountEvent } from "../_shared/account/parse_account_update.ts";
+import type { AccountEventPort } from "../_shared/account/types.ts";
+
+function accountSetup(result: number | null | (() => number | null) = 1) {
+  const applied: AccountEvent[] = [];
+  const accountPort: AccountEventPort = {
+    async applyAccountEvent(event) {
+      applied.push(event);
+      return typeof result === "function" ? result() : result;
+    },
+  };
+  const logs: Array<{ event: string; data: Record<string, unknown> }> = [];
+  const handler = createWebhookHandler({
+    verifyToken: VERIFY_TOKEN,
+    appSecret: APP_SECRET,
+    getPort: () => fakePort().port,
+    getAccountPort: () => accountPort,
+    log: (event, data) => logs.push({ event, data }),
+  });
+  return { handler, applied, logs };
+}
+
+const accountBody = (event: string, wabaId = "980198427658004") => ({
+  object: "whatsapp_business_account",
+  entry: [{ id: "1", time: 1, changes: [{ field: "account_update", value: { event, waba_info: { waba_id: wabaId } } }] }],
+});
+
+test("account_update com assinatura válida aplica a revogação da WABA", async () => {
+  const { handler, applied, logs } = accountSetup();
+  const res = await handler(await signedPost(accountBody("PARTNER_REMOVED")));
+  assert.equal(res.status, 200);
+  assert.deepEqual(applied, [{ wabaId: "980198427658004", event: "PARTNER_REMOVED", detail: "" }]);
+  assert.ok(logs.some((l) => l.event === "account_update_processed"));
+  assert.ok(!JSON.stringify(logs).includes("980198427658004"), "sem id de conta em log");
+});
+
+test("account_update sem assinatura válida NÃO altera nada", async () => {
+  const { handler, applied } = accountSetup();
+  const res = await handler(await signedPost(accountBody("PARTNER_REMOVED"), "outro-segredo"));
+  assert.equal(res.status, 401);
+  assert.deepEqual(applied, []);
+});
+
+test("falha ao aplicar account_update devolve 500 (a Meta reenvia) e reenvio é idempotente", async () => {
+  let fail = true;
+  const { handler, applied } = accountSetup(() => (fail ? null : 0));
+  assert.equal((await handler(await signedPost(accountBody("ACCOUNT_DELETED")))).status, 500);
+  fail = false;
+  assert.equal((await handler(await signedPost(accountBody("ACCOUNT_DELETED")))).status, 200);
+  assert.equal(applied.length, 2);
+});
+
+test("webhook de mensagens continua funcionando sem porta de conta", async () => {
+  const { port } = fakePort();
+  const { handler } = setup(port);
+  assert.equal((await handler(await signedPost(accountBody("PARTNER_REMOVED")))).status, 200);
+});

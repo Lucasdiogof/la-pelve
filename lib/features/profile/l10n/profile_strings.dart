@@ -546,4 +546,194 @@ class ProfileStrings {
     AppLanguage.english => 'Checking the connection…',
     AppLanguage.spanish => 'Verificando la conexión…',
   };
+
+  String get whatsappConnectingTitle => switch (language) {
+    AppLanguage.portuguese => 'Finalize a conexão na Meta',
+    AppLanguage.english => 'Finish the connection on Meta',
+    AppLanguage.spanish => 'Finaliza la conexión en Meta',
+  };
+
+  String get whatsappConnectingMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Autorize o seu número na janela da Meta. Quando terminar, volte aqui '
+          'e toque em "Atualizar status".',
+    AppLanguage.english =>
+      'Authorize your number in the Meta window. When you are done, come '
+          'back here and tap "Refresh status".',
+    AppLanguage.spanish =>
+      'Autoriza tu número en la ventana de Meta. Al terminar, vuelve aquí y '
+          'toca "Actualizar estado".',
+  };
+
+  String get whatsappStatusConnecting => switch (language) {
+    AppLanguage.portuguese => 'Conectando',
+    AppLanguage.english => 'Connecting',
+    AppLanguage.spanish => 'Conectando',
+  };
+
+  String get whatsappStartFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível iniciar a conexão. Tente novamente em instantes.',
+    AppLanguage.english =>
+      "We couldn't start the connection. Please try again shortly.",
+    AppLanguage.spanish =>
+      'No fue posible iniciar la conexión. Inténtalo de nuevo en unos '
+          'instantes.',
+  };
+
+  String get disconnectWhatsappButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Desconectar',
+    AppLanguage.english => 'Disconnect',
+    AppLanguage.spanish => 'Desconectar',
+  };
+
+  String get disconnectWhatsappDialogTitle => switch (language) {
+    AppLanguage.portuguese => 'Desconectar o WhatsApp?',
+    AppLanguage.english => 'Disconnect WhatsApp?',
+    AppLanguage.spanish => '¿Desconectar WhatsApp?',
+  };
+
+  String get disconnectWhatsappDialogMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Os lembretes e avisos deixarão de ser enviados. Você pode conectar '
+          'novamente depois.',
+    AppLanguage.english =>
+      'Reminders and notices will stop being sent. You can connect again '
+          'later.',
+    AppLanguage.spanish =>
+      'Los recordatorios y avisos dejarán de enviarse. Puedes conectar de '
+          'nuevo después.',
+  };
+
+  String get cancelButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Cancelar',
+    AppLanguage.english => 'Cancel',
+    AppLanguage.spanish => 'Cancelar',
+  };
+
+  String get whatsappDisconnectFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível desconectar. A conexão continua ativa.',
+    AppLanguage.english =>
+      "We couldn't disconnect. The connection is still active.",
+    AppLanguage.spanish =>
+      'No fue posible desconectar. La conexión sigue activa.',
+  };
+
+  /// Motivo da pendência/erro vindo de `whatsapp_connections.last_error.code`.
+  /// null = sem texto específico (usa a mensagem genérica).
+  String? whatsappReasonMessage(String? code) {
+    const known = {
+      'templates_pending',
+      'templates_rejected',
+      'webhook_subscription_failed',
+      'phone_pin_required',
+      'phone_registration_rate_limited',
+      'phone_registration_failed',
+      'phone_not_connected',
+      'account_limited',
+      'account_blocked',
+      'account_restricted',
+      'account_disabled',
+      'credential_store_failed',
+      'credential_missing',
+      'revoked_by_meta',
+    };
+    if (code == null || !known.contains(code)) return null;
+    return switch (language) {
+      AppLanguage.portuguese => switch (code) {
+        'templates_pending' =>
+          'Aguardando a Meta aprovar os modelos de mensagem. Isso pode levar '
+              'algumas horas.',
+        'templates_rejected' =>
+          'A Meta recusou um dos modelos de mensagem. Fale com o suporte.',
+        'webhook_subscription_failed' =>
+          'Não conseguimos ativar o recebimento das confirmações. Toque em '
+              '"Atualizar status" para tentar de novo.',
+        'phone_pin_required' =>
+          'Este número já usa verificação em duas etapas. É preciso o PIN '
+              'existente para concluir; fale com o suporte.',
+        'phone_registration_rate_limited' =>
+          'O registro do número atingiu o limite da Meta. Tente novamente em '
+              'até 72 horas.',
+        'phone_registration_failed' || 'phone_not_connected' =>
+          'O número ainda não está ativo na API do WhatsApp. Toque em '
+              '"Atualizar status" para tentar de novo.',
+        'credential_store_failed' || 'credential_missing' =>
+          'Não foi possível guardar a autorização com segurança. Conecte '
+              'novamente.',
+        'revoked_by_meta' => 'A Meta encerrou a autorização desta conexão.',
+        _ =>
+          'A conta do WhatsApp Business está com restrição na Meta. Verifique '
+              'o WhatsApp Manager.',
+      },
+      AppLanguage.english => switch (code) {
+        'templates_pending' =>
+          'Waiting for Meta to approve the message templates. This can take '
+              'a few hours.',
+        'templates_rejected' =>
+          'Meta rejected one of the message templates. Please contact '
+              'support.',
+        'webhook_subscription_failed' =>
+          "We couldn't enable confirmation replies. Tap 'Refresh status' "
+              'to try again.',
+        'phone_pin_required' =>
+          'This number already uses two-step verification. The existing PIN '
+              'is required to finish; please contact support.',
+        'phone_registration_rate_limited' =>
+          "The number's registration hit Meta's limit. Try again within 72 "
+              'hours.',
+        'phone_registration_failed' || 'phone_not_connected' =>
+          "The number is not active on the WhatsApp API yet. Tap 'Refresh "
+              "status' to try again.",
+        'credential_store_failed' || 'credential_missing' =>
+          "We couldn't store the authorization securely. Please connect "
+              'again.',
+        'revoked_by_meta' =>
+          'Meta ended the authorization for this connection.',
+        _ =>
+          'The WhatsApp Business account is restricted by Meta. Check '
+              'WhatsApp Manager.',
+      },
+      AppLanguage.spanish => switch (code) {
+        'templates_pending' =>
+          'Esperando que Meta apruebe las plantillas de mensajes. Puede '
+              'tardar algunas horas.',
+        'templates_rejected' =>
+          'Meta rechazó una de las plantillas de mensajes. Habla con '
+              'soporte.',
+        'webhook_subscription_failed' =>
+          'No pudimos activar la recepción de confirmaciones. Toca '
+              "'Actualizar estado' para intentarlo de nuevo.",
+        'phone_pin_required' =>
+          'Este número ya usa verificación en dos pasos. Se necesita el PIN '
+              'existente para terminar; habla con soporte.',
+        'phone_registration_rate_limited' =>
+          'El registro del número alcanzó el límite de Meta. Inténtalo de '
+              'nuevo en hasta 72 horas.',
+        'phone_registration_failed' || 'phone_not_connected' =>
+          'El número aún no está activo en la API de WhatsApp. Toca '
+              "'Actualizar estado' para intentarlo de nuevo.",
+        'credential_store_failed' || 'credential_missing' =>
+          'No se pudo guardar la autorización de forma segura. Conecta de '
+              'nuevo.',
+        'revoked_by_meta' => 'Meta finalizó la autorización de esta conexión.',
+        _ =>
+          'La cuenta de WhatsApp Business tiene una restricción en Meta. '
+              'Revisa WhatsApp Manager.',
+      },
+    };
+  }
+
+  String get whatsappBillingNote => switch (language) {
+    AppLanguage.portuguese =>
+      'Confirme a forma de pagamento no WhatsApp Manager para que as '
+          'mensagens sejam entregues.',
+    AppLanguage.english =>
+      'Confirm your payment method in WhatsApp Manager so messages can be '
+          'delivered.',
+    AppLanguage.spanish =>
+      'Confirma el método de pago en WhatsApp Manager para que los mensajes '
+          'se entreguen.',
+  };
 }

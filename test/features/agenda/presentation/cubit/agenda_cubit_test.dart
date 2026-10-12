@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_test/flutter_test.dart';
@@ -201,4 +203,70 @@ void main() {
       await cubit.close();
     });
   });
+
+  group('AgendaCubit realtime WhatsApp confirmation', () {
+    test('updates scheduled to confirmed without manual refresh', () async {
+      final updates = StreamController<List<Appointment>>();
+      when(() => repository.getAll()).thenAnswer((_) async => Success([appointment]));
+      when(() => repository.watchAllForUser('fisioterapeuta-1'))
+          .thenAnswer((_) => updates.stream);
+      final cubit = AgendaCubit(repository);
+      await cubit.ensureLoaded();
+      cubit.startRealtime('fisioterapeuta-1');
+
+      updates.add([appointment.copyWith(status: AppointmentStatus.confirmed)]);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.data!.single.status, AppointmentStatus.confirmed);
+      verify(() => repository.getAll()).called(1);
+      await cubit.close();
+      await updates.close();
+    });
+
+    test('ignores stale fetch that finishes after a realtime update', () async {
+      final updates = StreamController<List<Appointment>>();
+      final delayedFetch = Completer<Result<List<Appointment>>>();
+      var fetches = 0;
+      when(() => repository.getAll()).thenAnswer((_) {
+        fetches++;
+        return fetches == 1
+            ? Future.value(Success([appointment]))
+            : delayedFetch.future;
+      });
+      when(() => repository.watchAllForUser('fisioterapeuta-1'))
+          .thenAnswer((_) => updates.stream);
+      final cubit = AgendaCubit(repository);
+      await cubit.ensureLoaded();
+      cubit.startRealtime('fisioterapeuta-1');
+
+      final pendingRefresh = cubit.refresh();
+      updates.add([appointment.copyWith(status: AppointmentStatus.confirmed)]);
+      await Future<void>.delayed(Duration.zero);
+      delayedFetch.complete(Success([appointment]));
+      await pendingRefresh;
+
+      expect(cubit.state.data!.single.status, AppointmentStatus.confirmed);
+      await cubit.close();
+      await updates.close();
+    });
+
+    test('ends realtime updates when the session is reset', () async {
+      final updates = StreamController<List<Appointment>>();
+      when(() => repository.getAll()).thenAnswer((_) async => Success([appointment]));
+      when(() => repository.watchAllForUser('fisioterapeuta-1'))
+          .thenAnswer((_) => updates.stream);
+      final cubit = AgendaCubit(repository);
+      await cubit.ensureLoaded();
+      cubit.startRealtime('fisioterapeuta-1');
+      cubit.reset();
+
+      updates.add([appointment.copyWith(status: AppointmentStatus.confirmed)]);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.hasData, isFalse);
+      await cubit.close();
+      await updates.close();
+    });
+  });
+
 }

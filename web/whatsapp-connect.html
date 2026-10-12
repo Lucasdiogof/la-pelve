@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>La Pelve · Conectar WhatsApp</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#faf7f8; --fg:#2a2327; --muted:#6f6469; --card:#fff; --accent:#7a3b63; --err:#b3261e; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#161214; --fg:#f2eaee; --muted:#b4a7ad; --card:#211b1e; --accent:#d9a3c4; --err:#f2b8b5; } }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--fg); }
+    main { max-width:440px; margin:0 auto; padding:48px 16px; }
+    .card { background:var(--card); border-radius:16px; padding:24px; }
+    h1 { font-size:20px; margin:0 0 8px; }
+    p { color:var(--muted); line-height:1.5; margin:0 0 16px; }
+    button { width:100%; padding:14px; font-size:16px; border:0; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
+    @media (prefers-color-scheme: dark) { button { color:#161214; } }
+    button[disabled] { opacity:.5; cursor:default; }
+    #status { margin-top:16px; min-height:1.4em; color:var(--muted); }
+    #status.error { color:var(--err); }
+  </style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1 id="title"></h1>
+    <p id="intro"></p>
+    <button id="go" disabled></button>
+    <div id="status" role="status" aria-live="polite"></div>
+  </div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var FUNCTION_URL = 'https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-connect';
+  var T = {
+    pt: { title: 'Conectar WhatsApp Business', intro: 'Você será levada ao fluxo oficial da Meta para autorizar o seu número. O La Pelve nunca vê a sua senha.', go: 'Continuar com a Meta', loading: 'Preparando…', expired: 'Este link expirou. Volte ao La Pelve e toque em Conectar novamente.', working: 'Finalizando a conexão…', ok: 'Conexão concluída. Pode voltar ao La Pelve.', pending: 'Número conectado. Estamos aguardando a aprovação das mensagens pela Meta; volte ao La Pelve para acompanhar.', cancelled: 'A conexão foi cancelada. Você pode tentar de novo.', failed: 'Não foi possível concluir a conexão. Volte ao La Pelve e tente novamente.', inuse: 'Este número já está conectado a outra conta.', active: 'Já existe um número conectado. Desconecte-o no La Pelve antes de trocar.' },
+    en: { title: 'Connect WhatsApp Business', intro: 'You will be taken to Meta’s official flow to authorize your number. La Pelve never sees your password.', go: 'Continue with Meta', loading: 'Preparing…', expired: 'This link has expired. Go back to La Pelve and tap Connect again.', working: 'Finishing the connection…', ok: 'Connection complete. You can return to La Pelve.', pending: 'Number connected. We are waiting for Meta to approve the messages; return to La Pelve to follow progress.', cancelled: 'The connection was cancelled. You can try again.', failed: 'We could not complete the connection. Go back to La Pelve and try again.', inuse: 'This number is already connected to another account.', active: 'A number is already connected. Disconnect it in La Pelve before switching.' },
+    es: { title: 'Conectar WhatsApp Business', intro: 'Serás llevada al flujo oficial de Meta para autorizar tu número. La Pelve nunca ve tu contraseña.', go: 'Continuar con Meta', loading: 'Preparando…', expired: 'Este enlace expiró. Vuelve a La Pelve y toca Conectar de nuevo.', working: 'Finalizando la conexión…', ok: 'Conexión completada. Puedes volver a La Pelve.', pending: 'Número conectado. Esperamos la aprobación de los mensajes por Meta; vuelve a La Pelve para seguir el avance.', cancelled: 'La conexión fue cancelada. Puedes intentarlo de nuevo.', failed: 'No se pudo completar la conexión. Vuelve a La Pelve e inténtalo de nuevo.', inuse: 'Este número ya está conectado a otra cuenta.', active: 'Ya hay un número conectado. Desconéctalo en La Pelve antes de cambiarlo.' }
+  };
+  var lang = (navigator.language || 'pt').slice(0, 2);
+  var t = T[lang] || T.pt;
+  var el = function (id) { return document.getElementById(id); };
+  el('title').textContent = t.title;
+  el('intro').textContent = t.intro;
+  el('go').textContent = t.go;
+
+  function say(text, isError) {
+    var s = el('status');
+    s.textContent = text;
+    s.className = isError ? 'error' : '';
+  }
+
+  // O state vem no fragmento (nunca vai para servidores nem para o Referer)
+  // e é removido da barra de endereço.
+  var match = /state=([0-9a-f]{64})/.exec(location.hash);
+  var state = match ? match[1] : null;
+  history.replaceState(null, '', location.pathname);
+  if (!state) { say(t.expired, true); return; }
+
+  function post(body) {
+    return fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+  }
+
+  var session = null;   // dados do WA_EMBEDDED_SIGNUP
+  var authCode = null;  // code do FB.login
+  var finished = false;
+
+  function maybeComplete() {
+    if (finished || !session || !authCode) return;
+    finished = true;
+    say(t.working, false);
+    post({ action: 'complete', state: state, code: authCode, waba_id: session.waba_id, phone_number_id: session.phone_number_id, event: session.event })
+      .then(function (res) {
+        if (res.status === 200 && res.body.ok) { say(res.body.status === 'connected' ? t.ok : t.pending, false); return; }
+        var e = res.body && res.body.error;
+        say(e === 'phone_in_use' ? t.inuse : e === 'active_connection' ? t.active : e === 'state_expired' ? t.expired : t.failed, true);
+      })
+      .catch(function () { say(t.failed, true); });
+  }
+
+  window.addEventListener('message', function (event) {
+    var host;
+    try { host = new URL(event.origin).hostname; } catch (e) { return; }
+    if (host !== 'facebook.com' && !/\.facebook\.com$/.test(host)) return;
+    var data;
+    try { data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch (e) { return; }
+    if (!data || data.type !== 'WA_EMBEDDED_SIGNUP') return;
+    if (data.event === 'CANCEL') { say(t.cancelled, true); el('go').disabled = false; return; }
+    if (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
+      session = { event: data.event, waba_id: String(data.data.waba_id), phone_number_id: String(data.data.phone_number_id) };
+      maybeComplete();
+    } else {
+      say(t.failed, true);
+      el('go').disabled = false;
+    }
+  });
+
+  say(t.loading, false);
+  post({ action: 'config', state: state }).then(function (res) {
+    if (res.status !== 200 || !res.body.ok) { say(t.expired, true); return; }
+    var cfg = res.body;
+    window.fbAsyncInit = function () {
+      FB.init({ appId: cfg.app_id, autoLogAppEvents: false, xfbml: false, version: cfg.graph_version });
+      say('', false);
+      el('go').disabled = false;
+    };
+    var s = document.createElement('script');
+    s.async = true; s.defer = true; s.crossOrigin = 'anonymous';
+    s.src = 'https://connect.facebook.net/en_US/sdk.js';
+    s.onerror = function () { say(t.failed, true); };
+    document.body.appendChild(s);
+
+    el('go').addEventListener('click', function () {
+      el('go').disabled = true;
+      FB.login(function (response) {
+        if (response.authResponse && response.authResponse.code) {
+          authCode = response.authResponse.code;
+          maybeComplete();
+        } else if (!session) {
+          say(t.cancelled, true);
+          el('go').disabled = false;
+        }
+      }, { config_id: cfg.config_id, response_type: 'code', override_default_response_type: true, extras: { setup: {} } });
+    });
+  }).catch(function () { say(t.failed, true); });
+})();
+</script>
+</body>
+</html>

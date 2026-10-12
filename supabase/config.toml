@@ -15,3 +15,9 @@ verify_jwt = false
 # whatsapp-dispatcher/handler.ts), não pelo JWT de usuário do app.
 [functions.whatsapp-dispatcher]
 verify_jwt = false
+
+# Onboarding (Embedded Signup). `config` e `complete` são chamadas pela página
+# web de onboarding, que se autentica com o state de uso único; as ações do app
+# validam o JWT dentro da function (auth.getUser). Ver whatsapp-connect/index.ts.
+[functions.whatsapp-connect]
+verify_jwt = false

@@ -34,6 +34,12 @@ void main() {
 
   setUp(() {
     repository = _MockWhatsappConnectionRepository();
+    when(
+      () => repository.isSelfConnectAvailable(),
+    ).thenAnswer((_) async => const Success(false));
+    when(
+      () => repository.refreshRemoteStatus(),
+    ).thenAnswer((_) async => const Success(null));
   });
 
   group('WhatsappConnectionCubit initial load — estado final', () {
@@ -175,5 +181,176 @@ void main() {
         verify(() => repository.getCurrentConnection()).called(2);
       },
     );
+  });
+
+  group('conexão pelo app', () {
+    final url = Uri.parse(
+      'https://lapelve.example/whatsapp-connect.html#state=x',
+    );
+
+    Future<WhatsappConnectionCubit> loaded({
+      bool available = true,
+      Future<bool> Function(Uri)? launcher,
+      WhatsappConnection? connection,
+    }) async {
+      when(
+        () => repository.getCurrentConnection(),
+      ).thenAnswer((_) async => Success(connection));
+      when(
+        () => repository.isSelfConnectAvailable(),
+      ).thenAnswer((_) async => Success(available));
+      final cubit = WhatsappConnectionCubit(
+        repository,
+        launcher: launcher ?? (_) async => true,
+      );
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      return cubit;
+    }
+
+    test('sem disponibilidade no backend: nunca oferece conectar', () async {
+      final cubit = await loaded(available: false);
+      expect(
+        cubit.state,
+        const WhatsappConnectionNotConnected(selfConnectAvailable: false),
+      );
+      await cubit.close();
+    });
+
+    test(
+      'falha ao consultar a disponibilidade = indisponível (seguro)',
+      () async {
+        when(
+          () => repository.isSelfConnectAvailable(),
+        ).thenAnswer((_) async => Error(ServerFailure()));
+        when(
+          () => repository.getCurrentConnection(),
+        ).thenAnswer((_) async => const Success(null));
+        final cubit = WhatsappConnectionCubit(repository);
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          cubit.state,
+          const WhatsappConnectionNotConnected(selfConnectAvailable: false),
+        );
+        await cubit.close();
+      },
+    );
+
+    test(
+      'connect: abre a URL devolvida pelo servidor e passa a "conectando"',
+      () async {
+        Uri? opened;
+        when(
+          () => repository.startConnection(),
+        ).thenAnswer((_) async => Success(url));
+        final cubit = await loaded(
+          launcher: (u) async {
+            opened = u;
+            return true;
+          },
+        );
+        await cubit.connect();
+        expect(opened, url);
+        expect(cubit.state, const WhatsappConnectionConnecting());
+        await cubit.close();
+      },
+    );
+
+    test(
+      'connect: falha do servidor não abre nada nem finge conexão',
+      () async {
+        var launched = false;
+        when(
+          () => repository.startConnection(),
+        ).thenAnswer((_) async => Error(ServerFailure()));
+        final cubit = await loaded(
+          launcher: (_) async {
+            launched = true;
+            return true;
+          },
+        );
+        await cubit.connect();
+        expect(launched, isFalse);
+        expect(
+          cubit.state,
+          const WhatsappConnectionNotConnected(
+            selfConnectAvailable: true,
+            startFailed: true,
+          ),
+        );
+        await cubit.close();
+      },
+    );
+
+    test(
+      'connect: se o navegador não abre, volta ao estado com aviso',
+      () async {
+        when(
+          () => repository.startConnection(),
+        ).thenAnswer((_) async => Success(url));
+        final cubit = await loaded(launcher: (_) async => false);
+        await cubit.connect();
+        expect(
+          cubit.state,
+          const WhatsappConnectionNotConnected(
+            selfConnectAvailable: true,
+            startFailed: true,
+          ),
+        );
+        await cubit.close();
+      },
+    );
+
+    test('pendente: cada load reavalia no servidor antes de reler', () async {
+      final cubit = await loaded(
+        connection: connectionWith(WhatsappConnectionStatus.pending),
+      );
+      verify(() => repository.refreshRemoteStatus()).called(1);
+      expect(cubit.state, isA<WhatsappConnectionPending>());
+      await cubit.close();
+    });
+
+    test(
+      'disconnect com sucesso relê o estado; com falha mantém conectado',
+      () async {
+        final connected = connectionWith(
+          WhatsappConnectionStatus.connected,
+          displayPhoneNumber: '+55 62 99999-9999',
+          connectedAt: DateTime.utc(2026, 1, 1),
+        );
+        final cubit = await loaded(connection: connected);
+        when(
+          () => repository.disconnect(),
+        ).thenAnswer((_) async => Error(ServerFailure()));
+        await cubit.disconnect();
+        expect(
+          cubit.state,
+          WhatsappConnectionConnected(connected, disconnectFailed: true),
+        );
+
+        when(
+          () => repository.disconnect(),
+        ).thenAnswer((_) async => const Success(null));
+        when(() => repository.getCurrentConnection()).thenAnswer(
+          (_) async => Success(
+            connectionWith(
+              WhatsappConnectionStatus.disconnected,
+              disconnectedAt: DateTime.utc(2026, 2, 1),
+            ),
+          ),
+        );
+        await cubit.disconnect();
+        expect(cubit.state, isA<WhatsappConnectionDisconnected>());
+        await cubit.close();
+      },
+    );
+
+    test('disconnect fora de conexão ativa é ignorado', () async {
+      final cubit = await loaded();
+      await cubit.disconnect();
+      verifyNever(() => repository.disconnect());
+      await cubit.close();
+    });
   });
 }

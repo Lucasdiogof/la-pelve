@@ -121,6 +121,12 @@ void main() {
       sl.unregister<WhatsappConnectionRepository>();
     }
     sl.registerLazySingleton<WhatsappConnectionRepository>(() => repository);
+    when(
+      () => repository.isSelfConnectAvailable(),
+    ).thenAnswer((_) async => const Success(false));
+    when(
+      () => repository.refreshRemoteStatus(),
+    ).thenAnswer((_) async => const Success(null));
   });
 
   tearDown(() async {
@@ -171,7 +177,6 @@ void main() {
       expect(find.text(_preparingMessage), findsOneWidget);
       expect(find.widgetWithText(AppStatusBadge, 'Em breve'), findsOneWidget);
 
-      expect(kWhatsappSelfConnectEnabled, isFalse);
       expect(find.byType(PrimaryButton), findsNothing);
       expect(find.text('Conectar WhatsApp'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsNothing);
@@ -221,10 +226,11 @@ void main() {
     expect(find.text('Conexão em andamento'), findsOneWidget);
     await tester.tap(find.text('Atualizar status'));
     await _pumpPastLoading(tester);
-    verify(() => repository.getCurrentConnection()).called(2);
+    // Pendente: cada carga relê o servidor (templates/webhook) e a conexão.
+    verify(() => repository.refreshRemoteStatus()).called(2);
   });
 
-  testWidgets('conectado: número e data, sem ação de desconectar', (
+  testWidgets('conectado: número e data, com ação de desconectar', (
     tester,
   ) async {
     when(() => repository.getCurrentConnection()).thenAnswer(
@@ -248,7 +254,7 @@ void main() {
     );
     expect(find.text('+55 62 99999-9999'), findsOneWidget);
     expect(find.text('Conectado desde 15/01/2026'), findsOneWidget);
-    expect(find.text('Desconectar'), findsNothing);
+    expect(find.text('Desconectar'), findsOneWidget);
   });
 
   testWidgets('desconectado: status, data e a área de preparação', (
@@ -296,6 +302,178 @@ void main() {
     await tester.tap(find.text('Atualizar status'));
     await _pumpPastLoading(tester);
     verify(() => repository.getCurrentConnection()).called(2);
+  });
+
+  group('conexão pelo app (Embedded Signup liberado no backend)', () {
+    void available() => when(
+      () => repository.isSelfConnectAvailable(),
+    ).thenAnswer((_) async => const Success(true));
+
+    testWidgets('liberado: mostra "Conectar WhatsApp" e some a preparação', (
+      tester,
+    ) async {
+      notConnected();
+      available();
+      await pumpWhatsappPage(tester);
+      expect(find.widgetWithText(PrimaryButton, 'Conectar WhatsApp'), findsOne);
+      expect(find.text('Integração em preparação'), findsNothing);
+    });
+
+    testWidgets('falha ao iniciar: mensagem, o botão continua e nada conecta', (
+      tester,
+    ) async {
+      notConnected();
+      available();
+      when(
+        () => repository.startConnection(),
+      ).thenAnswer((_) async => Error(ServerFailure()));
+      await pumpWhatsappPage(tester);
+      await tester.tap(find.text('Conectar WhatsApp'));
+      await _pumpPastLoading(tester);
+      expect(
+        find.text(
+          'Não foi possível iniciar a conexão. Tente novamente em instantes.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Conectar WhatsApp'), findsOneWidget);
+      expect(find.text('Conectado'), findsNothing);
+    });
+
+    testWidgets('desconectar pede confirmação e só então chama o servidor', (
+      tester,
+    ) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            WhatsappConnectionStatus.connected,
+            displayPhoneNumber: '+55 62 99999-9999',
+            connectedAt: DateTime(2026, 1, 15),
+          ),
+        ),
+      );
+      when(
+        () => repository.disconnect(),
+      ).thenAnswer((_) async => const Success(null));
+      await pumpWhatsappPage(tester);
+
+      await tester.tap(find.text('Desconectar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Desconectar o WhatsApp?'), findsOneWidget);
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      verifyNever(() => repository.disconnect());
+
+      await tester.tap(find.text('Desconectar'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Desconectar'),
+        ),
+      );
+      await _pumpPastLoading(tester);
+      verify(() => repository.disconnect()).called(1);
+    });
+
+    testWidgets('falha ao desconectar: avisa e mantém conectado', (
+      tester,
+    ) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            WhatsappConnectionStatus.connected,
+            displayPhoneNumber: '+55 62 99999-9999',
+            connectedAt: DateTime(2026, 1, 15),
+          ),
+        ),
+      );
+      when(
+        () => repository.disconnect(),
+      ).thenAnswer((_) async => Error(ServerFailure()));
+      await pumpWhatsappPage(tester);
+      await tester.tap(find.text('Desconectar'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Desconectar'),
+        ),
+      );
+      await _pumpPastLoading(tester);
+      expect(
+        find.text('Não foi possível desconectar. A conexão continua ativa.'),
+        findsOneWidget,
+      );
+      expect(find.text('+55 62 99999-9999'), findsOneWidget);
+    });
+  });
+
+  group('pendências operacionais (nunca parece pronta para enviar)', () {
+    Future<void> pumpPending(
+      WidgetTester tester,
+      String code, {
+      WhatsappConnectionStatus status = WhatsappConnectionStatus.pending,
+    }) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            status,
+            displayPhoneNumber: '+55 62 99999-9999',
+            lastError: {'code': code},
+          ),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+    }
+
+    testWidgets('modelos de mensagem em análise', (tester) async {
+      await pumpPending(tester, 'templates_pending');
+      expect(find.text('Em andamento'), findsOneWidget);
+      expect(find.textContaining('aprovar os modelos de mensagem'), findsOne);
+      expect(find.text('Conectado'), findsNothing);
+    });
+
+    testWidgets('PIN existente: pede ajuda, sem campo de PIN inventado', (
+      tester,
+    ) async {
+      await pumpPending(tester, 'phone_pin_required');
+      expect(find.textContaining('verificação em duas etapas'), findsOne);
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('registro no limite da Meta (72 h)', (tester) async {
+      await pumpPending(tester, 'phone_registration_rate_limited');
+      expect(find.textContaining('72 horas'), findsOneWidget);
+    });
+
+    testWidgets('autorização revogada pela Meta aparece como desconectada', (
+      tester,
+    ) async {
+      await pumpPending(
+        tester,
+        'revoked_by_meta',
+        status: WhatsappConnectionStatus.disconnected,
+      );
+      expect(find.text('Desconectado'), findsOneWidget);
+      expect(find.textContaining('encerrou a autorização'), findsOneWidget);
+    });
+
+    testWidgets('conectada avisa para confirmar o pagamento na Meta', (
+      tester,
+    ) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async => Success(
+          connectionWith(
+            WhatsappConnectionStatus.connected,
+            displayPhoneNumber: '+55 62 99999-9999',
+            connectedAt: DateTime(2026, 1, 15),
+          ),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+      expect(find.textContaining('forma de pagamento'), findsOneWidget);
+    });
   });
 
   group('falha ao consultar (loadFailure)', () {

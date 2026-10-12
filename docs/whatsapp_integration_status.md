@@ -1,5 +1,50 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-11 (branch `feature/whatsapp-e2e-20261011`)
+
+**Validado em produção:** E2E real do `appointment_12h` (Meta aceitou, a paciente de teste tocou em
+Confirmar, o webhook mudou a consulta para `confirmed`). Conexão em uso: a de teste da Lucksrei.
+`appointments` está na publicação `supabase_realtime` (RLS por `fisioterapeuta_id`).
+
+**Neste PR (nada disso foi aplicado/deployado em produção):**
+
+| Item | Estado |
+|---|---|
+| Realtime Agenda/Home (`AgendaCubit.startRealtime`) | corrigido (mocks) e testado; edição de consulta não regrava `status` |
+| `0028_whatsapp_informative_gate.sql` | **não aplicada**. Dry-run revertido em produção: antes 5 avisos legados seriam reservados, depois da trava 0 |
+| cron 5 min | script pronto (`rollout-0028/03_cron_5min.sql`), **não aplicado** (hoje `*/30`) |
+| `0028` e `0029` | **aplicadas em produção em 11/10/2026** (pela proprietária). A Edge Function `whatsapp-connect` NÃO foi deployada e o onboarding segue desligado |
+| `0030_whatsapp_connect_hardening.sql` | **não aplicada** (correções da revisão do PR #6). Validada em transação revertida em produção |
+| `web/whatsapp-connect.html` (página de onboarding) | vai junto com o deploy web (Cloudflare) |
+| Tela Perfil → WhatsApp | conectar / atualizar / desconectar; sem backend liberado continua "Integração em preparação" |
+
+**Bloqueios externos (Meta), dependem da conta da Lucksrei:** ver a seção "Embedded Signup" abaixo.
+
+### Embedded Signup — como funciona e o que falta ligar
+
+1. App chama `whatsapp-connect` `start` (JWT) -> state aleatório de 256 bits (só o hash no banco, TTL 15 min, uso único) -> URL HTTPS da página.
+2. A página (`web/whatsapp-connect.html`) pega `app_id`/`config_id` via `config` (valida o state sem consumi-lo), abre `FB.login` (Embedded Signup v4) e recebe `code` + `WA_EMBEDDED_SIGNUP` (`waba_id`, `phone_number_id`).
+3. `complete` consome o state, troca o code **no servidor** (30 s de validade), confere que o número pertence à WABA, inscreve o app no webhook da WABA, registra o número (exceto coexistência), garante os templates e grava o token no Vault via `set_whatsapp_connection_access_token`. Só vira `connected` com os dois templates APROVADOS; antes disso fica `pending`.
+4. Sem `WHATSAPP_SELF_CONNECT_ENABLED=true` + `META_APP_ID`, `META_ES_CONFIG_ID`, `WHATSAPP_CONNECT_PAGE_URL` (+ App Secret e versão da Graph já existentes), `availability` devolve `enabled:false` e o app não mostra o botão.
+
+Pré-requisitos na Meta (não verificáveis daqui): Tech Provider aprovado, App Review com `whatsapp_business_management` e `whatsapp_business_messaging` (acesso avançado), configuração Embedded Signup v4 (Facebook Login for Business), domínio da página em *Allowed domains* e *Valid OAuth redirect URIs*, webhook `account_update` assinado. Embedded Signup v2 deixa de existir em 15/10/2026 (usar v4).
+
+### Correções da revisão (PR #6)
+
+- Token: a linha é reservada como `pending`, o token vai ao Vault **antes** de qualquer efeito na Meta e `connected` só é gravado se a credencial existir (o banco recusa com `WA009`). Falha de gravação deixa `pending/credential_store_failed`, sem tocar na WABA.
+- Registro do número: nunca inventa PIN. Número já `CONNECTED` não é registrado; com PIN existente fica `phone_pin_required`; coexistência nunca registra; tentativas ficam em `setup_state` (limite próprio de 8 por 72 h, e bloqueio de 72 h ao receber `133016`). `status` reavalia tudo e só promove com registro válido.
+- WABA compartilhada: a inscrição do webhook só é removida quando nenhuma outra profissional usa a mesma WABA (na dúvida, mantém).
+- Conflitos locais (número de outra profissional, conexão ativa) são checados **antes** de inscrever/registrar/criar templates; leituras na Meta (troca do code, posse do número) vêm antes da reserva.
+- Troca do code: `GET /oauth/access_token` (contrato da documentação). Listagens de números e templates seguem `paging.next` (só `graph.facebook.com`, limite de páginas; resultado incompleto nunca vira "não pertence").
+- `account_update`: o `whatsapp-webhook` (com HMAC) aplica `PARTNER_REMOVED`, `PARTNER_APP_UNINSTALLED`, `ACCOUNT_DELETED`, `ACCOUNT_OFFBOARDED` (revoga: apaga token e desconecta), `DISABLED_UPDATE`/violação/restrição (`error`, envio para) e reabilitação (`pending`, reavaliação completa). Idempotente. Falta o deploy do webhook novo e assinar `account_update` na Meta.
+- Prontidão: só `connected` com webhook inscrito, número `CONNECTED`, os dois templates aprovados e `health_status` não limitado/bloqueado. A cobrança não é consultável por API: a tela de conectada pede para confirmar a forma de pagamento no WhatsApp Manager.
+- Template de aviso: o texto tem **duas** quebras de linha depois do emoji (conforme a revisão; não consegui conferir direto na Meta). Só afeta templates criados em novas WABAs.
+- Correção de relato: o dry-run da 0028 mede o **claim**; para consultas já ocorridas o `prepare` cancelaria com `appointment_already_occurred`. A trava continua útil contra avisos antigos de consultas futuras.
+
+Limitações conhecidas: retorno ao app é por "voltar e atualizar" (o app relê ao voltar do background); universal link/deep link fica para uma etapa nativa. O PIN de duas etapas gerado no registro do número não é guardado (recuperável pelo Business Manager). A desconexão remove token e inscrição do webhook, mas não revoga a autorização na Meta.
+
+---
+
 Última atualização: 2026-10-08. Projeto Supabase: `lchaboncmgcimafpupad` (fisioterapia_pelvica).
 Nenhum segredo está neste arquivo; só os NOMES dos secrets.
 

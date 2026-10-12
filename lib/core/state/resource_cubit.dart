@@ -27,6 +27,15 @@ abstract class ResourceCubit<T> extends Cubit<DataState<T>> {
   @protected
   Future<Result<T>> fetch();
 
+  /// Aplica dados recebidos por uma fonte externa (ex.: Supabase Realtime).
+  /// Invalida qualquer fetch em andamento para não restaurar dados antigos.
+  @protected
+  void applyExternalData(T data) {
+    if (isClosed) return;
+    _generation++;
+    emit(DataState<T>.success(data));
+  }
+
   /// Primeira carga. Não faz nada se já há dados válidos; se já existe uma
   /// busca em andamento, aguarda a mesma em vez de abrir outra.
   Future<void> ensureLoaded() {

@@ -13,6 +13,8 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { createSupabaseConfirmationReplyPort } from "../_shared/inbound/supabase_confirmation_port.ts";
 import type { ConfirmationReplyPort } from "../_shared/inbound/types.ts";
+import { createSupabaseAccountEventPort } from "../_shared/account/supabase_account_port.ts";
+import type { AccountEventPort } from "../_shared/account/types.ts";
 import { createWebhookHandler } from "./handler.ts";
 
 let port: ConfirmationReplyPort | null = null;
@@ -31,10 +33,26 @@ function getPort(): ConfirmationReplyPort {
   return port;
 }
 
+let accountPort: AccountEventPort | null = null;
+
+function getAccountPort(): AccountEventPort {
+  if (accountPort) return accountPort;
+  const url = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceRoleKey) {
+    throw new Error("SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausentes do ambiente da function");
+  }
+  accountPort = createSupabaseAccountEventPort(
+    createClient(url, serviceRoleKey, { auth: { persistSession: false } }),
+  );
+  return accountPort;
+}
+
 Deno.serve(
   createWebhookHandler({
     verifyToken: Deno.env.get("WHATSAPP_VERIFY_TOKEN"),
     appSecret: Deno.env.get("WHATSAPP_APP_SECRET"),
     getPort,
+    getAccountPort,
   }),
 );

@@ -48,4 +48,62 @@ class WhatsappConnectionRepositorySupabase
       return Error(UnexpectedFailure());
     }
   }
+
+  Future<Map<String, dynamic>> _invoke(String action) async {
+    final response = await _client.functions
+        .invoke('whatsapp-connect', body: {'action': action})
+        .timeout(_kWhatsappConnectionQueryTimeout);
+    final data = response.data;
+    if (data is! Map<String, dynamic> || data['ok'] != true) {
+      throw const FormatException('resposta inesperada');
+    }
+    return data;
+  }
+
+  Future<Result<T>> _guarded<T>(String label, Future<T> Function() body) async {
+    try {
+      return Success(await body());
+    } on TimeoutException catch (e, st) {
+      debugPrint(
+        '[WhatsappConnectionRepositorySupabase.$label] timeout\n$e\n$st',
+      );
+      return Error(NetworkFailure());
+    } on FunctionException catch (e, st) {
+      debugPrint(
+        '[WhatsappConnectionRepositorySupabase.$label] status=${e.status}\n$st',
+      );
+      return Error(ServerFailure());
+    } catch (e, st) {
+      debugPrint(
+        '[WhatsappConnectionRepositorySupabase.$label] ${e.runtimeType}\n$st',
+      );
+      return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Result<bool>> isSelfConnectAvailable() => _guarded(
+    'isSelfConnectAvailable',
+    () async => (await _invoke('availability'))['enabled'] == true,
+  );
+
+  @override
+  Future<Result<Uri>> startConnection() =>
+      _guarded('startConnection', () async {
+        final data = await _invoke('start');
+        final uri = Uri.tryParse(data['connect_url'] as String? ?? '');
+        // Só abre HTTPS: nunca um esquema arbitrário vindo da resposta.
+        if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+          throw const FormatException('url inválida');
+        }
+        return uri;
+      });
+
+  @override
+  Future<Result<void>> refreshRemoteStatus() =>
+      _guarded('refreshRemoteStatus', () => _invoke('status'));
+
+  @override
+  Future<Result<void>> disconnect() =>
+      _guarded('disconnect', () => _invoke('disconnect'));
 }

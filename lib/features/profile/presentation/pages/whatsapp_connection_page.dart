@@ -4,6 +4,7 @@ import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
+import 'package:la_pelve/features/profile/domain/entities/whatsapp_connection.dart';
 import 'package:la_pelve/features/profile/domain/repositories/whatsapp_connection_repository.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/whatsapp_connection_cubit.dart';
@@ -15,12 +16,6 @@ import 'package:la_pelve/shared/widgets/app_section.dart';
 import 'package:la_pelve/shared/widgets/app_status_badge.dart';
 import 'package:la_pelve/shared/widgets/modern_app_bar.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
-
-/// A conexão do número pelo próprio app (Embedded Signup da Meta) ainda não
-/// existe. Enquanto for `false`, quem não tem conexão vê "Integração em
-/// preparação" em vez de um botão desabilitado. Quando o fluxo existir, basta
-/// ligar isto e passar o callback em [_ConnectArea].
-const bool kWhatsappSelfConnectEnabled = false;
 
 class WhatsappConnectionPage extends StatelessWidget {
   const WhatsappConnectionPage({super.key});
@@ -35,8 +30,38 @@ class WhatsappConnectionPage extends StatelessWidget {
   }
 }
 
-class _WhatsappConnectionView extends StatelessWidget {
+class _WhatsappConnectionView extends StatefulWidget {
   const _WhatsappConnectionView();
+
+  @override
+  State<_WhatsappConnectionView> createState() =>
+      _WhatsappConnectionViewState();
+}
+
+class _WhatsappConnectionViewState extends State<_WhatsappConnectionView>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Volta do navegador/aba da Meta: relê o estado real no servidor.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle != AppLifecycleState.resumed || !mounted) return;
+    final cubit = context.read<WhatsappConnectionCubit>();
+    if (cubit.state is WhatsappConnectionConnecting ||
+        cubit.state is WhatsappConnectionPending) {
+      cubit.load();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,10 +160,17 @@ class _WhatsappPanel extends StatelessWidget {
   ) {
     return switch (state) {
       WhatsappConnectionLoading() || WhatsappConnectionLoadFailure() => null,
-      WhatsappConnectionNotConnected() => AppStatusBadge(
-        label: t.whatsappStatusInSetup,
-        tone: AppStatusTone.neutral,
+      WhatsappConnectionConnecting() => AppStatusBadge(
+        label: t.whatsappStatusConnecting,
+        tone: AppStatusTone.primary,
       ),
+      WhatsappConnectionNotConnected(:final selfConnectAvailable) =>
+        selfConnectAvailable
+            ? null
+            : AppStatusBadge(
+                label: t.whatsappStatusInSetup,
+                tone: AppStatusTone.neutral,
+              ),
       WhatsappConnectionPending() => AppStatusBadge(
         label: t.whatsappStatusPending,
         tone: AppStatusTone.primary,
@@ -235,54 +267,112 @@ class _StatusArea extends StatelessWidget {
           Expanded(child: Text(t.whatsappCheckingStatus, style: secondary)),
         ],
       ),
-      WhatsappConnectionNotConnected() => _ConnectArea(t: t),
-      WhatsappConnectionDisconnected(:final connection) => Column(
+      WhatsappConnectionConnecting() => _MessageWithAction(
+        title: t.whatsappConnectingTitle,
+        message: t.whatsappConnectingMessage,
+        actionLabel: t.refreshStatusButtonLabel,
+        onAction: refresh,
+      ),
+      WhatsappConnectionNotConnected(
+        :final selfConnectAvailable,
+        :final startFailed,
+      ) =>
+        _ConnectArea(
+          t: t,
+          available: selfConnectAvailable,
+          startFailed: startFailed,
+        ),
+      WhatsappConnectionDisconnected(
+        :final connection,
+        :final selfConnectAvailable,
+        :final startFailed,
+      ) =>
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (t.whatsappReasonMessage(_reasonCode(connection))
+                case final reason?) ...[
+              Text(reason, style: secondary),
+              const SizedBox(height: AppSpacing.s12),
+            ],
+            if (connection.disconnectedAt != null) ...[
+              Text(
+                t.whatsappDisconnectedSinceLabel(
+                  AppDateField.format(connection.disconnectedAt!),
+                ),
+                style: secondary,
+              ),
+              const SizedBox(height: AppSpacing.s16),
+            ],
+            _ConnectArea(
+              t: t,
+              available: selfConnectAvailable,
+              startFailed: startFailed,
+            ),
+          ],
+        ),
+      WhatsappConnectionPending(:final connection) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (connection.disconnectedAt != null) ...[
-            Text(
-              t.whatsappDisconnectedSinceLabel(
-                AppDateField.format(connection.disconnectedAt!),
-              ),
-              style: secondary,
-            ),
-            const SizedBox(height: AppSpacing.s16),
-          ],
-          _ConnectArea(t: t),
-        ],
-      ),
-      WhatsappConnectionPending() => _MessageWithAction(
-        title: t.whatsappPendingTitle,
-        message: t.whatsappPendingMessage,
-        actionLabel: t.refreshStatusButtonLabel,
-        onAction: refresh,
-      ),
-      WhatsappConnectionError() => _MessageWithAction(
-        title: t.whatsappConnectionErrorMessage,
-        message: null,
-        actionLabel: t.refreshStatusButtonLabel,
-        onAction: refresh,
-      ),
-      WhatsappConnectionConnected(:final connection) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(t.connectedPhoneNumberLabel, style: secondary),
-          const SizedBox(height: 2),
-          Text(
-            connection.displayPhoneNumber ?? t.notInformedLabel,
-            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          _MessageWithAction(
+            title: t.whatsappPendingTitle,
+            message:
+                t.whatsappReasonMessage(_reasonCode(connection)) ??
+                t.whatsappPendingMessage,
+            actionLabel: t.refreshStatusButtonLabel,
+            onAction: refresh,
           ),
-          if (connection.connectedAt != null) ...[
-            const SizedBox(height: AppSpacing.s8),
-            Text(
-              t.whatsappConnectedSinceLabel(
-                AppDateField.format(connection.connectedAt!),
-              ),
-              style: secondary,
-            ),
-          ],
+          const SizedBox(height: AppSpacing.s8),
+          const _DisconnectButton(),
         ],
       ),
+      WhatsappConnectionError(:final connection) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _MessageWithAction(
+            title: t.whatsappConnectionErrorMessage,
+            message: t.whatsappReasonMessage(_reasonCode(connection)),
+            actionLabel: t.refreshStatusButtonLabel,
+            onAction: refresh,
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          const _DisconnectButton(),
+        ],
+      ),
+      WhatsappConnectionConnected(:final connection, :final disconnectFailed) =>
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.connectedPhoneNumberLabel, style: secondary),
+            const SizedBox(height: 2),
+            Text(
+              connection.displayPhoneNumber ?? t.notInformedLabel,
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            if (connection.connectedAt != null) ...[
+              const SizedBox(height: AppSpacing.s8),
+              Text(
+                t.whatsappConnectedSinceLabel(
+                  AppDateField.format(connection.connectedAt!),
+                ),
+                style: secondary,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.s12),
+            Text(t.whatsappBillingNote, style: secondary),
+            if (disconnectFailed) ...[
+              const SizedBox(height: AppSpacing.s12),
+              Text(
+                t.whatsappDisconnectFailedMessage,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: context.colors.danger,
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.s16),
+            const _DisconnectButton(),
+          ],
+        ),
       // Tratado pela página (erro de tela cheia); nunca chega aqui.
       WhatsappConnectionLoadFailure() => const SizedBox.shrink(),
     };
@@ -294,25 +384,46 @@ class _StatusArea extends StatelessWidget {
   }
 }
 
-/// Sem conexão. Hoje: "Integração em preparação" (informativo). Quando
-/// [kWhatsappSelfConnectEnabled] for ligado, vira o botão primário
-/// "Conectar WhatsApp" que inicia o fluxo da Meta.
+String? _reasonCode(WhatsappConnection connection) =>
+    connection.lastError?['code'] as String?;
+
+/// Sem conexão. Com o onboarding liberado pelo backend, mostra o botão
+/// primário "Conectar WhatsApp" (fluxo oficial da Meta). Sem ele, mostra
+/// "Integração em preparação" -- nunca um botão que não funciona.
 class _ConnectArea extends StatelessWidget {
-  const _ConnectArea({required this.t});
+  const _ConnectArea({
+    required this.t,
+    required this.available,
+    required this.startFailed,
+  });
 
   final ProfileStrings t;
+  final bool available;
+  final bool startFailed;
 
   @override
   Widget build(BuildContext context) {
-    if (kWhatsappSelfConnectEnabled) {
-      return PrimaryButton(
-        label: t.connectWhatsappButtonLabel,
-        // O fluxo de conexão ainda não existe: ligar o flag exige passar o
-        // callback real aqui.
-        onPressed: null,
+    final textTheme = Theme.of(context).textTheme;
+    if (available) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (startFailed) ...[
+            Text(
+              t.whatsappStartFailedMessage,
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.colors.danger,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s12),
+          ],
+          PrimaryButton(
+            label: t.connectWhatsappButtonLabel,
+            onPressed: () => context.read<WhatsappConnectionCubit>().connect(),
+          ),
+        ],
       );
     }
-    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -336,6 +447,40 @@ class _ConnectArea extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Desconectar sempre pede confirmação.
+class _DisconnectButton extends StatelessWidget {
+  const _DisconnectButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
+    return OutlinedButton(
+      onPressed: () async {
+        final cubit = context.read<WhatsappConnectionCubit>();
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(t.disconnectWhatsappDialogTitle),
+            content: Text(t.disconnectWhatsappDialogMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(t.cancelButtonLabel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(t.disconnectWhatsappButtonLabel),
+              ),
+            ],
+          ),
+        );
+        if (confirmed == true) await cubit.disconnect();
+      },
+      child: Text(t.disconnectWhatsappButtonLabel),
     );
   }
 }
