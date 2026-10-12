@@ -13,6 +13,10 @@ import { processInboundWebhook } from "../_shared/inbound/process.ts";
 import type { ConfirmationReplyPort, InboundSummary } from "../_shared/inbound/types.ts";
 import { parseAccountUpdates } from "../_shared/account/parse_account_update.ts";
 import type { AccountEventPort } from "../_shared/account/types.ts";
+import { parseStatuses } from "../_shared/delivery/parse_statuses.ts";
+import type { DeliveryStatusPort, StatusApplyResult } from "../_shared/delivery/status_port.ts";
+import { parseTemplateStatusUpdates } from "../_shared/templates/parse_template_status.ts";
+import type { TemplateStatusPort } from "../_shared/templates/template_port.ts";
 
 export interface WebhookConfig {
   verifyToken: string | undefined;
@@ -21,6 +25,15 @@ export interface WebhookConfig {
   getPort: () => ConfirmationReplyPort;
   /** Eventos account_update (revogação/restrição). Criada só depois da assinatura validada. */
   getAccountPort?: () => AccountEventPort;
+  /** Status de entrega (statuses[]). Criada só depois da assinatura validada. */
+  getStatusPort?: () => DeliveryStatusPort;
+  /** message_template_status_update. Criada só depois da assinatura validada. */
+  getTemplatePort?: () => TemplateStatusPort;
+  /**
+   * Templates que importam para a prontidão da conexão (nome + idioma). Eventos
+   * de outros templates da WABA são ignorados.
+   */
+  templates?: { names: string[]; language: string };
   log?: (event: string, data: Record<string, unknown>) => void;
 }
 
@@ -128,6 +141,64 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
         }
       }
 
+      // Status de entrega: idempotente e monotônico no banco; falha => 500
+      // (a Meta reenvia) depois de processar o resto do payload.
+      let persistenceErrors = 0;
+      if (config.getStatusPort) {
+        const parsedStatuses = parseStatuses(body);
+        if (parsedStatuses.statuses.length > 0 || parsedStatuses.ignored > 0) {
+          const counts: Partial<Record<StatusApplyResult, number>> = {};
+          let failures = 0;
+          try {
+            const statusPort = config.getStatusPort();
+            for (const status of parsedStatuses.statuses) {
+              const result = await statusPort.applyStatus(status);
+              if (result === null) failures++;
+              else counts[result] = (counts[result] ?? 0) + 1;
+            }
+          } catch {
+            failures = parsedStatuses.statuses.length;
+          }
+          persistenceErrors += failures;
+          log("delivery_status_processed", {
+            statuses: parsedStatuses.statuses.length,
+            ignored: parsedStatuses.ignored,
+            ...counts,
+            errors: failures,
+          });
+        }
+      }
+
+      // Status de template: só os templates da prontidão; nunca promove.
+      if (config.getTemplatePort && config.templates) {
+        const wanted = new Set(config.templates.names);
+        const language = config.templates.language;
+        const all = parseTemplateStatusUpdates(body);
+        const relevant = all.filter((e) => wanted.has(e.name) && e.language === language);
+        if (all.length > 0) {
+          let changed = 0;
+          let failures = 0;
+          try {
+            const templatePort = config.getTemplatePort();
+            for (const event of relevant) {
+              const result = await templatePort.applyTemplateStatus(event);
+              if (result === null) failures++;
+              else changed += result;
+            }
+          } catch {
+            failures = relevant.length;
+          }
+          persistenceErrors += failures;
+          log("template_status_processed", {
+            events: all.length,
+            relevant: relevant.length,
+            connectionsChanged: changed,
+            errors: failures,
+            types: [...new Set(relevant.map((e) => e.event))],
+          });
+        }
+      }
+
       let summary: InboundSummary;
       try {
         summary = await processInboundWebhook(body, config.getPort());
@@ -139,7 +210,7 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
 
       // Falha de persistência: 500 faz a Meta reenviar. É seguro porque o
       // processamento é idempotente por wamid (reentrega vira 'duplicate').
-      if (summary.errors > 0) {
+      if (summary.errors > 0 || persistenceErrors > 0) {
         return new Response("Processing failed", { status: 500 });
       }
       return new Response("EVENT_RECEIVED", { status: 200 });

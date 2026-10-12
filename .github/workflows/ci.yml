@@ -92,3 +92,12 @@ jobs:
 
       - name: Apply every migration and run SQL tests
         run: bash supabase/tests/run_sql_tests.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Webhook integration tests against the throwaway database
+        shell: bash
+        run: |
+          LA_PELVE_TEST_PGHOST="$PGHOST" node --experimental-strip-types --test             supabase/functions/whatsapp-webhook/integration.test.ts             supabase/functions/whatsapp-webhook/status_integration.test.ts
