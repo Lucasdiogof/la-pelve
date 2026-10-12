@@ -546,3 +546,119 @@ test("reavaliação: roda depois da resposta quando há defer (não segura o web
   await Promise.all(r.deferred);
   assert.deepEqual(r.reevaluated, ["102290129340398"]);
 });
+
+// --------------------------------------------------------------------------
+// Limite de tamanho do corpo (413), leitura em streaming, HMAC sobre os bytes
+// --------------------------------------------------------------------------
+
+import { DEFAULT_MAX_BODY_BYTES, parseMaxBodyBytes, readBodyLimited } from "./handler.ts";
+
+function limited(port: ConfirmationReplyPort, maxBodyBytes: number) {
+  const logs: Array<{ event: string; data: Record<string, unknown> }> = [];
+  const handler = createWebhookHandler({
+    verifyToken: VERIFY_TOKEN,
+    appSecret: APP_SECRET,
+    maxBodyBytes,
+    getPort: () => port,
+    log: (event, data) => logs.push({ event, data }),
+  });
+  return { handler, logs };
+}
+
+/** Corpo em streaming SEM content-length (como um cliente chunked). */
+function streamed(chunks: Uint8Array[], headers: Record<string, string> = {}) {
+  let i = 0;
+  let pulled = 0;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (i >= chunks.length) return controller.close();
+      pulled++;
+      controller.enqueue(chunks[i++]);
+    },
+  });
+  const req = new Request(URL_BASE, { method: "POST", headers, body: stream, duplex: "half" } as RequestInit);
+  return { req, pulled: () => pulled };
+}
+
+test("413: content-length acima do teto é recusado antes de ler/assinar, sem processar", async () => {
+  const { port, calls } = fakePort();
+  const { handler, logs } = limited(port, 2048);
+  const req = new Request(URL_BASE, { method: "POST", headers: { "content-length": "999999", "x-hub-signature-256": "sha256=00" }, body: "x" });
+  const res = await handler(req);
+  assert.equal(res.status, 413);
+  assert.equal(calls.length, 0);
+  assert.deepEqual(logs.map((l) => l.event), ["payload_too_large"]);
+  assert.deepEqual(logs[0].data, { limit_bytes: 2048 });
+});
+
+test("413: sem content-length, a leitura em streaming para ao passar do teto (não consome o resto)", async () => {
+  const { port, calls } = fakePort();
+  const { handler } = limited(port, 2048);
+  const chunk = new Uint8Array(1000).fill(65);
+  const s = streamed(Array.from({ length: 50 }, () => chunk));
+  assert.equal((await handler(s.req)).status, 413);
+  assert.ok(s.pulled() < 10, `leu ${s.pulled()} pedaços de 50`);
+  assert.equal(calls.length, 0);
+});
+
+test("corpo no limite exato é aceito; um byte a mais é 413 (mesmo assinado corretamente)", async () => {
+  const { port } = fakePort();
+  const { handler } = limited(port, 4096);
+  const at = "a".repeat(4096);
+  assert.equal((await handler(await signedPost(at))).status, 200); // assinado, não-JSON: 200 sem processar
+  const over = "a".repeat(4097);
+  assert.equal((await handler(await signedPost(over))).status, 413);
+});
+
+test("corpo vazio: sem assinatura 401; assinado vazio = 200 (não é JSON, nada a processar)", async () => {
+  const { port, calls } = fakePort();
+  const { handler, logs } = limited(port, 4096);
+  assert.equal((await handler(new Request(URL_BASE, { method: "POST" }))).status, 401);
+  assert.equal((await handler(await signedPost(""))).status, 200);
+  assert.ok(logs.some((l) => l.event === "payload_parse_error" && l.data.bytes === 0));
+  assert.equal(calls.length, 0);
+});
+
+test("payload malformado assinado: 200, sem processar e sem logar o corpo", async () => {
+  const { port, calls } = fakePort();
+  const { handler, logs } = limited(port, 4096);
+  assert.equal((await handler(await signedPost("{nao-e-json"))).status, 200);
+  assert.equal(calls.length, 0);
+  assert.ok(logs.every((l) => !JSON.stringify(l).includes("nao-e-json")));
+});
+
+test("assinatura inválida em corpo dentro do limite continua 401", async () => {
+  const { port, calls } = fakePort();
+  const { handler } = limited(port, 65536);
+  assert.equal((await handler(await signedPost(textReply("wamid.in.9"), "outro-secret"))).status, 401);
+  assert.equal(calls.length, 0);
+});
+
+test("HMAC é sobre os BYTES originais: corpo com bytes não-UTF-8 assinado sobre os bytes é aceito", async () => {
+  const { port } = fakePort();
+  const { handler } = limited(port, 65536);
+  const bytes = new Uint8Array([0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0xfe, 0x22, 0x7d]); // {"a":"\xff\xfe"}
+  const sig = await hmacSha256Hex(APP_SECRET, bytes);
+  const ok = await handler(new Request(URL_BASE, { method: "POST", headers: { "x-hub-signature-256": `sha256=${sig}` }, body: bytes }));
+  assert.equal(ok.status, 200);
+  // A mesma assinatura sobre OUTRO corpo é recusada.
+  const other = await handler(new Request(URL_BASE, { method: "POST", headers: { "x-hub-signature-256": `sha256=${sig}` }, body: new Uint8Array([0x7b, 0x7d]) }));
+  assert.equal(other.status, 401);
+});
+
+test("evento legítimo (resposta da paciente) segue processado com o limite padrão", async () => {
+  const { port, calls } = fakePort();
+  const { handler } = setup(port);
+  assert.equal((await handler(await signedPost(textReply("wamid.in.77")))).status, 200);
+  assert.equal(calls.length, 1);
+});
+
+test("readBodyLimited: sem corpo = vazio; parseMaxBodyBytes valida (inválido/fora da faixa volta ao padrão)", async () => {
+  assert.equal((await readBodyLimited(new Request(URL_BASE, { method: "POST" }), 10))?.byteLength, 0);
+  assert.equal(parseMaxBodyBytes(undefined), DEFAULT_MAX_BODY_BYTES);
+  assert.equal(parseMaxBodyBytes("abc"), DEFAULT_MAX_BODY_BYTES);
+  assert.equal(parseMaxBodyBytes("10"), DEFAULT_MAX_BODY_BYTES);
+  assert.equal(parseMaxBodyBytes("99999999999"), DEFAULT_MAX_BODY_BYTES);
+  assert.equal(parseMaxBodyBytes("2048"), 2048);
+  assert.equal(parseMaxBodyBytes("10485760"), 10485760);
+});

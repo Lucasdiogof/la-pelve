@@ -127,4 +127,11 @@ export interface DispatchSummary {
   deferred: number;
   leaseLost: number;
   errors: number;
+  /**
+   * Contadores agregados POR CÓDIGO (só códigos fixos, nunca ids, telefones ou
+   * texto): por que mensagens foram canceladas (ex.: consent_revoked = barrada
+   * por falta de consentimento), adiadas (ex.: credential_missing) ou falharam
+   * (ex.: auth_error = token recusado pela Meta).
+   */
+  codes: { cancelled: Record<string, number>; deferred: Record<string, number>; failed: Record<string, number> };
 }

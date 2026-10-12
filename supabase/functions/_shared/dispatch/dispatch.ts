@@ -34,8 +34,13 @@ function defaultLog(event: string, data: Record<string, unknown>) {
   console.log(JSON.stringify({ event, ...data }));
 }
 
+/** Soma 1 ao contador do código (só códigos fixos entram aqui). */
+function bump(counter: Record<string, number>, code: string): void {
+  counter[code] = (counter[code] ?? 0) + 1;
+}
+
 function emptySummary(): DispatchSummary {
-  return { claimed: 0, sent: 0, retried: 0, failed: 0, unknownOutcome: 0, cancelled: 0, deferred: 0, leaseLost: 0, errors: 0 };
+  return { claimed: 0, sent: 0, retried: 0, failed: 0, unknownOutcome: 0, cancelled: 0, deferred: 0, leaseLost: 0, errors: 0, codes: { cancelled: {}, deferred: {}, failed: {} } };
 }
 
 /** Tipos com template configurado: os demais nem são reservados. */
@@ -75,10 +80,12 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
     }
     if (prepared.kind === "cancelled") {
       summary.cancelled++;
+      bump(summary.codes.cancelled, prepared.code);
       continue;
     }
     if (prepared.kind === "deferred") {
       summary.deferred++;
+      bump(summary.codes.deferred, prepared.code);
       continue;
     }
     if (prepared.kind === "lease_lost") {
@@ -139,7 +146,10 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
     if (completion.result === "sent") summary.sent++;
     else if (completion.result === "retry") summary.retried++;
     else if (completion.error.code === "send_outcome_unknown") summary.unknownOutcome++;
-    else summary.failed++;
+    else {
+      summary.failed++;
+      bump(summary.codes.failed, completion.error.code);
+    }
   }
 
   return summary;

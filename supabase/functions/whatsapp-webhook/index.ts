@@ -21,7 +21,7 @@ import { reevaluateAfterApproval } from "../_shared/templates/reevaluate.ts";
 import { createSupabaseReevaluationPort } from "../_shared/templates/reevaluation_port.ts";
 import { createMetaOnboarding } from "../whatsapp-connect/meta_onboarding.ts";
 import { isValidGraphApiVersion } from "../_shared/dispatch/meta_provider.ts";
-import { createWebhookHandler } from "./handler.ts";
+import { createWebhookHandler, parseMaxBodyBytes } from "./handler.ts";
 
 let port: ConfirmationReplyPort | null = null;
 
@@ -112,6 +112,7 @@ Deno.serve(
   createWebhookHandler({
     verifyToken: Deno.env.get("WHATSAPP_VERIFY_TOKEN"),
     appSecret: Deno.env.get("WHATSAPP_APP_SECRET"),
+    maxBodyBytes: parseMaxBodyBytes(Deno.env.get("WHATSAPP_WEBHOOK_MAX_BODY_BYTES")),
     getPort,
     getAccountPort,
     getStatusPort,

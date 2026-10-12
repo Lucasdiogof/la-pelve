@@ -257,3 +257,27 @@ test("a marcação leva o SHA-256 do token usado no envio, nunca o token; 401 se
   assert.ok(!hashes[0].includes(TOKEN));
   assert.ok(logs.every((l) => !l.includes(TOKEN) && !l.includes(hashes[0])));
 });
+
+test("resumo agregado por código: consentimento barrado, adiado e falhas; sem ids nem dados", async () => {
+  const rows = [
+    row("m1", { prepare: "cancelled" }),
+    row("m2", { prepare: "deferred" }),
+    row("m3"),
+    row("m4"),
+  ];
+  const { store } = memoryStore(rows);
+  const results = [
+    { kind: "rejected", code: "auth_error", httpStatus: 401, providerCode: 190 },
+    { kind: "rejected", code: "request_rejected", httpStatus: 400, providerCode: 132001 },
+  ] as const;
+  let i = 0;
+  const provider = createFakeWhatsappProvider(() => results[i++]);
+  const summary = await dispatchPendingWhatsappMessages({ store, provider, templates, now: () => NOW, log: () => {} });
+  assert.deepEqual(summary.codes, {
+    cancelled: { consent_revoked: 1 },
+    deferred: { connection_inactive: 1 },
+    failed: { auth_error: 1, request_rejected: 1 },
+  });
+  const text = JSON.stringify(summary);
+  assert.ok(!text.includes("m1") && !text.includes(TOKEN));
+});

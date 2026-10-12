@@ -19,12 +19,34 @@ import { parseTemplateStatusUpdates } from "../_shared/templates/parse_template_
 import type { TemplateStatusPort } from "../_shared/templates/template_port.ts";
 import type { ReevaluationSummary } from "../_shared/templates/reevaluate.ts";
 
+/** Eventos de template que tiram (ou podem tirar) a conexão de "pronta": entram no contador de alerta. */
+const NEGATIVE_TEMPLATE_EVENTS = new Set([
+  "REJECTED", "DISABLED", "DELETED", "PENDING_DELETION", "ARCHIVED", "LOCKED", "PAUSED", "PENDING", "IN_APPEAL", "LIMIT_EXCEEDED",
+]);
+
 /** Eventos que PODEM ter deixado a conexão pronta (nunca conectam sozinhos). */
 const POSITIVE_TEMPLATE_EVENTS = new Set(["APPROVED", "REINSTATED", "UNARCHIVED"]);
+
+/** A Meta documenta payloads de até 3 MB; este é o teto padrão do corpo (configurável). */
+export const DEFAULT_MAX_BODY_BYTES = 3 * 1024 * 1024;
+const MIN_MAX_BODY_BYTES = 1024;
+const HARD_MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Lê WHATSAPP_WEBHOOK_MAX_BODY_BYTES: inteiro entre 1 KiB e 10 MiB. Ausente ou
+ * inválido volta ao padrão (nunca "sem limite").
+ */
+export function parseMaxBodyBytes(value: string | undefined): number {
+  if (!value || !/^\d{1,9}$/.test(value)) return DEFAULT_MAX_BODY_BYTES;
+  const n = Number(value);
+  return n >= MIN_MAX_BODY_BYTES && n <= HARD_MAX_BODY_BYTES ? n : DEFAULT_MAX_BODY_BYTES;
+}
 
 export interface WebhookConfig {
   verifyToken: string | undefined;
   appSecret: string | undefined;
+  /** Teto do corpo do POST em bytes (lido em streaming, antes da assinatura). Padrão: 3 MiB. */
+  maxBodyBytes?: number;
   /** Criada só depois da assinatura validada (ver index.ts). */
   getPort: () => ConfirmationReplyPort;
   /** Eventos account_update (revogação/restrição). Criada só depois da assinatura validada. */
@@ -60,7 +82,7 @@ export function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export async function hmacSha256Hex(secret: string, raw: string): Promise<string> {
+export async function hmacSha256Hex(secret: string, raw: string | Uint8Array): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
@@ -68,15 +90,49 @@ export async function hmacSha256Hex(secret: string, raw: string): Promise<string
     false,
     ["sign"],
   );
-  const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(raw));
+  const mac = await crypto.subtle.sign("HMAC", key, typeof raw === "string" ? encoder.encode(raw) : (raw as BufferSource));
   return Array.from(new Uint8Array(mac))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
 
-export async function validSignature(secret: string, raw: string, header: string | null): Promise<boolean> {
+export async function validSignature(secret: string, raw: string | Uint8Array, header: string | null): Promise<boolean> {
   if (!header?.startsWith("sha256=")) return false;
   return safeEqual(await hmacSha256Hex(secret, raw), header.slice("sha256=".length));
+}
+
+/**
+ * Lê o corpo em streaming e aborta assim que passa do teto (nunca carrega o
+ * corpo inteiro para decidir). Devolve os bytes ORIGINAIS (o HMAC é sobre eles)
+ * ou null se excedeu.
+ */
+export async function readBodyLimited(req: Request, maxBytes: number): Promise<Uint8Array | null> {
+  const declared = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) {
+    await req.body?.cancel().catch(() => {});
+    return null;
+  }
+  if (!req.body) return new Uint8Array(0);
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
 }
 
 function defaultLog(event: string, data: Record<string, unknown>) {
@@ -114,11 +170,18 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
         log("config_error", { error: "WHATSAPP_APP_SECRET não definido" });
         return new Response("Server misconfigured", { status: 500 });
       }
-      const raw = await req.text();
-      if (!(await validSignature(config.appSecret, raw, req.headers.get("x-hub-signature-256")))) {
+      const maxBytes = config.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
+      const bytes = await readBodyLimited(req, maxBytes);
+      if (bytes === null) {
+        // Antes de qualquer HMAC/JSON: corpo grande demais nunca é processado.
+        log("payload_too_large", { limit_bytes: maxBytes });
+        return new Response("Payload too large", { status: 413 });
+      }
+      if (!(await validSignature(config.appSecret, bytes, req.headers.get("x-hub-signature-256")))) {
         log("invalid_signature", {});
         return new Response("Invalid signature", { status: 401 });
       }
+      const raw = new TextDecoder().decode(bytes);
 
       let body: unknown;
       try {
@@ -126,7 +189,7 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
       } catch {
         // Assinado mas não é JSON: reenviar não muda nada; 200 para a Meta
         // não insistir. Sem logar o corpo.
-        log("payload_parse_error", { bytes: raw.length });
+        log("payload_parse_error", { bytes: bytes.byteLength });
         return new Response("EVENT_RECEIVED", { status: 200 });
       }
 
@@ -205,6 +268,7 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
             relevant: relevant.length,
             connectionsChanged: changed,
             errors: failures,
+            negative: relevant.filter((e) => NEGATIVE_TEMPLATE_EVENTS.has(e.event)).length,
             types: [...new Set(relevant.map((e) => e.event))],
           });
           // Aprovação: só agenda a reavaliação completa (que consulta a Meta).
