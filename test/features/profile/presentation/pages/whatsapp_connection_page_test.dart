@@ -345,6 +345,87 @@ void main() {
     },
   );
 
+  testWidgets(
+    'conectada: mostra até quando a autorização vale e o botão Atualizar status',
+    (tester) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async =>
+            Success(connectionWith(WhatsappConnectionStatus.connected)),
+      );
+      when(() => repository.refreshRemoteStatus()).thenAnswer(
+        (_) async => Success(
+          WhatsappRemoteStatus(tokenExpiresAt: DateTime.utc(2026, 12, 5, 12)),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+
+      expect(
+        find.text('Autorização da Meta válida até 05/12/2026.'),
+        findsOneWidget,
+      );
+      expect(find.text('Reconectar'), findsNothing);
+      expect(find.text('Atualizar status'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'falha ao conferir no servidor: avisa que mostra o último estado salvo',
+    (tester) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async =>
+            Success(connectionWith(WhatsappConnectionStatus.connected)),
+      );
+      when(
+        () => repository.refreshRemoteStatus(),
+      ).thenAnswer((_) async => Error(NetworkFailure()));
+      await pumpWhatsappPage(tester);
+
+      expect(
+        find.textContaining('Mostrando o último estado salvo'),
+        findsOneWidget,
+      );
+      // Continua mostrando a conexão (nunca finge "não conectado").
+      expect(find.text('Conectado'), findsWidgets);
+    },
+  );
+
+  testWidgets('autorização vencendo: selo de aviso; vencida: selo de erro', (
+    tester,
+  ) async {
+    when(() => repository.getCurrentConnection()).thenAnswer(
+      (_) async => Success(connectionWith(WhatsappConnectionStatus.connected)),
+    );
+    when(() => repository.refreshRemoteStatus()).thenAnswer(
+      (_) async => Success(
+        WhatsappRemoteStatus(
+          reason: 'token_expiring',
+          tokenExpiresAt: DateTime.utc(2026, 10, 20, 12),
+        ),
+      ),
+    );
+    await pumpWhatsappPage(tester);
+    expect(
+      find.widgetWithText(AppStatusBadge, 'Autorização vencendo'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('erro token_invalid: selo "Autorização vencida"', (tester) async {
+    when(() => repository.getCurrentConnection()).thenAnswer(
+      (_) async => Success(
+        connectionWith(
+          WhatsappConnectionStatus.error,
+          lastError: {'code': 'token_invalid'},
+        ),
+      ),
+    );
+    await pumpWhatsappPage(tester);
+    expect(
+      find.widgetWithText(AppStatusBadge, 'Autorização vencida'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('conectada sem aviso: nada de Reconectar', (tester) async {
     when(() => repository.getCurrentConnection()).thenAnswer(
       (_) async => Success(connectionWith(WhatsappConnectionStatus.connected)),
@@ -405,7 +486,7 @@ void main() {
       when(
         () => repository.disconnect(),
       ).thenAnswer((_) async => const Success(null));
-      await pumpWhatsappPage(tester);
+      await pumpWhatsappPage(tester, size: const Size(390, 1000));
 
       await tester.tap(find.text('Desconectar'));
       await tester.pumpAndSettle();
@@ -441,7 +522,7 @@ void main() {
       when(
         () => repository.disconnect(),
       ).thenAnswer((_) async => Error(ServerFailure()));
-      await pumpWhatsappPage(tester);
+      await pumpWhatsappPage(tester, size: const Size(390, 1000));
       await tester.tap(find.text('Desconectar'));
       await tester.pumpAndSettle();
       await tester.tap(

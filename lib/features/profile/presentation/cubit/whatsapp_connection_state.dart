@@ -38,12 +38,16 @@ class WhatsappConnectionConnecting extends WhatsappConnectionState {
 }
 
 class WhatsappConnectionPending extends WhatsappConnectionState {
-  const WhatsappConnectionPending(this.connection);
+  const WhatsappConnectionPending(this.connection, {this.statusStale = false});
 
   final WhatsappConnection connection;
 
+  /// Não foi possível reavaliar no servidor agora (sem internet/servidor):
+  /// a tela mostra o último estado salvo e avisa.
+  final bool statusStale;
+
   @override
-  List<Object?> get props => [connection];
+  List<Object?> get props => [connection, statusStale];
 }
 
 class WhatsappConnectionConnected extends WhatsappConnectionState {
@@ -51,6 +55,8 @@ class WhatsappConnectionConnected extends WhatsappConnectionState {
     this.connection, {
     this.disconnectFailed = false,
     this.tokenExpiresAt,
+    this.tokenExpiring = false,
+    this.statusStale = false,
   });
 
   final WhatsappConnection connection;
@@ -58,11 +64,23 @@ class WhatsappConnectionConnected extends WhatsappConnectionState {
   /// A última tentativa de desconectar falhou; a conexão segue ativa.
   final bool disconnectFailed;
 
-  /// A autorização da Meta vence em breve: a tela oferece reconectar.
+  /// Quando a autorização da Meta vence, se o servidor informou.
   final DateTime? tokenExpiresAt;
 
+  /// Vence em breve (decisão do servidor): a tela avisa e oferece reconectar.
+  final bool tokenExpiring;
+
+  /// Não foi possível conferir a autorização agora: mostra o último estado salvo.
+  final bool statusStale;
+
   @override
-  List<Object?> get props => [connection, disconnectFailed, tokenExpiresAt];
+  List<Object?> get props => [
+    connection,
+    disconnectFailed,
+    tokenExpiresAt,
+    tokenExpiring,
+    statusStale,
+  ];
 }
 
 class WhatsappConnectionDisconnected extends WhatsappConnectionState {
@@ -84,12 +102,13 @@ class WhatsappConnectionDisconnected extends WhatsappConnectionState {
 /// do lado da Meta/backend ao conectar). Diferente de
 /// [WhatsappConnectionLoadFailure], que é falha ao CONSULTAR o Supabase.
 class WhatsappConnectionError extends WhatsappConnectionState {
-  const WhatsappConnectionError(this.connection);
+  const WhatsappConnectionError(this.connection, {this.statusStale = false});
 
   final WhatsappConnection connection;
+  final bool statusStale;
 
   @override
-  List<Object?> get props => [connection];
+  List<Object?> get props => [connection, statusStale];
 }
 
 /// Falha ao consultar o Supabase (rede, timeout, erro do servidor). Nunca

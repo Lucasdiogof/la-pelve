@@ -891,7 +891,11 @@ test("status com token longe de vencer, sem expiração ou consulta à Meta indi
   await h.call(complete(await startFor(h, "Bearer jwt-a")));
   const upsertsBefore = h.upserts.length;
   h.script.tokenExpiresAt = new Date(NOW.getTime() + 40 * 24 * 3600_000);
-  assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
+  assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), {
+    ok: true,
+    status: "connected",
+    token_expires_at: h.script.tokenExpiresAt.toISOString(),
+  });
   h.script.tokenExpiresAt = null;
   assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
   h.script.tokenValid = false;

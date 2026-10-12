@@ -745,6 +745,37 @@ class ProfileStrings {
     };
   }
 
+  String get whatsappStatusTokenExpiring => switch (language) {
+    AppLanguage.portuguese => 'Autorização vencendo',
+    AppLanguage.english => 'Authorization expiring',
+    AppLanguage.spanish => 'Autorización por vencer',
+  };
+
+  String get whatsappStatusTokenExpired => switch (language) {
+    AppLanguage.portuguese => 'Autorização vencida',
+    AppLanguage.english => 'Authorization expired',
+    AppLanguage.spanish => 'Autorización vencida',
+  };
+
+  /// [date] já formatada.
+  String whatsappTokenValidUntil(String date) => switch (language) {
+    AppLanguage.portuguese => 'Autorização da Meta válida até $date.',
+    AppLanguage.english => 'Meta authorization valid until $date.',
+    AppLanguage.spanish => 'Autorización de Meta válida hasta $date.',
+  };
+
+  String get whatsappStatusStaleNotice => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível atualizar o status agora (verifique a internet). '
+          'Mostrando o último estado salvo.',
+    AppLanguage.english =>
+      "We couldn't refresh the status right now (check your connection). "
+          'Showing the last saved state.',
+    AppLanguage.spanish =>
+      'No fue posible actualizar el estado ahora (revisa tu conexión). '
+          'Mostrando el último estado guardado.',
+  };
+
   String get whatsappReconnectButtonLabel => switch (language) {
     AppLanguage.portuguese => 'Reconectar',
     AppLanguage.english => 'Reconnect',

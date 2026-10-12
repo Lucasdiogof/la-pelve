@@ -363,7 +363,11 @@ void main() {
         verify(() => repository.refreshRemoteStatus()).called(1);
         expect(
           cubit.state,
-          WhatsappConnectionConnected(connected, tokenExpiresAt: expires),
+          WhatsappConnectionConnected(
+            connected,
+            tokenExpiresAt: expires,
+            tokenExpiring: true,
+          ),
         );
         await cubit.close();
       },

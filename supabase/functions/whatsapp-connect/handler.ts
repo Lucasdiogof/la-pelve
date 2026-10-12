@@ -518,15 +518,12 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     if (!checked.info.valid) return await markTokenInvalid(userId, token);
     const expiresAt = checked.info.expiresAt;
     const now = (deps.now ?? (() => new Date()))();
+    // A validade (quando a Meta informa) vai sempre; `reason` só quando vence em breve.
+    const base = { ok: true, status: connection.status, ...(expiresAt ? { token_expires_at: expiresAt.toISOString() } : {}) };
     if (expiresAt && expiresAt.getTime() - now.getTime() <= TOKEN_EXPIRING_WARNING_MS) {
-      return json(200, {
-        ok: true,
-        status: connection.status,
-        reason: "token_expiring",
-        token_expires_at: expiresAt.toISOString(),
-      });
+      return json(200, { ...base, reason: "token_expiring" });
     }
-    return json(200, { ok: true, status: connection.status });
+    return json(200, base);
   }
 
   async function refreshStatus(userId: string, meta: MetaOnboarding): Promise<Response> {

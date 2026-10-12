@@ -29,14 +29,18 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
     var result = await _repository.getCurrentConnection();
     if (isClosed) return;
     DateTime? tokenExpiresAt;
+    var tokenExpiring = false;
+    var statusStale = false;
     if (result case Success(:final data) when _needsRemoteCheck(data)) {
-      // Melhor esforço: se falhar, mostra o que já está salvo.
+      // Melhor esforço: se falhar, mostra o que já está salvo (e avisa).
       final remote = await _repository.refreshRemoteStatus();
       if (isClosed) return;
-      if (remote case Success(
-        :final data,
-      ) when data.reason == 'token_expiring') {
-        tokenExpiresAt = data.tokenExpiresAt;
+      switch (remote) {
+        case Success(:final data):
+          tokenExpiresAt = data.tokenExpiresAt;
+          tokenExpiring = data.reason == 'token_expiring';
+        case Error():
+          statusStale = true;
       }
       result = await _repository.getCurrentConnection();
       if (isClosed) return;
@@ -53,7 +57,16 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
           if (isClosed) return;
           available = availability is Success<bool> && availability.data;
         }
-        emit(_stateFor(connection, available, startFailed, tokenExpiresAt));
+        emit(
+          _stateFor(
+            connection,
+            available,
+            startFailed,
+            tokenExpiresAt: tokenExpiresAt,
+            tokenExpiring: tokenExpiring,
+            statusStale: statusStale,
+          ),
+        );
       case Error(:final failure):
         emit(WhatsappConnectionLoadFailure(failure));
     }
@@ -63,6 +76,18 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
   /// sessão e devolve a URL; o app só a abre. Nunca simula conexão: o estado
   /// "Conectado" só aparece quando o banco disser.
   Future<void> connect() async {
+    if (_starting) return; // toque repetido enquanto a anterior ainda roda
+    _starting = true;
+    try {
+      await _connect();
+    } finally {
+      _starting = false;
+    }
+  }
+
+  bool _starting = false;
+
+  Future<void> _connect() async {
     final current = state;
     final started = await _repository.startConnection();
     if (isClosed) return;
@@ -126,9 +151,11 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
   WhatsappConnectionState _stateFor(
     WhatsappConnection? connection,
     bool available,
-    bool startFailed,
+    bool startFailed, {
     DateTime? tokenExpiresAt,
-  ) {
+    bool tokenExpiring = false,
+    bool statusStale = false,
+  }) {
     if (connection == null) {
       return WhatsappConnectionNotConnected(
         selfConnectAvailable: available,
@@ -136,17 +163,25 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
       );
     }
     return switch (connection.status) {
-      WhatsappConnectionStatus.pending => WhatsappConnectionPending(connection),
+      WhatsappConnectionStatus.pending => WhatsappConnectionPending(
+        connection,
+        statusStale: statusStale,
+      ),
       WhatsappConnectionStatus.connected => WhatsappConnectionConnected(
         connection,
         tokenExpiresAt: tokenExpiresAt,
+        tokenExpiring: tokenExpiring,
+        statusStale: statusStale,
       ),
       WhatsappConnectionStatus.disconnected => WhatsappConnectionDisconnected(
         connection,
         selfConnectAvailable: available,
         startFailed: startFailed,
       ),
-      WhatsappConnectionStatus.error => WhatsappConnectionError(connection),
+      WhatsappConnectionStatus.error => WhatsappConnectionError(
+        connection,
+        statusStale: statusStale,
+      ),
     };
   }
 }

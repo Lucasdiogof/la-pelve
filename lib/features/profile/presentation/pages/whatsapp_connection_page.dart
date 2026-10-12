@@ -175,16 +175,20 @@ class _WhatsappPanel extends StatelessWidget {
         label: t.whatsappStatusPending,
         tone: AppStatusTone.primary,
       ),
-      WhatsappConnectionConnected() => AppStatusBadge(
-        label: t.whatsappConnectedStatusLabel,
-        tone: AppStatusTone.success,
+      WhatsappConnectionConnected(:final tokenExpiring) => AppStatusBadge(
+        label: tokenExpiring
+            ? t.whatsappStatusTokenExpiring
+            : t.whatsappConnectedStatusLabel,
+        tone: tokenExpiring ? AppStatusTone.warning : AppStatusTone.success,
       ),
       WhatsappConnectionDisconnected() => AppStatusBadge(
         label: t.whatsappStatusDisconnected,
         tone: AppStatusTone.muted,
       ),
-      WhatsappConnectionError() => AppStatusBadge(
-        label: t.whatsappStatusError,
+      WhatsappConnectionError(:final connection) => AppStatusBadge(
+        label: _reasonCode(connection) == 'token_invalid'
+            ? t.whatsappStatusTokenExpired
+            : t.whatsappStatusError,
         tone: AppStatusTone.danger,
       ),
     };
@@ -311,24 +315,27 @@ class _StatusArea extends StatelessWidget {
             ),
           ],
         ),
-      WhatsappConnectionPending(:final connection) => Column(
+      WhatsappConnectionPending(:final connection, :final statusStale) =>
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (statusStale) _StaleNotice(t: t),
+            _MessageWithAction(
+              title: t.whatsappPendingTitle,
+              message:
+                  t.whatsappReasonMessage(_reasonCode(connection)) ??
+                  t.whatsappPendingMessage,
+              actionLabel: t.refreshStatusButtonLabel,
+              onAction: refresh,
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            const _DisconnectButton(),
+          ],
+        ),
+      WhatsappConnectionError(:final connection, :final statusStale) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _MessageWithAction(
-            title: t.whatsappPendingTitle,
-            message:
-                t.whatsappReasonMessage(_reasonCode(connection)) ??
-                t.whatsappPendingMessage,
-            actionLabel: t.refreshStatusButtonLabel,
-            onAction: refresh,
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          const _DisconnectButton(),
-        ],
-      ),
-      WhatsappConnectionError(:final connection) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+          if (statusStale) _StaleNotice(t: t),
           _MessageWithAction(
             title: t.whatsappConnectionErrorMessage,
             message: t.whatsappReasonMessage(_reasonCode(connection)),
@@ -337,11 +344,7 @@ class _StatusArea extends StatelessWidget {
           ),
           if (_reasonCode(connection) == 'token_invalid') ...[
             const SizedBox(height: AppSpacing.s12),
-            PrimaryButton(
-              label: t.whatsappReconnectButtonLabel,
-              onPressed: () =>
-                  context.read<WhatsappConnectionCubit>().connect(),
-            ),
+            _ConnectButton(label: t.whatsappReconnectButtonLabel),
           ],
           const SizedBox(height: AppSpacing.s8),
           const _DisconnectButton(),
@@ -351,10 +354,13 @@ class _StatusArea extends StatelessWidget {
         :final connection,
         :final disconnectFailed,
         :final tokenExpiresAt,
+        :final tokenExpiring,
+        :final statusStale,
       ) =>
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (statusStale) _StaleNotice(t: t),
             Text(t.connectedPhoneNumberLabel, style: secondary),
             const SizedBox(height: 2),
             Text(
@@ -370,7 +376,7 @@ class _StatusArea extends StatelessWidget {
                 style: secondary,
               ),
             ],
-            if (tokenExpiresAt != null) ...[
+            if (tokenExpiresAt != null && tokenExpiring) ...[
               const SizedBox(height: AppSpacing.s12),
               Text(
                 t.whatsappTokenExpiringMessage(
@@ -381,10 +387,17 @@ class _StatusArea extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.s8),
-              OutlinedButton(
-                onPressed: () =>
-                    context.read<WhatsappConnectionCubit>().connect(),
-                child: Text(t.whatsappReconnectButtonLabel),
+              _ConnectButton(
+                label: t.whatsappReconnectButtonLabel,
+                primary: false,
+              ),
+            ] else if (tokenExpiresAt != null) ...[
+              const SizedBox(height: AppSpacing.s8),
+              Text(
+                t.whatsappTokenValidUntil(
+                  AppDateField.format(tokenExpiresAt.toLocal()),
+                ),
+                style: secondary,
               ),
             ],
             const SizedBox(height: AppSpacing.s12),
@@ -399,6 +412,12 @@ class _StatusArea extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.s16),
+            OutlinedButton.icon(
+              onPressed: refresh,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(t.refreshStatusButtonLabel),
+            ),
+            const SizedBox(height: AppSpacing.s8),
             const _DisconnectButton(),
           ],
         ),
@@ -446,10 +465,7 @@ class _ConnectArea extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.s12),
           ],
-          PrimaryButton(
-            label: t.connectWhatsappButtonLabel,
-            onPressed: () => context.read<WhatsappConnectionCubit>().connect(),
-          ),
+          _ConnectButton(label: t.connectWhatsappButtonLabel),
         ],
       );
     }
@@ -553,6 +569,83 @@ class _MessageWithAction extends StatelessWidget {
           label: Text(actionLabel),
         ),
       ],
+    );
+  }
+}
+
+/// Aviso discreto: o status mostrado é o último salvo (sem internet/servidor).
+class _StaleNotice extends StatelessWidget {
+  const _StaleNotice({required this.t});
+
+  final ProfileStrings t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.cloud_off_outlined,
+            size: 18,
+            color: context.colors.textSecondary,
+          ),
+          const SizedBox(width: AppSpacing.s8),
+          Expanded(
+            child: Text(
+              t.whatsappStatusStaleNotice,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Conectar/reconectar: mostra carregamento e ignora toques repetidos enquanto
+/// o servidor prepara o link da Meta.
+class _ConnectButton extends StatefulWidget {
+  const _ConnectButton({required this.label, this.primary = true});
+
+  final String label;
+  final bool primary;
+
+  @override
+  State<_ConnectButton> createState() => _ConnectButtonState();
+}
+
+class _ConnectButtonState extends State<_ConnectButton> {
+  bool _busy = false;
+
+  Future<void> _onPressed() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    await context.read<WhatsappConnectionCubit>().connect();
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.primary) {
+      return PrimaryButton(
+        label: widget.label,
+        isLoading: _busy,
+        onPressed: _onPressed,
+      );
+    }
+    return OutlinedButton(
+      onPressed: _busy ? null : _onPressed,
+      child: _busy
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Text(widget.label),
     );
   }
 }
