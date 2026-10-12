@@ -1,68 +1,75 @@
-# Embedded Signup — checklist de prontidão (Meta) e roteiros do App Review
+# Embedded Signup — prontidão (Meta) e roteiros do App Review
 
-Estado em 2026-10-12. Só afirma o que foi verificado no código/produção ou lido na documentação oficial da Meta
-(links no fim). O que a documentação não diz está marcado **NÃO CONFIRMADO**.
+Estado em 2026-10-12. Só afirma o que foi **verificado** (código, produção ou documentação oficial da Meta). O que a
+documentação não diz está marcado **NÃO CONFIRMADO**. Nada aqui afirma que uma permissão foi aprovada: isso só se vê no
+painel da Meta.
 
-## 1. Fluxo e onde cada passo vive
+## 1. Concluído e verificado
 
-| Passo | Onde | Observação |
-|---|---|---|
-| Botão "Conectar WhatsApp" | Flutter `whatsapp_connection_page.dart` -> `whatsapp-connect` `start` | só aparece com `availability.enabled` (flag desligada hoje) |
-| `state` de uso único (256 bits, hash no banco, 15 min) | `whatsapp-connect` | vai no fragmento da URL, nunca em query/Referer |
-| Página de onboarding | `web/whatsapp-connect.html` (Cloudflare Workers) | `FB.login` com `config_id`, `response_type: code`, `override_default_response_type` |
-| Retorno `WA_EMBEDDED_SIGNUP` | mesma página | aceita só origem `*.facebook.com`; `FINISH` e `FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING` |
-| Troca do code (vale 30 s) | `whatsapp-connect` `complete` | `GET /oauth/access_token` com `client_id`, `client_secret`, `code` (sem `redirect_uri`, igual à documentação) |
-| Posse do número | `complete` | o token novo precisa enxergar o `phone_number_id` dentro da `waba_id` |
-| Token | Vault (`whatsapp_connection_credentials`) | nunca em tabela comum, log ou resposta |
-| Webhook por WABA | `POST /{waba}/subscribed_apps` | idempotente |
-| Registro do número | `POST /{phone}/register` (PIN de 6 dígitos no Vault) | guard no banco (0032): limite, cooldown, nunca em número já CONNECTED |
-| Templates | cria/lê `appointment_confirmation` e `appointment_12h` (pt_BR) | só fica `connected` com os dois APPROVED e conta `AVAILABLE` |
-| Estado | `whatsapp_connections.status` | `pending` -> `connected`; `error` em revogação/token |
+| Item | Evidência |
+|---|---|
+| Página pública do onboarding | `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect` responde 200 com o título "La Pelve · Conectar WhatsApp" (o site é SPA: outras rotas inexistentes também devolvem 200, por isso conferi o título) |
+| Configuração do JavaScript SDK | `web/whatsapp-connect.html` segue o exemplo oficial: `FB.init({appId, version})` com versão da Graph vinda do servidor (`v25.0`) e `FB.login` com `config_id`, `response_type: 'code'`, `override_default_response_type: true`, `extras: {setup: {}}` |
+| Tratamento do retorno do popup | ouve `message` só de `*.facebook.com`, `type = WA_EMBEDDED_SIGNUP`; trata `FINISH`, `FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING` e `CANCEL`; o `state` vai no fragmento da URL (não vai ao servidor nem ao Referer) |
+| Troca do code | `GET /oauth/access_token` com `client_id`, `client_secret`, `code`, sem `redirect_uri`, igual à documentação; só no servidor, em até 30 s (validade do code) |
+| Posse do número | o token novo precisa enxergar o `phone_number_id` dentro da `waba_id` recebida do navegador |
+| Token guardado | Vault (nunca em tabela comum, log ou resposta); renovado no mesmo segredo na reconexão |
+| Assinatura de webhook por WABA | `POST /{waba}/subscribed_apps` (idempotente); removida ao desconectar se nenhuma outra profissional usa a WABA |
+| Registro do número | `POST /{phone}/register` com PIN de 6 dígitos no Vault; guard no banco (limite 10/72 h da Meta, cooldown, nunca em número já CONNECTED) |
+| Webhook (endpoint) | `GET` com verify token errado = 403; `POST` sem/ com assinatura inválida = 401; corpo acima de 3 MiB = 413 (testado com 3,2 MB e 18 MB); HMAC-SHA256 em tempo constante sobre os bytes originais |
+| Eventos tratados | `messages` (resposta "Confirmar" da paciente), `statuses` (sent/delivered/read/failed), `message_template_status_update` (só os 2 templates da prontidão) e `account_update` (revogação/restrição) |
+| Templates | `appointment_confirmation` e `appointment_12h`, `pt_BR`, categoria UTILITY (o de lembrete com botão rápido "Confirmar"); só `connected` com os dois APPROVED e conta `AVAILABLE` |
+| Validade do token | `debug_token` na abertura da tela: inválido -> `error`/`token_invalid` com botão Reconectar; vencendo em <= 7 dias -> aviso com a data; validade conhecida é mostrada. O envio com erro 190 também marca a conexão (atômico e vinculado ao hash do token usado, migration 0035). Indisponibilidade da Meta nunca marca |
+| Segredos no Supabase | presentes: `META_APP_ID`, `META_ES_CONFIG_ID`, `WHATSAPP_CONNECT_PAGE_URL`, `WHATSAPP_GRAPH_API_VERSION`, `WHATSAPP_TEMPLATE_LANGUAGE`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_DISPATCHER_TOKEN`, `WHATSAPP_TEMPLATE_APPOINTMENT_12H` |
+| Onboarding desligado | `WHATSAPP_SELF_CONNECT_ENABLED` ausente: `start` responde 503 `not_configured` e o app não mostra o botão |
+| Política de privacidade e exclusão de dados | páginas estáticas criadas neste ciclo: `/privacy` e `/data-deletion` (pt/en/es). **Revise o texto e o e-mail de contato antes de enviar à Meta** |
+| Saúde | `supabase/ops/whatsapp_health.sql` (migration 0036) resume falhas, fila, conexões, cron e consentimento sem dados de paciente |
 
-## 2. Validade do token (corrigido neste ciclo)
+## 2. Pendente no painel da Meta (ações suas)
 
-- A documentação lida **não informa** o prazo do business token do Embedded Signup. O nome do template de configuração
-  ("WhatsApp Embedded Signup Configuration With 60 Expiration Token") sugere 60 dias: **NÃO CONFIRMADO**. Veja a ação 3.1.
-- Agora o sistema não depende de saber o prazo:
-  - `status` em conexão `connected` consulta `GET /debug_token` (token de app só no header). Inválido/expirado/revogado ->
-    conexão vira `error` / `token_invalid`; vencendo em <= 7 dias -> o app mostra a data e o botão **Reconectar**.
-  - Se a Meta recusar um envio com erro 190, o dispatcher marca a conexão como `error`/`token_invalid`: os envios param
-    em vez de falhar um a um sem aviso, e o app pede reconexão. A marcação é **atômica e vinculada ao token usado**
-    (migration 0035, `flag_whatsapp_connection_token_invalid`): o banco trava a linha, relê o token do Vault e compara o
-    SHA-256 com o do token recusado; se a profissional já reconectou (token novo no mesmo segredo), desconectou ou trocou
-    de número, a resposta velha é ignorada (`stale`/`skipped`). Nenhum token trafega ou é logado, só o hash.
-  - Indisponibilidade da Meta (timeout, 429, 5xx) ou recusa da credencial do app NUNCA marcam a conexão: só um
-    `is_valid:false` explícito do `/debug_token` conta.
-  - Reconectar = repetir o Embedded Signup; uma linha em `error` é regravada com o token novo.
-  - A reconexão NÃO reenvia mensagens que já falharam por token (são definitivas).
+1. **URLs do app** — App Dashboard -> App settings -> Basic: *Privacy policy URL* =
+   `https://la-pelve.lucasdiogo1234.workers.dev/privacy`; *Data deletion instructions URL* =
+   `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion`. (Confira também ícone, categoria e e-mail de contato.)
+2. **Tipo/prazo do token** — Facebook Login for Business -> Configurations -> `4693096200923752`: confira o tipo
+   (Business Integration System User) e a expiração do token. A documentação lida não informa o prazo: **NÃO CONFIRMADO**
+   (o nome do template de configuração sugere 60 dias; o app já avisa e pede reconexão).
+3. **Client OAuth settings** — Facebook Login for Business -> Settings: em **Yes**: Client OAuth login, Web OAuth login,
+   Enforce HTTPS, Embedded Browser OAuth Login, Use Strict Mode for redirect URIs, Login with the JavaScript SDK.
+4. **Domínios** — nos mesmos Settings, *Allowed domains* e *Valid OAuth redirect URIs* com
+   `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect` (sem isso o popup não devolve `waba_id`,
+   `phone_number_id` nem `code`).
+5. **Webhook** — WhatsApp -> Configuration: callback
+   `https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-webhook`, verify token = secret
+   `WHATSAPP_VERIFY_TOKEN`; campos assinados: `messages`, `message_template_status_update` e `account_update` (a
+   documentação marca `account_update` como obrigatório para Embedded Signup).
+6. **Tech Provider / App Review** — pedir acesso avançado a `whatsapp_business_management` e
+   `whatsapp_business_messaging`; **um vídeo por permissão**, cada um com explicação escrita (roteiros abaixo); enviar
+   (rascunho não é analisado). Conferir no painel o que consta como pendente: verificação do negócio (Lucksrei) e demais
+   etapas de Tech Provider — a documentação lida não detalha, por isso não afirmo o que falta.
+7. **Embedded Signup v2** deixa de existir em 15/10/2026; usamos configuração v4: nada a migrar.
 
-## 3. Ações que dependem de você (painel da Meta)
+## 3. Bloqueio técnico
 
-1. **Tipo/prazo do token** — App Dashboard -> Facebook Login for Business -> Configurations -> abra a configuração
-   `4693096200923752`. Confira em "Access token" o tipo (Business Integration System User) e a expiração. Se houver
-   opção de expiração maior, prefira-a; se for 60 dias, mantenha (o app já avisa e pede reconexão).
-2. **Client OAuth settings** — App Dashboard -> Facebook Login for Business -> Settings -> Client OAuth settings.
-   Todos em **Yes**: Client OAuth login, Web OAuth login, Enforce HTTPS, Embedded Browser OAuth Login, Use Strict Mode for
-   redirect URIs, Login with the JavaScript SDK.
-3. **Domínio** — nos mesmos Settings, **Allowed domains** e **Valid OAuth redirect URIs** devem conter
-   `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect` (e o domínio sem caminho, se o painel pedir).
-   Sem isso o popup não devolve `waba_id`/`phone_number_id`/`code`.
-4. **Webhooks** — WhatsApp -> Configuration (e/ou Webhooks do app): callback
-   `https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-webhook`, verify token igual ao secret
-   `WHATSAPP_VERIFY_TOKEN`, campos assinados: `messages`, `message_template_status_update` e `account_update`
-   (a documentação marca `account_update` como obrigatório para Embedded Signup).
-5. **App Review (Advanced access)** — pedir `whatsapp_business_management` e `whatsapp_business_messaging`; um vídeo por
-   permissão, cada um com explicação escrita (roteiros abaixo). Rascunho não é analisado: é preciso enviar.
-6. **Pré-requisitos de conta/app** — verificação do negócio (Lucksrei), URL de política de privacidade e demais campos
-   do cadastro do app: a documentação lida não detalha; confira no painel o que está marcado como pendente.
-7. **Embedded Signup v2** deixa de existir em 15/10/2026. Usamos configuração v4 (Config ID acima): nada a migrar.
+Nenhum bloqueio de código conhecido. O primeiro teste real só depende dos itens 1–5 acima e de ligar
+`WHATSAPP_SELF_CONNECT_ENABLED=true` nos secrets da função `whatsapp-connect` (só então o botão aparece no app).
 
-## 4. Antes do primeiro teste real (depende de você + deploy)
+Ordem do primeiro teste: (a) itens 1–5 feitos; (b) ligar a flag; (c) conectar com um número de TESTE seu;
+(d) conferir `status = connected`, templates APPROVED, webhook respondendo e `whatsapp_health_summary()` sem problemas;
+(e) só depois qualquer envio, para paciente de teste com consentimento próprio. Pacientes reais seguem sem consentimento
+ativo.
 
-Ordem: (a) itens 3.1–3.4 conferidos; (b) definir `WHATSAPP_SELF_CONNECT_ENABLED=true` nos secrets da função
-(só então `availability` devolve `true` e o botão aparece no app); (c) conectar com um número de TESTE que seja seu;
-(d) conferir `status = connected`, templates APPROVED e webhook respondendo; (e) só depois qualquer envio real, para
-paciente de teste com consentimento próprio. Pacientes reais seguem sem consentimento ativo e fora de qualquer teste.
+## 4. Fluxo e onde cada passo vive
+
+| Passo | Onde |
+|---|---|
+| Botão "Conectar WhatsApp" | Flutter `whatsapp_connection_page.dart` -> `whatsapp-connect` `start` (só com `availability.enabled`) |
+| `state` de uso único (256 bits, hash no banco, 15 min) | `whatsapp-connect` |
+| Página de onboarding | `web/whatsapp-connect.html` |
+| Troca do code, posse do número, Vault, webhook, registro, templates | `whatsapp-connect` `complete` |
+| Reavaliação (pendente) e checagem do token (conectada) | `whatsapp-connect` `status` |
+| Eventos de template/entrega/conta e respostas da paciente | `whatsapp-webhook` |
+| Envio e marcação de token recusado | `whatsapp-dispatcher` + migration 0035 |
+| Observabilidade | logs estruturados (`whatsapp_dispatcher_run` com `codes`, `template_status_processed.negative`, `payload_too_large`, `invalid_signature`) e `whatsapp_health_summary()` |
 
 ## 5. Roteiros dos vídeos do App Review
 

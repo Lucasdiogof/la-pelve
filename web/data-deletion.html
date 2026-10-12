@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <title>La Pelve · Exclusão de dados / Data deletion</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#faf7f8; --fg:#2a2327; --muted:#6f6469; --card:#fff; --accent:#7a3b63; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#161214; --fg:#f2eaee; --muted:#b4a7ad; --card:#211b1e; --accent:#d9a3c4; } }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--fg); line-height:1.6; }
+    main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
+    .card { background:var(--card); border-radius:16px; padding:24px; }
+    h1 { font-size:24px; margin:0 0 4px; }
+    h2 { font-size:18px; margin:24px 0 8px; }
+    .muted { color:var(--muted); font-size:14px; }
+    nav a { color:var(--accent); margin-right:16px; text-decoration:none; font-weight:600; }
+    a { color:var(--accent); }
+    section[hidden] { display:none; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <nav aria-label="Language"><a href="#pt">Português</a><a href="#en">English</a><a href="#es">Español</a></nav>
+
+    <section id="pt" lang="pt-BR">
+      <h1>Como excluir seus dados — La Pelve</h1>
+      <p class="muted">Última atualização: 12/10/2026</p>
+      <h2>1. Excluir a conta (profissional)</h2>
+      <p>No aplicativo: <b>Perfil → Excluir conta</b> e confirme. A exclusão remove os dados da conta, dos pacientes e dos registros, além dos arquivos armazenados, e não pode ser desfeita.</p>
+      <h2>2. Desconectar o WhatsApp</h2>
+      <p>No aplicativo: <b>Perfil → WhatsApp → Desconectar</b>. O token de acesso é apagado e a inscrição de webhook removida. Você também pode remover a autorização do aplicativo La Pelve nas configurações do seu WhatsApp Business / Meta Business.</p>
+      <h2>3. Pacientes: revogar o consentimento</h2>
+      <p>A paciente pode pedir à sua fisioterapeuta, a qualquer momento, que o consentimento de WhatsApp seja revogado; depois disso nenhuma mensagem é enviada. Pedidos de exclusão de dados de pacientes devem ser feitos à fisioterapeuta, que controla o prontuário.</p>
+      <h2>4. Pedir por e-mail</h2>
+      <p>Envie um e-mail para <b>lucasdiogo1234@gmail.com</b> com o assunto "Exclusão de dados — La Pelve", informando o e-mail da conta. Respondemos assim que possível, dentro do prazo legal. Veja também a <a href="/privacy">Política de Privacidade</a>.</p>
+    </section>
+
+    <section id="en" lang="en" hidden>
+      <h1>How to delete your data — La Pelve</h1>
+      <p class="muted">Last updated: 2026-10-12</p>
+      <h2>1. Delete the account (professional)</h2>
+      <p>In the app: <b>Profile → Delete account</b> and confirm. Deletion removes the account data, the patients and records, and the stored files, and cannot be undone.</p>
+      <h2>2. Disconnect WhatsApp</h2>
+      <p>In the app: <b>Profile → WhatsApp → Disconnect</b>. The access token is erased and the webhook subscription removed. You can also remove the La Pelve app authorization in your WhatsApp Business / Meta Business settings.</p>
+      <h2>3. Patients: withdraw consent</h2>
+      <p>A patient can ask her physiotherapist at any time to withdraw WhatsApp consent; after that no message is sent. Requests to delete patient data should be made to the physiotherapist, who controls the record.</p>
+      <h2>4. Request by email</h2>
+      <p>Send an email to <b>lucasdiogo1234@gmail.com</b> with the subject "Data deletion — La Pelve", stating the account email. We reply as soon as possible, within the legal timeframe. See also the <a href="/privacy">Privacy Policy</a>.</p>
+    </section>
+
+    <section id="es" lang="es" hidden>
+      <h1>Cómo eliminar tus datos — La Pelve</h1>
+      <p class="muted">Última actualización: 12/10/2026</p>
+      <h2>1. Eliminar la cuenta (profesional)</h2>
+      <p>En la aplicación: <b>Perfil → Eliminar cuenta</b> y confirma. La eliminación borra los datos de la cuenta, de las pacientes y de los registros, y los archivos almacenados, y no se puede deshacer.</p>
+      <h2>2. Desconectar WhatsApp</h2>
+      <p>En la aplicación: <b>Perfil → WhatsApp → Desconectar</b>. Se borra el token de acceso y se quita la suscripción del webhook. También puedes quitar la autorización de la aplicación La Pelve en la configuración de tu WhatsApp Business / Meta Business.</p>
+      <h2>3. Pacientes: revocar el consentimiento</h2>
+      <p>La paciente puede pedir a su fisioterapeuta, en cualquier momento, que se revoque el consentimiento de WhatsApp; después no se envía ningún mensaje. Las solicitudes de eliminación de datos de pacientes deben dirigirse a la fisioterapeuta, quien controla el expediente.</p>
+      <h2>4. Solicitar por correo</h2>
+      <p>Envía un correo a <b>lucasdiogo1234@gmail.com</b> con el asunto "Eliminación de datos — La Pelve", indicando el correo de la cuenta. Respondemos lo antes posible, dentro del plazo legal. Consulta también la <a href="/privacy">Política de Privacidad</a>.</p>
+    </section>
+  </div>
+</main>
+<script>
+(function () {
+  var langs = ['pt', 'en', 'es'];
+  function pick() {
+    var h = (location.hash || '').slice(1);
+    if (langs.indexOf(h) >= 0) return h;
+    var n = (navigator.language || 'pt').slice(0, 2);
+    return langs.indexOf(n) >= 0 ? n : 'pt';
+  }
+  function show() {
+    var l = pick();
+    langs.forEach(function (x) { document.getElementById(x).hidden = x !== l; });
+  }
+  window.addEventListener('hashchange', show);
+  show();
+})();
+</script>
+</body>
+</html>
