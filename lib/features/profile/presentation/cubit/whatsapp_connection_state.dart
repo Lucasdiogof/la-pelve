@@ -50,6 +50,7 @@ class WhatsappConnectionConnected extends WhatsappConnectionState {
   const WhatsappConnectionConnected(
     this.connection, {
     this.disconnectFailed = false,
+    this.tokenExpiresAt,
   });
 
   final WhatsappConnection connection;
@@ -57,8 +58,11 @@ class WhatsappConnectionConnected extends WhatsappConnectionState {
   /// A última tentativa de desconectar falhou; a conexão segue ativa.
   final bool disconnectFailed;
 
+  /// A autorização da Meta vence em breve: a tela oferece reconectar.
+  final DateTime? tokenExpiresAt;
+
   @override
-  List<Object?> get props => [connection, disconnectFailed];
+  List<Object?> get props => [connection, disconnectFailed, tokenExpiresAt];
 }
 
 class WhatsappConnectionDisconnected extends WhatsappConnectionState {

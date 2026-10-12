@@ -39,7 +39,7 @@ void main() {
     ).thenAnswer((_) async => const Success(false));
     when(
       () => repository.refreshRemoteStatus(),
-    ).thenAnswer((_) async => const Success(null));
+    ).thenAnswer((_) async => const Success(WhatsappRemoteStatus()));
   });
 
   group('WhatsappConnectionCubit initial load — estado final', () {
@@ -345,6 +345,57 @@ void main() {
         await cubit.close();
       },
     );
+
+    test(
+      'conectada: confere a autorização e mostra o aviso de vencimento',
+      () async {
+        final expires = DateTime.utc(2026, 10, 20);
+        when(() => repository.refreshRemoteStatus()).thenAnswer(
+          (_) async => Success(
+            WhatsappRemoteStatus(
+              reason: 'token_expiring',
+              tokenExpiresAt: expires,
+            ),
+          ),
+        );
+        final connected = connectionWith(WhatsappConnectionStatus.connected);
+        final cubit = await loaded(connection: connected);
+        verify(() => repository.refreshRemoteStatus()).called(1);
+        expect(
+          cubit.state,
+          WhatsappConnectionConnected(connected, tokenExpiresAt: expires),
+        );
+        await cubit.close();
+      },
+    );
+
+    test('conectada sem aviso do servidor: sem tokenExpiresAt', () async {
+      final connected = connectionWith(WhatsappConnectionStatus.connected);
+      final cubit = await loaded(connection: connected);
+      expect(cubit.state, WhatsappConnectionConnected(connected));
+      await cubit.close();
+    });
+
+    test('erro por token_invalid é reavaliado; outros erros, não', () async {
+      final tokenError = connectionWith(
+        WhatsappConnectionStatus.error,
+        lastError: {'code': 'token_invalid'},
+      );
+      var cubit = await loaded(connection: tokenError);
+      verify(() => repository.refreshRemoteStatus()).called(1);
+      expect(cubit.state, WhatsappConnectionError(tokenError));
+      await cubit.close();
+
+      clearInteractions(repository);
+      final otherError = connectionWith(
+        WhatsappConnectionStatus.error,
+        lastError: {'code': 'account_disabled'},
+      );
+      cubit = await loaded(connection: otherError);
+      verifyNever(() => repository.refreshRemoteStatus());
+      expect(cubit.state, WhatsappConnectionError(otherError));
+      await cubit.close();
+    });
 
     test('disconnect fora de conexão ativa é ignorado', () async {
       final cubit = await loaded();

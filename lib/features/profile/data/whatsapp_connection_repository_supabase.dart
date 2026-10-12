@@ -100,8 +100,16 @@ class WhatsappConnectionRepositorySupabase
       });
 
   @override
-  Future<Result<void>> refreshRemoteStatus() =>
-      _guarded('refreshRemoteStatus', () => _invoke('status'));
+  Future<Result<WhatsappRemoteStatus>> refreshRemoteStatus() =>
+      _guarded('refreshRemoteStatus', () async {
+        final data = await _invoke('status');
+        return WhatsappRemoteStatus(
+          reason: data['reason'] as String?,
+          tokenExpiresAt: DateTime.tryParse(
+            data['token_expires_at'] as String? ?? '',
+          ),
+        );
+      });
 
   @override
   Future<Result<void>> disconnect() =>

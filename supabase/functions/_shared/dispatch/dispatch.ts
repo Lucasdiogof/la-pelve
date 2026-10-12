@@ -5,6 +5,7 @@
 // mesma linha (claim com SKIP LOCKED + lease_token). Nunca lança; devolve
 // só contagens. O token existe só em memória, dentro de uma iteração.
 
+import { sha256Hex } from "../util/sha256.ts";
 import { decideCompletion } from "./retry_policy.ts";
 import { RenderError, renderTemplateMessage } from "./render.ts";
 import type { MessageType } from "../scheduler/decision.ts";
@@ -15,6 +16,9 @@ import type {
   TemplateConfig,
   WhatsappProvider,
 } from "./types.ts";
+
+/** Código da Meta para token OAuth inválido/expirado/revogado. */
+const META_INVALID_TOKEN_CODE = 190;
 
 export interface DispatchDeps {
   store: DispatchStore;
@@ -116,6 +120,20 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
     if (written === "lease_lost") {
       summary.leaseLost++;
       continue;
+    }
+    if (
+      completion.result === "failed" &&
+      completion.error.code === "auth_error" &&
+      completion.error.provider_code === META_INVALID_TOKEN_CODE
+    ) {
+      // Token recusado (190): sem isto cada mensagem seguinte falharia do mesmo
+      // jeito e a profissional nunca saberia que precisa reconectar. O banco só
+      // marca se o token guardado ainda é o que acabou de ser recusado.
+      try {
+        await deps.store.flagConnectionTokenInvalid?.(item.messageId, await sha256Hex(send.accessToken));
+      } catch {
+        log("whatsapp_dispatch_flag_token_failed", {});
+      }
     }
 
     if (completion.result === "sent") summary.sent++;

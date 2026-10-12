@@ -28,12 +28,16 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
     emit(const WhatsappConnectionLoading());
     var result = await _repository.getCurrentConnection();
     if (isClosed) return;
-    if (result case Success(
-      :final data,
-    ) when data?.status == WhatsappConnectionStatus.pending) {
+    DateTime? tokenExpiresAt;
+    if (result case Success(:final data) when _needsRemoteCheck(data)) {
       // Melhor esforço: se falhar, mostra o que já está salvo.
-      await _repository.refreshRemoteStatus();
+      final remote = await _repository.refreshRemoteStatus();
       if (isClosed) return;
+      if (remote case Success(
+        :final data,
+      ) when data.reason == 'token_expiring') {
+        tokenExpiresAt = data.tokenExpiresAt;
+      }
       result = await _repository.getCurrentConnection();
       if (isClosed) return;
     }
@@ -49,7 +53,7 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
           if (isClosed) return;
           available = availability is Success<bool> && availability.data;
         }
-        emit(_stateFor(connection, available, startFailed));
+        emit(_stateFor(connection, available, startFailed, tokenExpiresAt));
       case Error(:final failure):
         emit(WhatsappConnectionLoadFailure(failure));
     }
@@ -104,10 +108,26 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
     await load();
   }
 
+  /// Pendente: reavalia (templates/webhook). Conectada: confere se a
+  /// autorização da Meta ainda vale. Erro por token inválido: confere de novo
+  /// (o servidor reabilita se o token voltou a valer). Os demais erros não são
+  /// reavaliados sozinhos para não mascarar o que a Meta informou.
+  static bool _needsRemoteCheck(WhatsappConnection? connection) {
+    if (connection == null) return false;
+    return switch (connection.status) {
+      WhatsappConnectionStatus.pending ||
+      WhatsappConnectionStatus.connected => true,
+      WhatsappConnectionStatus.error =>
+        connection.lastError?['code'] == 'token_invalid',
+      WhatsappConnectionStatus.disconnected => false,
+    };
+  }
+
   WhatsappConnectionState _stateFor(
     WhatsappConnection? connection,
     bool available,
     bool startFailed,
+    DateTime? tokenExpiresAt,
   ) {
     if (connection == null) {
       return WhatsappConnectionNotConnected(
@@ -119,6 +139,7 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
       WhatsappConnectionStatus.pending => WhatsappConnectionPending(connection),
       WhatsappConnectionStatus.connected => WhatsappConnectionConnected(
         connection,
+        tokenExpiresAt: tokenExpiresAt,
       ),
       WhatsappConnectionStatus.disconnected => WhatsappConnectionDisconnected(
         connection,

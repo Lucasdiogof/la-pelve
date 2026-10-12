@@ -335,11 +335,23 @@ class _StatusArea extends StatelessWidget {
             actionLabel: t.refreshStatusButtonLabel,
             onAction: refresh,
           ),
+          if (_reasonCode(connection) == 'token_invalid') ...[
+            const SizedBox(height: AppSpacing.s12),
+            PrimaryButton(
+              label: t.whatsappReconnectButtonLabel,
+              onPressed: () =>
+                  context.read<WhatsappConnectionCubit>().connect(),
+            ),
+          ],
           const SizedBox(height: AppSpacing.s8),
           const _DisconnectButton(),
         ],
       ),
-      WhatsappConnectionConnected(:final connection, :final disconnectFailed) =>
+      WhatsappConnectionConnected(
+        :final connection,
+        :final disconnectFailed,
+        :final tokenExpiresAt,
+      ) =>
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -356,6 +368,23 @@ class _StatusArea extends StatelessWidget {
                   AppDateField.format(connection.connectedAt!),
                 ),
                 style: secondary,
+              ),
+            ],
+            if (tokenExpiresAt != null) ...[
+              const SizedBox(height: AppSpacing.s12),
+              Text(
+                t.whatsappTokenExpiringMessage(
+                  AppDateField.format(tokenExpiresAt.toLocal()),
+                ),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: context.colors.danger,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              OutlinedButton(
+                onPressed: () =>
+                    context.read<WhatsappConnectionCubit>().connect(),
+                child: Text(t.whatsappReconnectButtonLabel),
               ),
             ],
             const SizedBox(height: AppSpacing.s12),
