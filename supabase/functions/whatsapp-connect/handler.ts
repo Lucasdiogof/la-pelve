@@ -119,7 +119,7 @@ export function newState(): string {
   return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function newPin(): string {
+function legacyRandomPinUnused(): string {
   const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
   return n.toString().padStart(6, "0");
 }
