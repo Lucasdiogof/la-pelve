@@ -156,6 +156,11 @@ async function ensurePhoneReady(
   // Coexistência: o número é do WhatsApp Business App; nunca se registra aqui.
   if (setup.mode === "coexistence") return { reason: "phone_not_connected", setup, displayPhoneNumber: display };
   if (info.info.isPinEnabled === true) return { reason: "phone_pin_required", setup, displayPhoneNumber: display };
+  // Never register a number on incomplete/unexpected Meta data. A missing PIN
+  // flag does NOT mean that two-step verification is disabled.
+  if (info.info.status !== "PENDING" || info.info.isPinEnabled !== false) {
+    return { reason: "phone_not_connected", setup, displayPhoneNumber: display };
+  }
 
   const cutoff = now.getTime() - REGISTRATION_WINDOW_MS;
   const attempts = setup.register_attempts.filter((t) => Date.parse(t) > cutoff);
@@ -199,8 +204,9 @@ async function evaluateReadiness(
   else {
     const t = readinessFrom(templates.report);
     if (!t.ready) reason = t.code;
-    else if (health.ok && health.health === "blocked") reason = "account_blocked";
-    else if (health.ok && health.health === "limited") reason = "account_limited";
+    else if (!health.ok || health.health === "unknown") reason = "meta_unavailable";
+    else if (health.health === "blocked") reason = "account_blocked";
+    else if (health.health === "limited") reason = "account_limited";
   }
   return { reason, setup: phone.setup, displayPhoneNumber: phone.displayPhoneNumber };
 }
