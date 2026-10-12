@@ -1,5 +1,15 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-12 (PR #10, webhooks de status e de templates)
+
+- `0033_whatsapp_status_and_template_webhooks.sql`:
+  - `apply_whatsapp_message_status(phone_number_id, wamid, status, occurred_at, error_code)`: só casa o wamid se a conexão da dona da mensagem usa o `phone_number_id` do webhook; `sent < delivered < read` monotônico (duplicado/atrasado = `unchanged`); `failed` só a partir de sent/delivered (nunca depois de read), grava `error = {code: delivery_failed, provider_code}` e **não volta para a fila** (o claim só pega `scheduled`); delivered/read posteriores vencem um failed de entrega; `failed/send_outcome_unknown` nunca é tocado. Resultado: `updated | unchanged | not_found | invalid`.
+  - `apply_whatsapp_template_status(waba, nome, idioma, evento, at)`: registra em `whatsapp_connections.setup_state.templates["nome:idioma"]` (ignora evento mais antigo que o registrado). REJECTED/DISABLED/DELETED/PENDING_DELETION/ARCHIVED/LOCKED → `connected` vira `pending` com `templates_rejected`; PAUSED/PENDING/IN_APPEAL/LIMIT_EXCEEDED → `pending` com `templates_pending`; APPROVED/REINSTATED/UNARCHIVED/FLAGGED só registram — **nunca promovem** (volta a `connected` só pela reavaliação completa do `whatsapp-connect status`, que consulta a Meta).
+- `whatsapp-webhook`: statuses[] e `message_template_status_update` processados depois da assinatura HMAC; só os templates da prontidão (`WHATSAPP_TEMPLATE_APPOINTMENT_CONFIRMATION`/`_12H`, idioma `WHATSAPP_TEMPLATE_LANGUAGE`); falha de persistência → 500 (Meta reenvia; tudo idempotente). Logs só com contagens/tipos (sem wamid, telefone, número ou texto da Meta). Status que chega antes de o despacho gravar o wamid vira `not_found` (o `sent` já é gravado pelo despacho; delivered/read seguintes casam).
+- **Na Meta (painel do app → Webhooks → WhatsApp Business Account):** o campo `message_template_status_update` precisa estar assinado para os eventos de template chegarem (`messages` e `account_update` já estavam).
+- **Cron:** rodou `*/5` de ~00:30 a ~04:20 UTC de 12/10 e voltou a `*/30` (padrão idêntico a `rollout-0028/04_cron_back_to_30min.sql`; sem log de quem executou). Sem motivo técnico para 30 min (gate 0028 aplicado), restaurado para `*/5` com `cron.alter_job` no MESMO job (`la_pelve_whatsapp_dispatcher_30min` — o nome ficou histórico; nada recriado, mesmo token no Vault).
+- `whatsapp-connect`: com a chave desligada, o log `whatsapp_connect_not_configured` lista os NOMES das variáveis que faltam (nunca valores), para conferir os secrets antes de ligar.
+
 ## >>> ATUALIZAÇÃO 2026-10-12 (PR #8, guard de registro do número)
 
 - `0031_security_definer_function_grants.sql` já estava na `main` e aplicada; o guard virou **`0032_whatsapp_phone_registration_guard.sql`**.
