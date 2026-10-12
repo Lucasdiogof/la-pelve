@@ -1,5 +1,12 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-12 (rollout do PR #11 em produção — verificado)
+
+- `main` = `47e462e`. Edge Functions publicadas a partir dela, todas `ACTIVE`, `verify_jwt=false` (autenticação própria): `whatsapp-webhook` **v26**, `whatsapp-connect` **v11**, `whatsapp-dispatcher` **v13**, `whatsapp-scheduler-dry-run` **v20**.
+- Smoke tests HTTP (sem credenciais, sem efeito colateral): webhook POST sem assinatura 401, com assinatura inválida 401, GET com verify token errado 403; dispatcher POST sem Bearer 401, com Bearer falso 401, GET 405; scheduler-dry-run POST sem/ com Bearer falso 401; connect GET 405, `start` sem auth 503 `not_configured` (onboarding DESLIGADO: `WHATSAPP_SELF_CONNECT_ENABLED` ausente), `availability` sem auth 401.
+- Banco (somente leitura): funções da 0034 presentes (`templates_verified_at` nas duas de escrita), sem EXECUTE para `anon`/`authenticated`; cron `*/5 * * * *` ativo, 30 execuções `succeeded` e 30 respostas HTTP 200 nas últimas 3 h; 0 consentimentos ativos (3 revogados); 81 consultas, 20 pacientes; mensagens: 0 `scheduled`/`processing` (1 `sent`, 3 `failed`, 5 `cancelled`, todas antigas).
+- Não verificado: logs de runtime das funções (a API de analytics de logs do Supabase respondeu "Backend error"/tabelas inexistentes); conferir no Dashboard → Edge Functions → Logs.
+
 ## >>> ATUALIZAÇÃO 2026-10-12 (histórico de templates, reavaliação automática, logs, app)
 
 - Bug da auditoria do PR #10: o `whatsapp-connect` regravava `setup_state` inteiro e apagava `setup_state.templates`. **`0034_whatsapp_template_history_merge.sql`**:
