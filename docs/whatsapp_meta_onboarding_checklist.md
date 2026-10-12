@@ -22,31 +22,23 @@ painel da Meta.
 | Validade do token | `debug_token` na abertura da tela: inválido -> `error`/`token_invalid` com botão Reconectar; vencendo em <= 7 dias -> aviso com a data; validade conhecida é mostrada. O envio com erro 190 também marca a conexão (atômico e vinculado ao hash do token usado, migration 0035). Indisponibilidade da Meta nunca marca |
 | Segredos no Supabase | presentes: `META_APP_ID`, `META_ES_CONFIG_ID`, `WHATSAPP_CONNECT_PAGE_URL`, `WHATSAPP_GRAPH_API_VERSION`, `WHATSAPP_TEMPLATE_LANGUAGE`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_DISPATCHER_TOKEN`, `WHATSAPP_TEMPLATE_APPOINTMENT_12H` |
 | Onboarding desligado | `WHATSAPP_SELF_CONNECT_ENABLED` ausente: `start` responde 503 `not_configured` e o app não mostra o botão |
-| Política de privacidade e exclusão de dados | páginas estáticas criadas neste ciclo: `/privacy` e `/data-deletion` (pt/en/es). **Revise o texto e o e-mail de contato antes de enviar à Meta** |
+| Política de privacidade e exclusão de dados | `https://la-pelve.lucasdiogo1234.workers.dev/privacy` e `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion` servem o próprio HTML (títulos e seções pt/en/es conferidos em produção; rotas inexistentes seguem caindo no app). Texto conferido contra o comportamento real (exclusão de conta em cascata + limpeza best-effort de arquivos, desconexão do WhatsApp, cópias de segurança e Meta fora do nosso controle). Contato público: `marketing@lucksrei.com` (MX do domínio aponta ao Cloudflare Email Routing e o endereço é o contato do site lucksrei.com; **entrega de e-mail não testada por mim**) |
 | Saúde | `supabase/ops/whatsapp_health.sql` (migration 0036) resume falhas, fila, conexões, cron e consentimento sem dados de paciente |
 
-## 2. Pendente no painel da Meta (ações suas)
+## 2. Ações manuais restantes no painel da Meta (nada abaixo foi verificado por mim: não tenho acesso ao painel)
 
-1. **URLs do app** — App Dashboard -> App settings -> Basic: *Privacy policy URL* =
-   `https://la-pelve.lucasdiogo1234.workers.dev/privacy`; *Data deletion instructions URL* =
-   `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion`. (Confira também ícone, categoria e e-mail de contato.)
-2. **Tipo/prazo do token** — Facebook Login for Business -> Configurations -> `4693096200923752`: confira o tipo
-   (Business Integration System User) e a expiração do token. A documentação lida não informa o prazo: **NÃO CONFIRMADO**
-   (o nome do template de configuração sugere 60 dias; o app já avisa e pede reconexão).
-3. **Client OAuth settings** — Facebook Login for Business -> Settings: em **Yes**: Client OAuth login, Web OAuth login,
-   Enforce HTTPS, Embedded Browser OAuth Login, Use Strict Mode for redirect URIs, Login with the JavaScript SDK.
-4. **Domínios** — nos mesmos Settings, *Allowed domains* e *Valid OAuth redirect URIs* com
-   `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect` (sem isso o popup não devolve `waba_id`,
-   `phone_number_id` nem `code`).
-5. **Webhook** — WhatsApp -> Configuration: callback
-   `https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-webhook`, verify token = secret
-   `WHATSAPP_VERIFY_TOKEN`; campos assinados: `messages`, `message_template_status_update` e `account_update` (a
-   documentação marca `account_update` como obrigatório para Embedded Signup).
-6. **Tech Provider / App Review** — pedir acesso avançado a `whatsapp_business_management` e
-   `whatsapp_business_messaging`; **um vídeo por permissão**, cada um com explicação escrita (roteiros abaixo); enviar
-   (rascunho não é analisado). Conferir no painel o que consta como pendente: verificação do negócio (Lucksrei) e demais
-   etapas de Tech Provider — a documentação lida não detalha, por isso não afirmo o que falta.
-7. **Embedded Signup v2** deixa de existir em 15/10/2026; usamos configuração v4: nada a migrar.
+URLs públicas a usar:
+- Política de privacidade: `https://la-pelve.lucasdiogo1234.workers.dev/privacy`
+- Exclusão de dados: `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion`
+- Página do Embedded Signup (Allowed domains e Valid OAuth redirect URIs): `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect`
+- Callback do webhook: `https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-webhook` (verify token = secret `WHATSAPP_VERIFY_TOKEN`)
+
+1. **App settings → Basic:** colar as URLs de privacidade e de exclusão de dados; conferir ícone, categoria e e-mail de contato.
+2. **Facebook Login for Business → Settings → Client OAuth settings:** em **Yes**: Client OAuth login, Web OAuth login, Enforce HTTPS, Embedded Browser OAuth Login, Use Strict Mode for redirect URIs, Login with the JavaScript SDK; colocar a URL do Embedded Signup em *Allowed domains* e em *Valid OAuth redirect URIs*.
+3. **Configurations → `4693096200923752`:** conferir o tipo e a expiração do token (a documentação lida não informa o prazo: NÃO CONFIRMADO).
+4. **WhatsApp → Configuration (webhook):** callback acima; campos `messages`, `message_template_status_update` e `account_update`.
+5. **App Review / Tech Provider:** pedir `whatsapp_business_management` e `whatsapp_business_messaging`; um vídeo por permissão com explicação escrita (roteiros na seção 5); enviar. Conferir no painel o que consta como pendente (verificação do negócio etc.).
+6. Depois dos itens 1–4: ligar `WHATSAPP_SELF_CONNECT_ENABLED=true` nos secrets da função `whatsapp-connect` para o primeiro teste real.
 
 ## 3. Bloqueio técnico
 
