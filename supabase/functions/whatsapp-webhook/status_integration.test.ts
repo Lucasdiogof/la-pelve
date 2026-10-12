@@ -10,7 +10,7 @@
 
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -19,6 +19,7 @@ import { createWebhookHandler, hmacSha256Hex } from "./handler.ts";
 import type { ConfirmationReplyPort } from "../_shared/inbound/types.ts";
 import type { DeliveryStatusPort, StatusApplyResult } from "../_shared/delivery/status_port.ts";
 import type { TemplateStatusPort } from "../_shared/templates/template_port.ts";
+import { reevaluateAfterApproval, type ReadinessReader, type ReevaluationPort } from "../_shared/templates/reevaluate.ts";
 
 const PGHOST = process.env.LA_PELVE_TEST_PGHOST;
 const PGPORT = process.env.LA_PELVE_TEST_PGPORT ?? "5432";
@@ -106,6 +107,8 @@ before(() => {
        values (f, 'pat-status', 'appt-status', 'appointment_12h', 0, now() - interval '1 hour', '+5562911117777', c)
        returning id into m;
        update public.whatsapp_messages set status = 'sent', wamid = '${WAMID}', sent_at = now() where id = m;
+       perform public.set_whatsapp_connection_access_token(
+         (select id from public.whatsapp_connections where fisioterapeuta_id = f), 'token-ficticio-e2e');
      end $$;`,
   );
 });
@@ -187,4 +190,147 @@ test("integração: PAUSED tira a conexão de connected; APPROVED não promove",
   assert.equal(psql(`select status || ':' || (last_error->>'code') from public.whatsapp_connections;`), "pending:templates_pending");
   assert.equal(await post(templateBody("APPROVED", now + 60)), 200);
   assert.equal(psql(`select status from public.whatsapp_connections;`), "pending");
+});
+
+// --------------------------------------------------------------------------
+// 0034: histórico preservado, eventos fora de ordem, concorrência e
+// reavaliação automática (SQL real)
+// --------------------------------------------------------------------------
+
+
+const BASE = now + 1000;
+const iso = (unix: number) => new Date(unix * 1000).toISOString();
+
+function connection() {
+  const [status, code, verified, event12h] = psql(
+    `select status, coalesce(last_error->>'code', ''), coalesce(setup_state->>'templates_verified_at', ''),
+            coalesce(setup_state->'templates'->'appointment_12h:pt_BR'->>'event', '')
+       from public.whatsapp_connections;`,
+  ).split("|");
+  return { status, code, verified, event12h };
+}
+
+/** O mesmo upsert que o whatsapp-connect faz ao gravar uma avaliação. */
+function upsertSql(status: string, evaluatedAt: number | null): string {
+  const setup = evaluatedAt === null ? `'{"mode":"cloud"}'::jsonb` : `jsonb_build_object('mode','cloud','evaluated_at','${iso(evaluatedAt)}')`;
+  const err = status === "connected" ? "null" : `'{"code":"templates_pending"}'::jsonb`;
+  return `select public.upsert_whatsapp_connection_from_signup(
+            (select fisioterapeuta_id from public.whatsapp_connections), '${WABA}', '${PNID}', null, '${status}', ${err}, ${setup});`;
+}
+
+function tryUpsert(status: string, evaluatedAt: number | null): string {
+  try {
+    psql(`set role service_role; ${upsertSql(status, evaluatedAt)}`);
+    return "ok";
+  } catch (e) {
+    return String((e as { stderr?: string }).stderr ?? e).includes("template mudou") ? "WA010" : "error";
+  }
+}
+
+const sqlReevaluationPort: ReevaluationPort = {
+  async candidates(wabaId) {
+    const out = psql(
+      `set role service_role;
+       select coalesce(json_agg(json_build_object('f', fisioterapeuta_id, 'p', phone_number_id, 's', setup_state)), '[]')
+         from public.list_whatsapp_template_reevaluation_candidates(:'waba');`,
+      { waba: wabaId },
+    );
+    return (JSON.parse(out) as Array<{ f: string; p: string; s: Record<string, unknown> }>).map((r) => ({
+      fisioterapeutaId: r.f,
+      phoneNumberId: r.p,
+      displayPhoneNumber: null,
+      setupState: r.s,
+    }));
+  },
+  async accessToken() {
+    return "token-ficticio-e2e";
+  },
+  async promote(candidate, input) {
+    try {
+      psql(
+        `set role service_role;
+         select public.upsert_whatsapp_connection_from_signup(:'f'::uuid, :'waba', :'pnid', null, 'connected', null,
+           (:'setup')::jsonb);`,
+        {
+          f: candidate.fisioterapeutaId,
+          waba: input.wabaId,
+          pnid: candidate.phoneNumberId,
+          setup: JSON.stringify({ ...candidate.setupState, evaluated_at: input.evaluatedAt }),
+        },
+      );
+      return "connected";
+    } catch (e) {
+      return String((e as { stderr?: string }).stderr ?? e).includes("template mudou") ? "stale" : "error";
+    }
+  },
+};
+
+function fakeMeta(approved: boolean): ReadinessReader {
+  return {
+    async getPhoneInfo() {
+      return { ok: true, info: { displayPhoneNumber: "+55 62 1", status: "CONNECTED", isPinEnabled: false } };
+    },
+    async getTemplatesReport() {
+      return { ok: true, report: { confirmation: "approved", reminder: approved ? "approved" : "pending" } };
+    },
+    async getAccountHealth() {
+      return { ok: true, health: "available" };
+    },
+  };
+}
+
+test("integração 0034: REJECTED T2 -> Atualizar status (Meta aprovada) -> REJECTED atrasado T1 é ignorado", { skip }, async () => {
+  assert.equal(await post(templateBody("REJECTED", BASE + 20)), 200);
+  assert.deepEqual(connection(), { status: "pending", code: "templates_pending", verified: "", event12h: "REJECTED" });
+  // "Atualizar status" que começou ANTES do REJECTED não conecta.
+  assert.equal(tryUpsert("connected", BASE + 10), "WA010");
+  // Reavaliação completa depois do REJECTED (Meta já aprovou de novo).
+  assert.equal(tryUpsert("connected", BASE + 30), "ok");
+  assert.equal(connection().status, "connected");
+  assert.equal(connection().event12h, "REJECTED", "histórico preservado pelo upsert");
+  // Webhook atrasado de antes da verificação.
+  assert.equal(await post(templateBody("REJECTED", BASE + 15)), 200);
+  assert.equal(connection().status, "connected");
+});
+
+test("integração 0034: dois webhooks fora de ordem: o mais antigo não sobrescreve o mais novo", { skip }, async () => {
+  assert.equal(await post(templateBody("PAUSED", BASE + 50)), 200);
+  assert.equal(await post(templateBody("APPROVED", BASE + 40)), 200);
+  const c = connection();
+  assert.equal(c.event12h, "PAUSED");
+  assert.equal(c.status, "pending");
+});
+
+test("integração 0034: concorrência upsert(connected) x webhook negativo mais novo: nunca termina conectada", { skip }, async () => {
+  // 1) a reavaliação trava a linha e demora; o webhook espera e aplica depois.
+  const evaluatedAt = BASE + 60;
+  const slow = spawn("psql", ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", "-d", DB], { env: pgEnv });
+  const done = new Promise<number>((resolve) => slow.on("close", (code) => resolve(code ?? 1)));
+  slow.stdin.end(`set role service_role; begin; ${upsertSql("connected", evaluatedAt)} select pg_sleep(1.5); commit;`);
+  await new Promise((r) => setTimeout(r, 400));
+  assert.equal(await post(templateBody("DISABLED", BASE + 70)), 200);
+  assert.equal(await done, 0);
+  let c = connection();
+  assert.equal(c.status, "pending", "o evento mais novo venceu depois do commit");
+  assert.equal(c.code, "templates_rejected");
+
+  // 2) o webhook grava primeiro; a reavaliação iniciada antes dele é recusada.
+  assert.equal(await post(templateBody("APPROVED", BASE + 80)), 200);
+  assert.equal(tryUpsert("connected", BASE + 90), "ok");
+  assert.equal(await post(templateBody("PAUSED", BASE + 100)), 200);
+  assert.equal(tryUpsert("connected", BASE + 95), "WA010");
+  c = connection();
+  assert.equal(c.status, "pending");
+});
+
+test("integração 0034: reavaliação automática só conecta com a Meta aprovada (e respeita WA010)", { skip }, async () => {
+  // Pendente por template (estado do teste anterior).
+  const notReady = await reevaluateAfterApproval(WABA, sqlReevaluationPort, fakeMeta(false), () => new Date((BASE + 200) * 1000));
+  assert.equal(notReady.promoted, 0);
+  assert.equal(connection().status, "pending");
+  const ready = await reevaluateAfterApproval(WABA, sqlReevaluationPort, fakeMeta(true), () => new Date((BASE + 200) * 1000));
+  assert.deepEqual(ready, { candidates: 1, promoted: 1, notReady: 0, stale: 0, errors: 0 });
+  assert.equal(connection().status, "connected");
+  assert.equal(await post(templateBody("REJECTED", BASE + 99)), 200, "evento antigo depois da verificação");
+  assert.equal(connection().status, "connected");
 });

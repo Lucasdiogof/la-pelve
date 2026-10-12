@@ -110,7 +110,7 @@ export async function materializeDueMessages(
       }
     } catch {
       // Sem detalhes no log: a mensagem do erro pode carregar ids/fuso.
-      console.error(JSON.stringify({ event: "whatsapp_materialization_appointment_error", appointmentId: row.id }));
+      console.error(JSON.stringify({ event: "whatsapp_materialization_appointment_error" }));
       appointmentErrors++;
     }
   }

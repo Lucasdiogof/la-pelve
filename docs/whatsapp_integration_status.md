@@ -1,5 +1,16 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-12 (histórico de templates, reavaliação automática, logs, app)
+
+- Bug da auditoria do PR #10: o `whatsapp-connect` regravava `setup_state` inteiro e apagava `setup_state.templates`. **`0034_whatsapp_template_history_merge.sql`**:
+  - `upsert_whatsapp_connection_from_signup` (mesma assinatura): `templates` e `templates_verified_at` são chaves do SERVIDOR, mantidas da linha travada (nunca do cliente; só valem para a mesma WABA). Entrada `evaluated_at` (início da avaliação, não é gravada). `connected` é recusado com **WA010** se há evento negativo de template mais novo que `max(evaluated_at, templates_verified_at)`; ao conectar, `templates_verified_at = evaluated_at`.
+  - `apply_whatsapp_template_status` ignora eventos com instante `<= templates_verified_at` (a consulta completa à Meta já os refletiu): REJECTED atrasado não rebaixa mais.
+  - `list_whatsapp_template_reevaluation_candidates(waba)`: pendentes só por template.
+  - `whatsapp-connect`: manda `evaluated_at`; WA010 → fica `pending/templates_pending` (nunca conecta).
+- **Reavaliação automática:** APPROVED/REINSTATED/UNARCHIVED de template da prontidão no webhook disparam (em segundo plano, `EdgeRuntime.waitUntil`) uma checagem só de LEITURA na Meta com o token da conexão: número CONNECTED + os dois templates aprovados + conta disponível. Só então promove, pelo mesmo upsert (WA010 vale). O evento sozinho nunca conecta; nada é criado/inscrito/registrado na Meta. Não depende de `WHATSAPP_SELF_CONNECT_ENABLED` (o onboarding segue desligado).
+- **Logs:** removidos wamid (confirmação), ids de mensagem/consulta (despacho, materialização, reconciliação) e texto bruto de erro (dry-run).
+- **App:** na edição da consulta, bloco "Lembretes pelo WhatsApp" (aviso de agendamento / pedido de confirmação / aviso de remarcação) com Programado/Enviando/Enviado/Entregue/Lido/Não entregue/Cancelado e horário; só leitura via RLS, sem telefone/wamid; some quando não há lembrete.
+
 ## >>> ATUALIZAÇÃO 2026-10-12 (PR #10, webhooks de status e de templates)
 
 - `0033_whatsapp_status_and_template_webhooks.sql`:

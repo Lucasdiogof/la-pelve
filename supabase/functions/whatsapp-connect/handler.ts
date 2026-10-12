@@ -19,7 +19,7 @@ import { META_REGISTRATION_RATE_LIMIT, type MetaOnboarding, type TemplatesReport
 
 export type UpsertResult =
   | { ok: true; id: string }
-  | { ok: false; code: "active_connection" | "phone_in_use" | "credential_missing" | "error" };
+  | { ok: false; code: "active_connection" | "phone_in_use" | "credential_missing" | "stale_evaluation" | "error" };
 
 /** Progresso do onboarding persistido em whatsapp_connections.setup_state (sem segredos). */
 export interface SetupState {
@@ -31,6 +31,13 @@ export interface SetupState {
    */
   register_attempts: string[];
   rate_limited_until?: string;
+  /**
+   * Só ENTRADA do upsert (migration 0034): início da avaliação que está sendo
+   * gravada. O banco usa para recusar 'connected' se um evento negativo de
+   * template chegou depois e não grava o campo. `templates` e
+   * `templates_verified_at` são do servidor: o cliente nunca os sobrescreve.
+   */
+  evaluated_at?: string;
 }
 
 export interface ConnectionRow {
@@ -399,15 +406,16 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       return fail(500, "credential_store_failed");
     }
 
+    const evaluatedAt = (deps.now ?? (() => new Date()))();
     const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup });
     setup = evaluated.setup;
-    const persisted = await persistEvaluation(userId, wabaId, phoneNumberId, evaluated);
+    const persisted = await persistEvaluation(userId, wabaId, phoneNumberId, evaluated, evaluatedAt);
     if (!persisted.ok) {
       log("whatsapp_connect_failed", { step: "persist", code: persisted.code });
       return fail(500, persisted.code);
     }
-    log("whatsapp_connect_completed", { status: persisted.status, reason: evaluated.reason, event });
-    return json(200, { ok: true, status: persisted.status, ...(evaluated.reason ? { reason: evaluated.reason } : {}) });
+    log("whatsapp_connect_completed", { status: persisted.status, reason: persisted.reason, event });
+    return json(200, { ok: true, status: persisted.status, ...(persisted.reason ? { reason: persisted.reason } : {}) });
   }
 
   async function persistEvaluation(
@@ -415,19 +423,40 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     wabaId: string,
     phoneNumberId: string,
     evaluated: { reason: PendingReason | null; setup: SetupState; displayPhoneNumber: string | null },
+    evaluatedAt: Date,
     fallbackDisplay: string | null = null,
-  ): Promise<{ ok: true; status: "connected" | "pending" } | { ok: false; code: string }> {
+  ): Promise<
+    | { ok: true; status: "connected" | "pending"; reason: PendingReason | null }
+    | { ok: false; code: string }
+  > {
     const status = evaluated.reason === null ? "connected" : "pending";
+    const display = evaluated.displayPhoneNumber ?? fallbackDisplay;
     const upserted = await deps.store.upsertConnection({
       userId,
       wabaId,
       phoneNumberId,
-      displayPhoneNumber: evaluated.displayPhoneNumber ?? fallbackDisplay,
+      displayPhoneNumber: display,
       status,
       lastError: evaluated.reason === null ? null : { code: evaluated.reason },
-      setupState: evaluated.setup,
+      setupState: { ...evaluated.setup, evaluated_at: evaluatedAt.toISOString() },
     });
-    if (upserted.ok) return { ok: true, status };
+    if (upserted.ok) return { ok: true, status, reason: evaluated.reason };
+    if (upserted.code === "stale_evaluation") {
+      // Um evento negativo de template chegou depois do início desta
+      // avaliação: o que lemos da Meta pode estar velho. Nunca conecta; fica
+      // pendente até a próxima avaliação completa.
+      const pending = await deps.store.upsertConnection({
+        userId,
+        wabaId,
+        phoneNumberId,
+        displayPhoneNumber: display,
+        status: "pending",
+        lastError: { code: "templates_pending" },
+        setupState: evaluated.setup,
+      });
+      if (pending.ok) return { ok: true, status: "pending", reason: "templates_pending" };
+      return { ok: false, code: "internal" };
+    }
     if (upserted.code === "credential_missing") {
       // Sem token no Vault não existe "conectado": volta a pendente.
       await deps.store.upsertConnection({
@@ -459,6 +488,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     if (!token) {
       return json(200, { ok: true, status: connection.status, reason: "credential_missing" });
     }
+    const evaluatedAt = (deps.now ?? (() => new Date()))();
     const evaluated = await evaluateReadiness(meta, deps.store, {
       userId,
       token,
@@ -471,13 +501,14 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       connection.wabaId,
       connection.phoneNumberId,
       evaluated,
+      evaluatedAt,
       connection.displayPhoneNumber,
     );
     if (!persisted.ok) return fail(500, persisted.code);
     return json(200, {
       ok: true,
       status: persisted.status,
-      ...(evaluated.reason ? { reason: evaluated.reason } : {}),
+      ...(persisted.reason ? { reason: persisted.reason } : {}),
     });
   }
 }

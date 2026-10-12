@@ -76,7 +76,8 @@ Deno.serve(async (req) => {
       headers: { "content-type": "application/json" },
     });
   } catch (error) {
-    log("dry_run_failed", { error: error instanceof Error ? error.message : String(error) });
+    // Só o tipo do erro: a mensagem bruta pode trazer dados de linhas.
+    log("dry_run_failed", { error: error instanceof Error ? error.name : "unknown" });
     return new Response(JSON.stringify({ error: "dry-run failed" }), {
       status: 500,
       headers: { "content-type": "application/json" },

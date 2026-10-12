@@ -192,7 +192,7 @@ test("23: erro bruto do banco (com telefone e dados da linha) nunca vaza em outc
       assert.ok(!everything.includes(secret), `vazou: ${secret}`);
     }
     assert.ok(logs.length >= 1, "falha é logada (sanitizada)");
-    assert.ok(logs.every((l) => l.includes('"messageId":"m1"')), "log técnico traz o messageId");
+    assert.ok(logs.every((l) => !l.includes('m1')), "log sem o id da mensagem");
   }
 });
 

@@ -90,13 +90,12 @@ import type { MaterializableMessage, MaterializationOutcome, MaterializationPort
 
 const CONSENT_VALIDATION_SQLSTATE = "WA001";
 
-/** Log interno sanitizado -- NUNCA telefone/consentId/patientId/mensagem bruta do Postgres. */
+/** Log interno sanitizado -- só tipo/revisão e contexto; NUNCA ids, telefone ou erro bruto do Postgres. */
 function logPersistenceFailure(message: MaterializableMessage, context: string) {
   console.error(
     JSON.stringify({
       event: "whatsapp_message_materialization_failed",
       context,
-      appointmentId: message.appointmentId,
       reminderType: message.reminderType,
       scheduleRevision: message.scheduleRevision,
     }),

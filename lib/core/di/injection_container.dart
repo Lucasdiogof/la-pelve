@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/services/biometric_service.dart';
 import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:la_pelve/features/agenda/data/agenda_repository_supabase.dart';
+import 'package:la_pelve/features/agenda/data/appointment_reminder_repository.dart';
 import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/auth/data/auth_repository_impl.dart';
@@ -44,6 +45,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<AgendaRepository>(
     () => AgendaRepositorySupabase(sl()),
+  );
+  sl.registerLazySingleton<AppointmentReminderRepository>(
+    () => AppointmentReminderRepositorySupabase(sl()),
   );
   sl.registerLazySingleton<AttachmentRepository>(
     () => AttachmentRepositorySupabase(sl()),

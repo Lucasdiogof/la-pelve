@@ -17,6 +17,10 @@ import { parseStatuses } from "../_shared/delivery/parse_statuses.ts";
 import type { DeliveryStatusPort, StatusApplyResult } from "../_shared/delivery/status_port.ts";
 import { parseTemplateStatusUpdates } from "../_shared/templates/parse_template_status.ts";
 import type { TemplateStatusPort } from "../_shared/templates/template_port.ts";
+import type { ReevaluationSummary } from "../_shared/templates/reevaluate.ts";
+
+/** Eventos que PODEM ter deixado a conexão pronta (nunca conectam sozinhos). */
+const POSITIVE_TEMPLATE_EVENTS = new Set(["APPROVED", "REINSTATED", "UNARCHIVED"]);
 
 export interface WebhookConfig {
   verifyToken: string | undefined;
@@ -34,6 +38,13 @@ export interface WebhookConfig {
    * de outros templates da WABA são ignorados.
    */
   templates?: { names: string[]; language: string };
+  /**
+   * Reavaliação COMPLETA (leituras na Meta) das conexões da WABA pendentes por
+   * template, disparada por um evento de aprovação. null = indisponível.
+   */
+  reevaluate?: (wabaId: string) => Promise<ReevaluationSummary | null>;
+  /** Executa trabalho depois da resposta (EdgeRuntime.waitUntil); sem ele, aguarda. */
+  defer?: (task: Promise<unknown>) => void;
   log?: (event: string, data: Record<string, unknown>) => void;
 }
 
@@ -196,6 +207,25 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
             errors: failures,
             types: [...new Set(relevant.map((e) => e.event))],
           });
+          // Aprovação: só agenda a reavaliação completa (que consulta a Meta).
+          const wabas = failures === 0
+            ? [...new Set(relevant.filter((e) => POSITIVE_TEMPLATE_EVENTS.has(e.event)).map((e) => e.wabaId))]
+            : [];
+          if (config.reevaluate && wabas.length > 0) {
+            const reevaluate = config.reevaluate;
+            const task = (async () => {
+              for (const wabaId of wabas) {
+                try {
+                  const result = await reevaluate(wabaId);
+                  log("template_reevaluation", result ? { ...result } : { unavailable: true });
+                } catch {
+                  log("template_reevaluation", { errors: 1 });
+                }
+              }
+            })();
+            if (config.defer) config.defer(task);
+            else await task;
+          }
         }
       }
 

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/utils/app_loading.dart';
+import 'package:la_pelve/features/agenda/data/appointment_reminder_repository.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/l10n/agenda_strings.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_form_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_form_state.dart';
+import 'package:la_pelve/features/agenda/presentation/widgets/appointment_reminders_section.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
 import 'package:la_pelve/features/patients/presentation/cubit/patients_cubit.dart';
 import 'package:la_pelve/shared/utils/id_generator.dart';
@@ -205,6 +208,13 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
                       onSubmitted: (_) => FocusScope.of(context).unfocus(),
                       onChanged: (_) => _formCubit.onNomeChanged(),
                     ),
+                    // Só na edição: situação dos lembretes do WhatsApp.
+                    if (_isEditing &&
+                        sl.isRegistered<AppointmentReminderRepository>())
+                      AppointmentRemindersSection(
+                        appointmentId: widget.existingAppointment!.id,
+                        repository: sl<AppointmentReminderRepository>(),
+                      ),
                   ],
                 ),
               ),
