@@ -192,3 +192,34 @@ test("getPhoneInfo e getAccountHealth classificam os campos retornados", async (
     });
   }
 });
+
+test("debugToken: app token só no header, token do usuário na query; devolve validade e expiração", async () => {
+  const f = fakeFetch(() => jsonRes({ data: { is_valid: true, expires_at: 1790000000 } }));
+  const result = await createMetaOnboarding({ config, fetchFn: f.fn }).debugToken(TOKEN);
+  assert.ok(result.ok);
+  if (result.ok) {
+    assert.equal(result.info.valid, true);
+    assert.equal(result.info.expiresAt?.getTime(), 1790000000 * 1000);
+  }
+  const url = new URL(f.calls[0].url);
+  assert.equal(url.pathname, "/v25.0/debug_token");
+  assert.equal(url.searchParams.get("input_token"), TOKEN);
+  assert.equal(url.searchParams.has("access_token"), false);
+  assert.equal(url.searchParams.has("client_secret"), false);
+  const headers = f.calls[0].init.headers as Record<string, string>;
+  assert.equal(headers.authorization, "Bearer 1234567890|app-secret-app-secret-123");
+});
+
+test("debugToken: expires_at 0 = sem expiração; token inválido; resposta fora do formato", async () => {
+  const never = fakeFetch(() => jsonRes({ data: { is_valid: true, expires_at: 0 } }));
+  const a = await createMetaOnboarding({ config, fetchFn: never.fn }).debugToken(TOKEN);
+  assert.ok(a.ok && a.info.valid && a.info.expiresAt === null);
+  const invalid = fakeFetch(() => jsonRes({ data: { is_valid: false } }));
+  const b = await createMetaOnboarding({ config, fetchFn: invalid.fn }).debugToken(TOKEN);
+  assert.ok(b.ok && !b.info.valid);
+  const junk = fakeFetch(() => jsonRes({ data: {} }));
+  assert.deepEqual(await createMetaOnboarding({ config, fetchFn: junk.fn }).debugToken(TOKEN), {
+    ok: false,
+    code: "meta_invalid_response",
+  });
+});

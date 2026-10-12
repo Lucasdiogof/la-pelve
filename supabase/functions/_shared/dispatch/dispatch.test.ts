@@ -26,7 +26,8 @@ interface Row {
   completions: CompletionInput[];
 }
 
-function memoryStore(rows: Row[], options: { failCompleteTimes?: number } = {}) {
+function memoryStore(rows: Row[], options: { failCompleteTimes?: number; failFlag?: boolean } = {}) {
+  const flagged: string[] = [];
   let failCompleteTimes = options.failCompleteTimes ?? 0;
   const claimedTypes: MessageType[][] = [];
   const store: DispatchStore = {
@@ -78,8 +79,12 @@ function memoryStore(rows: Row[], options: { failCompleteTimes?: number } = {}) 
       r.lease = null;
       return "ok";
     },
+    async flagConnectionTokenInvalid(id) {
+      if (options.failFlag) throw new Error("db");
+      flagged.push(id);
+    },
   };
-  return { store, claimedTypes };
+  return { store, claimedTypes, flagged };
 }
 
 function row(id: string, overrides: Partial<Row> = {}): Row {
@@ -205,4 +210,29 @@ test("token nunca aparece em log nem no resumo", async () => {
   assert.ok(!JSON.stringify(logs).includes(TOKEN));
   assert.ok(!JSON.stringify(summary).includes(TOKEN));
   assert.ok(!JSON.stringify(rows.flatMap((r) => r.completions)).includes(TOKEN));
+});
+
+test("token recusado pela Meta (auth_error): mensagem falha e a conexão é marcada; outros erros não marcam", async () => {
+  const rows = [row("m1"), row("m2")];
+  const { store, flagged } = memoryStore(rows);
+  const results = [
+    { kind: "rejected", code: "auth_error", httpStatus: 401, providerCode: 190 },
+    { kind: "rejected", code: "request_rejected", httpStatus: 400, providerCode: 132001 },
+  ] as const;
+  let i = 0;
+  const provider = createFakeWhatsappProvider(() => results[i++]);
+  const summary = await dispatchPendingWhatsappMessages({ store, provider, templates, now: () => NOW, log: () => {} });
+  assert.equal(summary.failed, 2);
+  assert.deepEqual(flagged, ["m1"]);
+});
+
+test("falha ao marcar a conexão não lança nem esconde a falha da mensagem", async () => {
+  const rows = [row("m1")];
+  const { store } = memoryStore(rows, { failFlag: true });
+  const provider = createFakeWhatsappProvider(() => ({ kind: "rejected", code: "auth_error", httpStatus: 401, providerCode: 190 }));
+  const logs: string[] = [];
+  const summary = await dispatchPendingWhatsappMessages({ store, provider, templates, now: () => NOW, log: (e) => logs.push(e) });
+  assert.equal(summary.failed, 1);
+  assert.equal(rows[0].status, "failed");
+  assert.ok(logs.includes("whatsapp_dispatch_flag_token_failed"));
 });

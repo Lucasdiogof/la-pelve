@@ -30,6 +30,12 @@ export interface PhoneInfo {
   isPinEnabled: boolean | null;
 }
 
+/** Validade do token da conexão (GET /debug_token). `expiresAt` null = sem expiração informada. */
+export interface TokenInfo {
+  valid: boolean;
+  expiresAt: Date | null;
+}
+
 export type AccountHealth = "available" | "limited" | "blocked" | "unknown";
 
 /** Código de erro da Meta: limite de 10 registros por número em 72 h. */
@@ -46,6 +52,8 @@ export interface MetaOnboarding {
   /** Só LEITURA: estado dos templates na WABA, sem criar nada (ausente = "missing"). */
   getTemplatesReport(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
   getAccountHealth(token: string, wabaId: string): Promise<Ok<{ health: AccountHealth }> | Fail>;
+  /** Só LEITURA: o token ainda vale e até quando (token de aplicativo no header; nunca em URL). */
+  debugToken(token: string): Promise<Ok<{ info: TokenInfo }> | Fail>;
 }
 
 interface Options {
@@ -295,6 +303,18 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
 
     async getTemplatesReport(token, wabaId) {
       return await templates(token, wabaId, false);
+    },
+
+    async debugToken(token) {
+      const query = new URLSearchParams({ input_token: token });
+      const result = await call("GET", `/debug_token?${query.toString()}`, {
+        token: `${config.appId}|${config.appSecret}`,
+      });
+      if (!result.ok) return result;
+      const data = result.body.data as { is_valid?: unknown; expires_at?: unknown } | undefined;
+      if (!data || typeof data.is_valid !== "boolean") return { ok: false, code: "meta_invalid_response" };
+      const expires = typeof data.expires_at === "number" && data.expires_at > 0 ? data.expires_at : null;
+      return { ok: true, info: { valid: data.is_valid, expiresAt: expires === null ? null : new Date(expires * 1000) } };
     },
 
     async getAccountHealth(token, wabaId) {

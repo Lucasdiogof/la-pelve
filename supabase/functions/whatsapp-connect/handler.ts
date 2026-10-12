@@ -61,6 +61,7 @@ export type PendingReason =
   | "templates_rejected"
   | "account_limited"
   | "account_blocked"
+  | "token_invalid"
   | "meta_unavailable";
 
 export type RegistrationReservation =
@@ -115,6 +116,8 @@ const STATE_RE = /^[0-9a-f]{64}$/;
 const NUMERIC_ID_RE = /^\d{5,32}$/;
 const SUPPORTED_EVENTS = new Set(["FINISH", "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING"]);
 const MAX_BODY_BYTES = 4096;
+/** Avisa a profissional com esta antecedência antes do token vencer. */
+const TOKEN_EXPIRING_WARNING_MS = 7 * 24 * 60 * 60 * 1000;
 
 const CORS = {
   "access-control-allow-origin": "*",
@@ -219,6 +222,11 @@ async function evaluateReadiness(
   store: ConnectStore,
   input: { userId: string; token: string; wabaId: string; phoneNumberId: string; setup: SetupState },
 ): Promise<{ reason: PendingReason | null; setup: SetupState; displayPhoneNumber: string | null }> {
+  // Token recusado/expirado: não adianta tentar nada (e não mexe na Meta).
+  const tokenCheck = await meta.debugToken(input.token);
+  if (tokenCheck.ok && !tokenCheck.info.valid) {
+    return { reason: "token_invalid", setup: input.setup, displayPhoneNumber: null };
+  }
   const subscribed = await meta.subscribeApp(input.token, input.wabaId);
   const phone = await ensurePhoneReady(
     meta,
@@ -429,7 +437,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     | { ok: true; status: "connected" | "pending"; reason: PendingReason | null }
     | { ok: false; code: string }
   > {
-    const status = evaluated.reason === null ? "connected" : "pending";
+    const status = evaluated.reason === null ? "connected" : evaluated.reason === "token_invalid" ? "error" : "pending";
     const display = evaluated.displayPhoneNumber ?? fallbackDisplay;
     const upserted = await deps.store.upsertConnection({
       userId,
@@ -472,10 +480,51 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     return { ok: false, code: upserted.code === "credential_missing" ? "credential_store_failed" : "internal" };
   }
 
+  /**
+   * Conexão 'connected': só LEITURA na Meta para saber se o token ainda vale.
+   * Inválido/expirado -> 'error' (os envios param e o app pede reconexão);
+   * perto de vencer -> aviso na resposta (nada é gravado). Falha ao consultar
+   * a Meta não altera nada.
+   */
+  async function checkConnectedToken(userId: string, connection: ConnectionRow, meta: MetaOnboarding): Promise<Response> {
+    const token = await deps.store.getAccessToken(userId);
+    if (!token) return json(200, { ok: true, status: connection.status, reason: "credential_missing" });
+    const checked = await meta.debugToken(token);
+    if (!checked.ok) return json(200, { ok: true, status: connection.status });
+    if (!checked.info.valid) {
+      const flagged = await deps.store.upsertConnection({
+        userId,
+        wabaId: connection.wabaId!,
+        phoneNumberId: connection.phoneNumberId!,
+        displayPhoneNumber: connection.displayPhoneNumber,
+        status: "error",
+        lastError: { code: "token_invalid" },
+        setupState: connection.setupState,
+      });
+      if (!flagged.ok) return fail(500, "internal");
+      log("whatsapp_connect_token_invalid", {});
+      return json(200, { ok: true, status: "error", reason: "token_invalid" });
+    }
+    const expiresAt = checked.info.expiresAt;
+    const now = (deps.now ?? (() => new Date()))();
+    if (expiresAt && expiresAt.getTime() - now.getTime() <= TOKEN_EXPIRING_WARNING_MS) {
+      return json(200, {
+        ok: true,
+        status: connection.status,
+        reason: "token_expiring",
+        token_expires_at: expiresAt.toISOString(),
+      });
+    }
+    return json(200, { ok: true, status: connection.status });
+  }
+
   async function refreshStatus(userId: string, meta: MetaOnboarding): Promise<Response> {
     const connection = await deps.store.getConnection(userId);
     if (!connection) return json(200, { ok: true, status: "none" });
-    // Conectada/desconectada: nada a reavaliar. Pendente e erro (ex.: conta
+    if (connection.status === "connected" && connection.wabaId && connection.phoneNumberId) {
+      return await checkConnectedToken(userId, connection, meta);
+    }
+    // Desconectada: nada a reavaliar. Pendente e erro (ex.: conta
     // reabilitada pela Meta) passam pela mesma checagem completa.
     if (
       (connection.status !== "pending" && connection.status !== "error") ||

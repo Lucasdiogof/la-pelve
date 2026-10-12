@@ -115,5 +115,22 @@ export function createSupabaseDispatchStore(client: SupabaseClient): DispatchSto
       if (error || (data !== "ok" && data !== "lease_lost")) throw new DispatchStoreError("complete_failed");
       return data;
     },
+
+    async flagConnectionTokenInvalid(messageId) {
+      const { data: message, error: readError } = await client
+        .from("whatsapp_messages")
+        .select("fisioterapeuta_id")
+        .eq("id", messageId)
+        .maybeSingle();
+      const owner = str((message as Record<string, unknown> | null)?.fisioterapeuta_id);
+      if (readError || !owner) throw new DispatchStoreError("flag_lookup_failed");
+      // Condicional: não rebaixa conexão que já foi trocada/desconectada.
+      const { error } = await client
+        .from("whatsapp_connections")
+        .update({ status: "error", connected_at: null, last_error: { code: "token_invalid" } })
+        .eq("fisioterapeuta_id", owner)
+        .eq("status", "connected");
+      if (error) throw new DispatchStoreError("flag_update_failed");
+    },
   };
 }

@@ -117,6 +117,15 @@ export async function dispatchPendingWhatsappMessages(deps: DispatchDeps): Promi
       summary.leaseLost++;
       continue;
     }
+    if (completion.result === "failed" && completion.error.code === "auth_error") {
+      // Token recusado: sem isto cada mensagem seguinte falharia do mesmo jeito
+      // e a profissional nunca saberia que precisa reconectar.
+      try {
+        await deps.store.flagConnectionTokenInvalid?.(item.messageId);
+      } catch {
+        log("whatsapp_dispatch_flag_token_failed", {});
+      }
+    }
 
     if (completion.result === "sent") summary.sent++;
     else if (completion.result === "retry") summary.retried++;

@@ -16,8 +16,9 @@ abstract class WhatsappConnectionRepository {
   Future<Result<Uri>> startConnection();
 
   /// Pede ao servidor para reavaliar uma conexão pendente (templates e
-  /// webhook). Não devolve dado: o chamador relê a conexão em seguida.
-  Future<Result<void>> refreshRemoteStatus();
+  /// webhook) ou checar se a autorização de uma conexão ativa ainda vale.
+  /// O chamador relê a conexão em seguida; o retorno só traz avisos extras.
+  Future<Result<WhatsappRemoteStatus>> refreshRemoteStatus();
 
   /// Tira a inscrição do webhook, apaga o token e marca como desconectada.
   Future<Result<void>> disconnect();

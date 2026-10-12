@@ -72,3 +72,18 @@ class WhatsappConnection extends Equatable {
     updatedAt,
   ];
 }
+
+/// Resposta da ação `status` do `whatsapp-connect`: só o que a tela precisa
+/// além da linha de `whatsapp_connections` (que continua sendo lida direto).
+class WhatsappRemoteStatus extends Equatable {
+  const WhatsappRemoteStatus({this.reason, this.tokenExpiresAt});
+
+  /// Ex.: `token_expiring`, `token_invalid`, `credential_missing`.
+  final String? reason;
+
+  /// Só vem junto de `token_expiring`: quando a autorização da Meta vence.
+  final DateTime? tokenExpiresAt;
+
+  @override
+  List<Object?> get props => [reason, tokenExpiresAt];
+}

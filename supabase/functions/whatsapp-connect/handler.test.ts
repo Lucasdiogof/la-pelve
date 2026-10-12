@@ -181,6 +181,9 @@ interface MetaScript {
   subscribeOk: boolean;
   belongs: boolean;
   exchangeOk: boolean;
+  tokenValid: boolean;
+  tokenExpiresAt: Date | null;
+  debugFails: boolean;
 }
 
 function makeMeta(events: string[]) {
@@ -192,6 +195,9 @@ function makeMeta(events: string[]) {
     subscribeOk: true,
     belongs: true,
     exchangeOk: true,
+    tokenValid: true,
+    tokenExpiresAt: null,
+    debugFails: false,
   };
   const pins: string[] = [];
   const meta: MetaOnboarding = {
@@ -227,6 +233,10 @@ function makeMeta(events: string[]) {
     async getTemplatesReport() {
       events.push("meta:templates_read");
       return { ok: true, report: script.report };
+    },
+    async debugToken() {
+      if (script.debugFails) return { ok: false, code: "meta_unreachable" };
+      return { ok: true, info: { valid: script.tokenValid, expiresAt: script.tokenExpiresAt } };
     },
     async getAccountHealth() {
       events.push("meta:health");
@@ -820,4 +830,81 @@ test("status: reavaliação com WA010 também não promove", async () => {
   const res = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
   assert.equal(res.status, "pending");
   assert.equal(h.connections.get("user-a")!.status, "pending");
+});
+
+// --------------------------------------------------------------------------
+// Validade do token (expiração, revogação, reconexão)
+// --------------------------------------------------------------------------
+
+test("token inválido no complete: nada é feito na Meta e a conexão vira 'error'/token_invalid", async () => {
+  const h = build();
+  h.script.tokenValid = false;
+  const res = await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  assert.equal((await body(res)).status, "error");
+  assert.deepEqual(mutations(h), []);
+  assert.equal(h.connections.get("user-a")!.status, "error");
+  assert.deepEqual(h.connections.get("user-a")!.lastError, { code: "token_invalid" });
+});
+
+test("status de conexão conectada com token revogado/expirado: vira error/token_invalid e nada é mutado na Meta", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.events.length = 0;
+  h.script.tokenValid = false;
+  const res = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
+  assert.equal(res.status, "error");
+  assert.equal(res.reason, "token_invalid");
+  assert.equal(h.connections.get("user-a")!.status, "error");
+  assert.deepEqual(h.connections.get("user-a")!.lastError, { code: "token_invalid" });
+  assert.deepEqual(mutations(h), []);
+});
+
+test("status de conexão conectada com token a menos de 7 dias de vencer: avisa sem gravar nada", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  const upsertsBefore = h.upserts.length;
+  h.script.tokenExpiresAt = new Date(NOW.getTime() + 3 * 24 * 3600_000);
+  const res = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
+  assert.equal(res.status, "connected");
+  assert.equal(res.reason, "token_expiring");
+  assert.equal(res.token_expires_at, h.script.tokenExpiresAt.toISOString());
+  assert.equal(h.upserts.length, upsertsBefore);
+  assert.equal(h.connections.get("user-a")!.status, "connected");
+});
+
+test("status com token longe de vencer, sem expiração ou consulta à Meta indisponível: conectada e inalterada", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  const upsertsBefore = h.upserts.length;
+  h.script.tokenExpiresAt = new Date(NOW.getTime() + 40 * 24 * 3600_000);
+  assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
+  h.script.tokenExpiresAt = null;
+  assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
+  h.script.tokenValid = false;
+  h.script.debugFails = true;
+  assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
+  assert.equal(h.upserts.length, upsertsBefore);
+});
+
+test("reconexão: conexão em error/token_invalid volta a conectada com token novo", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.script.tokenValid = false;
+  await h.call({ action: "status" }, "Bearer jwt-a");
+  assert.equal(h.connections.get("user-a")!.status, "error");
+  h.script.tokenValid = true;
+  const res = await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  assert.equal((await body(res)).status, "connected");
+  assert.equal(h.connections.get("user-a")!.status, "connected");
+  assert.equal(h.connections.get("user-a")!.lastError, null);
+});
+
+test("status em error com token ainda inválido continua error; com token válido reavalia e promove", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.script.tokenValid = false;
+  await h.call({ action: "status" }, "Bearer jwt-a");
+  assert.equal((await body(await h.call({ action: "status" }, "Bearer jwt-a"))).status, "error");
+  h.script.tokenValid = true;
+  assert.equal((await body(await h.call({ action: "status" }, "Bearer jwt-a"))).status, "connected");
 });

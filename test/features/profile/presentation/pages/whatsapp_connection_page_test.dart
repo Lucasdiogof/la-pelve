@@ -126,7 +126,7 @@ void main() {
     ).thenAnswer((_) async => const Success(false));
     when(
       () => repository.refreshRemoteStatus(),
-    ).thenAnswer((_) async => const Success(null));
+    ).thenAnswer((_) async => const Success(WhatsappRemoteStatus()));
   });
 
   tearDown(() async {
@@ -302,6 +302,56 @@ void main() {
     await tester.tap(find.text('Atualizar status'));
     await _pumpPastLoading(tester);
     verify(() => repository.getCurrentConnection()).called(2);
+  });
+
+  testWidgets('autorização da Meta inválida: mensagem clara e botão Reconectar', (
+    tester,
+  ) async {
+    when(() => repository.getCurrentConnection()).thenAnswer(
+      (_) async => Success(
+        connectionWith(
+          WhatsappConnectionStatus.error,
+          lastError: {'code': 'token_invalid'},
+        ),
+      ),
+    );
+    await pumpWhatsappPage(tester);
+
+    expect(find.textContaining('venceu ou foi revogada'), findsOneWidget);
+    expect(find.text('Reconectar'), findsOneWidget);
+    // Reavaliado no servidor ao abrir (o servidor reabilita se o token voltou).
+    verify(() => repository.refreshRemoteStatus()).called(1);
+  });
+
+  testWidgets(
+    'conectada com autorização perto de vencer: aviso com a data e Reconectar',
+    (tester) async {
+      when(() => repository.getCurrentConnection()).thenAnswer(
+        (_) async =>
+            Success(connectionWith(WhatsappConnectionStatus.connected)),
+      );
+      when(() => repository.refreshRemoteStatus()).thenAnswer(
+        (_) async => Success(
+          WhatsappRemoteStatus(
+            reason: 'token_expiring',
+            tokenExpiresAt: DateTime.utc(2026, 10, 20, 12),
+          ),
+        ),
+      );
+      await pumpWhatsappPage(tester);
+
+      expect(find.textContaining('vence em 20/10/2026'), findsOneWidget);
+      expect(find.text('Reconectar'), findsOneWidget);
+    },
+  );
+
+  testWidgets('conectada sem aviso: nada de Reconectar', (tester) async {
+    when(() => repository.getCurrentConnection()).thenAnswer(
+      (_) async => Success(connectionWith(WhatsappConnectionStatus.connected)),
+    );
+    await pumpWhatsappPage(tester);
+
+    expect(find.text('Reconectar'), findsNothing);
   });
 
   group('conexão pelo app (Embedded Signup liberado no backend)', () {

@@ -59,6 +59,12 @@ export interface DispatchStore {
   claim(input: { limit: number; leaseSeconds: number; reminderTypes: MessageType[] }): Promise<ClaimedMessage[]>;
   prepare(messageId: string, leaseToken: string): Promise<PrepareResult>;
   complete(messageId: string, leaseToken: string, completion: CompletionInput): Promise<"ok" | "lease_lost">;
+  /**
+   * A Meta recusou o token da conexão (190): marca a conexão da profissional
+   * como 'error'/token_invalid para parar os envios e pedir reconexão. Só
+   * age se a conexão ainda estiver 'connected'. Melhor esforço.
+   */
+  flagConnectionTokenInvalid?(messageId: string): Promise<void>;
 }
 
 /** Payload JSON de envio de template da Cloud API (POST /{phone_number_id}/messages). */

@@ -639,6 +639,7 @@ class ProfileStrings {
       'credential_store_failed',
       'credential_missing',
       'revoked_by_meta',
+      'token_invalid',
     };
     if (code == null || !known.contains(code)) return null;
     return switch (language) {
@@ -667,6 +668,9 @@ class ProfileStrings {
           'Não foi possível guardar a autorização com segurança. Conecte '
               'novamente.',
         'revoked_by_meta' => 'A Meta encerrou a autorização desta conexão.',
+        'token_invalid' =>
+          'A autorização da Meta venceu ou foi revogada. Reconecte para voltar '
+              'a enviar os lembretes.',
         _ =>
           'A conta do WhatsApp Business está com restrição na Meta. Verifique '
               'o WhatsApp Manager.',
@@ -698,6 +702,9 @@ class ProfileStrings {
               'again.',
         'revoked_by_meta' =>
           'Meta ended the authorization for this connection.',
+        'token_invalid' =>
+          'The Meta authorization expired or was revoked. Reconnect to resume '
+              'sending reminders.',
         _ =>
           'The WhatsApp Business account is restricted by Meta. Check '
               'WhatsApp Manager.',
@@ -728,12 +735,34 @@ class ProfileStrings {
           'No se pudo guardar la autorización de forma segura. Conecta de '
               'nuevo.',
         'revoked_by_meta' => 'Meta finalizó la autorización de esta conexión.',
+        'token_invalid' =>
+          'La autorización de Meta venció o fue revocada. Reconecta para volver '
+              'a enviar los recordatorios.',
         _ =>
           'La cuenta de WhatsApp Business tiene una restricción en Meta. '
               'Revisa WhatsApp Manager.',
       },
     };
   }
+
+  String get whatsappReconnectButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Reconectar',
+    AppLanguage.english => 'Reconnect',
+    AppLanguage.spanish => 'Reconectar',
+  };
+
+  /// [date] já formatada (a autorização da Meta vence nesse dia).
+  String whatsappTokenExpiringMessage(String date) => switch (language) {
+    AppLanguage.portuguese =>
+      'A autorização da Meta vence em $date. Reconecte antes disso para não '
+          'interromper os lembretes.',
+    AppLanguage.english =>
+      'The Meta authorization expires on $date. Reconnect before then so '
+          'reminders are not interrupted.',
+    AppLanguage.spanish =>
+      'La autorización de Meta vence el $date. Reconecta antes para no '
+          'interrumpir los recordatorios.',
+  };
 
   String get whatsappBillingNote => switch (language) {
     AppLanguage.portuguese =>
