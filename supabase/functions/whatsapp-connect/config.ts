@@ -38,10 +38,10 @@ export type ConnectConfigResult =
   | { enabled: false; missing: string[] };
 
 export function readConnectConfig(env: (name: string) => string | undefined): ConnectConfigResult {
-  if (env("WHATSAPP_SELF_CONNECT_ENABLED") !== "true") {
-    return { enabled: false, missing: ["WHATSAPP_SELF_CONNECT_ENABLED"] };
-  }
+  // Todas as checagens rodam mesmo com a chave desligada: `missing` lista os
+  // NOMES do que falta (nunca valores) para o diagnóstico antes de ligar.
   const missing: string[] = [];
+  if (env("WHATSAPP_SELF_CONNECT_ENABLED") !== "true") missing.push("WHATSAPP_SELF_CONNECT_ENABLED");
   const appId = env("META_APP_ID") ?? "";
   if (!NUMERIC_ID_RE.test(appId)) missing.push("META_APP_ID");
   const configId = env("META_ES_CONFIG_ID") ?? "";

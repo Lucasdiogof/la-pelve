@@ -283,3 +283,207 @@ test("webhook de mensagens continua funcionando sem porta de conta", async () =>
   const { handler } = setup(port);
   assert.equal((await handler(await signedPost(accountBody("PARTNER_REMOVED")))).status, 200);
 });
+
+// --------------------------------------------------------------------------
+// Status de entrega (statuses[]) e status de templates (0033)
+// --------------------------------------------------------------------------
+
+import type { DeliveryStatusPort, StatusApplyResult } from "../_shared/delivery/status_port.ts";
+import type { DeliveryStatus } from "../_shared/delivery/parse_statuses.ts";
+import type { TemplateStatusPort } from "../_shared/templates/template_port.ts";
+import type { TemplateStatusEvent } from "../_shared/templates/parse_template_status.ts";
+
+const PNID = "106540352242922";
+const RANK: Record<string, number> = { sent: 1, delivered: 2, read: 3 };
+
+/** Porta falsa com estado: monotônica como a RPC (nunca rebaixa). */
+function fakeStatusPort(failWith: StatusApplyResult | null | "throw" = "updated") {
+  const applied: DeliveryStatus[] = [];
+  const current = new Map<string, string>();
+  const port: DeliveryStatusPort = {
+    async applyStatus(s) {
+      if (failWith === "throw") throw new Error("boom");
+      if (failWith === null) return null;
+      applied.push(s);
+      const before = current.get(s.wamid);
+      if (before === undefined) return "not_found";
+      if (s.status === "failed") {
+        if (before === "read" || before === "failed") return "unchanged";
+        current.set(s.wamid, "failed");
+        return "updated";
+      }
+      if ((RANK[s.status] ?? 0) <= (RANK[before] ?? 0)) return "unchanged";
+      current.set(s.wamid, s.status);
+      return "updated";
+    },
+  };
+  return { port, applied, current };
+}
+
+function fakeTemplatePort(result: number | null = 1) {
+  const applied: TemplateStatusEvent[] = [];
+  const port: TemplateStatusPort = {
+    async applyTemplateStatus(e) {
+      applied.push(e);
+      return result;
+    },
+  };
+  return { port, applied };
+}
+
+function statusSetup(
+  statusPort: DeliveryStatusPort,
+  templatePort: TemplateStatusPort = fakeTemplatePort().port,
+  replyPort: ConfirmationReplyPort = fakePort().port,
+) {
+  const logs: Array<{ event: string; data: Record<string, unknown> }> = [];
+  const handler = createWebhookHandler({
+    verifyToken: VERIFY_TOKEN,
+    appSecret: APP_SECRET,
+    getPort: () => replyPort,
+    getStatusPort: () => statusPort,
+    getTemplatePort: () => templatePort,
+    templates: { names: ["appointment_confirmation", "appointment_12h"], language: "pt_BR" },
+    log: (event, data) => logs.push({ event, data }),
+  });
+  return { handler, logs };
+}
+
+const statusBody = (statuses: Array<Record<string, unknown>>) => ({
+  object: "whatsapp_business_account",
+  entry: [
+    {
+      id: "102290129340398",
+      changes: [
+        {
+          field: "messages",
+          value: {
+            messaging_product: "whatsapp",
+            metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+            statuses: statuses.map((s) => ({ timestamp: TS, recipient_id: "5562911110001", ...s })),
+          },
+        },
+      ],
+    },
+  ],
+});
+
+const templateBody = (event: string, name = "appointment_12h", language = "pt_BR") => ({
+  object: "whatsapp_business_account",
+  entry: [
+    {
+      id: "102290129340398",
+      time: Number(TS),
+      changes: [
+        {
+          field: "message_template_status_update",
+          value: { event, message_template_id: 1, message_template_name: name, message_template_language: language, reason: "NONE" },
+        },
+      ],
+    },
+  ],
+});
+
+test("status: assinatura inválida não aplica nada", async () => {
+  const s = fakeStatusPort();
+  const { handler } = statusSetup(s.port);
+  const res = await handler(await signedPost(statusBody([{ id: "wamid.X", status: "read" }]), "outro-segredo"));
+  assert.equal(res.status, 401);
+  assert.deepEqual(s.applied, []);
+});
+
+test("status: sent -> delivered -> read avança; read duplicado e sent atrasado não rebaixam", async () => {
+  const s = fakeStatusPort();
+  s.current.set("wamid.X", "sent");
+  const { handler, logs } = statusSetup(s.port);
+  for (const status of ["delivered", "read", "read", "sent", "delivered"]) {
+    assert.equal((await handler(await signedPost(statusBody([{ id: "wamid.X", status }])))).status, 200);
+  }
+  assert.equal(s.current.get("wamid.X"), "read");
+  assert.equal(s.applied.length, 5);
+  const processed = logs.filter((l) => l.event === "delivery_status_processed");
+  assert.deepEqual(processed.map((l) => l.data.updated ?? 0), [1, 1, 0, 0, 0]);
+});
+
+test("status: failed não rebaixa read e nunca vira resposta/reenvio", async () => {
+  const s = fakeStatusPort();
+  s.current.set("wamid.Y", "read");
+  const reply = fakePort();
+  const { handler } = statusSetup(s.port, fakeTemplatePort().port, reply.port);
+  const res = await handler(await signedPost(statusBody([{ id: "wamid.Y", status: "failed", errors: [{ code: 131026 }] }])));
+  assert.equal(res.status, 200);
+  assert.equal(s.current.get("wamid.Y"), "read");
+  assert.deepEqual(reply.calls, [], "status não é resposta da paciente");
+});
+
+test("status: wamid desconhecido (outra mensagem/conta) é ignorado com 200", async () => {
+  const s = fakeStatusPort();
+  const { handler, logs } = statusSetup(s.port);
+  const res = await handler(await signedPost(statusBody([{ id: "wamid.de.outro", status: "delivered" }])));
+  assert.equal(res.status, 200);
+  assert.equal(logs.find((l) => l.event === "delivery_status_processed")?.data.not_found, 1);
+});
+
+test("status: falha de persistência ou porta indisponível -> 500 (a Meta reenvia)", async () => {
+  for (const mode of [null, "throw"] as const) {
+    const { handler } = statusSetup(fakeStatusPort(mode).port);
+    const res = await handler(await signedPost(statusBody([{ id: "wamid.Z", status: "delivered" }])));
+    assert.equal(res.status, 500);
+  }
+});
+
+test("status e resposta da paciente no mesmo payload: os dois são processados", async () => {
+  const s = fakeStatusPort();
+  s.current.set("wamid.out", "sent");
+  const reply = fakePort();
+  const { handler } = statusSetup(s.port, fakeTemplatePort().port, reply.port);
+  const body = textReply("wamid.in.1");
+  const value = body.entry[0].changes[0].value as Record<string, unknown>;
+  value.metadata = { display_phone_number: "556230000000", phone_number_id: PNID };
+  value.statuses = [{ id: "wamid.out", status: "read", timestamp: TS, recipient_id: "5562911110001" }];
+  const res = await handler(await signedPost(body));
+  assert.equal(res.status, 200);
+  assert.equal(s.current.get("wamid.out"), "read");
+  assert.equal(reply.calls.length, 1);
+});
+
+test("logs de status não têm wamid, telefone nem número do profissional", async () => {
+  const s = fakeStatusPort();
+  s.current.set("wamid.SEGREDO", "sent");
+  const { handler, logs } = statusSetup(s.port);
+  await handler(await signedPost(statusBody([{ id: "wamid.SEGREDO", status: "failed", errors: [{ code: 131026, title: "t" }] }])));
+  const text = JSON.stringify(logs);
+  assert.ok(!text.includes("SEGREDO") && !text.includes("5562911110001") && !text.includes(PNID));
+});
+
+test("template: só os templates da prontidão (nome + idioma) são aplicados", async () => {
+  const t = fakeTemplatePort();
+  const { handler, logs } = statusSetup(fakeStatusPort().port, t.port);
+  for (const body of [
+    templateBody("PAUSED"),
+    templateBody("REJECTED", "promo_outubro"),
+    templateBody("REJECTED", "appointment_12h", "en_US"),
+    templateBody("APPROVED", "appointment_confirmation"),
+  ]) {
+    assert.equal((await handler(await signedPost(body))).status, 200);
+  }
+  assert.deepEqual(t.applied.map((e) => `${e.name}:${e.event}`), ["appointment_12h:PAUSED", "appointment_confirmation:APPROVED"]);
+  assert.ok(logs.some((l) => l.event === "template_status_processed" && l.data.relevant === 0));
+});
+
+test("template: assinatura inválida não aplica; falha de persistência -> 500", async () => {
+  const t = fakeTemplatePort();
+  const { handler } = statusSetup(fakeStatusPort().port, t.port);
+  assert.equal((await handler(await signedPost(templateBody("PAUSED"), "outro-segredo"))).status, 401);
+  assert.deepEqual(t.applied, []);
+  const broken = statusSetup(fakeStatusPort().port, fakeTemplatePort(null).port);
+  assert.equal((await broken.handler(await signedPost(templateBody("PAUSED")))).status, 500);
+});
+
+test("sem portas de status/template configuradas, o webhook de confirmação segue igual", async () => {
+  const { port, calls } = fakePort();
+  const { handler } = setup(port);
+  assert.equal((await handler(await signedPost(statusBody([{ id: "wamid.X", status: "read" }])))).status, 200);
+  assert.equal((await handler(await signedPost(templateBody("PAUSED")))).status, 200);
+  assert.deepEqual(calls, []);
+});

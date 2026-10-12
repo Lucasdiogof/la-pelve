@@ -265,7 +265,8 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     }
 
     if (!deps.config.enabled) {
-      log("whatsapp_connect_not_configured", { action: String(input.action ?? "") });
+      // Só NOMES das variáveis ausentes/inválidas, nunca valores.
+      log("whatsapp_connect_not_configured", { action: String(input.action ?? ""), missing: deps.config.missing });
       return fail(503, "not_configured");
     }
     const config = deps.config.config;

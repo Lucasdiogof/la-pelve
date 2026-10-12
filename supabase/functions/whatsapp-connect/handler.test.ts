@@ -279,6 +279,25 @@ const body = async (res: Response) => (await res.json()) as Record<string, unkno
 // Configuração / state
 // --------------------------------------------------------------------------
 
+test("config: com a chave desligada, `missing` diz o que mais falta (só nomes) e o log não vaza valores", async () => {
+  const offOnly = readConnectConfig((n) => ({ ...env, WHATSAPP_SELF_CONNECT_ENABLED: "false" })[n]);
+  assert.deepEqual(!offOnly.enabled && offOnly.missing, ["WHATSAPP_SELF_CONNECT_ENABLED"]);
+  const offAndBroken = readConnectConfig((n) => ({ ...env, WHATSAPP_SELF_CONNECT_ENABLED: "", WHATSAPP_CONNECT_PAGE_URL: "http://x" })[n]);
+  assert.deepEqual(!offAndBroken.enabled && offAndBroken.missing, ["WHATSAPP_SELF_CONNECT_ENABLED", "WHATSAPP_CONNECT_PAGE_URL"]);
+  const logs: string[] = [];
+  const handler = createConnectHandler({
+    config: offOnly,
+    store: makeStore([]).store,
+    meta: () => makeMeta([]).meta,
+    authenticate: async () => null,
+    log: (event, data) => logs.push(JSON.stringify({ event, ...data })),
+  });
+  const res = await handler(new Request("https://x.test", { method: "POST", body: JSON.stringify({ action: "config" }) }));
+  assert.equal(res.status, 503);
+  assert.match(logs[0], /"missing":\["WHATSAPP_SELF_CONNECT_ENABLED"\]/);
+  for (const value of Object.values(env)) assert.ok(!logs.join().includes(value) || value === "true");
+});
+
 test("config: sem a chave/segredos a conexão fica desligada e responde not_configured", async () => {
   assert.equal(readConnectConfig(() => undefined).enabled, false);
   const partial = readConnectConfig((n) => ({ ...env, META_ES_CONFIG_ID: "" })[n]);
