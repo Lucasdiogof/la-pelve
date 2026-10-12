@@ -100,7 +100,7 @@ begin
   perform pg_temp.check(v.error = '{"code": "delivery_failed", "provider_code": 131026}'::jsonb, 'erro só com códigos');
   perform pg_temp.check(v.next_attempt_at is null and v.lease_token is null, 'nada agendado para reenvio');
   perform pg_temp.check(not exists (
-    select 1 from public.claim_whatsapp_messages_for_dispatch(10, 60, array['appointment_12h']) c where c.id = m3
+    select 1 from public.claim_whatsapp_messages_for_dispatch(10, 60, array['appointment_12h']) c where c.message_id = m3
   ), 'claim nunca reserva mensagem failed');
   perform pg_temp.check(public.apply_whatsapp_message_status('5511000000101', 'wamid.T3', 'failed', t0, 131026) = 'unchanged', 'failed duplicado');
   -- Entrega comprovada depois (fora de ordem) vence o failed de entrega.
@@ -121,7 +121,7 @@ begin
   perform pg_temp.check((select setup_state->'templates'->'appointment_12h:pt_BR'->>'event' from public.whatsapp_connections where fisioterapeuta_id = a) = 'PAUSED', 'evento registrado no setup_state');
   perform pg_temp.check(not exists (
     select 1 from public.claim_whatsapp_messages_for_dispatch(10, 60, array['appointment_12h']) c
-      join public.whatsapp_messages w on w.id = c.id where w.fisioterapeuta_id = a
+      join public.whatsapp_messages w on w.id = c.message_id where w.fisioterapeuta_id = a
   ), 'conexão pendente não despacha');
   perform pg_temp.check(public.apply_whatsapp_template_status('9100000000001', 'appointment_12h', 'pt_BR', 'APPROVED', t0 + interval '2 minute') = 1, 'APPROVED registra');
   perform pg_temp.check((select status from public.whatsapp_connections where fisioterapeuta_id = a) = 'pending', 'APPROVED NÃO promove');
