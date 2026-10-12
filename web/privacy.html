@@ -4,105 +4,217 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index,follow">
+  <meta name="description" content="La Pelve — Política de Privacidade / Privacy Policy / Política de Privacidad">
   <title>La Pelve · Política de Privacidade / Privacy Policy</title>
   <style>
-    :root { color-scheme: light dark; --bg:#faf7f8; --fg:#2a2327; --muted:#6f6469; --card:#fff; --accent:#7a3b63; }
-    @media (prefers-color-scheme: dark) { :root { --bg:#161214; --fg:#f2eaee; --muted:#b4a7ad; --card:#211b1e; --accent:#d9a3c4; } }
-    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--fg); line-height:1.6; }
-    main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
-    .card { background:var(--card); border-radius:16px; padding:24px; }
-    h1 { font-size:24px; margin:0 0 4px; }
-    h2 { font-size:18px; margin:28px 0 8px; }
-    p, li { color:var(--fg); }
+    :root { color-scheme: light dark; --bg:#faf7f8; --fg:#2a2327; --muted:#6f6469; --card:#fff; --accent:#7a3b63; --line:#eadfe4; --chip:#f3e9ef; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#161214; --fg:#f2eaee; --muted:#b4a7ad; --card:#211b1e; --accent:#d9a3c4; --line:#352c31; --chip:#2b2227; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--fg); line-height:1.65; -webkit-text-size-adjust:100%; }
+    header { max-width:760px; margin:0 auto; padding:28px 16px 8px; display:flex; flex-wrap:wrap; gap:12px 16px; align-items:center; justify-content:space-between; }
+    .brand { font-weight:700; font-size:20px; color:var(--accent); letter-spacing:.2px; }
+    nav { display:flex; gap:8px; }
+    nav a { padding:6px 14px; border-radius:999px; background:var(--chip); color:var(--fg); text-decoration:none; font-size:14px; font-weight:600; }
+    nav a[aria-current="true"] { background:var(--accent); color:#fff; }
+    @media (prefers-color-scheme: dark) { nav a[aria-current="true"] { color:#161214; } }
+    main { max-width:760px; margin:0 auto; padding:8px 16px 64px; }
+    article { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 24px; }
+    h1 { font-size:26px; line-height:1.25; margin:0 0 4px; }
+    h2 { font-size:18px; margin:28px 0 8px; padding-top:4px; }
+    p, li { margin:0 0 10px; }
+    ul { padding-left:22px; margin:0 0 10px; }
+    a { color:var(--accent); }
     .muted { color:var(--muted); font-size:14px; }
-    nav a { color:var(--accent); margin-right:16px; text-decoration:none; font-weight:600; }
+    .note { background:var(--chip); border-radius:12px; padding:12px 14px; font-size:15px; }
+    footer { max-width:760px; margin:0 auto; padding:0 16px 40px; color:var(--muted); font-size:13px; }
     section[hidden] { display:none; }
+    @media (max-width:520px) { article { padding:22px 16px; } h1 { font-size:22px; } }
   </style>
 </head>
 <body>
+<header>
+  <div class="brand">La Pelve</div>
+  <nav aria-label="Language / Idioma / Idioma">
+    <a href="#pt" data-l="pt">PT</a><a href="#en" data-l="en">EN</a><a href="#es" data-l="es">ES</a>
+  </nav>
+</header>
 <main>
-  <div class="card">
-    <nav aria-label="Language"><a href="#pt" data-l="pt">Português</a><a href="#en" data-l="en">English</a><a href="#es" data-l="es">Español</a></nav>
+  <article>
 
     <section id="pt" lang="pt-BR">
-      <h1>Política de Privacidade — La Pelve</h1>
-      <p class="muted">Última atualização: 12/10/2026</p>
-      <p>O La Pelve é um aplicativo de registro e gestão para fisioterapeutas pélvicas (pacientes, agenda, evolução clínica e financeiro). Esta política explica quais dados são tratados, para quê e quais são seus direitos.</p>
-      <h2>Quem usa e quem controla os dados</h2>
-      <p>Somente a profissional autenticada usa o aplicativo; não há login nem interface para pacientes. Cada profissional é responsável pelos dados dos seus próprios pacientes. O La Pelve (Lucksrei) fornece a plataforma e trata os dados em nome da profissional.</p>
-      <h2>Dados tratados</h2>
+      <h1>Política de Privacidade</h1>
+      <p class="muted">Última atualização: 12/10/2026 · <a href="/data-deletion#pt">Como excluir seus dados</a></p>
+      <p>O La Pelve é um aplicativo de registro e gestão para fisioterapeutas pélvicas: pacientes, agenda, evolução clínica e financeiro. Esta política explica quais dados são tratados, por quê, com quem são compartilhados e quais são seus direitos.</p>
+
+      <h2>1. Quem usa e quem é responsável</h2>
+      <p>Somente a profissional autenticada usa o aplicativo; não existe login nem tela para pacientes. Cada profissional é a responsável (controladora) pelos dados dos seus próprios pacientes e pelo consentimento que obtém deles. O La Pelve (Lucksrei) fornece a plataforma e trata os dados em nome da profissional (operador).</p>
+
+      <h2>2. Dados tratados</h2>
       <ul>
-        <li><b>Conta da profissional:</b> e-mail, nome, CREFITO, telefone e fuso horário.</li>
-        <li><b>Registros inseridos pela profissional:</b> dados dos pacientes (nome, telefone, histórico), consultas, evoluções clínicas, anexos e lançamentos financeiros.</li>
-        <li><b>WhatsApp (opcional):</b> identificadores da conta e do número do WhatsApp Business conectado (fornecidos pela Meta no Embedded Signup), um token de acesso guardado de forma criptografada, registros de consentimento do paciente, e o estado das mensagens (enviada, entregue, lida, falha) e a resposta de confirmação da consulta.</li>
+        <li><b>Conta da profissional:</b> e-mail, nome, CREFITO, telefone, fuso horário e foto de perfil (opcional).</li>
+        <li><b>Registros feitos pela profissional:</b> dados dos pacientes (nome, nome social, idade, gênero, ocupação, telefone), histórico clínico e de saúde, plano de tratamento, consultas, evoluções, anexos (arquivos) e lançamentos financeiros. São dados sensíveis de saúde.</li>
+        <li><b>WhatsApp (somente se a profissional conectar):</b> identificadores da conta e do número do WhatsApp Business, um token de acesso, o registro de consentimento de cada paciente (canal, finalidade, número e datas), o estado de cada mensagem (agendada, enviada, entregue, lida, falha) e a resposta de confirmação da consulta.</li>
+        <li><b>No aparelho:</b> o bloqueio biométrico opcional é feito pelo sistema do aparelho; o La Pelve não recebe sua biometria.</li>
       </ul>
-      <h2>Para que usamos</h2>
-      <p>Para prestar o serviço de gestão da clínica e, quando a profissional conecta o WhatsApp, enviar lembretes e pedidos de confirmação de consulta. As mensagens contêm apenas o primeiro nome da paciente, a data e o horário da consulta — nunca informações clínicas — e só são enviadas a pacientes que deram consentimento, que pode ser revogado a qualquer momento.</p>
-      <h2>Com quem compartilhamos</h2>
-      <p>Não vendemos dados. Usamos provedores para operar o serviço: Supabase (banco de dados, autenticação, arquivos e funções), Cloudflare (hospedagem do site) e Meta Platforms (WhatsApp Cloud API), este último somente quando a profissional conecta o WhatsApp. A Meta nunca recebe a senha da profissional.</p>
-      <h2>Segurança</h2>
-      <p>Controle de acesso por linha (RLS) isola os dados de cada profissional; arquivos ficam em armazenamento privado com links temporários; tokens de acesso ficam em cofre criptografado; toda comunicação usa HTTPS.</p>
-      <h2>Retenção e exclusão</h2>
-      <p>Os dados permanecem enquanto a conta existir. A profissional pode excluir a conta no aplicativo (Perfil → Excluir conta), o que remove seus dados e arquivos, e pode desconectar o WhatsApp a qualquer momento (o token é apagado e a inscrição do webhook removida). Veja <a href="/data-deletion">como excluir seus dados</a>.</p>
-      <h2>Seus direitos (LGPD)</h2>
-      <p>Você pode solicitar acesso, correção, anonimização, portabilidade, eliminação e revogação de consentimento. Pacientes devem fazer o pedido à sua fisioterapeuta, que é quem controla o prontuário; também atendemos pedidos pelo contato abaixo.</p>
-      <h2>Contato</h2>
-      <p>lucasdiogo1234@gmail.com</p>
+
+      <h2>3. Para que usamos</h2>
+      <ul>
+        <li>Prestar o serviço de gestão da clínica.</li>
+        <li>Autenticar a profissional e proteger o acesso aos dados.</li>
+        <li>Se a profissional conectar o WhatsApp: enviar avisos e pedidos de confirmação de consulta e registrar a resposta.</li>
+      </ul>
+
+      <h2>4. Mensagens de WhatsApp</h2>
+      <p>As mensagens são enviadas a partir do número de WhatsApp Business da própria profissional, pela API da Meta, usando modelos de mensagem. Cada mensagem contém apenas o primeiro nome da paciente, a data e o horário da consulta — nunca informações clínicas. Só são enviadas a pacientes cujo consentimento foi registrado pela profissional e continua ativo; o consentimento pode ser revogado a qualquer momento e, depois disso, nada é enviado. A Meta trata as mensagens conforme as próprias políticas.</p>
+
+      <h2>5. Com quem compartilhamos</h2>
+      <p>Não vendemos dados. Usamos fornecedores para operar o serviço:</p>
+      <ul>
+        <li><b>Supabase</b> — banco de dados, autenticação, armazenamento de arquivos e funções do servidor.</li>
+        <li><b>Cloudflare</b> — entrega os arquivos do site e do aplicativo web; não armazena os registros de pacientes.</li>
+        <li><b>Meta Platforms (WhatsApp Cloud API)</b> — somente quando a profissional conecta o WhatsApp. A Meta nunca recebe a senha da profissional.</li>
+      </ul>
+
+      <h2>6. Segurança</h2>
+      <p>Adotamos: controle de acesso por linha no banco (cada profissional só acessa os próprios registros); arquivos em armazenamento privado, entregues por links temporários; token do WhatsApp em cofre criptografado do Supabase, fora das tabelas comuns; comunicação por HTTPS. Nenhum sistema é totalmente livre de riscos.</p>
+
+      <h2>7. Retenção, exclusão e cópias de segurança</h2>
+      <ul>
+        <li>Os dados permanecem enquanto a conta existir.</li>
+        <li><b>Excluir a conta</b> (Perfil → Excluir conta) remove a conta e, em cascata, os registros associados (pacientes, consultas, evoluções, financeiro, conexão e mensagens do WhatsApp). A exclusão é definitiva. Antes disso, o aplicativo tenta apagar a foto de perfil e os anexos; se essa etapa falhar (por exemplo, sem internet), peça a remoção pelo contato abaixo.</li>
+        <li><b>Cópias de segurança</b> mantidas pelo provedor de infraestrutura podem conservar dados por um período limitado depois da exclusão; não controlamos esse prazo e não prometemos eliminação imediata.</li>
+        <li><b>Meta:</b> mensagens já enviadas e dados mantidos pela Meta seguem as políticas dela e não são apagados por nós.</li>
+        <li>Podemos manter registros técnicos mínimos de segurança e controle (por exemplo, limites de tentativas de ativação de um número do WhatsApp Business) e dados que a lei exigir guardar.</li>
+        <li><b>Desconectar o WhatsApp</b> (Perfil → WhatsApp → Desconectar) apaga o token e remove a inscrição do webhook quando nenhuma outra conta usa a mesma conta empresarial. Não revoga a autorização na Meta: para isso, remova o aplicativo nas configurações do seu WhatsApp Business / Meta Business.</li>
+      </ul>
+
+      <h2>8. Seus direitos (LGPD)</h2>
+      <p>Você pode solicitar confirmação do tratamento, acesso, correção, anonimização, bloqueio ou eliminação de dados desnecessários, portabilidade, informação sobre compartilhamento e revogação de consentimento. Pacientes devem dirigir o pedido à sua fisioterapeuta, que controla o prontuário; também recebemos pedidos pelo contato abaixo e encaminhamos à profissional responsável quando for o caso.</p>
+
+      <h2>9. Alterações</h2>
+      <p>Esta política pode ser atualizada; a data no topo indica a versão vigente.</p>
+
+      <h2>10. Contato</h2>
+      <p><a href="mailto:marketing@lucksrei.com">marketing@lucksrei.com</a></p>
     </section>
 
     <section id="en" lang="en" hidden>
-      <h1>Privacy Policy — La Pelve</h1>
-      <p class="muted">Last updated: 2026-10-12</p>
-      <p>La Pelve is a record-keeping and practice management app for pelvic-floor physiotherapists (patients, schedule, clinical notes and finances). This policy explains what data is processed, why, and your rights.</p>
-      <h2>Who uses it and who controls the data</h2>
-      <p>Only the authenticated professional uses the app; there is no patient login or patient-facing interface. Each professional is responsible for her own patients' data. La Pelve (Lucksrei) provides the platform and processes data on the professional's behalf.</p>
-      <h2>Data processed</h2>
+      <h1>Privacy Policy</h1>
+      <p class="muted">Last updated: 2026-10-12 · <a href="/data-deletion#en">How to delete your data</a></p>
+      <p>La Pelve is a record-keeping and practice management app for pelvic-floor physiotherapists: patients, schedule, clinical notes and finances. This policy explains what data is processed, why, who it is shared with and what your rights are.</p>
+
+      <h2>1. Who uses it and who is responsible</h2>
+      <p>Only the authenticated professional uses the app; there is no patient login or patient-facing screen. Each professional is the controller of her own patients' data and of the consent she obtains from them. La Pelve (Lucksrei) provides the platform and processes data on the professional's behalf (processor).</p>
+
+      <h2>2. Data processed</h2>
       <ul>
-        <li><b>Professional account:</b> email, name, professional registration number, phone and time zone.</li>
-        <li><b>Records entered by the professional:</b> patient data (name, phone, history), appointments, clinical notes, attachments and financial entries.</li>
-        <li><b>WhatsApp (optional):</b> identifiers of the connected WhatsApp Business account and phone number (provided by Meta through Embedded Signup), an encrypted access token, patient consent records, message state (sent, delivered, read, failed) and the appointment confirmation reply.</li>
+        <li><b>Professional account:</b> email, name, professional registration number, phone, time zone and an optional profile photo.</li>
+        <li><b>Records entered by the professional:</b> patient data (name, social name, age, gender, occupation, phone), clinical and health history, treatment plan, appointments, clinical notes, attachments (files) and financial entries. This is sensitive health data.</li>
+        <li><b>WhatsApp (only if the professional connects it):</b> identifiers of the WhatsApp Business account and number, an access token, each patient's consent record (channel, purpose, number and dates), the state of each message (scheduled, sent, delivered, read, failed) and the appointment confirmation reply.</li>
+        <li><b>On the device:</b> the optional biometric lock is handled by the device's system; La Pelve does not receive your biometrics.</li>
       </ul>
-      <h2>Why we use it</h2>
-      <p>To provide the practice management service and, when the professional connects WhatsApp, to send appointment reminders and confirmation requests. Messages contain only the patient's first name and the appointment date and time — never clinical information — and are sent only to patients who gave consent, which can be revoked at any time.</p>
-      <h2>Who we share it with</h2>
-      <p>We do not sell data. We use providers to run the service: Supabase (database, authentication, files and functions), Cloudflare (website hosting) and Meta Platforms (WhatsApp Cloud API), the latter only when the professional connects WhatsApp. Meta never receives the professional's password.</p>
-      <h2>Security</h2>
-      <p>Row-level security isolates each professional's data; files are kept in private storage with short-lived links; access tokens are kept in an encrypted vault; all traffic uses HTTPS.</p>
-      <h2>Retention and deletion</h2>
-      <p>Data is kept while the account exists. The professional can delete the account in the app (Profile → Delete account), which removes her data and files, and can disconnect WhatsApp at any time (the token is erased and the webhook subscription removed). See <a href="/data-deletion">how to delete your data</a>.</p>
-      <h2>Your rights</h2>
-      <p>You may request access, correction, anonymization, portability, deletion and withdrawal of consent. Patients should make the request to their physiotherapist, who controls the record; we also handle requests through the contact below.</p>
-      <h2>Contact</h2>
-      <p>lucasdiogo1234@gmail.com</p>
+
+      <h2>3. Why we use it</h2>
+      <ul>
+        <li>To provide the practice management service.</li>
+        <li>To authenticate the professional and protect access to the data.</li>
+        <li>If the professional connects WhatsApp: to send appointment notices and confirmation requests and record the reply.</li>
+      </ul>
+
+      <h2>4. WhatsApp messages</h2>
+      <p>Messages are sent from the professional's own WhatsApp Business number through Meta's API, using message templates. Each message contains only the patient's first name and the appointment date and time — never clinical information. They are sent only to patients whose consent was recorded by the professional and is still active; consent can be withdrawn at any time, after which nothing is sent. Meta processes the messages under its own policies.</p>
+
+      <h2>5. Who we share it with</h2>
+      <p>We do not sell data. We use providers to run the service:</p>
+      <ul>
+        <li><b>Supabase</b> — database, authentication, file storage and server functions.</li>
+        <li><b>Cloudflare</b> — delivers the website and web app files; it does not store patient records.</li>
+        <li><b>Meta Platforms (WhatsApp Cloud API)</b> — only when the professional connects WhatsApp. Meta never receives the professional's password.</li>
+      </ul>
+
+      <h2>6. Security</h2>
+      <p>We use: row-level access control in the database (each professional can only access her own records); files in private storage delivered through short-lived links; the WhatsApp token in Supabase's encrypted vault, outside regular tables; HTTPS for all communication. No system is completely free of risk.</p>
+
+      <h2>7. Retention, deletion and backups</h2>
+      <ul>
+        <li>Data is kept while the account exists.</li>
+        <li><b>Deleting the account</b> (Profile → Delete account) removes the account and, by cascade, the associated records (patients, appointments, notes, finances, WhatsApp connection and messages). Deletion is permanent. Before that, the app tries to erase the profile photo and attachments; if that step fails (for example, no internet), ask for removal through the contact below.</li>
+        <li><b>Backups</b> kept by the infrastructure provider may retain data for a limited period after deletion; we do not control that period and do not promise immediate erasure.</li>
+        <li><b>Meta:</b> messages already sent and data kept by Meta follow Meta's policies and are not erased by us.</li>
+        <li>We may keep minimal technical security and control records (for example, activation-attempt limits for a WhatsApp Business number) and data the law requires us to keep.</li>
+        <li><b>Disconnecting WhatsApp</b> (Profile → WhatsApp → Disconnect) erases the token and removes the webhook subscription when no other account uses the same business account. It does not revoke the authorization at Meta: to do that, remove the app in your WhatsApp Business / Meta Business settings.</li>
+      </ul>
+
+      <h2>8. Your rights</h2>
+      <p>You may request confirmation of processing, access, correction, anonymization, blocking or deletion of unnecessary data, portability, information about sharing and withdrawal of consent. Patients should direct the request to their physiotherapist, who controls the record; we also receive requests through the contact below and forward them to the responsible professional when appropriate.</p>
+
+      <h2>9. Changes</h2>
+      <p>This policy may be updated; the date at the top shows the current version.</p>
+
+      <h2>10. Contact</h2>
+      <p><a href="mailto:marketing@lucksrei.com">marketing@lucksrei.com</a></p>
     </section>
 
     <section id="es" lang="es" hidden>
-      <h1>Política de Privacidad — La Pelve</h1>
-      <p class="muted">Última actualización: 12/10/2026</p>
-      <p>La Pelve es una aplicación de registro y gestión para fisioterapeutas de suelo pélvico (pacientes, agenda, evolución clínica y finanzas). Esta política explica qué datos se tratan, para qué y cuáles son tus derechos.</p>
-      <h2>Quién la usa y quién controla los datos</h2>
-      <p>Solo la profesional autenticada usa la aplicación; no hay acceso ni interfaz para pacientes. Cada profesional es responsable de los datos de sus propias pacientes. La Pelve (Lucksrei) ofrece la plataforma y trata los datos en nombre de la profesional.</p>
-      <h2>Datos tratados</h2>
+      <h1>Política de Privacidad</h1>
+      <p class="muted">Última actualización: 12/10/2026 · <a href="/data-deletion#es">Cómo eliminar tus datos</a></p>
+      <p>La Pelve es una aplicación de registro y gestión para fisioterapeutas de suelo pélvico: pacientes, agenda, evolución clínica y finanzas. Esta política explica qué datos se tratan, por qué, con quién se comparten y cuáles son tus derechos.</p>
+
+      <h2>1. Quién la usa y quién es responsable</h2>
+      <p>Solo la profesional autenticada usa la aplicación; no existe acceso ni pantalla para pacientes. Cada profesional es la responsable (controladora) de los datos de sus propias pacientes y del consentimiento que obtiene de ellas. La Pelve (Lucksrei) ofrece la plataforma y trata los datos en nombre de la profesional (encargado).</p>
+
+      <h2>2. Datos tratados</h2>
       <ul>
-        <li><b>Cuenta de la profesional:</b> correo, nombre, registro profesional, teléfono y zona horaria.</li>
-        <li><b>Registros ingresados por la profesional:</b> datos de pacientes (nombre, teléfono, historial), citas, evoluciones clínicas, archivos adjuntos y movimientos financieros.</li>
-        <li><b>WhatsApp (opcional):</b> identificadores de la cuenta y del número de WhatsApp Business conectado (entregados por Meta en Embedded Signup), un token de acceso cifrado, registros de consentimiento de la paciente, estado de los mensajes (enviado, entregado, leído, fallido) y la respuesta de confirmación de la cita.</li>
+        <li><b>Cuenta de la profesional:</b> correo, nombre, registro profesional, teléfono, zona horaria y foto de perfil (opcional).</li>
+        <li><b>Registros hechos por la profesional:</b> datos de pacientes (nombre, nombre social, edad, género, ocupación, teléfono), historial clínico y de salud, plan de tratamiento, citas, evoluciones, archivos adjuntos y movimientos financieros. Son datos sensibles de salud.</li>
+        <li><b>WhatsApp (solo si la profesional lo conecta):</b> identificadores de la cuenta y del número de WhatsApp Business, un token de acceso, el registro de consentimiento de cada paciente (canal, finalidad, número y fechas), el estado de cada mensaje (programado, enviado, entregado, leído, fallido) y la respuesta de confirmación de la cita.</li>
+        <li><b>En el dispositivo:</b> el bloqueo biométrico opcional lo gestiona el sistema del dispositivo; La Pelve no recibe tu biometría.</li>
       </ul>
-      <h2>Para qué los usamos</h2>
-      <p>Para prestar el servicio de gestión y, cuando la profesional conecta WhatsApp, enviar recordatorios y solicitudes de confirmación de cita. Los mensajes solo contienen el nombre de la paciente, la fecha y la hora de la cita — nunca información clínica — y solo se envían a pacientes que dieron su consentimiento, que puede revocarse en cualquier momento.</p>
-      <h2>Con quién los compartimos</h2>
-      <p>No vendemos datos. Usamos proveedores para operar el servicio: Supabase (base de datos, autenticación, archivos y funciones), Cloudflare (alojamiento del sitio) y Meta Platforms (WhatsApp Cloud API), este último solo cuando la profesional conecta WhatsApp. Meta nunca recibe la contraseña de la profesional.</p>
-      <h2>Seguridad</h2>
-      <p>El control de acceso por fila (RLS) aísla los datos de cada profesional; los archivos están en almacenamiento privado con enlaces temporales; los tokens de acceso se guardan en una bóveda cifrada; toda la comunicación usa HTTPS.</p>
-      <h2>Conservación y eliminación</h2>
-      <p>Los datos se conservan mientras exista la cuenta. La profesional puede eliminar la cuenta en la aplicación (Perfil → Eliminar cuenta), lo que borra sus datos y archivos, y puede desconectar WhatsApp en cualquier momento (se borra el token y se quita la suscripción del webhook). Consulta <a href="/data-deletion">cómo eliminar tus datos</a>.</p>
-      <h2>Tus derechos</h2>
-      <p>Puedes solicitar acceso, corrección, anonimización, portabilidad, eliminación y revocación del consentimiento. Las pacientes deben dirigir la solicitud a su fisioterapeuta, quien controla el expediente; también atendemos solicitudes por el contacto indicado abajo.</p>
-      <h2>Contacto</h2>
-      <p>lucasdiogo1234@gmail.com</p>
+
+      <h2>3. Para qué los usamos</h2>
+      <ul>
+        <li>Prestar el servicio de gestión de la clínica.</li>
+        <li>Autenticar a la profesional y proteger el acceso a los datos.</li>
+        <li>Si la profesional conecta WhatsApp: enviar avisos y solicitudes de confirmación de cita y registrar la respuesta.</li>
+      </ul>
+
+      <h2>4. Mensajes de WhatsApp</h2>
+      <p>Los mensajes se envían desde el número de WhatsApp Business de la propia profesional, mediante la API de Meta, con plantillas de mensajes. Cada mensaje contiene solo el nombre de la paciente, la fecha y la hora de la cita — nunca información clínica. Solo se envían a pacientes cuyo consentimiento fue registrado por la profesional y sigue activo; el consentimiento puede revocarse en cualquier momento y, después, no se envía nada. Meta trata los mensajes según sus propias políticas.</p>
+
+      <h2>5. Con quién los compartimos</h2>
+      <p>No vendemos datos. Usamos proveedores para operar el servicio:</p>
+      <ul>
+        <li><b>Supabase</b> — base de datos, autenticación, almacenamiento de archivos y funciones del servidor.</li>
+        <li><b>Cloudflare</b> — entrega los archivos del sitio y de la aplicación web; no almacena los registros de pacientes.</li>
+        <li><b>Meta Platforms (WhatsApp Cloud API)</b> — solo cuando la profesional conecta WhatsApp. Meta nunca recibe la contraseña de la profesional.</li>
+      </ul>
+
+      <h2>6. Seguridad</h2>
+      <p>Usamos: control de acceso por fila en la base de datos (cada profesional solo accede a sus registros); archivos en almacenamiento privado entregados mediante enlaces temporales; el token de WhatsApp en la bóveda cifrada de Supabase, fuera de las tablas comunes; HTTPS en toda la comunicación. Ningún sistema está totalmente libre de riesgos.</p>
+
+      <h2>7. Conservación, eliminación y copias de seguridad</h2>
+      <ul>
+        <li>Los datos se conservan mientras exista la cuenta.</li>
+        <li><b>Eliminar la cuenta</b> (Perfil → Eliminar cuenta) borra la cuenta y, en cascada, los registros asociados (pacientes, citas, evoluciones, finanzas, conexión y mensajes de WhatsApp). La eliminación es definitiva. Antes, la aplicación intenta borrar la foto de perfil y los adjuntos; si ese paso falla (por ejemplo, sin internet), solicita la eliminación por el contacto indicado abajo.</li>
+        <li><b>Copias de seguridad</b> del proveedor de infraestructura pueden conservar datos por un período limitado tras la eliminación; no controlamos ese plazo y no prometemos borrado inmediato.</li>
+        <li><b>Meta:</b> los mensajes ya enviados y los datos que conserva Meta siguen sus políticas y no los borramos nosotros.</li>
+        <li>Podemos conservar registros técnicos mínimos de seguridad y control (por ejemplo, límites de intentos de activación de un número de WhatsApp Business) y datos que la ley obligue a guardar.</li>
+        <li><b>Desconectar WhatsApp</b> (Perfil → WhatsApp → Desconectar) borra el token y quita la suscripción del webhook cuando ninguna otra cuenta usa la misma cuenta empresarial. No revoca la autorización en Meta: para eso, quita la aplicación en la configuración de tu WhatsApp Business / Meta Business.</li>
+      </ul>
+
+      <h2>8. Tus derechos</h2>
+      <p>Puedes solicitar confirmación del tratamiento, acceso, corrección, anonimización, bloqueo o eliminación de datos innecesarios, portabilidad, información sobre el intercambio de datos y revocación del consentimiento. Las pacientes deben dirigir la solicitud a su fisioterapeuta, quien controla el expediente; también recibimos solicitudes por el contacto indicado abajo y las derivamos a la profesional responsable cuando corresponde.</p>
+
+      <h2>9. Cambios</h2>
+      <p>Esta política puede actualizarse; la fecha al inicio indica la versión vigente.</p>
+
+      <h2>10. Contacto</h2>
+      <p><a href="mailto:marketing@lucksrei.com">marketing@lucksrei.com</a></p>
     </section>
-  </div>
+
+  </article>
 </main>
+<footer>© La Pelve · Lucksrei</footer>
 <script>
 (function () {
   var langs = ['pt', 'en', 'es'];
@@ -115,6 +227,9 @@
   function show() {
     var l = pick();
     langs.forEach(function (x) { document.getElementById(x).hidden = x !== l; });
+    var links = document.querySelectorAll('nav a');
+    for (var i = 0; i < links.length; i++) links[i].setAttribute('aria-current', links[i].getAttribute('data-l') === l ? 'true' : 'false');
+    document.documentElement.lang = l === 'pt' ? 'pt-BR' : l;
   }
   window.addEventListener('hashchange', show);
   show();
