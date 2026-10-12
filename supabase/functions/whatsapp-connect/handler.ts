@@ -441,7 +441,8 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     if (!token) {
       return json(200, { ok: true, status: connection.status, reason: "credential_missing" });
     }
-    const evaluated = await evaluateReadiness(meta, {
+    const evaluated = await evaluateReadiness(meta, deps.store, {
+      userId,
       token,
       wabaId: connection.wabaId,
       phoneNumberId: connection.phoneNumberId,
