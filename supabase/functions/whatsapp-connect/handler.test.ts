@@ -537,14 +537,16 @@ test("templates em análise/rejeitados: pendente; aprovados no refresh promovem"
   assert.equal((await body(await h.call({ action: "status" }, "Bearer jwt-a"))).status, "connected");
 });
 
-test("conta limitada/bloqueada não fica 'pronta'; saúde desconhecida não bloqueia", async () => {
+test("conta limitada/bloqueada e saúde desconhecida não ficam conectadas", async () => {
   const h = build();
   h.script.health = "limited";
   assert.equal((await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))))).reason, "account_limited");
   h.script.health = "blocked";
   assert.equal((await body(await h.call({ action: "status" }, "Bearer jwt-a"))).reason, "account_blocked");
   h.script.health = "unknown";
-  assert.equal((await body(await h.call({ action: "status" }, "Bearer jwt-a"))).status, "connected");
+  const unknown = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
+  assert.equal(unknown.status, "pending");
+  assert.equal(unknown.reason, "meta_unavailable");
 });
 
 test("status reavalia conexão em erro (conta reabilitada) antes de liberar", async () => {
