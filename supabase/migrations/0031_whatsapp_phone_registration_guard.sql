@@ -153,7 +153,7 @@ begin
   end if;
 
   update public.whatsapp_phone_registration_guard g
-     set blocked_until = pg_catalog.greatest(
+     set blocked_until = greatest(
            coalesce(g.blocked_until, now()), now() + interval '72 hours'
          ),
          updated_at = now()
