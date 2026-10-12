@@ -197,10 +197,11 @@ async function ensurePhoneReady(
 /** Executa (de forma idempotente) todos os passos e devolve o 1º motivo de pendência. */
 async function evaluateReadiness(
   meta: MetaOnboarding,
-  input: { token: string; wabaId: string; phoneNumberId: string; setup: SetupState; now: Date },
+  store: ConnectStore,
+  input: { userId: string; token: string; wabaId: string; phoneNumberId: string; setup: SetupState; now: Date },
 ): Promise<{ reason: PendingReason | null; setup: SetupState; displayPhoneNumber: string | null }> {
   const subscribed = await meta.subscribeApp(input.token, input.wabaId);
-  const phone = await ensurePhoneReady(meta, input.token, input.phoneNumberId, input.setup, input.now);
+  const phone = await ensurePhoneReady(meta, store, input.userId, input.token, input.phoneNumberId, input.setup, input.now);
   const templates = await meta.ensureTemplates(input.token, input.wabaId);
   const health = await meta.getAccountHealth(input.token, input.wabaId);
 
