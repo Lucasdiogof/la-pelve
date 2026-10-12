@@ -94,14 +94,14 @@ begin
   perform pg_temp.check((c.setup_state->>'templates_verified_at')::timestamptz = t0 + interval '3 minutes', 'verificação preservada pelo webhook');
 
   -- APPROVED (T5) registra mas não promove; candidata à reavaliação.
-  perform public.apply_whatsapp_template_status('9100000000201', 'appointment_confirmation', 'pt_BR', 'APPROVED', t0 + interval '5 minutes');
+  perform public.apply_whatsapp_template_status('9100000000201', 'appointment_12h', 'pt_BR', 'APPROVED', t0 + interval '5 minutes');
   perform pg_temp.check((pg_temp.conn(a)).status = 'pending', 'APPROVED não promove');
   perform pg_temp.check((select count(*) from public.list_whatsapp_template_reevaluation_candidates('9100000000201')) = 1, 'candidata listada');
   perform pg_temp.check((select count(*) from public.list_whatsapp_template_reevaluation_candidates('9100000000202')) = 1, 'outra WABA lista só a dela');
-  -- Avaliação que começou entre PAUSED (T4) e APPROVED (T5): PAUSED é mais novo -> recusada.
+  -- Avaliação que começou ANTES do PAUSED (T4): pode ter lido a Meta antes dele -> recusada.
   perform pg_temp.check(pg_temp.upsert(a, '5511000000201', '9100000000201', 'connected',
     jsonb_build_object('evaluated_at', t0 + interval '3 minutes 30 seconds')) = 'WA010', 'avaliação anterior ao PAUSED recusada');
-  -- Avaliação depois de T5 conecta.
+  -- Avaliação que começou depois de T5 (leu a Meta já aprovada) conecta.
   perform pg_temp.check(pg_temp.upsert(a, '5511000000201', '9100000000201', 'connected',
     jsonb_build_object('evaluated_at', t0 + interval '6 minutes')) = 'ok', 'avaliação depois do APPROVED conecta');
   perform pg_temp.check((select count(*) from public.list_whatsapp_template_reevaluation_candidates('9100000000201')) = 0, 'conectada não é candidata');
