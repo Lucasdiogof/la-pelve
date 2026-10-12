@@ -380,7 +380,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       return fail(500, "credential_store_failed");
     }
 
-    const evaluated = await evaluateReadiness(meta, { token, wabaId, phoneNumberId, setup, now: now() });
+    const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup, now: now() });
     setup = evaluated.setup;
     const persisted = await persistEvaluation(userId, wabaId, phoneNumberId, evaluated);
     if (!persisted.ok) {
