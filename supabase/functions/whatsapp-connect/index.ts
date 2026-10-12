@@ -116,6 +116,14 @@ const store: ConnectStore = {
     }
     return { ok: false, reason: "error" };
   },
+  async flagTokenInvalid(userId, tokenSha256) {
+    const { data, error } = await admin.rpc("flag_whatsapp_connection_token_invalid", {
+      p_fisioterapeuta_id: userId,
+      p_token_sha256: tokenSha256,
+    });
+    if (error) return "error";
+    return data === "flagged" || data === "stale" || data === "skipped" ? data : "error";
+  },
   async markPhoneRegistrationRateLimited(userId, phoneNumberId) {
     const { data, error } = await admin.rpc("mark_whatsapp_phone_registration_limited", {
       p_fisioterapeuta_id: userId,

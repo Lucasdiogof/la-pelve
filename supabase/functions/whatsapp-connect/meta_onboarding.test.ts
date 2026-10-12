@@ -223,3 +223,16 @@ test("debugToken: expires_at 0 = sem expiração; token inválido; resposta fora
     code: "meta_invalid_response",
   });
 });
+
+test("debugToken: 429, 5xx, 190 (credencial do app recusada) e timeout são FALHA da consulta, nunca 'token inválido'", async () => {
+  for (const status of [429, 500, 503, 400]) {
+    const f = fakeFetch(() => jsonRes({ error: { code: status === 400 ? 190 : 4 } }, status));
+    const result = await createMetaOnboarding({ config, fetchFn: f.fn }).debugToken(TOKEN);
+    assert.equal(result.ok, false, `status ${status}`);
+  }
+  const throwing = (async () => {
+    throw new Error("timeout");
+  }) as unknown as typeof fetch;
+  const result = await createMetaOnboarding({ config, fetchFn: throwing }).debugToken(TOKEN);
+  assert.deepEqual(result, { ok: false, code: "meta_unreachable" });
+});

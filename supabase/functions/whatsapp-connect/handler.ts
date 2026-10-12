@@ -99,6 +99,13 @@ export interface ConnectStore {
   ): Promise<RegistrationReservation>;
   /** A Meta respondeu 133016: bloqueia o número por 72 h no guard. */
   markPhoneRegistrationRateLimited(userId: string, phoneNumberId: string): Promise<boolean>;
+  /**
+   * Marca a conexão como 'error'/token_invalid, de forma atômica no banco e
+   * SÓ se o token guardado ainda é o que a Meta recusou (comparado por
+   * SHA-256, nunca em texto): 'stale' = o token já foi trocado (reconexão),
+   * 'skipped' = sem conexão/desconectada/em erro por outro motivo.
+   */
+  flagTokenInvalid(userId: string, tokenSha256: string): Promise<"flagged" | "stale" | "skipped" | "error">;
 }
 
 export interface ConnectHandlerDeps {
@@ -416,6 +423,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
 
     const evaluatedAt = (deps.now ?? (() => new Date()))();
     const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup });
+    if (evaluated.reason === "token_invalid") return await markTokenInvalid(userId, token);
     setup = evaluated.setup;
     const persisted = await persistEvaluation(userId, wabaId, phoneNumberId, evaluated, evaluatedAt);
     if (!persisted.ok) {
@@ -437,7 +445,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     | { ok: true; status: "connected" | "pending"; reason: PendingReason | null }
     | { ok: false; code: string }
   > {
-    const status = evaluated.reason === null ? "connected" : evaluated.reason === "token_invalid" ? "error" : "pending";
+    const status = evaluated.reason === null ? "connected" : "pending";
     const display = evaluated.displayPhoneNumber ?? fallbackDisplay;
     const upserted = await deps.store.upsertConnection({
       userId,
@@ -481,6 +489,22 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
   }
 
   /**
+   * A Meta disse que o token não vale mais (is_valid=false em /debug_token).
+   * A marcação é atômica e vinculada a ESTE token: se a profissional reconectou
+   * no meio do caminho, o banco responde 'stale' e a conexão nova fica intacta.
+   */
+  async function markTokenInvalid(userId: string, token: string): Promise<Response> {
+    const outcome = await deps.store.flagTokenInvalid(userId, await sha256Hex(token));
+    if (outcome === "error") return fail(500, "internal");
+    const current = await deps.store.getConnection(userId);
+    if (outcome === "flagged") log("whatsapp_connect_token_invalid", {});
+    if (outcome === "flagged" || current?.status === "error") {
+      return json(200, { ok: true, status: "error", reason: "token_invalid" });
+    }
+    return json(200, { ok: true, status: current?.status ?? "none" });
+  }
+
+  /**
    * Conexão 'connected': só LEITURA na Meta para saber se o token ainda vale.
    * Inválido/expirado -> 'error' (os envios param e o app pede reconexão);
    * perto de vencer -> aviso na resposta (nada é gravado). Falha ao consultar
@@ -491,20 +515,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     if (!token) return json(200, { ok: true, status: connection.status, reason: "credential_missing" });
     const checked = await meta.debugToken(token);
     if (!checked.ok) return json(200, { ok: true, status: connection.status });
-    if (!checked.info.valid) {
-      const flagged = await deps.store.upsertConnection({
-        userId,
-        wabaId: connection.wabaId!,
-        phoneNumberId: connection.phoneNumberId!,
-        displayPhoneNumber: connection.displayPhoneNumber,
-        status: "error",
-        lastError: { code: "token_invalid" },
-        setupState: connection.setupState,
-      });
-      if (!flagged.ok) return fail(500, "internal");
-      log("whatsapp_connect_token_invalid", {});
-      return json(200, { ok: true, status: "error", reason: "token_invalid" });
-    }
+    if (!checked.info.valid) return await markTokenInvalid(userId, token);
     const expiresAt = checked.info.expiresAt;
     const now = (deps.now ?? (() => new Date()))();
     if (expiresAt && expiresAt.getTime() - now.getTime() <= TOKEN_EXPIRING_WARNING_MS) {
@@ -545,6 +556,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       phoneNumberId: connection.phoneNumberId,
       setup: connection.setupState,
     });
+    if (evaluated.reason === "token_invalid") return await markTokenInvalid(userId, token);
     const persisted = await persistEvaluation(
       userId,
       connection.wabaId,

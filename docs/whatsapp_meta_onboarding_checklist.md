@@ -26,8 +26,13 @@ Estado em 2026-10-12. Só afirma o que foi verificado no código/produção ou l
 - Agora o sistema não depende de saber o prazo:
   - `status` em conexão `connected` consulta `GET /debug_token` (token de app só no header). Inválido/expirado/revogado ->
     conexão vira `error` / `token_invalid`; vencendo em <= 7 dias -> o app mostra a data e o botão **Reconectar**.
-  - Se a Meta recusar um envio com erro 190, o dispatcher marca a conexão como `error`/`token_invalid` (só se ainda
-    estiver `connected`): os envios param em vez de falhar um a um sem aviso, e o app pede reconexão.
+  - Se a Meta recusar um envio com erro 190, o dispatcher marca a conexão como `error`/`token_invalid`: os envios param
+    em vez de falhar um a um sem aviso, e o app pede reconexão. A marcação é **atômica e vinculada ao token usado**
+    (migration 0035, `flag_whatsapp_connection_token_invalid`): o banco trava a linha, relê o token do Vault e compara o
+    SHA-256 com o do token recusado; se a profissional já reconectou (token novo no mesmo segredo), desconectou ou trocou
+    de número, a resposta velha é ignorada (`stale`/`skipped`). Nenhum token trafega ou é logado, só o hash.
+  - Indisponibilidade da Meta (timeout, 429, 5xx) ou recusa da credencial do app NUNCA marcam a conexão: só um
+    `is_valid:false` explícito do `/debug_token` conta.
   - Reconectar = repetir o Embedded Signup; uma linha em `error` é regravada com o token novo.
   - A reconexão NÃO reenvia mensagens que já falharam por token (são definitivas).
 

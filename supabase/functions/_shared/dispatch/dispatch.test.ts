@@ -6,6 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { dispatchPendingWhatsappMessages } from "./dispatch.ts";
 import { createFakeWhatsappProvider } from "./fake_provider.testutil.ts";
+import { sha256Hex } from "../util/sha256.ts";
 import type { CompletionInput, DispatchStore, PrepareResult, PreparedSend, TemplateConfig } from "./types.ts";
 import type { MessageType } from "../scheduler/decision.ts";
 
@@ -28,6 +29,7 @@ interface Row {
 
 function memoryStore(rows: Row[], options: { failCompleteTimes?: number; failFlag?: boolean } = {}) {
   const flagged: string[] = [];
+  const hashes: string[] = [];
   let failCompleteTimes = options.failCompleteTimes ?? 0;
   const claimedTypes: MessageType[][] = [];
   const store: DispatchStore = {
@@ -79,12 +81,14 @@ function memoryStore(rows: Row[], options: { failCompleteTimes?: number; failFla
       r.lease = null;
       return "ok";
     },
-    async flagConnectionTokenInvalid(id) {
+    async flagConnectionTokenInvalid(id, hash) {
       if (options.failFlag) throw new Error("db");
       flagged.push(id);
+      hashes.push(hash);
+      return "flagged";
     },
   };
-  return { store, claimedTypes, flagged };
+  return { store, claimedTypes, flagged, hashes };
 }
 
 function row(id: string, overrides: Partial<Row> = {}): Row {
@@ -235,4 +239,21 @@ test("falha ao marcar a conexão não lança nem esconde a falha da mensagem", a
   assert.equal(summary.failed, 1);
   assert.equal(rows[0].status, "failed");
   assert.ok(logs.includes("whatsapp_dispatch_flag_token_failed"));
+});
+
+test("a marcação leva o SHA-256 do token usado no envio, nunca o token; 401 sem código 190 não marca", async () => {
+  const rows = [row("m1"), row("m2")];
+  const { store, flagged, hashes } = memoryStore(rows);
+  const results = [
+    { kind: "rejected", code: "auth_error", httpStatus: 401, providerCode: 190 },
+    { kind: "rejected", code: "auth_error", httpStatus: 401 },
+  ] as const;
+  let i = 0;
+  const provider = createFakeWhatsappProvider(() => results[i++]);
+  const logs: string[] = [];
+  await dispatchPendingWhatsappMessages({ store, provider, templates, now: () => NOW, log: (e, d) => logs.push(JSON.stringify({ e, d })) });
+  assert.deepEqual(flagged, ["m1"]);
+  assert.deepEqual(hashes, [await sha256Hex(TOKEN)]);
+  assert.ok(!hashes[0].includes(TOKEN));
+  assert.ok(logs.every((l) => !l.includes(TOKEN) && !l.includes(hashes[0])));
 });

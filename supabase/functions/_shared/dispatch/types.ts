@@ -60,11 +60,13 @@ export interface DispatchStore {
   prepare(messageId: string, leaseToken: string): Promise<PrepareResult>;
   complete(messageId: string, leaseToken: string, completion: CompletionInput): Promise<"ok" | "lease_lost">;
   /**
-   * A Meta recusou o token da conexão (190): marca a conexão da profissional
-   * como 'error'/token_invalid para parar os envios e pedir reconexão. Só
-   * age se a conexão ainda estiver 'connected'. Melhor esforço.
+   * A Meta recusou (190) o token usado neste envio: pede ao banco para marcar
+   * a conexão da profissional como 'error'/token_invalid, de forma atômica e
+   * SÓ se o token guardado ainda tem este SHA-256 (uma reconexão com token
+   * novo, ou uma conexão desfeita/substituída, nunca é afetada por resposta
+   * velha). O token em si não trafega. Melhor esforço.
    */
-  flagConnectionTokenInvalid?(messageId: string): Promise<void>;
+  flagConnectionTokenInvalid?(messageId: string, tokenSha256: string): Promise<"flagged" | "stale" | "skipped">;
 }
 
 /** Payload JSON de envio de template da Cloud API (POST /{phone_number_id}/messages). */

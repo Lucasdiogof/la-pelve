@@ -116,7 +116,9 @@ export function createSupabaseDispatchStore(client: SupabaseClient): DispatchSto
       return data;
     },
 
-    async flagConnectionTokenInvalid(messageId) {
+    async flagConnectionTokenInvalid(messageId, tokenSha256) {
+      // O dono da mensagem nunca muda; a decisão (e a corrida com reconexão) é
+      // toda do banco, atômica e vinculada ao hash do token usado.
       const { data: message, error: readError } = await client
         .from("whatsapp_messages")
         .select("fisioterapeuta_id")
@@ -124,13 +126,14 @@ export function createSupabaseDispatchStore(client: SupabaseClient): DispatchSto
         .maybeSingle();
       const owner = str((message as Record<string, unknown> | null)?.fisioterapeuta_id);
       if (readError || !owner) throw new DispatchStoreError("flag_lookup_failed");
-      // Condicional: não rebaixa conexão que já foi trocada/desconectada.
-      const { error } = await client
-        .from("whatsapp_connections")
-        .update({ status: "error", connected_at: null, last_error: { code: "token_invalid" } })
-        .eq("fisioterapeuta_id", owner)
-        .eq("status", "connected");
-      if (error) throw new DispatchStoreError("flag_update_failed");
+      const { data, error } = await client.rpc("flag_whatsapp_connection_token_invalid", {
+        p_fisioterapeuta_id: owner,
+        p_token_sha256: tokenSha256,
+      });
+      if (error || (data !== "flagged" && data !== "stale" && data !== "skipped")) {
+        throw new DispatchStoreError("flag_failed");
+      }
+      return data;
     },
   };
 }
