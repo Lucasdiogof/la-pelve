@@ -114,7 +114,7 @@ declare
   v_count integer := 0;
 begin
   if p_waba_id is null or p_waba_id !~ '^[0-9]{5,32}$'
-     or p_template_name is null or p_template_name !~ '^[a-z0-9_]{1,512}$'
+     or p_template_name is null or p_template_name !~ '^[a-z0-9_]+$' or pg_catalog.length(p_template_name) > 512
      or p_language is null or p_language !~ '^[a-z]{2,3}(_[A-Z]{2})?$'
      or p_event is null or p_event !~ '^[A-Z_]{3,32}$' then
     return 0;
