@@ -99,6 +99,29 @@ const store: ConnectStore = {
     const { error } = await admin.rpc("disconnect_whatsapp_connection", { p_fisioterapeuta_id: userId });
     return !error;
   },
+  async reservePhoneRegistration(userId, phoneNumberId, options) {
+    const { data, error } = await admin.rpc("reserve_whatsapp_phone_registration", {
+      p_fisioterapeuta_id: userId,
+      p_phone_number_id: phoneNumberId,
+      p_existing_pin_only: options.existingPinOnly,
+    });
+    if (error || typeof data !== "object" || data === null) return { ok: false, reason: "error" };
+    const result = data as { status?: unknown; pin?: unknown };
+    if (result.status === "reserved" && typeof result.pin === "string" && /^\d{6}$/.test(result.pin)) {
+      return { ok: true, pin: result.pin };
+    }
+    if (result.status === "limited" || result.status === "cooldown" || result.status === "pin_unknown") {
+      return { ok: false, reason: result.status };
+    }
+    return { ok: false, reason: "error" };
+  },
+  async markPhoneRegistrationRateLimited(userId, phoneNumberId) {
+    const { data, error } = await admin.rpc("mark_whatsapp_phone_registration_limited", {
+      p_fisioterapeuta_id: userId,
+      p_phone_number_id: phoneNumberId,
+    });
+    return !error && data === true;
+  },
 };
 
 Deno.serve(

@@ -34,10 +34,30 @@ const NOW = new Date("2026-10-12T12:00:00Z");
 type Conn = ConnectionRow & { user: string; token?: string; lastError: Record<string, unknown> | null };
 
 /** Banco falso que imita as regras das RPCs (WA007/WA008/WA009) e registra a ordem das chamadas. */
-function makeStore(events: string[]) {
+interface Guard {
+  pin: string;
+  attempts: number[];
+  last?: number;
+  blockedUntil?: number;
+}
+
+const HOUR = 3600_000;
+
+/**
+ * Banco falso que imita as regras das RPCs (WA007/WA008/WA009 e o guard de
+ * registro da 0032, por phone_number_id) e registra a ordem das chamadas.
+ */
+function makeStore(events: string[], clock: () => Date = () => NOW) {
   const attempts = new Map<string, { user: string; used: boolean }>();
   const connections = new Map<string, Conn>();
-  const flags = { failSetToken: false, failCount: false, dropTokenBeforePromote: false };
+  const guards = new Map<string, Guard>();
+  const flags = {
+    failSetToken: false,
+    failCount: false,
+    dropTokenBeforePromote: false,
+    failReserve: false,
+  };
+  let pinSeq = 0;
   let seq = 0;
   const store: ConnectStore = {
     async createAttempt(user, hash) {
@@ -108,13 +128,49 @@ function makeStore(events: string[]) {
       }
       return true;
     },
+    async reservePhoneRegistration(user, phone, { existingPinOnly }) {
+      events.push("store:reserve");
+      if (flags.failReserve) return { ok: false, reason: "error" };
+      const c = connections.get(user);
+      if (!c || c.phoneNumberId !== phone || (c.status !== "pending" && c.status !== "error")) {
+        return { ok: false, reason: "error" };
+      }
+      let g = guards.get(phone);
+      if (!g) {
+        if (existingPinOnly) return { ok: false, reason: "pin_unknown" };
+        g = { pin: String(123456 + ++pinSeq).padStart(6, "0"), attempts: [] };
+        guards.set(phone, g);
+      }
+      const now = clock().getTime();
+      if (g.blockedUntil && g.blockedUntil > now) return { ok: false, reason: "limited" };
+      g.attempts = g.attempts.filter((t) => t > now - 72 * HOUR);
+      if (g.attempts.length >= 8) {
+        g.blockedUntil = g.attempts[0] + 72 * HOUR;
+        return { ok: false, reason: "limited" };
+      }
+      if (g.last !== undefined && g.last > now - 10 * 60_000) return { ok: false, reason: "cooldown" };
+      g.attempts.push(now);
+      g.last = now;
+      g.blockedUntil = undefined;
+      return { ok: true, pin: g.pin };
+    },
+    async markPhoneRegistrationRateLimited(user, phone) {
+      events.push("store:mark_limited");
+      const g = guards.get(phone);
+      if (!g || connections.get(user)?.phoneNumberId !== phone) return false;
+      const now = clock().getTime();
+      g.blockedUntil = Math.max(g.blockedUntil ?? now, now + 72 * HOUR);
+      return true;
+    },
   };
-  return { store, attempts, connections, flags };
+  return { store, attempts, connections, guards, flags };
 }
 
 interface MetaScript {
   phone: PhoneInfo;
-  registerResult: { ok: true } | { ok: false; code: "meta_rejected"; metaCode?: number };
+  registerResult:
+    | { ok: true }
+    | { ok: false; code: "meta_rejected" | "meta_unreachable" | "meta_invalid_response"; metaCode?: number };
   report: TemplatesReport;
   health: AccountHealth;
   subscribeOk: boolean;
@@ -173,11 +229,11 @@ function makeMeta(events: string[]) {
 
 function build() {
   const events: string[] = [];
-  const s = makeStore(events);
+  let clock = NOW;
+  const s = makeStore(events, () => clock);
   const m = makeMeta(events);
   const logs: string[] = [];
   const users: Record<string, string> = { "Bearer jwt-a": "user-a", "Bearer jwt-b": "user-b" };
-  let clock = NOW;
   const handler = createConnectHandler({
     config,
     store: s.store,
@@ -365,12 +421,13 @@ test("número já CONNECTED (inclui PIN existente) não é registrado de novo", 
   assert.ok(!h.events.includes("meta:register"));
 });
 
-test("número com PIN existente e ainda não registrado: pendência clara, sem inventar PIN", async () => {
+test("número com 2FA de terceiros (sem PIN nosso): pendência clara, sem inventar PIN", async () => {
   const h = build();
   h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: true };
   const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
   assert.deepEqual(res, { ok: true, status: "pending", reason: "phone_pin_required" });
   assert.ok(!h.events.includes("meta:register"));
+  assert.equal(h.guards.size, 0, "nenhum PIN criado para número de terceiros");
   assert.equal(h.connections.get("user-a")!.status, "pending");
 });
 
@@ -389,54 +446,84 @@ test("dados de telefone incompletos nunca disparam registro automático", async 
   }
 });
 
-test("número novo sem PIN: registra uma vez com PIN de 6 dígitos e conta a tentativa", async () => {
+const PENDING_NO_PIN: PhoneInfo = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
+const PHONE_ID = "222222222222";
+
+test("número novo sem PIN: reserva no banco ANTES de registrar, com PIN de 6 dígitos do Vault", async () => {
   const h = build();
-  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
+  h.script.phone = PENDING_NO_PIN;
   const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
   assert.equal(res.status, "connected");
-  assert.equal(h.events.filter((e) => e === "meta:register").length, 1);
+  assert.deepEqual(
+    h.events.filter((e) => e === "store:reserve" || e === "meta:register"),
+    ["store:reserve", "meta:register"],
+  );
   assert.match(h.pins[0], /^\d{6}$/);
-  assert.equal(h.connections.get("user-a")!.setupState.register_attempts.length, 1);
+  assert.equal(h.pins[0], h.guards.get(PHONE_ID)!.pin, "PIN é o guardado, nunca aleatório no runtime");
+  assert.equal(h.guards.get(PHONE_ID)!.attempts.length, 1);
 });
 
-test("falha de registro: refresh NÃO promove, mesmo com templates aprovados e webhook ok", async () => {
+test("falha ao reservar no banco: NÃO chama /register e não promove", async () => {
   const h = build();
-  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
+  h.script.phone = PENDING_NO_PIN;
+  h.flags.failReserve = true;
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.deepEqual(res, { ok: true, status: "pending", reason: "phone_registration_retry_later" });
+  assert.ok(!h.events.includes("meta:register"));
+});
+
+test("falha de registro: refresh imediato respeita o intervalo mínimo e NÃO promove", async () => {
+  const h = build();
+  h.script.phone = PENDING_NO_PIN;
   h.script.registerResult = { ok: false, code: "meta_rejected", metaCode: 100 };
   const first = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
   assert.deepEqual(first, { ok: true, status: "pending", reason: "phone_registration_failed" });
+  h.events.length = 0;
   const refresh = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
-  assert.equal(refresh.status, "pending");
-  assert.equal(refresh.reason, "phone_registration_failed");
+  assert.deepEqual(refresh, { ok: true, status: "pending", reason: "phone_registration_retry_later" });
+  assert.ok(!h.events.includes("meta:register"), "cooldown: não chama a Meta de novo");
   assert.equal(h.connections.get("user-a")!.status, "pending");
-  assert.equal(h.connections.get("user-a")!.setupState.register_attempts.length, 2, "tentativas contadas");
 });
 
-test("registro volta a funcionar no refresh: só então promove", async () => {
+test("registro volta a funcionar depois do intervalo: mesmo PIN, só então promove", async () => {
   const h = build();
-  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
+  h.script.phone = PENDING_NO_PIN;
   h.script.registerResult = { ok: false, code: "meta_rejected" };
   await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.advance(11 * 60_000);
   h.script.registerResult = { ok: true };
   const refresh = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
   assert.equal(refresh.status, "connected");
+  assert.equal(h.pins.length, 2);
+  assert.equal(h.pins[0], h.pins[1], "PIN estável entre tentativas");
+  assert.equal(h.guards.get(PHONE_ID)!.attempts.length, 2);
 });
 
-test("erro 133016 (10 registros/72 h): bloqueia novas tentativas por 72 h e não promove", async () => {
+test("timeout/rede no /register: resultado desconhecido conta a tentativa e pede para tentar depois", async () => {
   const h = build();
-  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
+  h.script.phone = PENDING_NO_PIN;
+  h.script.registerResult = { ok: false, code: "meta_unreachable" };
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.deepEqual(res, { ok: true, status: "pending", reason: "phone_registration_retry_later" });
+  assert.equal(h.guards.get(PHONE_ID)!.attempts.length, 1);
+});
+
+test("erro 133016 (10 registros/72 h): bloqueia o número por 72 h no banco e não promove", async () => {
+  const h = build();
+  h.script.phone = PENDING_NO_PIN;
   h.script.registerResult = { ok: false, code: "meta_rejected", metaCode: META_REGISTRATION_RATE_LIMIT };
   const first = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
   assert.equal(first.reason, "phone_registration_rate_limited");
-  const until = h.connections.get("user-a")!.setupState.rate_limited_until!;
-  assert.equal(Date.parse(until) - NOW.getTime(), 72 * 3600 * 1000);
+  assert.ok(h.events.includes("store:mark_limited"));
+  assert.equal(h.guards.get(PHONE_ID)!.blockedUntil! - NOW.getTime(), 72 * HOUR);
 
+  h.advance(2 * HOUR);
   h.events.length = 0;
   const again = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
   assert.equal(again.reason, "phone_registration_rate_limited");
   assert.ok(!h.events.includes("meta:register"), "não tenta registrar durante o bloqueio");
 
-  h.advance(73 * 3600 * 1000);
+  h.advance(71 * HOUR);
   h.script.registerResult = { ok: true };
   const later = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
   assert.equal(later.status, "connected");
@@ -444,18 +531,56 @@ test("erro 133016 (10 registros/72 h): bloqueia novas tentativas por 72 h e não
 
 test("margem de segurança: 8 tentativas nas últimas 72 h impedem novo registro", async () => {
   const h = build();
-  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
-  h.script.report = { confirmation: "approved", reminder: "pending" };
+  h.script.phone = PENDING_NO_PIN;
+  h.script.registerResult = { ok: false, code: "meta_rejected" };
   await h.call(complete(await startFor(h, "Bearer jwt-a")));
-  const conn = h.connections.get("user-a")!;
-  conn.setupState = {
-    ...conn.setupState,
-    register_attempts: Array.from({ length: 8 }, (_, i) => new Date(NOW.getTime() - i * 3600_000).toISOString()),
-  };
+  for (let i = 0; i < 7; i++) {
+    h.advance(11 * 60_000);
+    await h.call({ action: "status" }, "Bearer jwt-a");
+  }
+  assert.equal(h.pins.length, 8);
+  h.advance(11 * 60_000);
   h.events.length = 0;
   const res = await body(await h.call({ action: "status" }, "Bearer jwt-a"));
   assert.equal(res.reason, "phone_registration_rate_limited");
   assert.ok(!h.events.includes("meta:register"));
+});
+
+test("desconectar e reconectar NÃO zera o limite do número", async () => {
+  const h = build();
+  h.script.phone = PENDING_NO_PIN;
+  h.script.registerResult = { ok: false, code: "meta_rejected", metaCode: META_REGISTRATION_RATE_LIMIT };
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  await h.call({ action: "disconnect" }, "Bearer jwt-a");
+  h.events.length = 0;
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.equal(res.reason, "phone_registration_rate_limited");
+  assert.ok(!h.events.includes("meta:register"));
+});
+
+test("reconexão de número que nós registramos (2FA = nosso PIN): registra com o PIN guardado", async () => {
+  const h = build();
+  h.script.phone = PENDING_NO_PIN;
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  const pin = h.pins[0];
+  await h.call({ action: "disconnect" }, "Bearer jwt-a");
+  h.advance(HOUR);
+  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: true };
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.equal(res.status, "connected");
+  assert.deepEqual(h.pins, [pin, pin]);
+});
+
+test("PIN recusado pela Meta (133005): pendência de PIN", async () => {
+  const h = build();
+  h.script.phone = PENDING_NO_PIN;
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  await h.call({ action: "disconnect" }, "Bearer jwt-a");
+  h.advance(HOUR);
+  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: true };
+  h.script.registerResult = { ok: false, code: "meta_rejected", metaCode: 133005 };
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.deepEqual(res, { ok: true, status: "pending", reason: "phone_pin_required" });
 });
 
 test("coexistência: nunca registra; só conecta se o número já estiver CONNECTED", async () => {

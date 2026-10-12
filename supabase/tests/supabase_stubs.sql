@@ -58,6 +58,11 @@ alter default privileges in schema public grant all on tables to anon, authentic
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 
+-- pgcrypto no schema `extensions`, como nos projetos Supabase.
+create schema if not exists extensions;
+create extension if not exists pgcrypto with schema extensions;
+grant usage on schema extensions to anon, authenticated, service_role;
+
 -- Supabase Vault REAL (extensão supabase_vault, pré-instalada nos projetos
 -- Supabase). Localmente precisa estar compilada e com shared_preload_libraries
 -- + vault.getkey_script configurados; sem ela a migration 0026 aborta.

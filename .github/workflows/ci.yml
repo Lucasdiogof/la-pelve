@@ -54,3 +54,41 @@ jobs:
             exit 1
           fi
           node --experimental-strip-types --test "${tests[@]}"
+
+  sql:
+    name: SQL migrations and tests (Postgres 16 + Vault)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install PostgreSQL 16 and build supabase_vault
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-16 postgresql-server-dev-16 libsodium-dev
+          git clone --depth 1 --branch v0.3.1 https://github.com/supabase/vault /tmp/vault
+          make -C /tmp/vault PG_CONFIG=/usr/lib/postgresql/16/bin/pg_config
+          sudo make -C /tmp/vault PG_CONFIG=/usr/lib/postgresql/16/bin/pg_config install
+
+      - name: Start a throwaway cluster
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH=/usr/lib/postgresql/16/bin:$PATH
+          PGDATA="$RUNNER_TEMP/pgdata"
+          initdb --no-locale --encoding=UTF8 -U postgres -D "$PGDATA" >/dev/null
+          KEY_SCRIPT="$RUNNER_TEMP/vault_getkey.sh"
+          printf '#!/bin/sh\necho %s\n' "$(openssl rand -hex 32)" > "$KEY_SCRIPT"
+          chmod +x "$KEY_SCRIPT"
+          pg_ctl -D "$PGDATA" -l "$RUNNER_TEMP/pg.log" -w start -o \
+            "-c listen_addresses='' -k $RUNNER_TEMP -c shared_preload_libraries=supabase_vault -c vault.getkey_script=$KEY_SCRIPT"
+          echo "PGHOST=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "PGUSER=postgres" >> "$GITHUB_ENV"
+          echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
+
+      - name: Apply every migration and run SQL tests
+        run: bash supabase/tests/run_sql_tests.sh

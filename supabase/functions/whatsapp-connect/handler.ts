@@ -24,9 +24,12 @@ export type UpsertResult =
 /** Progresso do onboarding persistido em whatsapp_connections.setup_state (sem segredos). */
 export interface SetupState {
   mode: "cloud" | "coexistence";
-  /** Instantes (ISO) das chamadas a /register nas últimas 72 h. */
+  /**
+   * LEGADO (0030): o limite de registro agora vive no banco, por número
+   * (`whatsapp_phone_registration_guard`). Mantido só para não perder o que
+   * já foi gravado; não é mais lido para decidir nem atualizado.
+   */
   register_attempts: string[];
-  /** Enquanto no futuro, não tenta registrar de novo (erro 133016). */
   rate_limited_until?: string;
 }
 
@@ -53,6 +56,10 @@ export type PendingReason =
   | "account_blocked"
   | "meta_unavailable";
 
+export type RegistrationReservation =
+  | { ok: true; pin: string }
+  | { ok: false; reason: "limited" | "cooldown" | "pin_unknown" | "error" };
+
 export interface ConnectStore {
   createAttempt(userId: string, stateHash: string, ttlSeconds: number): Promise<"ok" | "rate_limited" | "error">;
   peekAttempt(stateHash: string): Promise<string | null>;
@@ -72,9 +79,17 @@ export interface ConnectStore {
   getAccessToken(userId: string): Promise<string | null>;
   getConnection(userId: string): Promise<ConnectionRow | null>;
   disconnect(userId: string): Promise<boolean>;
-  reservePhoneRegistration(userId: string, phoneNumberId: string): Promise<
-    { ok: true; pin: string } | { ok: false; reason: "limited" | "cooldown" | "error" }
-  >;
+  /**
+   * Reserva (e conta) UMA chamada a /register para o número, no banco, antes
+   * da chamada HTTP. Devolve o PIN de 2FA estável do número (Vault).
+   * `existingPinOnly`: só reserva se o PIN já existir (número com 2FA ligada).
+   */
+  reservePhoneRegistration(
+    userId: string,
+    phoneNumberId: string,
+    options: { existingPinOnly: boolean },
+  ): Promise<RegistrationReservation>;
+  /** A Meta respondeu 133016: bloqueia o número por 72 h no guard. */
   markPhoneRegistrationRateLimited(userId: string, phoneNumberId: string): Promise<boolean>;
 }
 
@@ -119,11 +134,6 @@ export function newState(): string {
   return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function legacyRandomPinUnused(): string {
-  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
-  return n.toString().padStart(6, "0");
-}
-
 export function readinessFrom(report: TemplatesReport): {
   ready: boolean;
   code: "templates_pending" | "templates_rejected" | null;
@@ -134,18 +144,20 @@ export function readinessFrom(report: TemplatesReport): {
   return { ready: false, code: "templates_pending" };
 }
 
-const REGISTRATION_WINDOW_MS = 72 * 60 * 60 * 1000;
-/** Margem sob o limite de 10 registros por número em 72 h da Meta. */
-const MAX_REGISTRATIONS_IN_WINDOW = 8;
+/** Código da Meta para PIN de verificação em duas etapas incorreto. */
+const META_PIN_MISMATCH = 133005;
 
 export function emptySetup(mode: SetupState["mode"] = "cloud"): SetupState {
   return { mode, register_attempts: [] };
 }
 
 /**
- * Garante o registro do número SEM nunca inventar PIN para número que já tem
- * verificação em duas etapas, sem registrar o que já está conectado (inclui
- * coexistência) e respeitando o limite de 72 h da Meta.
+ * Garante o registro do número. O limite e o PIN vivem no banco
+ * (`reserve_whatsapp_phone_registration`, por phone_number_id): cada chamada a
+ * /register é reservada ANTES de sair, então crash, timeout, retries e
+ * reconexões continuam contando. Nunca registra número já CONNECTED nem em
+ * coexistência; número com 2FA só é registrado com o PIN que nós mesmos
+ * definimos antes (reconexão); PIN de terceiros nunca é inventado.
  */
 async function ensurePhoneReady(
   meta: MetaOnboarding,
@@ -154,54 +166,61 @@ async function ensurePhoneReady(
   token: string,
   phoneNumberId: string,
   setup: SetupState,
-  now: Date,
 ): Promise<{ reason: PendingReason | null; setup: SetupState; displayPhoneNumber: string | null }> {
   const info = await meta.getPhoneInfo(token, phoneNumberId);
   if (!info.ok) return { reason: "meta_unavailable", setup, displayPhoneNumber: null };
   const display = info.info.displayPhoneNumber;
-  if (info.info.status === "CONNECTED") return { reason: null, setup, displayPhoneNumber: display };
+  const done = (reason: PendingReason | null) => ({ reason, setup, displayPhoneNumber: display });
+  if (info.info.status === "CONNECTED") return done(null);
   // Coexistência: o número é do WhatsApp Business App; nunca se registra aqui.
-  if (setup.mode === "coexistence") return { reason: "phone_not_connected", setup, displayPhoneNumber: display };
-  if (info.info.isPinEnabled === true) return { reason: "phone_pin_required", setup, displayPhoneNumber: display };
-  // Never register a number on incomplete/unexpected Meta data. A missing PIN
-  // flag does NOT mean that two-step verification is disabled.
-  if (info.info.status !== "PENDING" || info.info.isPinEnabled !== false) {
-    return { reason: "phone_not_connected", setup, displayPhoneNumber: display };
+  if (setup.mode === "coexistence") return done("phone_not_connected");
+  // Dados incompletos/inesperados nunca disparam registro: PIN ausente NÃO
+  // significa 2FA desligada.
+  if (info.info.status !== "PENDING" || typeof info.info.isPinEnabled !== "boolean") {
+    return done("phone_not_connected");
   }
 
-  const cutoff = now.getTime() - REGISTRATION_WINDOW_MS;
-  const attempts = setup.register_attempts.filter((t) => Date.parse(t) > cutoff);
-  const blockedUntil = setup.rate_limited_until ? Date.parse(setup.rate_limited_until) : 0;
-  if (blockedUntil > now.getTime() || attempts.length >= MAX_REGISTRATIONS_IN_WINDOW) {
-    return {
-      reason: "phone_registration_rate_limited",
-      setup: { ...setup, register_attempts: attempts },
-      displayPhoneNumber: display,
-    };
+  const pinEnabled = info.info.isPinEnabled;
+  const reserved = await store.reservePhoneRegistration(userId, phoneNumberId, { existingPinOnly: pinEnabled });
+  if (!reserved.ok) {
+    switch (reserved.reason) {
+      case "limited":
+        return done("phone_registration_rate_limited");
+      case "pin_unknown":
+        return done("phone_pin_required");
+      default:
+        return done("phone_registration_retry_later");
+    }
   }
-  // Conta a tentativa ANTES de chamar: se a persistência falhar depois, o
-  // limite continua protegido.
-  const next: SetupState = { ...setup, register_attempts: [...attempts, now.toISOString()] };
-  const registered = await meta.registerPhone(token, phoneNumberId, newPin());
-  if (registered.ok) return { reason: null, setup: next, displayPhoneNumber: display };
+
+  const registered = await meta.registerPhone(token, phoneNumberId, reserved.pin);
+  if (registered.ok) return done(null);
   if (registered.metaCode === META_REGISTRATION_RATE_LIMIT) {
-    return {
-      reason: "phone_registration_rate_limited",
-      setup: { ...next, rate_limited_until: new Date(now.getTime() + REGISTRATION_WINDOW_MS).toISOString() },
-      displayPhoneNumber: display,
-    };
+    await store.markPhoneRegistrationRateLimited(userId, phoneNumberId);
+    return done("phone_registration_rate_limited");
   }
-  return { reason: "phone_registration_failed", setup: next, displayPhoneNumber: display };
+  if (registered.metaCode === META_PIN_MISMATCH) return done("phone_pin_required");
+  // Timeout/rede/resposta ilegível: resultado desconhecido. A tentativa já foi
+  // contada e o intervalo mínimo do guard impede repetir em seguida.
+  if (registered.code !== "meta_rejected") return done("phone_registration_retry_later");
+  return done("phone_registration_failed");
 }
 
 /** Executa (de forma idempotente) todos os passos e devolve o 1º motivo de pendência. */
 async function evaluateReadiness(
   meta: MetaOnboarding,
   store: ConnectStore,
-  input: { userId: string; token: string; wabaId: string; phoneNumberId: string; setup: SetupState; now: Date },
+  input: { userId: string; token: string; wabaId: string; phoneNumberId: string; setup: SetupState },
 ): Promise<{ reason: PendingReason | null; setup: SetupState; displayPhoneNumber: string | null }> {
   const subscribed = await meta.subscribeApp(input.token, input.wabaId);
-  const phone = await ensurePhoneReady(meta, store, input.userId, input.token, input.phoneNumberId, input.setup, input.now);
+  const phone = await ensurePhoneReady(
+    meta,
+    store,
+    input.userId,
+    input.token,
+    input.phoneNumberId,
+    input.setup,
+  );
   const templates = await meta.ensureTemplates(input.token, input.wabaId);
   const health = await meta.getAccountHealth(input.token, input.wabaId);
 
@@ -318,7 +337,6 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     _config: Extract<ConnectConfigResult, { enabled: true }>["config"],
     meta: MetaOnboarding,
   ): Promise<Response> {
-    const now = deps.now ?? (() => new Date());
     const state = String(input.state ?? "");
     const code = typeof input.code === "string" ? input.code : "";
     const wabaId = String(input.waba_id ?? "");
@@ -380,7 +398,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       return fail(500, "credential_store_failed");
     }
 
-    const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup, now: now() });
+    const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup });
     setup = evaluated.setup;
     const persisted = await persistEvaluation(userId, wabaId, phoneNumberId, evaluated);
     if (!persisted.ok) {
@@ -425,7 +443,6 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
   }
 
   async function refreshStatus(userId: string, meta: MetaOnboarding): Promise<Response> {
-    const now = deps.now ?? (() => new Date());
     const connection = await deps.store.getConnection(userId);
     if (!connection) return json(200, { ok: true, status: "none" });
     // Conectada/desconectada: nada a reavaliar. Pendente e erro (ex.: conta
@@ -447,7 +464,6 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       wabaId: connection.wabaId,
       phoneNumberId: connection.phoneNumberId,
       setup: connection.setupState,
-      now: now(),
     });
     const persisted = await persistEvaluation(
       userId,
