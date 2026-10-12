@@ -149,6 +149,8 @@ export function emptySetup(mode: SetupState["mode"] = "cloud"): SetupState {
  */
 async function ensurePhoneReady(
   meta: MetaOnboarding,
+  store: ConnectStore,
+  userId: string,
   token: string,
   phoneNumberId: string,
   setup: SetupState,
