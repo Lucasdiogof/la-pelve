@@ -374,6 +374,21 @@ test("número com PIN existente e ainda não registrado: pendência clara, sem i
   assert.equal(h.connections.get("user-a")!.status, "pending");
 });
 
+test("dados de telefone incompletos nunca disparam registro automático", async () => {
+  for (const patch of [
+    { status: null, isPinEnabled: false },
+    { status: "PENDING", isPinEnabled: null },
+    { status: "UNKNOWN", isPinEnabled: false },
+  ]) {
+    const h = build();
+    h.script.phone = { displayPhoneNumber: "+55 62 1", ...patch };
+    const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+    assert.equal(res.status, "pending");
+    assert.equal(res.reason, "phone_not_connected");
+    assert.ok(!h.events.includes("meta:register"));
+  }
+});
+
 test("número novo sem PIN: registra uma vez com PIN de 6 dígitos e conta a tentativa", async () => {
   const h = build();
   h.script.phone = { displayPhoneNumber: "+55 62 1", status: "PENDING", isPinEnabled: false };
