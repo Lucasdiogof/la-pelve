@@ -45,6 +45,7 @@ export type PendingReason =
   | "phone_not_connected"
   | "phone_pin_required"
   | "phone_registration_rate_limited"
+  | "phone_registration_retry_later"
   | "phone_registration_failed"
   | "templates_pending"
   | "templates_rejected"
@@ -71,6 +72,10 @@ export interface ConnectStore {
   getAccessToken(userId: string): Promise<string | null>;
   getConnection(userId: string): Promise<ConnectionRow | null>;
   disconnect(userId: string): Promise<boolean>;
+  reservePhoneRegistration(userId: string, phoneNumberId: string): Promise<
+    { ok: true; pin: string } | { ok: false; reason: "limited" | "cooldown" | "error" }
+  >;
+  markPhoneRegistrationRateLimited(userId: string, phoneNumberId: string): Promise<boolean>;
 }
 
 export interface ConnectHandlerDeps {
