@@ -1,5 +1,15 @@
 # Integração WhatsApp (lembretes de agendamento) — estado e próximos passos
 
+## >>> ATUALIZAÇÃO 2026-10-12 (PR #8, guard de registro do número)
+
+- `0031_security_definer_function_grants.sql` já estava na `main` e aplicada; o guard virou **`0032_whatsapp_phone_registration_guard.sql`**.
+- Guard por `phone_number_id` (tabela `whatsapp_phone_registration_guard`, RLS sem policy, só `service_role` via RPC):
+  - `reserve_whatsapp_phone_registration(fisio, phone, existing_pin_only)`: advisory lock por número + `FOR UPDATE`; só conexão `pending`/`error` da própria profissional; limite 8/72 h, intervalo mínimo de 10 min, bloqueio vigente; a tentativa é gravada **antes** da chamada a `/register` (commit da RPC). Devolve `reserved` + PIN, `limited`, `cooldown`, `pin_unknown` ou `error`.
+  - PIN de 2FA: 6 dígitos gerados uma vez por número (pgcrypto), só no Vault (`la_pelve_wa_pin_<phone_number_id>`). Reconexão de número que nós registramos usa o mesmo PIN; número com 2FA de terceiros → `phone_pin_required`, nada é enviado.
+  - `mark_whatsapp_phone_registration_limited`: resposta 133016 da Meta → bloqueio de 72 h (nunca encurta). Desconectar/reconectar não zera nada.
+- Edge Function: timeout/rede no `/register` = resultado desconhecido → `phone_registration_retry_later` (tentativa já contada); 133005 (PIN incorreto) → `phone_pin_required`. `setup_state.register_attempts`/`rate_limited_until` ficaram legados (não são mais lidos nem escritos).
+- CI: job novo "SQL migrations and tests" (Postgres 16 + `supabase_vault` v0.3.1 compilado) aplica TODAS as migrations num banco descartável e roda `supabase/tests/*.test.sql`.
+
 ## >>> ATUALIZAÇÃO 2026-10-11 (branch `feature/whatsapp-e2e-20261011`)
 
 **Validado em produção:** E2E real do `appointment_12h` (Meta aceitou, a paciente de teste tocou em
