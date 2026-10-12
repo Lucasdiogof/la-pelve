@@ -591,14 +591,24 @@ test("413: content-length acima do teto é recusado antes de ler/assinar, sem pr
   assert.deepEqual(logs[0].data, { limit_bytes: 2048 });
 });
 
-test("413: sem content-length, a leitura em streaming para ao passar do teto (não consome o resto)", async () => {
+test("413: sem content-length, o excedente é descartado em streaming (nada retido) e a resposta sai", async () => {
   const { port, calls } = fakePort();
   const { handler } = limited(port, 2048);
   const chunk = new Uint8Array(1000).fill(65);
   const s = streamed(Array.from({ length: 50 }, () => chunk));
-  assert.equal((await handler(s.req)).status, 413);
-  assert.ok(s.pulled() < 10, `leu ${s.pulled()} pedaços de 50`);
+  const res = await handler(s.req);
+  assert.equal(res.status, 413);
+  assert.equal(res.headers.get("connection"), "close");
   assert.equal(calls.length, 0);
+});
+
+test("readBodyLimited: acima do teto devolve null depois de drenar tudo (nada retido); dentro do teto devolve os bytes", async () => {
+  const chunk = new Uint8Array(1000).fill(65);
+  const s = streamed(Array.from({ length: 50 }, () => chunk));
+  assert.equal(await readBodyLimited(s.req, 2048), null);
+  assert.equal(s.pulled(), 50); // o runtime só responde depois do corpo consumido
+  const ok = streamed([new Uint8Array([1, 2, 3]), new Uint8Array([4])]);
+  assert.deepEqual([...(await readBodyLimited(ok.req, 2048))!], [1, 2, 3, 4]);
 });
 
 test("corpo no limite exato é aceito; um byte a mais é 413 (mesmo assinado corretamente)", async () => {

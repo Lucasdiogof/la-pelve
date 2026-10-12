@@ -102,17 +102,17 @@ export async function validSignature(secret: string, raw: string | Uint8Array, h
 }
 
 /**
- * Lê o corpo em streaming e aborta assim que passa do teto (nunca carrega o
- * corpo inteiro para decidir). Devolve os bytes ORIGINAIS (o HMAC é sobre eles)
- * ou null se excedeu.
+ * Lê o corpo em streaming: guarda no máximo `maxBytes` (nunca carrega o corpo
+ * inteiro para decidir). Passou do teto -> devolve null, DESCARTANDO o resto
+ * pedaço a pedaço (memória constante): no runtime da Supabase a resposta só
+ * sai depois que o corpo é consumido; cancelar a leitura ou parar de ler
+ * deixava o 413 pendurado até o timeout (testado em produção com 3,2 MB e 18 MB).
+ * Devolve os bytes ORIGINAIS (o HMAC é sobre eles) quando cabe.
  */
 export async function readBodyLimited(req: Request, maxBytes: number): Promise<Uint8Array | null> {
-  const declared = Number(req.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > maxBytes) {
-    await req.body?.cancel().catch(() => {});
-    return null;
-  }
   if (!req.body) return new Uint8Array(0);
+  const declared = Number(req.headers.get("content-length"));
+  let exceeded = Number.isFinite(declared) && declared > maxBytes;
   const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -120,12 +120,10 @@ export async function readBodyLimited(req: Request, maxBytes: number): Promise<U
     const { done, value } = await reader.read();
     if (done) break;
     total += value.byteLength;
-    if (total > maxBytes) {
-      await reader.cancel().catch(() => {});
-      return null;
-    }
-    chunks.push(value);
+    if (total > maxBytes) exceeded = true;
+    if (!exceeded) chunks.push(value); // excedente: só descarta
   }
+  if (exceeded) return null;
   const out = new Uint8Array(total);
   let offset = 0;
   for (const chunk of chunks) {
@@ -175,7 +173,7 @@ export function createWebhookHandler(config: WebhookConfig): (req: Request) => P
       if (bytes === null) {
         // Antes de qualquer HMAC/JSON: corpo grande demais nunca é processado.
         log("payload_too_large", { limit_bytes: maxBytes });
-        return new Response("Payload too large", { status: 413 });
+        return new Response("Payload too large", { status: 413, headers: { connection: "close" } });
       }
       if (!(await validSignature(config.appSecret, bytes, req.headers.get("x-hub-signature-256")))) {
         log("invalid_signature", {});
