@@ -564,6 +564,15 @@ test("conta limitada/bloqueada e saúde desconhecida não ficam conectadas", asy
   assert.equal(unknown.reason, "meta_unavailable");
 });
 
+test("falha ao consultar a saúde da Meta impede promover a conexão", async () => {
+  const h = build();
+  h.meta.getAccountHealth = async () => ({ ok: false, code: "meta_unreachable" });
+  const result = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"))));
+  assert.equal(result.status, "pending");
+  assert.equal(result.reason, "meta_unavailable");
+  assert.equal(h.connections.get("user-a")!.status, "pending");
+});
+
 test("status reavalia conexão em erro (conta reabilitada) antes de liberar", async () => {
   const h = build();
   await h.call(complete(await startFor(h, "Bearer jwt-a")));
