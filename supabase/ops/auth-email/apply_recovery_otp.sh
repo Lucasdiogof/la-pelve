@@ -18,8 +18,10 @@ print(json.dumps({
  "mailer_otp_exp":900,
 }))' "$DIR/recovery.html")
 
-curl -sS -f -X PATCH "$URL" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" -d "$body" >/dev/null
+curl -sS -w "
+HTTP %{http_code}
+" -X PATCH "$URL" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" -d "$body"
 
 curl -sS -f "$URL" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" | python -c '
 import json,sys
