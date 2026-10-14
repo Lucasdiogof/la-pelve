@@ -75,13 +75,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _forgotPassword() async {
-    final sent = await showForgotPasswordSheet(context);
-    if (sent == true && mounted) {
-      final t = AuthStrings(context.read<LocaleCubit>().state);
-      await AppInfoBottomSheet.showSuccess(
-        context,
-        description: t.resetLinkSentDescription,
-      );
+    final email = await showForgotPasswordSheet(context);
+    if (email != null && mounted) {
+      await context.push('/recuperar-senha', extra: email);
     }
   }
 

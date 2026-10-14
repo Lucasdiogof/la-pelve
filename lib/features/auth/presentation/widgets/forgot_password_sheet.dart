@@ -14,8 +14,9 @@ import 'package:la_pelve/shared/widgets/app_text_field.dart';
 import 'package:la_pelve/shared/widgets/primary_button.dart';
 import 'package:la_pelve/shared/widgets/app_sheet.dart';
 
-Future<bool?> showForgotPasswordSheet(BuildContext context) {
-  return showModalBottomSheet<bool>(
+/// Devolve o e-mail ao qual o código foi enviado (null se cancelado).
+Future<String?> showForgotPasswordSheet(BuildContext context) {
+  return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -57,14 +58,13 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
 
   Future<void> _send() async {
     _formCubit.setSending(true);
-    final result = await sl<AuthRepository>().sendPasswordResetEmail(
-      _emailController.text.trim(),
-    );
+    final email = _emailController.text.trim();
+    final result = await sl<AuthRepository>().sendPasswordResetEmail(email);
     if (!mounted) return;
     _formCubit.setSending(false);
     switch (result) {
       case Success():
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(email);
       case Error(:final failure):
         await AppInfoBottomSheet.showError(
           context,

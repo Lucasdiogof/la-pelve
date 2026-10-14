@@ -12,6 +12,7 @@ import 'package:la_pelve/features/agenda/presentation/pages/agenda_form_page.dar
 import 'package:la_pelve/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:la_pelve/features/auth/presentation/pages/login_page.dart';
 import 'package:la_pelve/features/auth/presentation/pages/register_page.dart';
+import 'package:la_pelve/features/auth/presentation/pages/recovery_code_page.dart';
 import 'package:la_pelve/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
@@ -42,7 +43,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 Future<void>? appBootstrapFuture;
 
 /// Rotas acessíveis sem sessão. Todas as outras são da área logada.
-const publicRoutes = {'/', '/cadastro', '/redefinir-senha'};
+const publicRoutes = {'/', '/cadastro', '/recuperar-senha', '/redefinir-senha'};
 
 /// Decide o redirecionamento só a partir da sessão e do destino (puro, para
 /// teste): com sessão, a tela de login leva à Home; sem sessão, qualquer
@@ -83,6 +84,13 @@ final GoRouter appRouter = GoRouter(
           create: (_) => sl<AuthCubit>(),
           child: const RegisterPage(),
         ),
+      ),
+    ),
+    GoRoute(
+      path: '/recuperar-senha',
+      pageBuilder: (context, state) => appPage(
+        state,
+        RecoveryCodePage(initialEmail: state.extra as String? ?? ''),
       ),
     ),
     GoRoute(

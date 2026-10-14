@@ -146,12 +146,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> sendPasswordResetEmail(String email) async {
     try {
-      await _client.auth.resetPasswordForEmail(
-        email,
-        redirectTo: kIsWeb
-            ? '${Uri.base.origin}/redefinir-senha'
-            : 'lapelve://reset-password',
-      );
+      await _client.auth.resetPasswordForEmail(email);
       return const Success(null);
     } on AuthException catch (e, st) {
       debugPrint(
@@ -160,6 +155,30 @@ class AuthRepositoryImpl implements AuthRepository {
       return Error(AuthFailure(_mapAuthError(e)));
     } catch (e, st) {
       debugPrint('[AuthRepository.sendPasswordResetEmail] $e\n$st');
+      return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Result<void>> verifyRecoveryCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _client.auth.verifyOTP(
+        type: OtpType.recovery,
+        email: email,
+        token: code,
+      );
+      if (response.session == null) return Error(AuthFailure());
+      return const Success(null);
+    } on AuthException catch (e, st) {
+      debugPrint(
+        '[AuthRepository.verifyRecoveryCode] code=${e.code} msg=${e.message}\n$st',
+      );
+      return Error(AuthFailure(_mapAuthError(e)));
+    } catch (e, st) {
+      debugPrint('[AuthRepository.verifyRecoveryCode] $e\n$st');
       return Error(UnexpectedFailure());
     }
   }
@@ -270,15 +289,26 @@ class AuthRepositoryImpl implements AuthRepository {
       ('weak_password', AppLanguage.spanish) =>
         'La contraseña debe tener al menos 8 caracteres.',
       ('over_email_send_rate_limit', AppLanguage.portuguese) =>
-        'Muitos cadastros em pouco tempo. Aguarde alguns minutos e tente novamente.',
+        'Muitos envios de e-mail em pouco tempo. Aguarde alguns minutos e tente novamente.',
       ('over_email_send_rate_limit', AppLanguage.english) =>
         'Too many attempts in a short time. Wait a few minutes and try again.',
       ('over_email_send_rate_limit', AppLanguage.spanish) =>
         'Demasiados intentos en poco tiempo. Espera unos minutos e inténtalo de nuevo.',
+      ('otp_expired', AppLanguage.portuguese) =>
+        'Código inválido ou expirado. Confira os 6 dígitos ou peça um novo.',
+      ('otp_expired', AppLanguage.english) =>
+        'Invalid or expired code. Check the 6 digits or request a new one.',
+      ('otp_expired', AppLanguage.spanish) =>
+        'Código inválido o vencido. Revisa los 6 dígitos o solicita uno nuevo.',
+      ('over_request_rate_limit', AppLanguage.portuguese) =>
+        'Muitas tentativas. Aguarde um instante e tente novamente.',
+      ('over_request_rate_limit', AppLanguage.english) =>
+        'Too many attempts. Wait a moment and try again.',
+      ('over_request_rate_limit', AppLanguage.spanish) =>
+        'Demasiados intentos. Espera un momento e inténtalo de nuevo.',
       (_, AppLanguage.portuguese) => 'Erro de autenticação. Tente novamente.',
       (_, AppLanguage.english) => 'Authentication error. Please try again.',
-      (_, AppLanguage.spanish) =>
-        'Error de autenticación. Inténtalo de nuevo.',
+      (_, AppLanguage.spanish) => 'Error de autenticación. Inténtalo de nuevo.',
     };
   }
 }

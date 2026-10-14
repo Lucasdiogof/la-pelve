@@ -23,5 +23,12 @@ abstract class AuthRepository {
 
   Future<Result<void>> sendPasswordResetEmail(String email);
 
+  /// Valida o código de 6 dígitos de recuperação e abre a sessão que permite
+  /// definir a nova senha.
+  Future<Result<void>> verifyRecoveryCode({
+    required String email,
+    required String code,
+  });
+
   Future<Result<void>> updatePassword(String newPassword);
 }

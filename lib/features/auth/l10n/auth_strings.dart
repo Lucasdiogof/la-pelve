@@ -41,10 +41,10 @@ class AuthStrings {
 
   String get resetLinkSentDescription => switch (language) {
     AppLanguage.portuguese =>
-      'Enviamos um link de redefinição para o seu e-mail.',
-    AppLanguage.english => 'We sent a password reset link to your email.',
+      'Enviamos um código de 6 dígitos para o seu e-mail.',
+    AppLanguage.english => 'We sent a 6-digit code to your email.',
     AppLanguage.spanish =>
-      'Enviamos un enlace de restablecimiento a tu correo electrónico.',
+      'Enviamos un código de 6 dígitos a tu correo electrónico.',
   };
 
   String get accountNotFoundTitle => switch (language) {
@@ -167,16 +167,60 @@ class AuthStrings {
 
   String get forgotPasswordDescription => switch (language) {
     AppLanguage.portuguese =>
-      'Informe seu e-mail para receber um link de redefinição de senha.',
-    AppLanguage.english => 'Enter your email to receive a password reset link.',
+      'Informe seu e-mail para receber um código de 6 dígitos.',
+    AppLanguage.english => 'Enter your email to receive a 6-digit code.',
     AppLanguage.spanish =>
-      'Ingresa tu correo para recibir un enlace de restablecimiento de contraseña.',
+      'Ingresa tu correo para recibir un código de 6 dígitos.',
   };
 
   String get sendLinkButton => switch (language) {
-    AppLanguage.portuguese => 'Enviar link',
-    AppLanguage.english => 'Send link',
-    AppLanguage.spanish => 'Enviar enlace',
+    AppLanguage.portuguese => 'Enviar código',
+    AppLanguage.english => 'Send code',
+    AppLanguage.spanish => 'Enviar código',
+  };
+
+  String get recoveryCodePageTitle => switch (language) {
+    AppLanguage.portuguese => 'Código de verificação',
+    AppLanguage.english => 'Verification code',
+    AppLanguage.spanish => 'Código de verificación',
+  };
+
+  String get recoveryCodeInstructions => switch (language) {
+    AppLanguage.portuguese =>
+      'Digite o código de 6 dígitos que enviamos para o seu e-mail.',
+    AppLanguage.english => 'Enter the 6-digit code we sent to your email.',
+    AppLanguage.spanish =>
+      'Ingresa el código de 6 dígitos que enviamos a tu correo.',
+  };
+
+  String get recoveryCodeHint => switch (language) {
+    AppLanguage.portuguese => 'Código',
+    AppLanguage.english => 'Code',
+    AppLanguage.spanish => 'Código',
+  };
+
+  String get recoveryCodeInvalid => switch (language) {
+    AppLanguage.portuguese => 'O código tem 6 dígitos.',
+    AppLanguage.english => 'The code has 6 digits.',
+    AppLanguage.spanish => 'El código tiene 6 dígitos.',
+  };
+
+  String get verifyCodeButton => switch (language) {
+    AppLanguage.portuguese => 'Continuar',
+    AppLanguage.english => 'Continue',
+    AppLanguage.spanish => 'Continuar',
+  };
+
+  String get resendCodeButton => switch (language) {
+    AppLanguage.portuguese => 'Reenviar código',
+    AppLanguage.english => 'Resend code',
+    AppLanguage.spanish => 'Reenviar código',
+  };
+
+  String resendCodeIn(int seconds) => switch (language) {
+    AppLanguage.portuguese => 'Reenviar em ${seconds}s',
+    AppLanguage.english => 'Resend in ${seconds}s',
+    AppLanguage.spanish => 'Reenviar en ${seconds}s',
   };
 
   String get tagline => switch (language) {
