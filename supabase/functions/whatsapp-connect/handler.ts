@@ -287,6 +287,14 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     }
 
     if (!deps.config.enabled) {
+      // Chave geral desligada: o dono autenticado ainda consulta o status da conexão que
+      // já existe, em modo SOMENTE LEITURA (sem inscrever webhook, registrar número nem
+      // criar templates). Nada de iniciar ou concluir conexões.
+      if (input.action === "status" && deps.config.readOnly) {
+        const userId = await deps.authenticate(req.headers.get("authorization"));
+        if (!userId) return fail(401, "unauthorized");
+        return await refreshStatus(userId, deps.meta(deps.config.readOnly), { readOnly: true });
+      }
       // Só NOMES das variáveis ausentes/inválidas, nunca valores.
       log("whatsapp_connect_not_configured", { action: String(input.action ?? ""), missing: deps.config.missing });
       return fail(503, "not_configured");
@@ -526,12 +534,19 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     return json(200, base);
   }
 
-  async function refreshStatus(userId: string, meta: MetaOnboarding): Promise<Response> {
+  async function refreshStatus(
+    userId: string,
+    meta: MetaOnboarding,
+    options: { readOnly?: boolean } = {},
+  ): Promise<Response> {
     const connection = await deps.store.getConnection(userId);
     if (!connection) return json(200, { ok: true, status: "none" });
     if (connection.status === "connected" && connection.wabaId && connection.phoneNumberId) {
       return await checkConnectedToken(userId, connection, meta);
     }
+    // Somente leitura (onboarding desligado): pendente/erro não reavaliam, porque a
+    // reavaliação pode inscrever webhook, registrar número e criar templates.
+    if (options.readOnly) return json(200, { ok: true, status: connection.status });
     // Desconectada: nada a reavaliar. Pendente e erro (ex.: conta
     // reabilitada pela Meta) passam pela mesma checagem completa.
     if (

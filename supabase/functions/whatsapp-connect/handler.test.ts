@@ -267,15 +267,16 @@ function build() {
   const m = makeMeta(events);
   const logs: string[] = [];
   const users: Record<string, string> = { "Bearer jwt-a": "user-a", "Bearer jwt-b": "user-b" };
-  const handler = createConnectHandler({
-    config,
-    store: s.store,
-    meta: () => m.meta,
-    authenticate: async (auth) => (auth ? (users[auth] ?? null) : null),
-    now: () => clock,
-    log: (event, data) => logs.push(JSON.stringify({ event, ...data })),
-  });
-  const call = (body: unknown, auth?: string) =>
+  const make = (cfg: ReturnType<typeof readConnectConfig>) =>
+    createConnectHandler({
+      config: cfg,
+      store: s.store,
+      meta: () => m.meta,
+      authenticate: async (auth) => (auth ? (users[auth] ?? null) : null),
+      now: () => clock,
+      log: (event, data) => logs.push(JSON.stringify({ event, ...data })),
+    });
+  const send = (handler: (req: Request) => Promise<Response>) => (body: unknown, auth?: string) =>
     handler(
       new Request("https://x.test/fn", {
         method: "POST",
@@ -283,7 +284,10 @@ function build() {
         body: JSON.stringify(body),
       }),
     );
-  return { ...s, ...m, events, call, logs, advance: (ms: number) => (clock = new Date(clock.getTime() + ms)) };
+  const call = send(make(config));
+  // Mesmo banco e mesma Meta falsos, com a chave geral desligada (onboarding fechado).
+  const callOff = send(make(readConnectConfig((n) => ({ ...env, WHATSAPP_SELF_CONNECT_ENABLED: "" })[n])));
+  return { ...s, ...m, events, call, callOff, logs, advance: (ms: number) => (clock = new Date(clock.getTime() + ms)) };
 }
 type H = ReturnType<typeof build>;
 
@@ -983,4 +987,65 @@ test("Meta indisponível (timeout/429/5xx) NUNCA marca a conexão como inválida
   assert.deepEqual(await body(await h.call({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "connected" });
   assert.equal(h.events.slice(before).includes("store:flag"), false);
   assert.equal(h.connections.get("user-a")!.status, "connected");
+});
+
+// --------------------------------------------------------------------------
+// Onboarding desligado: status da conexão existente continua, só leitura
+// --------------------------------------------------------------------------
+
+test("flag desligada: o dono autenticado consulta o status da conexão existente, sem mutar nada e sem vazar token", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.events.length = 0;
+  h.script.tokenExpiresAt = new Date(NOW.getTime() + 40 * 24 * 3600_000);
+  const res = await h.callOff({ action: "status" }, "Bearer jwt-a");
+  assert.equal(res.status, 200);
+  const text = JSON.stringify(await res.json());
+  assert.deepEqual(JSON.parse(text), { ok: true, status: "connected", token_expires_at: h.script.tokenExpiresAt.toISOString() });
+  assert.ok(!text.includes(SECRET_TOKEN));
+  assert.deepEqual(mutations(h), []);
+});
+
+test("flag desligada: status exige sessão e outro usuário nunca vê a conexão alheia", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  assert.equal((await h.callOff({ action: "status" })).status, 401);
+  assert.equal((await h.callOff({ action: "status" }, "Bearer invalido")).status, 401);
+  assert.deepEqual(await body(await h.callOff({ action: "status" }, "Bearer jwt-b")), { ok: true, status: "none" });
+});
+
+test("flag desligada: conexão pendente não é reavaliada (nada de webhook, registro ou templates na Meta)", async () => {
+  const h = build();
+  h.script.report = { confirmation: "approved", reminder: "pending" };
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  h.events.length = 0;
+  const upsertsBefore = h.upserts.length;
+  assert.deepEqual(await body(await h.callOff({ action: "status" }, "Bearer jwt-a")), { ok: true, status: "pending" });
+  assert.deepEqual(h.events, []);
+  assert.equal(h.upserts.length, upsertsBefore);
+});
+
+test("flag desligada: iniciar, concluir, configurar e desconectar continuam bloqueados (503)", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  for (const action of ["start", "config", "complete", "disconnect"]) {
+    assert.equal((await h.callOff({ action }, "Bearer jwt-a")).status, 503, action);
+  }
+  assert.equal(h.connections.get("user-a")!.status, "connected");
+});
+
+test("flag desligada com outro segredo ausente: status também responde 503 (sem modo só leitura)", async () => {
+  const off = readConnectConfig((n) => ({ ...env, WHATSAPP_SELF_CONNECT_ENABLED: "", WHATSAPP_APP_SECRET: "" })[n]);
+  assert.equal(!off.enabled && off.readOnly, undefined);
+  const readOnlyOk = readConnectConfig((n) => ({ ...env, WHATSAPP_SELF_CONNECT_ENABLED: "" })[n]);
+  assert.ok(!readOnlyOk.enabled && readOnlyOk.readOnly);
+  const handler = createConnectHandler({
+    config: off,
+    store: makeStore([]).store,
+    meta: () => makeMeta([]).meta,
+    authenticate: async () => "user-a",
+    log: () => {},
+  });
+  const res = await handler(new Request("https://x.test", { method: "POST", headers: { authorization: "x" }, body: JSON.stringify({ action: "status" }) }));
+  assert.equal(res.status, 503);
 });

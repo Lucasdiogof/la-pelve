@@ -35,7 +35,9 @@ export interface ConnectConfig {
 
 export type ConnectConfigResult =
   | { enabled: true; config: ConnectConfig }
-  | { enabled: false; missing: string[] };
+  // `readOnly` existe quando a ÚNICA coisa que falta é a chave geral: o app ainda pode
+  // consultar o status da conexão que já existe (só leitura), nunca iniciar/concluir conexões.
+  | { enabled: false; missing: string[]; readOnly?: ConnectConfig };
 
 export function readConnectConfig(env: (name: string) => string | undefined): ConnectConfigResult {
   // Todas as checagens rodam mesmo com a chave desligada: `missing` lista os
@@ -58,20 +60,21 @@ export function readConnectConfig(env: (name: string) => string | undefined): Co
   const reminderTemplate = env("WHATSAPP_TEMPLATE_APPOINTMENT_12H") || "appointment_12h";
   if (!TEMPLATE_NAME_RE.test(confirmationTemplate)) missing.push("WHATSAPP_TEMPLATE_APPOINTMENT_CONFIRMATION");
   if (!TEMPLATE_NAME_RE.test(reminderTemplate)) missing.push("WHATSAPP_TEMPLATE_APPOINTMENT_12H");
-  if (missing.length > 0) return { enabled: false, missing };
-  return {
-    enabled: true,
-    config: {
-      appId,
-      configId,
-      appSecret,
-      graphApiVersion: graphApiVersion!,
-      languageCode,
-      connectPageUrl,
-      confirmationTemplate,
-      reminderTemplate,
-    },
-  };
+  const config: ConnectConfig | null =
+    missing.filter((name) => name !== "WHATSAPP_SELF_CONNECT_ENABLED").length === 0
+      ? {
+          appId,
+          configId,
+          appSecret,
+          graphApiVersion: graphApiVersion!,
+          languageCode,
+          connectPageUrl,
+          confirmationTemplate,
+          reminderTemplate,
+        }
+      : null;
+  if (missing.length > 0) return { enabled: false, missing, ...(config ? { readOnly: config } : {}) };
+  return { enabled: true, config: config! };
 }
 
 function isHttpsUrl(value: string): boolean {
