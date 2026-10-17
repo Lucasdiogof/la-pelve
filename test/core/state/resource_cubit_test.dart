@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/state/resource_cubit.dart';
@@ -192,6 +193,36 @@ void main() {
   });
 
   test(
+    'busca que nunca responde termina em NetworkFailure no tempo limite',
+    () async {
+      final never = _NeverAnswersResource();
+      addTearDown(never.close);
+      await never.ensureLoaded();
+      expect(never.state.isFailureWithoutData, isTrue);
+      expect(never.state.failure, isA<NetworkFailure>());
+      expect(never.state.isLoading, isFalse);
+    },
+  );
+
+  test('o retry depois do tempo esgotado carrega normalmente', () async {
+    final never = _NeverAnswersResource();
+    addTearDown(never.close);
+    await never.ensureLoaded();
+    expect(never.state.isFailureWithoutData, isTrue);
+    // Uma busca nova substitui o estado de falha; sem rede, falha de novo
+    // sem acumular buscas penduradas.
+    await never.refresh();
+    expect(never.state.failure, isA<NetworkFailure>());
+  });
+
+  test('falha de DNS/conexão (ClientException) vira NetworkFailure', () async {
+    final socket = _SocketLikeResource();
+    addTearDown(socket.close);
+    await socket.ensureLoaded();
+    expect(socket.state.failure, isA<NetworkFailure>());
+  });
+
+  test(
     'exceção inesperada no fetch vira falha, não trava em loading',
     () async {
       final throwing = _ThrowingResource();
@@ -201,6 +232,25 @@ void main() {
       expect(throwing.state.failure, isA<UnexpectedFailure>());
     },
   );
+}
+
+class _NeverAnswersResource extends ResourceCubit<List<String>> {
+  _NeverAnswersResource() : super(debugName: 'never');
+
+  @override
+  Duration get fetchTimeout => const Duration(milliseconds: 50);
+
+  @override
+  Future<Result<List<String>>> fetch() =>
+      Completer<Result<List<String>>>().future;
+}
+
+class _SocketLikeResource extends ResourceCubit<List<String>> {
+  _SocketLikeResource() : super(debugName: 'socket');
+
+  @override
+  Future<Result<List<String>>> fetch() async =>
+      throw http.ClientException('Failed host lookup');
 }
 
 class _ThrowingResource extends ResourceCubit<List<String>> {

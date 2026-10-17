@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
@@ -44,7 +45,7 @@ class AgendaRepositorySupabase implements AgendaRepository {
       return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[AgendaRepositorySupabase.getAll] $e\n$st');
-      return Error(UnexpectedFailure());
+      return Error(failureFromException(e));
     }
   }
 

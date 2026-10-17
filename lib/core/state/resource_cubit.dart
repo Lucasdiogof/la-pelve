@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/state/data_state.dart';
 
@@ -26,6 +29,13 @@ abstract class ResourceCubit<T> extends Cubit<DataState<T>> {
 
   @protected
   Future<Result<T>> fetch();
+
+  /// Limite de uma busca. Sem ele, uma requisição que nunca responde (sem
+  /// rede, DNS, renovação de token em andamento) deixaria a tela em loading
+  /// para sempre; com ele a busca termina em [NetworkFailure] e a tela
+  /// oferece tentar de novo.
+  @protected
+  Duration get fetchTimeout => const Duration(seconds: 20);
 
   /// Aplica dados recebidos por uma fonte externa (ex.: Supabase Realtime).
   /// Invalida qualquer fetch em andamento para não restaurar dados antigos.
@@ -69,10 +79,15 @@ abstract class ResourceCubit<T> extends Cubit<DataState<T>> {
     final stopwatch = Stopwatch()..start();
     Result<T> result;
     try {
-      result = await fetch();
+      result = await fetch().timeout(fetchTimeout);
+    } on TimeoutException {
+      debugPrint(
+        '[DataLoad] $debugName tempo esgotado (${fetchTimeout.inSeconds}s)',
+      );
+      result = Error(NetworkFailure());
     } on Object catch (e, st) {
       debugPrint('[DataLoad] $debugName exceção: ${e.runtimeType}\n$st');
-      result = Error(UnexpectedFailure());
+      result = Error(failureFromException(e));
     }
     if (isClosed || generation != _generation) return;
     switch (result) {

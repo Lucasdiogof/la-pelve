@@ -21,10 +21,15 @@ class SessionDataGate extends StatefulWidget {
     required this.controller,
     required this.child,
     super.key,
+    this.autoRetryInterval = const Duration(seconds: 8),
   });
 
   final SessionDataController controller;
   final Widget child;
+
+  /// Enquanto a tela de falha estiver visível, tenta carregar de novo sozinha
+  /// nesse intervalo, para a conexão que volta destravar a entrada sem toque.
+  final Duration autoRetryInterval;
 
   @override
   State<SessionDataGate> createState() => _SessionDataGateState();
@@ -33,6 +38,7 @@ class SessionDataGate extends StatefulWidget {
 class _SessionDataGateState extends State<SessionDataGate> {
   final _subscriptions = <StreamSubscription<Object?>>[];
   bool _retrying = false;
+  Timer? _autoRetry;
 
   @override
   void initState() {
@@ -42,10 +48,12 @@ class _SessionDataGateState extends State<SessionDataGate> {
     }
     widget.controller.sessionVersion.addListener(_onDataChanged);
     widget.controller.ensureLoaded();
+    _syncAutoRetry();
   }
 
   @override
   void dispose() {
+    _autoRetry?.cancel();
     widget.controller.sessionVersion.removeListener(_onDataChanged);
     for (final subscription in _subscriptions) {
       subscription.cancel();
@@ -54,7 +62,22 @@ class _SessionDataGateState extends State<SessionDataGate> {
   }
 
   void _onDataChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    _syncAutoRetry();
+  }
+
+  void _syncAutoRetry() {
+    if (!widget.controller.hasBlockingFailure) {
+      _autoRetry?.cancel();
+      _autoRetry = null;
+      return;
+    }
+    _autoRetry ??= Timer.periodic(widget.autoRetryInterval, (_) {
+      if (mounted && widget.controller.hasBlockingFailure && !_retrying) {
+        _retry();
+      }
+    });
   }
 
   Future<void> _retry() async {
@@ -71,12 +94,13 @@ class _SessionDataGateState extends State<SessionDataGate> {
     if (controller.isReady) return widget.child;
     if (controller.hasBlockingFailure && !_retrying) {
       final t = context.strings.shared;
+      final offline = controller.blockingFailureIsNetwork;
       return Scaffold(
         backgroundColor: context.colors.background,
         body: SafeArea(
           child: AppErrorState(
-            title: t.sessionLoadErrorTitle,
-            message: t.loadErrorMessage,
+            title: offline ? t.offlineTitle : t.sessionLoadErrorTitle,
+            message: offline ? t.offlineMessage : t.loadErrorMessage,
             retryLabel: t.retry,
             onRetry: _retry,
           ),

@@ -102,6 +102,21 @@ class SharedStrings {
     AppLanguage.spanish => 'No fue posible cargar tu clínica',
   };
 
+  String get offlineTitle => switch (language) {
+    AppLanguage.portuguese => 'Sem conexão com a internet',
+    AppLanguage.english => 'No internet connection',
+    AppLanguage.spanish => 'Sin conexión a internet',
+  };
+
+  String get offlineMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Sua sessão foi mantida e seus dados continuam salvos. Vamos tentar de novo automaticamente quando a conexão voltar.',
+    AppLanguage.english =>
+      'Your session is kept and your data is still saved. We will try again automatically when the connection is back.',
+    AppLanguage.spanish =>
+      'Tu sesión se mantiene y tus datos siguen guardados. Lo intentaremos de nuevo automáticamente cuando vuelva la conexión.',
+  };
+
   String get retry => switch (language) {
     AppLanguage.portuguese => 'Tentar novamente',
     AppLanguage.english => 'Try again',

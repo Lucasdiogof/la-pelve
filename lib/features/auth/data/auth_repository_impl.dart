@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/config/env_config.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
@@ -34,6 +35,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = response.user;
       if (user == null) return Error(AuthFailure());
       return Success(AppUser(id: user.id, email: user.email ?? email));
+    } on AuthRetryableFetchException catch (e, st) {
+      debugPrint('[AuthRepository.signIn] sem rede: $e\n$st');
+      return Error(NetworkFailure());
     } on AuthException catch (e, st) {
       debugPrint(
         '[AuthRepository.signIn] AuthException code=${e.code} msg=${e.message}\n$st',
@@ -43,7 +47,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     } catch (e, st) {
       debugPrint('[AuthRepository.signIn] $e\n$st');
-      return Error(UnexpectedFailure());
+      return Error(failureFromException(e));
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/features/financial/domain/entities/financial_entry.dart';
 import 'package:la_pelve/features/financial/domain/repositories/financial_repository.dart';
@@ -25,7 +26,7 @@ class FinancialRepositorySupabase implements FinancialRepository {
       return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[FinancialRepositorySupabase.getAll] $e\n$st');
-      return Error(UnexpectedFailure());
+      return Error(failureFromException(e));
     }
   }
 

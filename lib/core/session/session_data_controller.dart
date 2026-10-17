@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/state/resource_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
@@ -52,6 +53,12 @@ class SessionDataController {
   /// Algum dado crítico falhou sem nunca ter carregado (tela de erro).
   bool get hasBlockingFailure =>
       criticalResources.any((c) => c.state.isFailureWithoutData);
+
+  /// A falha que bloqueia a entrada é de rede (sem conexão/tempo esgotado):
+  /// a sessão continua válida e a tela explica isso em vez de um erro genérico.
+  bool get blockingFailureIsNetwork => criticalResources.any(
+    (c) => c.state.isFailureWithoutData && c.state.failure is NetworkFailure,
+  );
 
   Future<void> ensureLoaded() {
     return _bootstrap ??= _runBootstrap().whenComplete(() {

@@ -28,7 +28,10 @@ void main() {
   tearDown(() => h.close());
 
   /// Gate com a Home real dentro (como na rota /home).
-  Future<void> pumpGate(WidgetTester tester) async {
+  Future<void> pumpGate(
+    WidgetTester tester, {
+    Duration autoRetryInterval = const Duration(seconds: 8),
+  }) async {
     tester.platformDispatcher.localeTestValue = const Locale('pt', 'BR');
     addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     await tester.pumpWidget(
@@ -45,6 +48,7 @@ void main() {
           ],
           child: SessionDataGate(
             controller: h.controller,
+            autoRetryInterval: autoRetryInterval,
             child: HomePage(onNavigateToTab: (_) {}),
           ),
         ),
@@ -95,7 +99,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AppErrorState), findsOneWidget);
-    expect(find.text('Não foi possível carregar sua clínica'), findsOneWidget);
+    // Falha de rede: o texto diz que não há conexão e que a sessão foi mantida.
+    expect(find.text('Sem conexão com a internet'), findsOneWidget);
+    expect(find.textContaining('Sua sessão foi mantida'), findsOneWidget);
     expect(find.byType(HomePage), findsNothing);
     expect(find.text('Nenhum atendimento agendado.'), findsNothing);
 
@@ -107,6 +113,44 @@ void main() {
     expect(find.byType(HomePage), findsOneWidget);
     // Só a agenda (que falhou) foi buscada de novo.
     expect((h.patientCalls, h.agendaCalls, h.financialCalls), (1, 2, 1));
+  });
+
+  testWidgets('falha que não é de rede mantém o texto genérico de erro', (
+    tester,
+  ) async {
+    h.agendaAnswer = () async => Error(ServerFailure());
+    await pumpGate(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Não foi possível carregar sua clínica'), findsOneWidget);
+    expect(find.text('Sem conexão com a internet'), findsNothing);
+  });
+
+  testWidgets('sem conexão: a conexão que volta libera a Home sozinha, sem '
+      'toque e sem buscar de novo o que já carregou', (tester) async {
+    h.agendaAnswer = () async => Error(NetworkFailure());
+    await pumpGate(
+      tester,
+      autoRetryInterval: const Duration(milliseconds: 200),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('Sem conexão com a internet'), findsOneWidget);
+
+    // Ainda offline: o retry automático falha de novo e continua no aviso.
+    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pump();
+    expect(find.text('Sem conexão com a internet'), findsOneWidget);
+    expect(h.agendaCalls, greaterThanOrEqualTo(2));
+
+    // A rede volta.
+    h.agendaAnswer = () async => const Success([]);
+    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppErrorState), findsNothing);
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(h.patientCalls, 1);
+    expect(h.financialCalls, 1);
   });
 
   testWidgets(

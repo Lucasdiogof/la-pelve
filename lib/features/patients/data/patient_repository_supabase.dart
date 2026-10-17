@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/features/patients/domain/entities/evolution_entry.dart';
 import 'package:la_pelve/features/patients/domain/entities/patient.dart';
@@ -27,7 +28,7 @@ class PatientRepositorySupabase implements PatientRepository {
       return Error(ServerFailure());
     } catch (e, st) {
       debugPrint('[PatientRepositorySupabase.getAll] $e\n$st');
-      return Error(UnexpectedFailure());
+      return Error(failureFromException(e));
     }
   }
 
