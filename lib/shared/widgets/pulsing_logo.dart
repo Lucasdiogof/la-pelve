@@ -40,7 +40,9 @@ class _PulsingLogoState extends State<PulsingLogo>
   @override
   Widget build(BuildContext context) {
     final image = Image.asset(
-      'lib/assets/app_icon.png',
+      Theme.of(context).brightness == Brightness.dark
+          ? 'lib/assets/app_icon_dark.png'
+          : 'lib/assets/app_icon.png',
       width: widget.size,
       height: widget.size,
       filterQuality: FilterQuality.high,
