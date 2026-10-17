@@ -79,7 +79,7 @@ controladas por trigger (`schedule_revision`, `schedule_revision_at`) são
 ignoradas na comparação.
 
 Janela residual: sem a migração `0037` a checagem é "ler e depois gravar".
-Com ela (proposta, **não aplicada**) a gravação passa a ser condicional a
+Com ela (aplicada em produção em 17/10) a gravação passa a ser condicional a
 `updated_at` e a janela fecha — o código já usa `updated_at` quando existe.
 
 ## Segurança e LGPD
@@ -142,7 +142,7 @@ histórico já sincronizado, criar, editar, excluir), lançamentos financeiros.
 
 - Sincronização completa por tabela a cada rodada (sem incremental): bom para
   centenas/milhares de linhas; incremental exige `updated_at` do servidor
-  (migração `0037`, proposta).
+  (migração `0037`, aplicada em 17/10).
 - Exclusão remota de consulta/evolução é detectada por ausência no pull.
 - `generateId()` (microssegundos) pode colidir entre dois aparelhos criando
   no mesmo instante; a colisão é detectada (`id_collision`) e vira "alteração

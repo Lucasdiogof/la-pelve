@@ -1,4 +1,4 @@
--- PROPOSTA — NÃO APLICADA EM PRODUÇÃO. Depende de validação explícita.
+-- APLICADA EM PRODUÇÃO em 2026-10-17 (autorizada pelo usuário).
 --
 -- Objetivo: dar ao app offline-first um carimbo de versão CONFIÁVEL do
 -- servidor (updated_at), para que o app trave a gravação de forma otimista
