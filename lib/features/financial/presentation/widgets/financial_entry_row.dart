@@ -58,7 +58,9 @@ class FinancialEntryRow extends StatelessWidget {
     final dateRow = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(child: Text(AppDateField.format(entry.date), style: dateStyle)),
+        Expanded(
+          child: Text(AppDateField.format(entry.date), style: dateStyle),
+        ),
         const SizedBox(width: AppSpacing.s8),
         badge,
       ],
@@ -81,9 +83,7 @@ class FinancialEntryRow extends StatelessWidget {
                 // quebrar em linhas demais na composição lado a lado; abaixo
                 // de 300 de largura disponível, com textScale >= 1.15,
                 // empilha nome / valor / (data + status).
-                final textScale = MediaQuery.textScalerOf(
-                  context,
-                ).scale(100);
+                final textScale = MediaQuery.textScalerOf(context).scale(100);
                 final stacked = constraints.maxWidth < 300 && textScale >= 115;
                 if (stacked) {
                   return Column(

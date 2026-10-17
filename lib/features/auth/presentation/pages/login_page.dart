@@ -133,7 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                               Align(
                                 alignment: const Alignment(0, 0.1),
                                 child: Image.asset(
-                                  Theme.of(context).brightness == Brightness.dark
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
                                       ? 'lib/assets/logo_extenso_dark.png'
                                       : 'lib/assets/logo_extenso.png',
                                   width: 260,

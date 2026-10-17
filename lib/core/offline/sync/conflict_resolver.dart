@@ -86,5 +86,7 @@ ConflictCheck detectConflict({
 }
 
 /// Todas as colunas de [payload] já valem o mesmo no servidor?
-bool alreadyApplied(Map<String, Object?> remote, Map<String, Object?> payload) =>
-    payload.entries.every((e) => jsonEquals(remote[e.key], e.value));
+bool alreadyApplied(
+  Map<String, Object?> remote,
+  Map<String, Object?> payload,
+) => payload.entries.every((e) => jsonEquals(remote[e.key], e.value));

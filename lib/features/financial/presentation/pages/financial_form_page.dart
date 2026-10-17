@@ -270,8 +270,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                           label: t.whichStatusHint,
                           errorText:
                               _statusOutroController.text.isEmpty ||
-                                  _statusOutroController.text.trim().length >
-                                      3
+                                  _statusOutroController.text.trim().length > 3
                               ? null
                               : t.statusMinCharsError,
                           textInputAction: TextInputAction.next,
@@ -298,8 +297,7 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
                           controller: _formaPagamentoOutroController,
                           label: t.whichPaymentMethodHint,
                           textInputAction: TextInputAction.done,
-                          onSubmitted: (_) =>
-                              FocusScope.of(context).unfocus(),
+                          onSubmitted: (_) => FocusScope.of(context).unfocus(),
                           onChanged: (_) => _formCubit.notifyFieldChanged(),
                         ),
                       ],

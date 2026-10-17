@@ -22,7 +22,9 @@ void main() {
   test('sessão inválida e erros comuns não são tratados como rede', () {
     expect(failureFromException(StateError('x')), isA<UnexpectedFailure>());
     expect(
-      isNetworkError(const AuthApiException('x', statusCode: '400', code: 'bad')),
+      isNetworkError(
+        const AuthApiException('x', statusCode: '400', code: 'bad'),
+      ),
       isFalse,
     );
   });

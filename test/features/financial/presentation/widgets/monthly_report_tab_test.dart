@@ -26,14 +26,14 @@ void main() {
     tester.platformDispatcher.localeTestValue = const Locale('pt', 'BR');
     addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     final repository = _FakeFinancialRepository();
-    when(
-      () => repository.getAll(),
-    ).thenAnswer((_) async => Success(entries));
+    when(() => repository.getAll()).thenAnswer((_) async => Success(entries));
 
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => FinancialCubit(repository)..ensureLoaded()),
+          BlocProvider(
+            create: (_) => FinancialCubit(repository)..ensureLoaded(),
+          ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp(
@@ -75,9 +75,7 @@ void main() {
     expect(find.text('R\$ 100,00'), findsOneWidget);
   });
 
-  testWidgets('considera somente entradas do mês selecionado', (
-    tester,
-  ) async {
+  testWidgets('considera somente entradas do mês selecionado', (tester) async {
     final previousMonth = DateTime(now.year, now.month - 1, 1);
     await pumpReport(tester, [
       FinancialEntry(
@@ -169,9 +167,7 @@ void main() {
     expect(find.text('R\$ 0,00'), findsOneWidget);
   });
 
-  testWidgets('exibe o período do mês (dia 1 ao último dia)', (
-    tester,
-  ) async {
+  testWidgets('exibe o período do mês (dia 1 ao último dia)', (tester) async {
     await pumpReport(tester, const []);
 
     final firstDay = DateTime(now.year, now.month, 1);
@@ -185,9 +181,7 @@ void main() {
     );
   });
 
-  testWidgets('não mostra métricas além de "Total recebido"', (
-    tester,
-  ) async {
+  testWidgets('não mostra métricas além de "Total recebido"', (tester) async {
     await pumpReport(tester, [
       FinancialEntry(
         id: 'f1',

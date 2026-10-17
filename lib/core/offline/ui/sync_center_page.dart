@@ -230,10 +230,7 @@ class _ConflictSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       for (final key in keys) ...[
-                        Text(
-                          t.fieldLabel(key),
-                          style: textTheme.labelLarge,
-                        ),
+                        Text(t.fieldLabel(key), style: textTheme.labelLarge),
                         const SizedBox(height: AppSpacing.s4),
                         _Version(
                           label: t.thisDevice,
@@ -249,7 +246,8 @@ class _ConflictSheet extends StatelessWidget {
         ),
         PrimaryButton(
           label: t.keepMine,
-          onPressed: () => Navigator.of(context).pop(ConflictResolution.keepLocal),
+          onPressed: () =>
+              Navigator.of(context).pop(ConflictResolution.keepLocal),
         ),
         const SizedBox(height: AppSpacing.s8),
         if (remote != null) ...[
@@ -298,9 +296,9 @@ class _Version extends StatelessWidget {
           children: [
             Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: colors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.s4),
             Text(value, style: Theme.of(context).textTheme.bodyMedium),

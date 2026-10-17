@@ -50,13 +50,13 @@ class PatientFormCubit extends Cubit<PatientFormState> {
     this.consentUnavailable = false,
   }) : isEditing = existingPatient != null,
        originalConsent = existingConsent,
-      super(
-        PatientFormState(
-          patient:
-              existingPatient ??
-              Patient(id: generateId(), createdAt: DateTime.now()),
-        ),
-      );
+       super(
+         PatientFormState(
+           patient:
+               existingPatient ??
+               Patient(id: generateId(), createdAt: DateTime.now()),
+         ),
+       );
 
   final bool isEditing;
 

@@ -179,7 +179,9 @@ class SyncEngine {
         await sync().timeout(deadline.difference(_clock()));
         final ops = store.opsForEntity(kind, id);
         // Falha (rede, erro definitivo, conflito): não insistir em loop.
-        if (ops.any((o) => o.lastError != null || o.status != OpStatus.pending)) {
+        if (ops.any(
+          (o) => o.lastError != null || o.status != OpStatus.pending,
+        )) {
           break;
         }
       }
@@ -314,9 +316,7 @@ class SyncEngine {
 
   Future<_Step> _execute(SyncOp op, Set<String> changed) async {
     if (op.userId != store.userId || currentUserId() != op.userId) {
-      store.updateOp(
-        op.copyWith(status: OpStatus.failed, lastError: 'scope'),
-      );
+      store.updateOp(op.copyWith(status: OpStatus.failed, lastError: 'scope'));
       return _Step.next;
     }
     final config = _config(op.kind);
@@ -358,8 +358,6 @@ class SyncEngine {
     }
   }
 
-  // --- create -------------------------------------------------------------
-
   Future<void> _create(
     EntityConfig config,
     SyncOp op,
@@ -383,8 +381,6 @@ class SyncEngine {
     }
     _complete(op, row, changed);
   }
-
-  // --- update / delete ----------------------------------------------------
 
   Future<void> _update(
     EntityConfig config,
@@ -463,11 +459,13 @@ class SyncEngine {
     throw const RemoteException(RemoteErrorKind.server, code: 'race');
   }
 
-  // --- finalização --------------------------------------------------------
-
   /// Operação aplicada no servidor: o registro local passa a refletir a
   /// resposta do servidor, reaplicando operações ainda pendentes da entidade.
-  void _complete(SyncOp op, Map<String, Object?> serverRow, Set<String> changed) {
+  void _complete(
+    SyncOp op,
+    Map<String, Object?> serverRow,
+    Set<String> changed,
+  ) {
     store.transaction(() {
       store.removeOp(op.opId);
       final rest = store
@@ -519,7 +517,9 @@ class SyncEngine {
     Set<String> changed,
   ) {
     store.transaction(() {
-      store.updateOp(op.copyWith(status: OpStatus.conflict, lastError: 'conflict'));
+      store.updateOp(
+        op.copyWith(status: OpStatus.conflict, lastError: 'conflict'),
+      );
       store.putRecord(
         record.copyWith(
           state: RecordState.conflict,
@@ -531,8 +531,6 @@ class SyncEngine {
     });
     changed.add(op.kind);
   }
-
-  // --- pull ---------------------------------------------------------------
 
   Future<void> _pull(Set<String> changed) async {
     for (final config in entities) {
@@ -548,9 +546,7 @@ class SyncEngine {
   /// sobrescritos; os demais passam a ser exatamente o que o servidor tem.
   bool applySnapshot(EntityConfig config, List<Map<String, Object?>> rows) {
     var changed = false;
-    final existing = {
-      for (final r in store.allRecords(config.kind)) r.id: r,
-    };
+    final existing = {for (final r in store.allRecords(config.kind)) r.id: r};
     final seen = <String>{};
     for (final row in rows) {
       final id = row['id'] as String?;
@@ -591,8 +587,6 @@ class SyncEngine {
     store.setMeta('pulled:$kind', _clock().toIso8601String());
     if (didChange && !_dataChanged.isClosed) _dataChanged.add({kind});
   }
-
-  // --- conflitos e falhas --------------------------------------------------
 
   List<ConflictItem> conflicts() {
     final items = <ConflictItem>[];

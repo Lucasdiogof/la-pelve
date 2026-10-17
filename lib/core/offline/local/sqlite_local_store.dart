@@ -93,10 +93,10 @@ class SqliteLocalStore implements LocalStore {
 
   @override
   LocalRecord? getRecord(String kind, String id) {
-    final rows = _db.select(
-      'select * from records where kind = ? and id = ?',
-      [kind, id],
-    );
+    final rows = _db.select('select * from records where kind = ? and id = ?', [
+      kind,
+      id,
+    ]);
     return rows.isEmpty ? null : _record(rows.first);
   }
 
@@ -134,10 +134,8 @@ class SqliteLocalStore implements LocalStore {
   }
 
   @override
-  void deleteRecord(String kind, String id) => _db.execute(
-    'delete from records where kind = ? and id = ?',
-    [kind, id],
-  );
+  void deleteRecord(String kind, String id) =>
+      _db.execute('delete from records where kind = ? and id = ?', [kind, id]);
 
   SyncOp _op(Row row) => SyncOp(
     seq: row['seq'] as int,

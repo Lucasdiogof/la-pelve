@@ -42,7 +42,6 @@ class SecureStorageKeyVault implements KeyVault {
   Future<void> deleteKey(String scope) => _storage.delete(key: _name(scope));
 }
 
-/// Para testes: chaves em memória.
 class InMemoryKeyVault implements KeyVault {
   final Map<String, String> keys = {};
 

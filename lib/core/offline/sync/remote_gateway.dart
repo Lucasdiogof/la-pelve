@@ -154,9 +154,8 @@ class SupabaseRemoteGateway implements RemoteGateway {
   });
 
   @override
-  Future<void> delete(EntityConfig config, String id) => _guard(
-    () => _client.from(config.table).delete().eq('id', id),
-  );
+  Future<void> delete(EntityConfig config, String id) =>
+      _guard(() => _client.from(config.table).delete().eq('id', id));
 
   @override
   Stream<List<Map<String, Object?>>> watch(

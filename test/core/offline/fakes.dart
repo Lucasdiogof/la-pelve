@@ -145,8 +145,7 @@ class FakeStoreProvider implements StoreProvider {
       opened[userId] = memoryStore(userId);
 
   @override
-  Future<void> wipe(String userId, KeyVault vault) async =>
-      wiped.add(userId);
+  Future<void> wipe(String userId, KeyVault vault) async => wiped.add(userId);
 
   @override
   Future<void> purgeOthers(String keepUserId, KeyVault vault) async =>

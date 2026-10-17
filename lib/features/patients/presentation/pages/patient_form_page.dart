@@ -53,12 +53,13 @@ class _PatientFormPageState extends State<PatientFormPage> {
 
   bool _isSaving = false;
 
-  late final PatientFormSaveController _saveController = PatientFormSaveController(
-    patientsCubit: context.read<PatientsCubit>(),
-    attachmentRepository: sl<AttachmentRepository>(),
-    consentRepository: sl<PatientConsentRepository>(),
-    ensureOnServer: (id) => savedOnServer('patients', id),
-  );
+  late final PatientFormSaveController _saveController =
+      PatientFormSaveController(
+        patientsCubit: context.read<PatientsCubit>(),
+        attachmentRepository: sl<AttachmentRepository>(),
+        consentRepository: sl<PatientConsentRepository>(),
+        ensureOnServer: (id) => savedOnServer('patients', id),
+      );
 
   @override
   void initState() {
@@ -126,7 +127,10 @@ class _PatientFormPageState extends State<PatientFormPage> {
     if (_isSaving) return;
     setState(() => _isSaving = true);
     showAppLoading();
-    final outcome = await _saveController.save(formCubit: formCubit, state: state);
+    final outcome = await _saveController.save(
+      formCubit: formCubit,
+      state: state,
+    );
     hideAppLoading();
     if (mounted) setState(() => _isSaving = false);
     if (!mounted || outcome == null) return;
@@ -255,9 +259,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
                   }
                 : null,
             showSaveButton: formCubit.isEditing && !formCubit.isLastStep,
-            onSave: formCubit.canSave
-                ? () => _save(formCubit, state)
-                : null,
+            onSave: formCubit.canSave ? () => _save(formCubit, state) : null,
             body: _StepBody(
               step: formCubit.currentStep,
               state: state,

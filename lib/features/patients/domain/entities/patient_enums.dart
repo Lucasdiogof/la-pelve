@@ -104,8 +104,7 @@ extension GynecologicalSurgeryLabel on GynecologicalSurgery {
     (GynecologicalSurgery.hysterectomy, AppLanguage.portuguese) =>
       'Histerectomia',
     (GynecologicalSurgery.hysterectomy, AppLanguage.english) => 'Hysterectomy',
-    (GynecologicalSurgery.hysterectomy, AppLanguage.spanish) =>
-      'Histerectomía',
+    (GynecologicalSurgery.hysterectomy, AppLanguage.spanish) => 'Histerectomía',
     (GynecologicalSurgery.tubalLigation, AppLanguage.portuguese) =>
       'Laqueadura',
     (GynecologicalSurgery.tubalLigation, AppLanguage.english) =>
@@ -157,8 +156,7 @@ extension IncontinenceTriggerLabel on IncontinenceTrigger {
     (IncontinenceTrigger.liftingWeight, AppLanguage.portuguese) => 'Peso',
     (IncontinenceTrigger.liftingWeight, AppLanguage.english) =>
       'Lifting weight',
-    (IncontinenceTrigger.liftingWeight, AppLanguage.spanish) =>
-      'Levantar peso',
+    (IncontinenceTrigger.liftingWeight, AppLanguage.spanish) => 'Levantar peso',
     (IncontinenceTrigger.squatting, AppLanguage.portuguese) => 'Agachar',
     (IncontinenceTrigger.squatting, AppLanguage.english) => 'Squatting',
     (IncontinenceTrigger.squatting, AppLanguage.spanish) => 'Agacharse',

@@ -115,8 +115,7 @@ void main() {
       'a1',
     );
     expect(
-      (await patients.getEvolutions('p1')
-              as Success<List<EvolutionEntry>>)
+      (await patients.getEvolutions('p1') as Success<List<EvolutionEntry>>)
           .data
           .single
           .description,
@@ -176,7 +175,8 @@ void main() {
     });
     await session.onUser(testUser);
     await patients.getAll();
-    final base = (await patients.getAll() as Success<List<Patient>>).data.single;
+    final base =
+        (await patients.getAll() as Success<List<Patient>>).data.single;
     await patients.update(
       base.copyWith(personalInfo: const PersonalInfo(name: 'Local')),
     );
@@ -210,22 +210,24 @@ void main() {
     await idle();
   });
 
-  test('without a local store (web) repositories fall back to the remote',
-      () async {
-    final fallback = _MockPatientRepo();
-    when(fallback.getAll).thenAnswer((_) async => const Success(<Patient>[]));
-    final web = PatientRepositoryOffline(
-      OfflineSession(
-        vault: InMemoryKeyVault(),
-        remote: remote,
-        monitor: net.monitor,
-        currentUserId: () => testUser,
-        provider: provider,
-        enabled: false,
-      ),
-      fallback,
-    );
-    expect(await web.getAll(), isA<Success<List<Patient>>>());
-    verify(fallback.getAll).called(1);
-  });
+  test(
+    'without a local store (web) repositories fall back to the remote',
+    () async {
+      final fallback = _MockPatientRepo();
+      when(fallback.getAll).thenAnswer((_) async => const Success(<Patient>[]));
+      final web = PatientRepositoryOffline(
+        OfflineSession(
+          vault: InMemoryKeyVault(),
+          remote: remote,
+          monitor: net.monitor,
+          currentUserId: () => testUser,
+          provider: provider,
+          enabled: false,
+        ),
+        fallback,
+      );
+      expect(await web.getAll(), isA<Success<List<Patient>>>());
+      verify(fallback.getAll).called(1);
+    },
+  );
 }

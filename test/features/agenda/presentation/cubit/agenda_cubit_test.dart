@@ -207,9 +207,12 @@ void main() {
   group('AgendaCubit realtime WhatsApp confirmation', () {
     test('updates scheduled to confirmed without manual refresh', () async {
       final updates = StreamController<List<Appointment>>();
-      when(() => repository.getAll()).thenAnswer((_) async => Success([appointment]));
-      when(() => repository.watchAllForUser('fisioterapeuta-1'))
-          .thenAnswer((_) => updates.stream);
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () => repository.watchAllForUser('fisioterapeuta-1'),
+      ).thenAnswer((_) => updates.stream);
       final cubit = AgendaCubit(repository);
       await cubit.ensureLoaded();
       cubit.startRealtime('fisioterapeuta-1');
@@ -233,8 +236,9 @@ void main() {
             ? Future.value(Success([appointment]))
             : delayedFetch.future;
       });
-      when(() => repository.watchAllForUser('fisioterapeuta-1'))
-          .thenAnswer((_) => updates.stream);
+      when(
+        () => repository.watchAllForUser('fisioterapeuta-1'),
+      ).thenAnswer((_) => updates.stream);
       final cubit = AgendaCubit(repository);
       await cubit.ensureLoaded();
       cubit.startRealtime('fisioterapeuta-1');
@@ -252,9 +256,12 @@ void main() {
 
     test('ends realtime updates when the session is reset', () async {
       final updates = StreamController<List<Appointment>>();
-      when(() => repository.getAll()).thenAnswer((_) async => Success([appointment]));
-      when(() => repository.watchAllForUser('fisioterapeuta-1'))
-          .thenAnswer((_) => updates.stream);
+      when(
+        () => repository.getAll(),
+      ).thenAnswer((_) async => Success([appointment]));
+      when(
+        () => repository.watchAllForUser('fisioterapeuta-1'),
+      ).thenAnswer((_) => updates.stream);
       final cubit = AgendaCubit(repository);
       await cubit.ensureLoaded();
       cubit.startRealtime('fisioterapeuta-1');
@@ -268,5 +275,4 @@ void main() {
       await updates.close();
     });
   });
-
 }

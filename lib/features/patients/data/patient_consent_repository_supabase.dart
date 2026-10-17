@@ -35,7 +35,9 @@ class PatientConsentRepositorySupabase implements PatientConsentRepository {
           .timeout(_kPatientConsentQueryTimeout);
       return Success(row == null ? null : PatientConsent.fromJson(row));
     } on TimeoutException catch (e, st) {
-      debugPrint('[PatientConsentRepositorySupabase.getActive] timeout\n$e\n$st');
+      debugPrint(
+        '[PatientConsentRepositorySupabase.getActive] timeout\n$e\n$st',
+      );
       return Error(NetworkFailure());
     } on PostgrestException catch (e, st) {
       debugPrint(

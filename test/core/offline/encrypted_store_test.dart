@@ -41,17 +41,15 @@ void main() {
   }
 
   test('data and queue survive closing and reopening the app', () async {
-    var store = await openUserStore(
-      userId: 'u1',
-      vault: vault,
-      directory: dir,
-    );
+    var store = await openUserStore(userId: 'u1', vault: vault, directory: dir);
     await write(store);
     store.close();
 
     store = await openUserStore(userId: 'u1', vault: vault, directory: dir);
-    expect(store.getRecord('evolution_entries', 'e1')!.data['description'],
-        secret);
+    expect(
+      store.getRecord('evolution_entries', 'e1')!.data['description'],
+      secret,
+    );
     expect(store.liveOps().single.opId, 'op1');
     expect(store.counts().pending, 1);
     store.close();
@@ -77,11 +75,7 @@ void main() {
   });
 
   test('a lost key recreates an empty cache instead of crashing', () async {
-    var store = await openUserStore(
-      userId: 'u1',
-      vault: vault,
-      directory: dir,
-    );
+    var store = await openUserStore(userId: 'u1', vault: vault, directory: dir);
     await write(store);
     store.close();
 

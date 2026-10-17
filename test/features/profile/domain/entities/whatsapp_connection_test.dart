@@ -26,18 +26,16 @@ void main() {
       expect(connection.phoneNumberId, 'phone-456');
       expect(connection.displayPhoneNumber, '+55 62 99999-9999');
       expect(connection.status, WhatsappConnectionStatus.connected);
-      expect(connection.connectedAt, DateTime.parse('2026-01-10T12:00:00.000Z'));
+      expect(
+        connection.connectedAt,
+        DateTime.parse('2026-01-10T12:00:00.000Z'),
+      );
       expect(connection.disconnectedAt, isNull);
       expect(connection.lastError, isNull);
     });
 
     test('parses each known status', () {
-      for (final status in [
-        'pending',
-        'connected',
-        'disconnected',
-        'error',
-      ]) {
+      for (final status in ['pending', 'connected', 'disconnected', 'error']) {
         final connection = WhatsappConnection.fromJson({
           'id': 'c1',
           'fisioterapeuta_id': 'f1',
@@ -91,7 +89,10 @@ void main() {
         'updated_at': '2026-02-01T00:00:00.000Z',
       });
 
-      expect(connection.disconnectedAt, DateTime.parse('2026-02-01T00:00:00.000Z'));
+      expect(
+        connection.disconnectedAt,
+        DateTime.parse('2026-02-01T00:00:00.000Z'),
+      );
     });
   });
 }

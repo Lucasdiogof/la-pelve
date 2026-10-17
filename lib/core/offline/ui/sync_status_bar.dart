@@ -91,9 +91,9 @@ class _Bar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     text,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.textPrimary,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colors.textPrimary),
                   ),
                 ),
                 Icon(

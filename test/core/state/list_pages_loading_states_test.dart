@@ -62,7 +62,6 @@ void main() {
     await tester.pumpWidget(app(page, providers));
   }
 
-  // Patients ----------------------------------------------------------------
   group('Pacientes', () {
     late MockPatientRepository repository;
     late PatientsCubit cubit;
@@ -142,7 +141,6 @@ void main() {
     });
   });
 
-  // Agenda ------------------------------------------------------------------
   group('Agenda', () {
     late MockAgendaRepository repository;
     late AgendaCubit cubit;
@@ -188,7 +186,6 @@ void main() {
     });
   });
 
-  // Financeiro --------------------------------------------------------------
   group('Financeiro', () {
     late MockFinancialRepository repository;
     late FinancialCubit cubit;

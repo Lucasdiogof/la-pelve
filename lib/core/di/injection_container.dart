@@ -50,7 +50,9 @@ Future<void> initDependencies() async {
   // Offline-first (Android/iOS): banco local cifrado + fila + sincronização.
   // Na Web `enabled` é falso e os repositórios operam direto no Supabase.
   sl.registerLazySingleton<KeyVault>(SecureStorageKeyVault.new);
-  sl.registerLazySingleton<ConnectivityMonitor>(PlatformConnectivityMonitor.new);
+  sl.registerLazySingleton<ConnectivityMonitor>(
+    PlatformConnectivityMonitor.new,
+  );
   sl.registerLazySingleton<RemoteGateway>(() => SupabaseRemoteGateway(sl()));
   sl.registerLazySingleton<OfflineSession>(
     () => OfflineSession(
@@ -76,11 +78,7 @@ Future<void> initDependencies() async {
     () => FinancialRepositoryOffline(sl(), FinancialRepositorySupabase(sl())),
   );
   sl.registerLazySingleton<AgendaRepository>(
-    () => AgendaRepositoryOffline(
-      sl(),
-      AgendaRepositorySupabase(sl()),
-      sl(),
-    ),
+    () => AgendaRepositoryOffline(sl(), AgendaRepositorySupabase(sl()), sl()),
   );
   sl.registerLazySingleton<AppointmentReminderRepository>(
     () => AppointmentReminderRepositorySupabase(sl()),

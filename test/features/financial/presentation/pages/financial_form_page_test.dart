@@ -126,8 +126,12 @@ void main() {
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => FinancialCubit(financialRepository)..ensureLoaded()),
-          BlocProvider(create: (_) => PatientsCubit(patientRepository)..ensureLoaded()),
+          BlocProvider(
+            create: (_) => FinancialCubit(financialRepository)..ensureLoaded(),
+          ),
+          BlocProvider(
+            create: (_) => PatientsCubit(patientRepository)..ensureLoaded(),
+          ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp.router(
@@ -154,9 +158,7 @@ void main() {
   );
 
   Finder amountField() => find.byWidgetPredicate(
-    (w) =>
-        w is TextField &&
-        w.decoration?.hintText == _t.amountPaidHint,
+    (w) => w is TextField && w.decoration?.hintText == _t.amountPaidHint,
     description: 'campo de valor',
   );
 
@@ -341,9 +343,7 @@ void main() {
   });
 
   group('edição', () {
-    testWidgets('vem preenchido e o CTA é "Salvar alterações"', (
-      tester,
-    ) async {
+    testWidgets('vem preenchido e o CTA é "Salvar alterações"', (tester) async {
       await pumpForm(tester, existing: _existing);
 
       expect(find.text(_t.editFormPageTitle), findsOneWidget);
@@ -376,9 +376,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final entry =
-          verify(
-                () => financialRepository.update(captureAny()),
-              ).captured.single
+          verify(() => financialRepository.update(captureAny())).captured.single
               as FinancialEntry;
       expect(entry.id, 'f1');
       expect(entry.patientId, 'p1');

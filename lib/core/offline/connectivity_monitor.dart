@@ -57,7 +57,6 @@ class PlatformConnectivityMonitor implements ConnectivityMonitor {
   }
 }
 
-/// Para testes.
 class FakeConnectivityMonitor implements ConnectivityMonitor {
   FakeConnectivityMonitor({this.initiallyOnline = true})
     : _online = initiallyOnline;

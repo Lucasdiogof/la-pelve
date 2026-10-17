@@ -102,15 +102,11 @@ class SyncStrings {
         'se mantendrá como está.',
   );
 
-  // --- central de sincronização -------------------------------------------
+  String get centerTitle =>
+      _t('Sincronização', 'Synchronization', 'Sincronización');
 
-  String get centerTitle => _t(
-    'Sincronização',
-    'Synchronization',
-    'Sincronización',
-  );
-
-  String get syncNow => _t('Sincronizar agora', 'Sync now', 'Sincronizar ahora');
+  String get syncNow =>
+      _t('Sincronizar agora', 'Sync now', 'Sincronizar ahora');
 
   String get centerExplain => _t(
     'Suas alterações são salvas primeiro neste dispositivo e enviadas ao '
@@ -121,14 +117,10 @@ class SyncStrings {
         'servidor cuando hay conexión. Hasta entonces, existen solo aquí.',
   );
 
-  String get conflictsTitle =>
-      _t('Conflitos', 'Conflicts', 'Conflictos');
+  String get conflictsTitle => _t('Conflitos', 'Conflicts', 'Conflictos');
 
-  String get failuresTitle => _t(
-    'Alterações com erro',
-    'Changes with errors',
-    'Cambios con error',
-  );
+  String get failuresTitle =>
+      _t('Alterações com erro', 'Changes with errors', 'Cambios con error');
 
   String get nothingToReview => _t(
     'Nada pendente de revisão.',
@@ -138,11 +130,8 @@ class SyncStrings {
 
   String get retry => _t('Tentar de novo', 'Try again', 'Reintentar');
 
-  String get discard => _t(
-    'Descartar alteração',
-    'Discard change',
-    'Descartar cambio',
-  );
+  String get discard =>
+      _t('Descartar alteração', 'Discard change', 'Descartar cambio');
 
   String get discardConfirm => _t(
     'A alteração feita neste dispositivo será descartada e o registro volta '
@@ -153,11 +142,8 @@ class SyncStrings {
         'a la versión del servidor.',
   );
 
-  String get lastSync => _t(
-    'Última sincronização',
-    'Last sync',
-    'Última sincronización',
-  );
+  String get lastSync =>
+      _t('Última sincronização', 'Last sync', 'Última sincronización');
 
   String get never => _t('ainda não', 'not yet', 'todavía no');
 
@@ -166,8 +152,6 @@ class SyncStrings {
     'The server rejected this change.',
     'El servidor rechazó este cambio.',
   );
-
-  // --- resolução de conflito ----------------------------------------------
 
   String get conflictIntro => _t(
     'Este registro foi alterado em outro lugar enquanto você o editava '
@@ -178,7 +162,8 @@ class SyncStrings {
         'dispositivo. Nada se sobrescribió: elige qué versión conservar.',
   );
 
-  String get thisDevice => _t('Neste dispositivo', 'This device', 'Este dispositivo');
+  String get thisDevice =>
+      _t('Neste dispositivo', 'This device', 'Este dispositivo');
 
   String get onServer => _t('No servidor', 'On the server', 'En el servidor');
 
@@ -188,11 +173,8 @@ class SyncStrings {
     'Este registro se eliminó en el servidor.',
   );
 
-  String get keepMine => _t(
-    'Manter a minha versão',
-    'Keep my version',
-    'Conservar mi versión',
-  );
+  String get keepMine =>
+      _t('Manter a minha versão', 'Keep my version', 'Conservar mi versión');
 
   String get keepServer => _t(
     'Manter a do servidor',
@@ -240,8 +222,6 @@ class SyncStrings {
     ),
     _ => key,
   };
-
-  // --- logout --------------------------------------------------------------
 
   String signOutUnsynced(int n) => _t(
     'Há $n alteração(ões) que ainda não chegaram ao servidor. Sair agora '

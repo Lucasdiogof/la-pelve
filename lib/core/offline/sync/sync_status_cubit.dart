@@ -35,8 +35,7 @@ class SyncUiState {
 
   /// A faixa só aparece quando há algo que a profissional precise saber.
   bool get visible =>
-      kind != SyncUiKind.hidden &&
-      (kind != SyncUiKind.synced || justSynced);
+      kind != SyncUiKind.hidden && (kind != SyncUiKind.synced || justSynced);
 
   SyncUiState copyWith({bool? justSynced}) => SyncUiState(
     kind: kind,

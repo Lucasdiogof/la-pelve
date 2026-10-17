@@ -380,9 +380,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  // -------------------------------------------------------------------
-  // A, B, C: regra por sexo para as seções ginecológica e obstétrica
-  // -------------------------------------------------------------------
   group('seções por sexo', () {
     testWidgets('masculino: sem ginecológico e sem obstétrico', (tester) async {
       await pumpDetail(tester, _fullPatient(gender: Gender.male));
@@ -450,9 +447,6 @@ void main() {
     });
   });
 
-  // -------------------------------------------------------------------
-  // D: linhas condicionais (pergunta-mãe false/null esconde; true mostra)
-  // -------------------------------------------------------------------
   group('linhas condicionais', () {
     testWidgets('anamnese: detalhe só aparece com a pergunta-mãe = true', (
       tester,
@@ -628,9 +622,6 @@ void main() {
     });
   });
 
-  // -------------------------------------------------------------------
-  // E: valores ausentes / false / true / zero
-  // -------------------------------------------------------------------
   group('valores', () {
     testWidgets('null e vazio viram "Não informado"', (tester) async {
       await pumpDetail(
@@ -723,9 +714,6 @@ void main() {
     });
   });
 
-  // -------------------------------------------------------------------
-  // J: nenhum dado clínico some
-  // -------------------------------------------------------------------
   group('completude dos dados', () {
     testWidgets('todo texto livre e dado pessoal aparece na tela', (
       tester,
@@ -828,9 +816,6 @@ void main() {
     });
   });
 
-  // -------------------------------------------------------------------
-  // F: alta
-  // -------------------------------------------------------------------
   group('alta', () {
     final discharge = Discharge(
       date: DateTime(2026, 8, 20),
@@ -964,9 +949,6 @@ void main() {
     });
   });
 
-  // -------------------------------------------------------------------
-  // G, H, I: ações, navegação e exclusão
-  // -------------------------------------------------------------------
   group('ações e navegação', () {
     testWidgets('editar abre a edição com o paciente', (tester) async {
       await pumpDetail(tester, _fullPatient());

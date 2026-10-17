@@ -43,27 +43,24 @@ void main() {
       expect((result as PatientConsentLoadSucceeded).consent, consent);
     });
 
-    test(
-      'Success(null) é carregado como "de fato não há consentimento", '
-      'nunca como falha',
-      () async {
-        when(
-          () => repository.getActive(
-            patientId: 'p1',
-            channel: kWhatsappChannel,
-            purpose: kAppointmentReminderPurpose,
-          ),
-        ).thenAnswer((_) async => const Success(null));
-
-        final result = await loadActiveWhatsappConsent(
-          repository: repository,
+    test('Success(null) é carregado como "de fato não há consentimento", '
+        'nunca como falha', () async {
+      when(
+        () => repository.getActive(
           patientId: 'p1',
-        );
+          channel: kWhatsappChannel,
+          purpose: kAppointmentReminderPurpose,
+        ),
+      ).thenAnswer((_) async => const Success(null));
 
-        expect(result, isA<PatientConsentLoadSucceeded>());
-        expect((result as PatientConsentLoadSucceeded).consent, isNull);
-      },
-    );
+      final result = await loadActiveWhatsappConsent(
+        repository: repository,
+        patientId: 'p1',
+      );
+
+      expect(result, isA<PatientConsentLoadSucceeded>());
+      expect((result as PatientConsentLoadSucceeded).consent, isNull);
+    });
 
     test(
       'Error NUNCA é interpretado como ausência de consentimento: vira '
@@ -87,28 +84,25 @@ void main() {
       },
     );
 
-    test(
-      'um timeout do repositório (surfaced as Error) também vira '
-      'PatientConsentLoadFailed, nunca um loading sem fim',
-      () async {
-        // O repositório real já traduz timeout em Error(NetworkFailure());
-        // aqui simulamos exatamente esse contrato.
-        when(
-          () => repository.getActive(
-            patientId: 'p1',
-            channel: kWhatsappChannel,
-            purpose: kAppointmentReminderPurpose,
-          ),
-        ).thenAnswer((_) async => Error(NetworkFailure()));
-
-        final result = await loadActiveWhatsappConsent(
-          repository: repository,
+    test('um timeout do repositório (surfaced as Error) também vira '
+        'PatientConsentLoadFailed, nunca um loading sem fim', () async {
+      // O repositório real já traduz timeout em Error(NetworkFailure());
+      // aqui simulamos exatamente esse contrato.
+      when(
+        () => repository.getActive(
           patientId: 'p1',
-        ).timeout(const Duration(seconds: 1));
+          channel: kWhatsappChannel,
+          purpose: kAppointmentReminderPurpose,
+        ),
+      ).thenAnswer((_) async => Error(NetworkFailure()));
 
-        expect(result, isA<PatientConsentLoadFailed>());
-      },
-    );
+      final result = await loadActiveWhatsappConsent(
+        repository: repository,
+        patientId: 'p1',
+      ).timeout(const Duration(seconds: 1));
+
+      expect(result, isA<PatientConsentLoadFailed>());
+    });
 
     test('retry: uma segunda chamada após Error pode ter sucesso', () async {
       var callCount = 0;

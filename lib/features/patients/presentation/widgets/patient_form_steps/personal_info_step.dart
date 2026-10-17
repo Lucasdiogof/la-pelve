@@ -220,8 +220,9 @@ class _WhatsappConsentSwitch extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(
-                SyncStrings(context.watch<LocaleCubit>().state)
-                    .consentNeedsInternet,
+                SyncStrings(
+                  context.watch<LocaleCubit>().state,
+                ).consentNeedsInternet,
                 style: TextStyle(
                   color: context.colors.textSecondary,
                   fontSize: 12,

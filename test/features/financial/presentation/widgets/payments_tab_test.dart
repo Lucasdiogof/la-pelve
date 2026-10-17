@@ -45,7 +45,10 @@ void main() {
 
     final router = GoRouter(
       routes: [
-        GoRoute(path: '/', builder: (_, _) => const Scaffold(body: PaymentsTab())),
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const Scaffold(body: PaymentsTab()),
+        ),
         GoRoute(
           path: '/financeiro/novo',
           builder: (_, _) => const Scaffold(body: Text('NOVO-LANCAMENTO')),
@@ -53,9 +56,7 @@ void main() {
         GoRoute(
           path: '/financeiro/:id/editar',
           builder: (_, state) => Scaffold(
-            body: Text(
-              'EDITAR ${(state.extra! as FinancialEntry).id}',
-            ),
+            body: Text('EDITAR ${(state.extra! as FinancialEntry).id}'),
           ),
         ),
       ],
@@ -65,7 +66,9 @@ void main() {
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => FinancialCubit(repository)..ensureLoaded()),
+          BlocProvider(
+            create: (_) => FinancialCubit(repository)..ensureLoaded(),
+          ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp.router(
@@ -200,7 +203,10 @@ void main() {
     ) async {
       await pumpTab(tester, const []);
 
-      final actionFinder = find.widgetWithText(OutlinedButton, 'Registrar cobrança');
+      final actionFinder = find.widgetWithText(
+        OutlinedButton,
+        'Registrar cobrança',
+      );
       expect(actionFinder, findsOneWidget);
 
       await tester.tap(actionFinder);
@@ -273,9 +279,7 @@ void main() {
       expect(find.text('Sem nome'), findsOneWidget);
     });
 
-    testWidgets('nome longo aparece inteiro, sem reticências', (
-      tester,
-    ) async {
+    testWidgets('nome longo aparece inteiro, sem reticências', (tester) async {
       const longName = 'Maria Aparecida Fernandes de Albuquerque Souza';
       await pumpTab(tester, [
         FinancialEntry(
@@ -296,24 +300,23 @@ void main() {
   });
 
   group('responsivo', () {
-    testWidgets('390px normal usa o layout lado a lado (nome e valor na mesma linha)', (
-      tester,
-    ) async {
-      await pumpTab(tester, [
-        FinancialEntry(
-          id: 'f1',
-          patientName: 'Maria',
-          date: DateTime(2026, 10, 1),
-          amount: 180,
-        ),
-      ]);
+    testWidgets(
+      '390px normal usa o layout lado a lado (nome e valor na mesma linha)',
+      (tester) async {
+        await pumpTab(tester, [
+          FinancialEntry(
+            id: 'f1',
+            patientName: 'Maria',
+            date: DateTime(2026, 10, 1),
+            amount: 180,
+          ),
+        ]);
 
-      expect(top(tester, 'Maria'), top(tester, 'R\$ 180,00'));
-    });
+        expect(top(tester, 'Maria'), top(tester, 'R\$ 180,00'));
+      },
+    );
 
-    testWidgets('360px com textScale 1.3 empilha nome e valor', (
-      tester,
-    ) async {
+    testWidgets('360px com textScale 1.3 empilha nome e valor', (tester) async {
       const longName = 'Maria Aparecida Fernandes de Albuquerque Souza';
       await pumpTab(
         tester,

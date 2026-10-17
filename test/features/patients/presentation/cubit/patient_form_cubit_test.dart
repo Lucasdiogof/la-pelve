@@ -267,9 +267,7 @@ void main() {
     void setPhone(PatientFormCubit cubit, String phone) {
       cubit.updatePatient(
         cubit.state.patient.copyWith(
-          personalInfo: cubit.state.patient.personalInfo.copyWith(
-            phone: phone,
-          ),
+          personalInfo: cubit.state.patient.personalInfo.copyWith(phone: phone),
         ),
       );
     }
@@ -293,34 +291,28 @@ void main() {
       },
     );
 
-    test(
-      'existing patient with an active consent for the current number '
-      'starts with the switch on',
-      () {
-        final cubit = PatientFormCubit(
-          existingPatient: patientWithPhone('62999999999'),
-          existingConsent: consentFor('+5562999999999'),
-        );
+    test('existing patient with an active consent for the current number '
+        'starts with the switch on', () {
+      final cubit = PatientFormCubit(
+        existingPatient: patientWithPhone('62999999999'),
+        existingConsent: consentFor('+5562999999999'),
+      );
 
-        expect(cubit.whatsappReminderConsent, isTrue);
-        cubit.close();
-      },
-    );
+      expect(cubit.whatsappReminderConsent, isTrue);
+      cubit.close();
+    });
 
-    test(
-      'existing patient with an active consent for a different number '
-      'starts with the switch off',
-      () {
-        final cubit = PatientFormCubit(
-          existingPatient: patientWithPhone('62999999999'),
-          existingConsent: consentFor('+5562988888888'),
-        );
+    test('existing patient with an active consent for a different number '
+        'starts with the switch off', () {
+      final cubit = PatientFormCubit(
+        existingPatient: patientWithPhone('62999999999'),
+        existingConsent: consentFor('+5562988888888'),
+      );
 
-        expect(cubit.whatsappReminderConsent, isFalse);
-        expect(cubit.whatsappConsentPhoneChanged, isTrue);
-        cubit.close();
-      },
-    );
+      expect(cubit.whatsappReminderConsent, isFalse);
+      expect(cubit.whatsappConsentPhoneChanged, isTrue);
+      cubit.close();
+    });
 
     test('setWhatsappConsent is a no-op when the phone is invalid', () {
       final cubit = PatientFormCubit(
@@ -369,48 +361,42 @@ void main() {
       cubit.close();
     });
 
-    test(
-      'editing an unrelated field keeps the switch on when the phone stays '
-      'the same',
-      () {
-        final cubit = PatientFormCubit(
-          existingPatient: patientWithPhone('62999999999'),
-          existingConsent: consentFor('+5562999999999'),
-        );
-        expect(cubit.whatsappReminderConsent, isTrue);
+    test('editing an unrelated field keeps the switch on when the phone stays '
+        'the same', () {
+      final cubit = PatientFormCubit(
+        existingPatient: patientWithPhone('62999999999'),
+        existingConsent: consentFor('+5562999999999'),
+      );
+      expect(cubit.whatsappReminderConsent, isTrue);
 
-        cubit.updatePatient(
-          cubit.state.patient.copyWith(
-            personalInfo: cubit.state.patient.personalInfo.copyWith(
-              occupation: 'Engenheira',
-            ),
+      cubit.updatePatient(
+        cubit.state.patient.copyWith(
+          personalInfo: cubit.state.patient.personalInfo.copyWith(
+            occupation: 'Engenheira',
           ),
-        );
+        ),
+      );
 
-        expect(cubit.whatsappReminderConsent, isTrue);
-        cubit.close();
-      },
-    );
+      expect(cubit.whatsappReminderConsent, isTrue);
+      cubit.close();
+    });
 
     group('A -> B -> A round trip (regression)', () {
-      test(
-        'active consent for A, moves to B and back to A without touching '
-        'the switch: switch returns to on',
-        () {
-          final cubit = PatientFormCubit(
-            existingPatient: patientWithPhone('62999999999'), // A
-            existingConsent: consentFor('+5562999999999'), // A
-          );
-          expect(cubit.whatsappReminderConsent, isTrue);
+      test('active consent for A, moves to B and back to A without touching '
+          'the switch: switch returns to on', () {
+        final cubit = PatientFormCubit(
+          existingPatient: patientWithPhone('62999999999'), // A
+          existingConsent: consentFor('+5562999999999'), // A
+        );
+        expect(cubit.whatsappReminderConsent, isTrue);
 
-          setPhone(cubit, '62988888888'); // A -> B
-          expect(cubit.whatsappReminderConsent, isFalse);
+        setPhone(cubit, '62988888888'); // A -> B
+        expect(cubit.whatsappReminderConsent, isFalse);
 
-          setPhone(cubit, '62999999999'); // B -> A
-          expect(cubit.whatsappReminderConsent, isTrue);
-          cubit.close();
-        },
-      );
+        setPhone(cubit, '62999999999'); // B -> A
+        expect(cubit.whatsappReminderConsent, isTrue);
+        cubit.close();
+      });
 
       test(
         'manually turning the switch off for A keeps it off after A -> B -> A',

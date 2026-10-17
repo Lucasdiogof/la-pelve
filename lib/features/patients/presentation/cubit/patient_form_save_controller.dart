@@ -92,7 +92,8 @@ class PatientFormSaveController {
       final ensure = ensureOnServer;
       final onServer = ensure == null || await ensure(state.patient.id);
       if (!onServer) {
-        final consentPending = !formCubit.consentUnavailable &&
+        final consentPending =
+            !formCubit.consentUnavailable &&
             _consentNeedsServer(formCubit, state);
         return PatientSaveSucceeded(
           isEditing: formCubit.isEditing,

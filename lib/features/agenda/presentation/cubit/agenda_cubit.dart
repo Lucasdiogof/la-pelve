@@ -23,18 +23,20 @@ class AgendaCubit extends ResourceCubit<List<Appointment>> {
   void startRealtime(String userId) {
     stopRealtime();
     final generation = _realtimeGeneration;
-    _realtimeSubscription = _repository.watchAllForUser(userId).listen(
-      (appointments) {
-        if (isClosed || generation != _realtimeGeneration) return;
-        applyExternalData(appointments);
-      },
-      onError: (Object error, StackTrace stackTrace) {
-        debugPrint('[AgendaCubit] realtime error: ${error.runtimeType}');
-        if (!isClosed && generation == _realtimeGeneration) {
-          unawaited(refresh());
-        }
-      },
-    );
+    _realtimeSubscription = _repository
+        .watchAllForUser(userId)
+        .listen(
+          (appointments) {
+            if (isClosed || generation != _realtimeGeneration) return;
+            applyExternalData(appointments);
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            debugPrint('[AgendaCubit] realtime error: ${error.runtimeType}');
+            if (!isClosed && generation == _realtimeGeneration) {
+              unawaited(refresh());
+            }
+          },
+        );
   }
 
   void stopRealtime() {

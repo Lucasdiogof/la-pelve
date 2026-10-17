@@ -143,13 +143,15 @@ void main() {
       status: st,
     );
 
-    test('abre uma única inscrição por usuário e reaproveita no mesmo usuário',
-        () async {
-      h.controller.onSessionUser('user-a');
-      h.controller.onSessionUser('user-a');
-      expect(h.realtimeUsers, ['user-a']);
-      expect(h.agendaRealtime.hasListener, isTrue);
-    });
+    test(
+      'abre uma única inscrição por usuário e reaproveita no mesmo usuário',
+      () async {
+        h.controller.onSessionUser('user-a');
+        h.controller.onSessionUser('user-a');
+        expect(h.realtimeUsers, ['user-a']);
+        expect(h.agendaRealtime.hasListener, isTrue);
+      },
+    );
 
     test('confirmação via webhook aparece sem refresh manual', () async {
       h.agendaAnswer = () async =>

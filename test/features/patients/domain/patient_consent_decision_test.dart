@@ -35,19 +35,16 @@ void main() {
       expect(decision.mustGrantNew, isTrue);
     });
 
-    test(
-      'active consent, same number, switch on: stays untouched',
-      () {
-        final decision = PatientConsentDecision.compute(
-          original: activeConsent,
-          newContactValue: activeConsent.contactValue,
-          choice: true,
-        );
+    test('active consent, same number, switch on: stays untouched', () {
+      final decision = PatientConsentDecision.compute(
+        original: activeConsent,
+        newContactValue: activeConsent.contactValue,
+        choice: true,
+      );
 
-        expect(decision.mustRevokeOriginal, isFalse);
-        expect(decision.mustGrantNew, isFalse);
-      },
-    );
+      expect(decision.mustRevokeOriginal, isFalse);
+      expect(decision.mustGrantNew, isFalse);
+    });
 
     test('active consent, same number, switch off: revokes only', () {
       final decision = PatientConsentDecision.compute(
@@ -74,19 +71,16 @@ void main() {
       },
     );
 
-    test(
-      'active consent, number changed, switch re-enabled: revokes the old '
-      'one and grants a new consent for the new number',
-      () {
-        final decision = PatientConsentDecision.compute(
-          original: activeConsent,
-          newContactValue: '+5562988888888',
-          choice: true,
-        );
+    test('active consent, number changed, switch re-enabled: revokes the old '
+        'one and grants a new consent for the new number', () {
+      final decision = PatientConsentDecision.compute(
+        original: activeConsent,
+        newContactValue: '+5562988888888',
+        choice: true,
+      );
 
-        expect(decision.mustRevokeOriginal, isTrue);
-        expect(decision.mustGrantNew, isTrue);
-      },
-    );
+      expect(decision.mustRevokeOriginal, isTrue);
+      expect(decision.mustGrantNew, isTrue);
+    });
   });
 }

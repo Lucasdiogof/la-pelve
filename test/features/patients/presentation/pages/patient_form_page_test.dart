@@ -82,9 +82,7 @@ void main() {
     if (sl.isRegistered<AttachmentRepository>()) {
       sl.unregister<AttachmentRepository>();
     }
-    sl.registerLazySingleton<PatientConsentRepository>(
-      () => consentRepository,
-    );
+    sl.registerLazySingleton<PatientConsentRepository>(() => consentRepository);
     sl.registerLazySingleton<AttachmentRepository>(
       () => _MockAttachmentRepository(),
     );
@@ -95,31 +93,28 @@ void main() {
   });
 
   group('PatientFormPage — falha ao carregar o consentimento ativo', () {
-    testWidgets(
-      'getActive() retornando Error mostra o estado de erro, não o '
-      'formulário, com os botões Tentar novamente e Voltar',
-      (tester) async {
-        when(
-          () => consentRepository.getActive(
-            patientId: patient.id,
-            channel: kWhatsappChannel,
-            purpose: kAppointmentReminderPurpose,
-          ),
-        ).thenAnswer((_) async => Error(ServerFailure()));
+    testWidgets('getActive() retornando Error mostra o estado de erro, não o '
+        'formulário, com os botões Tentar novamente e Voltar', (tester) async {
+      when(
+        () => consentRepository.getActive(
+          patientId: patient.id,
+          channel: kWhatsappChannel,
+          purpose: kAppointmentReminderPurpose,
+        ),
+      ).thenAnswer((_) async => Error(ServerFailure()));
 
-        await pumpFormPage(tester);
+      await pumpFormPage(tester);
 
-        // Estado de erro visível.
-        expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
-        expect(find.text('Tentar novamente'), findsOneWidget);
-        expect(find.text('Voltar'), findsOneWidget);
+      // Estado de erro visível.
+      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+      expect(find.text('Tentar novamente'), findsOneWidget);
+      expect(find.text('Voltar'), findsOneWidget);
 
-        // O formulário (wizard com os campos do passo "Dados pessoais") NÃO
-        // aparece: nenhum campo de nome/telefone é montado.
-        expect(find.text('Dados pessoais'), findsNothing);
-        expect(find.byType(TextFormField), findsNothing);
-      },
-    );
+      // O formulário (wizard com os campos do passo "Dados pessoais") NÃO
+      // aparece: nenhum campo de nome/telefone é montado.
+      expect(find.text('Dados pessoais'), findsNothing);
+      expect(find.byType(TextFormField), findsNothing);
+    });
 
     testWidgets(
       'tocar "Tentar novamente" refaz a chamada e, se a segunda tiver '
@@ -151,40 +146,37 @@ void main() {
       },
     );
 
-    testWidgets(
-      'tocar "Tentar novamente" e a segunda chamada retornar um '
-      'consentimento ativo também monta o formulário',
-      (tester) async {
-        final consent = PatientConsent(
-          id: 'c1',
+    testWidgets('tocar "Tentar novamente" e a segunda chamada retornar um '
+        'consentimento ativo também monta o formulário', (tester) async {
+      final consent = PatientConsent(
+        id: 'c1',
+        patientId: patient.id,
+        channel: kWhatsappChannel,
+        purpose: kAppointmentReminderPurpose,
+        contactValue: '+5562999999999',
+        grantedAt: DateTime.utc(2026, 1, 1),
+      );
+      var callCount = 0;
+      when(
+        () => consentRepository.getActive(
           patientId: patient.id,
           channel: kWhatsappChannel,
           purpose: kAppointmentReminderPurpose,
-          contactValue: '+5562999999999',
-          grantedAt: DateTime.utc(2026, 1, 1),
-        );
-        var callCount = 0;
-        when(
-          () => consentRepository.getActive(
-            patientId: patient.id,
-            channel: kWhatsappChannel,
-            purpose: kAppointmentReminderPurpose,
-          ),
-        ).thenAnswer((_) async {
-          callCount++;
-          if (callCount == 1) return Error(ServerFailure());
-          return Success(consent);
-        });
+        ),
+      ).thenAnswer((_) async {
+        callCount++;
+        if (callCount == 1) return Error(ServerFailure());
+        return Success(consent);
+      });
 
-        await pumpFormPage(tester);
-        await tester.tap(find.text('Tentar novamente'));
-        await _pumpPastLoading(tester);
+      await pumpFormPage(tester);
+      await tester.tap(find.text('Tentar novamente'));
+      await _pumpPastLoading(tester);
 
-        expect(callCount, 2);
-        expect(find.text('Tentar novamente'), findsNothing);
-        expect(find.text('Dados pessoais'), findsOneWidget);
-      },
-    );
+      expect(callCount, 2);
+      expect(find.text('Tentar novamente'), findsNothing);
+      expect(find.text('Dados pessoais'), findsOneWidget);
+    });
 
     testWidgets('tocar "Voltar" fecha a tela normalmente', (tester) async {
       when(

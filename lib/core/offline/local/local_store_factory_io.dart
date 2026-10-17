@@ -41,8 +41,10 @@ Future<LocalStore> openUserStore({
   } on SqliteException catch (e) {
     // Chave perdida/arquivo corrompido: o cache é descartável (o servidor é a
     // fonte da verdade). Recria vazio em vez de travar o app.
-    debugPrint('[Offline] banco local ilegível (${e.extendedResultCode}); '
-        'recriando');
+    debugPrint(
+      '[Offline] banco local ilegível (${e.extendedResultCode}); '
+      'recriando',
+    );
     await _deleteFiles(file);
     return SqliteLocalStore(_open(file.path, key), userId: userId);
   }

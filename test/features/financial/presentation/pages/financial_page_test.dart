@@ -25,7 +25,10 @@ const _t = FinancialStrings(AppLanguage.portuguese);
 void main() {
   late _FakeFinancialRepository repository;
 
-  Future<void> pumpPage(WidgetTester tester, {List<FinancialEntry>? entries}) async {
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    List<FinancialEntry>? entries,
+  }) async {
     tester.platformDispatcher.localeTestValue = const Locale('pt', 'BR');
     addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     repository = _FakeFinancialRepository();
@@ -47,7 +50,9 @@ void main() {
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => FinancialCubit(repository)..ensureLoaded()),
+          BlocProvider(
+            create: (_) => FinancialCubit(repository)..ensureLoaded(),
+          ),
           BlocProvider(create: (_) => LocaleCubit()),
         ],
         child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),

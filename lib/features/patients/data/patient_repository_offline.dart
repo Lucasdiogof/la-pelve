@@ -26,9 +26,8 @@ class PatientRepositoryOffline implements PatientRepository {
     read: (store) {
       final records = store.listRecords(_patients)
         ..sort(
-          (a, b) => '${a.data['created_at']}'.compareTo(
-            '${b.data['created_at']}',
-          ),
+          (a, b) =>
+              '${a.data['created_at']}'.compareTo('${b.data['created_at']}'),
         );
       return [for (final r in records) Patient.fromJson(asJson(r.data))];
     },
@@ -66,32 +65,29 @@ class PatientRepositoryOffline implements PatientRepository {
   );
 
   @override
-  Future<Result<List<EvolutionEntry>>> getEvolutions(String patientId) =>
-      offlineRead(
-        session: _session,
-        kind: _evolutions,
-        fallback: () => _remote.getEvolutions(patientId),
-        read: (store) {
-          final records =
-              store
-                  .listRecords(_evolutions)
-                  .where((r) => r.data['patient_id'] == patientId)
-                  .toList()
-                ..sort((a, b) {
-                  final byDate = '${a.data['date']}'.compareTo(
-                    '${b.data['date']}',
-                  );
-                  return byDate != 0
-                      ? byDate
-                      : '${a.data['created_at']}'.compareTo(
-                          '${b.data['created_at']}',
-                        );
-                });
-          return [
-            for (final r in records) EvolutionEntry.fromJson(asJson(r.data)),
-          ];
-        },
-      );
+  Future<Result<List<EvolutionEntry>>> getEvolutions(
+    String patientId,
+  ) => offlineRead(
+    session: _session,
+    kind: _evolutions,
+    fallback: () => _remote.getEvolutions(patientId),
+    read: (store) {
+      final records =
+          store
+              .listRecords(_evolutions)
+              .where((r) => r.data['patient_id'] == patientId)
+              .toList()
+            ..sort((a, b) {
+              final byDate = '${a.data['date']}'.compareTo('${b.data['date']}');
+              return byDate != 0
+                  ? byDate
+                  : '${a.data['created_at']}'.compareTo(
+                      '${b.data['created_at']}',
+                    );
+            });
+      return [for (final r in records) EvolutionEntry.fromJson(asJson(r.data))];
+    },
+  );
 
   @override
   Future<Result<void>> addEvolution(EvolutionEntry entry) => offlineWrite(
