@@ -53,6 +53,12 @@ dependencies:
   url_launcher: ^6.3.1 # Opens PDFs externally in the device's own viewer
   local_auth: ^2.3.0 # Biometric authentication (Perfil toggle + app lock)
   shared_preferences: ^2.3.3 # Persists the device-local biometria preference
+  sqlite3: ^3.7.1 # Local offline store (SQLite3 Multiple Ciphers, encrypted at rest)
+  flutter_secure_storage: ^10.3.4 # Keychain/Keystore holder of the local DB key
+  connectivity_plus: ^7.3.1 # Network interface changes (offline indicator + sync trigger)
+  path_provider: ^2.1.6
+  path: ^1.9.1
+  crypto: ^3.0.7 # Hashes the user id into the local DB file name
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +74,11 @@ dev_dependencies:
   bloc_test: ^10.0.0 # Testing utilities for Blocs/Cubits
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.3
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc # encrypted SQLite (ChaCha20) for the offline store
 
 flutter_launcher_icons:
   android: true

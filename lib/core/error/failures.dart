@@ -74,3 +74,18 @@ class UnexpectedFailure extends Failure {
     AppLanguage.spanish => 'Error inesperado.',
   };
 }
+
+/// O registro tem um conflito de sincronização em aberto: a profissional
+/// precisa escolher qual versão manter antes de editar de novo.
+class SyncConflictFailure extends Failure {
+  SyncConflictFailure([String? message]) : super(message ?? _defaultMessage());
+
+  static String _defaultMessage() => switch (_currentLanguage()) {
+    AppLanguage.portuguese =>
+      'Este registro tem um conflito de sincronização. Resolva-o antes de editar.',
+    AppLanguage.english =>
+      'This record has a sync conflict. Resolve it before editing.',
+    AppLanguage.spanish =>
+      'Este registro tiene un conflicto de sincronización. Resuélvelo antes de editar.',
+  };
+}
