@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/ui/save_feedback.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
@@ -136,9 +138,11 @@ class _AgendaFormPageState extends State<AgendaFormPage> {
     switch (result) {
       case Success():
         context.pop();
-        await AppInfoBottomSheet.showSuccess(
+        await showSavedFeedback(
           context,
-          description: existing == null
+          kind: 'appointments',
+          id: appointment.id,
+          successMessage: existing == null
               ? t.appointmentCreatedSuccess
               : t.appointmentUpdatedSuccess,
         );

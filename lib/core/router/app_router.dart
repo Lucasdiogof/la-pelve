@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/offline/ui/sync_center_page.dart';
 import 'package:la_pelve/core/router/app_page.dart';
 import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:la_pelve/core/session/session_data_gate.dart';
@@ -179,6 +180,11 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
       ),
+    ),
+    GoRoute(
+      path: '/sincronizacao',
+      pageBuilder: (context, state) =>
+          appPage(state, _authenticated(const SyncCenterPage())),
     ),
     GoRoute(
       path: '/perfil',

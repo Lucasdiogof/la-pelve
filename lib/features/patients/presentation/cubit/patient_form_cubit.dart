@@ -44,9 +44,12 @@ extension PatientFormStepTitle on PatientFormStep {
 }
 
 class PatientFormCubit extends Cubit<PatientFormState> {
-  PatientFormCubit({Patient? existingPatient, PatientConsent? existingConsent})
-    : isEditing = existingPatient != null,
-      originalConsent = existingConsent,
+  PatientFormCubit({
+    Patient? existingPatient,
+    PatientConsent? existingConsent,
+    this.consentUnavailable = false,
+  }) : isEditing = existingPatient != null,
+       originalConsent = existingConsent,
       super(
         PatientFormState(
           patient:
@@ -56,6 +59,11 @@ class PatientFormCubit extends Cubit<PatientFormState> {
       );
 
   final bool isEditing;
+
+  /// true quando o consentimento de WhatsApp não pôde ser lido (sem internet):
+  /// o formulário abre para edição, mas NÃO altera consentimento (que é
+  /// registro legal e só se muda online) — fica como está.
+  final bool consentUnavailable;
 
   /// Consentimento ativo (whatsapp/appointment_reminder) que já existia
   /// quando o formulário foi aberto, carregado antes da criação deste cubit.

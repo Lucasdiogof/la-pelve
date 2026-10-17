@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/ui/save_feedback.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/error/result.dart';
@@ -152,9 +154,11 @@ class _FinancialFormPageState extends State<FinancialFormPage> {
     switch (result) {
       case Success():
         context.pop();
-        await AppInfoBottomSheet.showSuccess(
+        await showSavedFeedback(
           context,
-          description: existing == null
+          kind: 'financial_entries',
+          id: entry.id,
+          successMessage: existing == null
               ? t.paymentRegisteredSuccess
               : t.paymentUpdatedSuccess,
         );

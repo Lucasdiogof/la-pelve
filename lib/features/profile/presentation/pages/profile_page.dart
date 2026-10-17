@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/offline_session.dart';
+import 'package:la_pelve/core/offline/ui/sync_strings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
@@ -105,11 +107,16 @@ class ProfilePage extends StatelessWidget {
   }
 
   Future<void> _signOut(BuildContext context) async {
-    final t = ProfileStrings(context.read<LocaleCubit>().state);
+    final language = context.read<LocaleCubit>().state;
+    final t = ProfileStrings(language);
+    // Sair apaga o cache local: avisa se ainda há algo que só existe aqui.
+    final unsynced = maybeSl<OfflineSession>()?.unsyncedCount ?? 0;
     final confirmed = await AppConfirmSheet.show(
       context,
       title: t.signOutTitle,
-      description: t.signOutConfirmDescription,
+      description: unsynced > 0
+          ? SyncStrings(language).signOutUnsynced(unsynced)
+          : t.signOutConfirmDescription,
       confirmLabel: t.signOutTitle,
       isDestructive: true,
     );

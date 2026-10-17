@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/ui/save_feedback.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/error/result.dart';
@@ -110,9 +112,11 @@ class PatientDetailPage extends StatelessWidget {
     if (!context.mounted) return;
     switch (result) {
       case Success():
-        await AppInfoBottomSheet.showSuccess(
+        await showSavedFeedback(
           context,
-          description: successMessage,
+          kind: 'patients',
+          id: current.id,
+          successMessage: successMessage,
         );
       case Error(:final failure):
         await AppInfoBottomSheet.showError(

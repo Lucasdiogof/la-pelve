@@ -19,7 +19,15 @@ class PatientSaveSucceeded extends PatientSaveOutcome {
   const PatientSaveSucceeded({
     required this.isEditing,
     required this.consentFailed,
+    this.savedOnlyOnDevice = false,
+    this.onlineStepsSkipped = false,
   });
+
+  /// O paciente só existe neste aparelho (ainda não chegou ao servidor).
+  final bool savedOnlyOnDevice;
+
+  /// Anexos/consentimento que dependiam de internet ficaram para depois.
+  final bool onlineStepsSkipped;
 
   final bool isEditing;
 
@@ -49,7 +57,12 @@ class PatientFormSaveController {
     required this.patientsCubit,
     required this.attachmentRepository,
     required this.consentRepository,
+    this.ensureOnServer,
   });
+
+  /// Garante que o paciente já está no servidor antes de anexos e
+  /// consentimento (que o referenciam). Null = gravação já foi direta.
+  final Future<bool> Function(String patientId)? ensureOnServer;
 
   final PatientsCubit patientsCubit;
   final AttachmentRepository attachmentRepository;
@@ -76,6 +89,20 @@ class PatientFormSaveController {
         return PatientSaveFailed(failure);
       }
 
+      final ensure = ensureOnServer;
+      final onServer = ensure == null || await ensure(state.patient.id);
+      if (!onServer) {
+        final consentPending = !formCubit.consentUnavailable &&
+            _consentNeedsServer(formCubit, state);
+        return PatientSaveSucceeded(
+          isEditing: formCubit.isEditing,
+          consentFailed: false,
+          savedOnlyOnDevice: true,
+          onlineStepsSkipped:
+              state.assessmentFiles.isNotEmpty || consentPending,
+        );
+      }
+
       if (state.assessmentFiles.isNotEmpty) {
         for (final file in state.assessmentFiles) {
           await attachmentRepository.upload(
@@ -89,10 +116,12 @@ class PatientFormSaveController {
       }
 
       var consentFailed = false;
-      try {
-        await _reconcileWhatsappConsent(formCubit, state);
-      } catch (_) {
-        consentFailed = true;
+      if (!formCubit.consentUnavailable) {
+        try {
+          await _reconcileWhatsappConsent(formCubit, state);
+        } catch (_) {
+          consentFailed = true;
+        }
       }
 
       return PatientSaveSucceeded(
@@ -102,6 +131,18 @@ class PatientFormSaveController {
     } finally {
       _isSaving = false;
     }
+  }
+
+  bool _consentNeedsServer(PatientFormCubit formCubit, PatientFormState state) {
+    final decision = PatientConsentDecision.compute(
+      original: formCubit.originalConsent,
+      newContactValue: state.patient.personalInfo.phoneE164,
+      choice: resolveWhatsappConsentChoice(
+        originalConsent: formCubit.originalConsent,
+        formState: state,
+      ),
+    );
+    return decision.mustRevokeOriginal || decision.mustGrantNew;
   }
 
   /// Nunca desfaz nem altera o cadastro do paciente: uma falha aqui só é

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:la_pelve/core/offline/offline_session.dart';
 import 'package:la_pelve/core/config/env_config.dart';
 import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/network_errors.dart';
@@ -11,9 +12,12 @@ import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._client);
+  AuthRepositoryImpl(this._client, {this.offline});
 
   final SupabaseClient _client;
+
+  /// Dados offline do usuário: apagados quando ele sai da conta de propósito.
+  final OfflineSession? offline;
 
   AppLanguage get _language {
     if (!GetIt.instance.isRegistered<LocaleCubit>()) {
@@ -120,7 +124,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> signOut() async {
     try {
+      final userId = _client.auth.currentUser?.id;
       await _client.auth.signOut();
+      // Logout explícito: o cache clínico local não pode sobreviver à conta.
+      if (userId != null) await offline?.wipeUser(userId);
       return const Success(null);
     } catch (e, st) {
       debugPrint('[AuthRepository.signOut] $e\n$st');
@@ -135,6 +142,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userId != null) await _deleteAllUserFiles(userId);
       await _client.rpc<void>('delete_own_account');
       await _client.auth.signOut();
+      if (userId != null) await offline?.wipeUser(userId);
       return const Success(null);
     } on PostgrestException catch (e, st) {
       debugPrint(

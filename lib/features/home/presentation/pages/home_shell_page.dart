@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/offline/sync/sync_status_cubit.dart';
+import 'package:la_pelve/core/offline/ui/sync_status_bar.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/features/agenda/presentation/pages/agenda_page.dart';
 import 'package:la_pelve/features/financial/presentation/pages/financial_page.dart';
@@ -28,6 +31,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.strings.home;
+    final syncCubit = maybeSl<SyncStatusCubit>();
     return BlocProvider.value(
       value: _shellCubit,
       child: BlocBuilder<HomeShellCubit, HomeShellState>(
@@ -39,7 +43,18 @@ class _HomeShellPageState extends State<HomeShellPage> {
             FinancialPage(key: ValueKey(shellState.financialResetKey)),
           ];
           return Scaffold(
-            body: IndexedStack(index: shellState.index, children: pages),
+            body: Column(
+              children: [
+                Expanded(
+                  child: IndexedStack(index: shellState.index, children: pages),
+                ),
+                if (syncCubit != null)
+                  BlocProvider.value(
+                    value: syncCubit,
+                    child: const SyncStatusBar(),
+                  ),
+              ],
+            ),
             // Barra inferior: superfície + linha de 1px no topo, sem pílula,
             // sem sombra e sem cantos arredondados (cores no
             // navigationBarTheme).

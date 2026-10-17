@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/ui/save_feedback.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
@@ -84,29 +86,30 @@ class _EvolutionFormPageState extends State<EvolutionFormPage> {
     final t = PatientsStrings(context.read<LocaleCubit>().state);
     _formCubit.setSaving(true);
     final date = _formCubit.state.date;
-    final result = _isEditing
-        ? await sl<PatientRepository>().updateEvolution(
-            widget.existingEntry!.copyWith(
-              date: date!,
-              description: _descricaoController.text.trim(),
-              updatedAt: DateTime.now(),
-            ),
+    final entry = _isEditing
+        ? widget.existingEntry!.copyWith(
+            date: date!,
+            description: _descricaoController.text.trim(),
+            updatedAt: DateTime.now(),
           )
-        : await sl<PatientRepository>().addEvolution(
-            EvolutionEntry(
-              id: generateId(),
-              patientId: widget.patientId,
-              date: date!,
-              description: _descricaoController.text.trim(),
-            ),
+        : EvolutionEntry(
+            id: generateId(),
+            patientId: widget.patientId,
+            date: date!,
+            description: _descricaoController.text.trim(),
           );
+    final result = _isEditing
+        ? await sl<PatientRepository>().updateEvolution(entry)
+        : await sl<PatientRepository>().addEvolution(entry);
     if (!mounted) return;
     switch (result) {
       case Success():
         context.pop();
-        await AppInfoBottomSheet.showSuccess(
+        await showSavedFeedback(
           context,
-          description: _isEditing
+          kind: 'evolution_entries',
+          id: entry.id,
+          successMessage: _isEditing
               ? t.evolutionUpdatedSuccess
               : t.evolutionCreatedSuccess,
         );

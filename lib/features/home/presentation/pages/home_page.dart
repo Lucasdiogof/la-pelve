@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
@@ -55,6 +57,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _refreshAll({bool reportFailure = false}) async {
+    // Envia pendências e baixa o servidor; o espelho local avisa as telas.
+    final sync = maybeSl<SessionDataController>()?.syncNow();
+    if (reportFailure && sync != null) await sync;
+    if (!mounted) return;
     final patients = context.read<PatientsCubit>();
     final agenda = context.read<AgendaCubit>();
     final financial = context.read<FinancialCubit>();

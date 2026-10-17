@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/offline/offline_session.dart';
 import 'package:la_pelve/core/state/resource_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/financial/presentation/cubit/financial_cubit.dart';
@@ -25,12 +26,23 @@ class SessionDataController {
     required this.agenda,
     required this.financial,
     required this.profile,
-  });
+    this.offline,
+  }) {
+    _offlineChanges = offline?.dataChanged.listen(_onLocalDataChanged);
+  }
 
   final PatientsCubit patients;
   final AgendaCubit agenda;
   final FinancialCubit financial;
   final ProfileCubit profile;
+
+  /// Armazenamento offline da sessão (null na Web ou nos testes).
+  final OfflineSession? offline;
+  // Vive tanto quanto o controlador (singleton do processo).
+  // ignore: cancel_subscriptions
+  StreamSubscription<Set<String>>? _offlineChanges;
+
+  Future<void> dispose() async => _offlineChanges?.cancel();
 
   String? _userId;
   Future<void>? _bootstrap;
@@ -96,6 +108,28 @@ class SessionDataController {
     for (final resource in criticalResources) resource.refresh(),
   ]);
 
+  /// O espelho local mudou (pull do servidor, fim de envio, conflito
+  /// resolvido): as telas releem o local, o que é instantâneo.
+  void _onLocalDataChanged(Set<String> kinds) {
+    if (kinds.contains('patients') || kinds.contains('evolution_entries')) {
+      unawaited(patients.refresh());
+    }
+    if (kinds.contains('appointments')) unawaited(agenda.refresh());
+    if (kinds.contains('financial_entries')) unawaited(financial.refresh());
+  }
+
+  /// Sincroniza com o servidor agora (pull-to-refresh, volta do background).
+  /// Sem armazenamento offline não faz nada: os cubits já leem o servidor.
+  Future<void> syncNow({Duration timeout = const Duration(seconds: 20)}) async {
+    final engine = offline?.active?.engine;
+    if (engine == null) return;
+    try {
+      await engine.sync(force: true).timeout(timeout);
+    } on Object {
+      // Falha de rede aparece no indicador de sincronização.
+    }
+  }
+
   /// Chamado a cada evento de autenticação com o usuário da sessão atual
   /// (`null` sem sessão). Usuário diferente do anterior apaga tudo antes de
   /// qualquer tela autenticada ser montada para o novo usuário.
@@ -103,6 +137,8 @@ class SessionDataController {
     if (userId == _userId) return;
     clear();
     _userId = userId;
+    // Antes de qualquer leitura: o banco local deste usuário (e só dele).
+    unawaited(offline?.onUser(userId));
     if (userId != null) agenda.startRealtime(userId);
   }
 

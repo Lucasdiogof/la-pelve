@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/offline/offline_session.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/state/data_state.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
@@ -76,7 +77,11 @@ class EvolutionListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => EvolutionListCubit(sl<PatientRepository>(), patient.id),
+      create: (_) => EvolutionListCubit(
+        sl<PatientRepository>(),
+        patient.id,
+        localChanges: maybeSl<OfflineSession>()?.dataChanged,
+      ),
       child: Builder(
         builder: (context) {
           final cubit = context.read<EvolutionListCubit>();

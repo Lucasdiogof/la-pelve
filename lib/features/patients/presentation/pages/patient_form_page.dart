@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/error/failures.dart';
+import 'package:la_pelve/core/offline/offline_session.dart';
+import 'package:la_pelve/core/offline/ui/save_feedback.dart';
+import 'package:la_pelve/core/offline/ui/sync_strings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
@@ -53,6 +57,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
     patientsCubit: context.read<PatientsCubit>(),
     attachmentRepository: sl<AttachmentRepository>(),
     consentRepository: sl<PatientConsentRepository>(),
+    ensureOnServer: (id) => savedOnServer('patients', id),
   );
 
   @override
@@ -89,6 +94,17 @@ class _PatientFormPageState extends State<PatientFormPage> {
             existingConsent: consent,
           );
         });
+      case PatientConsentLoadFailed(:final failure)
+          when failure is NetworkFailure &&
+              maybeSl<OfflineSession>()?.active != null:
+        // Sem internet, com armazenamento local: a ficha pode ser editada,
+        // mas o consentimento (registro legal) fica intocado até haver rede.
+        setState(() {
+          _formCubit = PatientFormCubit(
+            existingPatient: widget.patient,
+            consentUnavailable: true,
+          );
+        });
       case PatientConsentLoadFailed():
         // Nunca trate uma falha de leitura como "não há consentimento": o
         // formulário só é montado com Success (consentimento ou null).
@@ -117,9 +133,23 @@ class _PatientFormPageState extends State<PatientFormPage> {
 
     final t = PatientsWizardStringsB(context.read<LocaleCubit>().state);
     switch (outcome) {
-      case PatientSaveSucceeded(:final isEditing, :final consentFailed):
+      case PatientSaveSucceeded(
+        :final isEditing,
+        :final consentFailed,
+        :final savedOnlyOnDevice,
+        :final onlineStepsSkipped,
+      ):
         context.pop();
-        if (consentFailed) {
+        if (savedOnlyOnDevice) {
+          // Nunca dizer "cadastrado" como se estivesse no servidor.
+          final sync = SyncStrings(context.read<LocaleCubit>().state);
+          await AppInfoBottomSheet.showInfo(
+            context,
+            description: onlineStepsSkipped
+                ? sync.onlineStepsPending
+                : sync.savedOnDevice,
+          );
+        } else if (consentFailed) {
           // Componente de erro padronizado do app (não o "informativo"):
           // algo precisa de atenção, mesmo que o paciente já esteja salvo.
           await AppInfoBottomSheet.showError(

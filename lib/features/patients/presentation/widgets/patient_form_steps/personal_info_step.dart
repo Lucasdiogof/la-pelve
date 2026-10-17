@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:la_pelve/core/offline/ui/sync_strings.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
@@ -205,7 +206,9 @@ class _WhatsappConsentSwitch extends StatelessWidget {
         children: [
           SwitchListTile(
             value: cubit.whatsappReminderConsent,
-            onChanged: phoneValid ? cubit.setWhatsappConsent : null,
+            onChanged: phoneValid && !cubit.consentUnavailable
+                ? cubit.setWhatsappConsent
+                : null,
             title: Text(t.whatsappConsentLabel),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -213,7 +216,19 @@ class _WhatsappConsentSwitch extends StatelessWidget {
           ),
           // A validade do telefone é mostrada só no campo Telefone; aqui o
           // switch apenas fica indisponível sem um celular BR válido.
-          if (phoneValid && cubit.whatsappConsentPhoneChanged)
+          if (cubit.consentUnavailable)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                SyncStrings(context.watch<LocaleCubit>().state)
+                    .consentNeedsInternet,
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            )
+          else if (phoneValid && cubit.whatsappConsentPhoneChanged)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(
