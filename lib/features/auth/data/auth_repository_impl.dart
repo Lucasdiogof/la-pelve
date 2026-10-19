@@ -139,6 +139,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<void>> deleteAccount() async {
     try {
       final userId = _client.auth.currentUser?.id;
+      // A confirmação explícita já foi dada na tela; aqui só registra a custódia
+      // e valida no servidor ANTES de apagar qualquer arquivo, para uma falha
+      // não deixar a conta viva sem os anexos.
+      await _client.rpc<void>(
+        'confirm_clinical_data_custody',
+        params: {'p_method': 'declared_responsibility'},
+      );
+      await _client.rpc<void>('check_account_deletion_allowed');
       if (userId != null) await _deleteAllUserFiles(userId);
       await _client.rpc<void>('delete_own_account');
       await _client.auth.signOut();

@@ -214,17 +214,24 @@ class ProfileStrings {
 
   String get deleteAccountConfirmDescription => switch (language) {
     AppLanguage.portuguese =>
-      'Tem certeza que deseja excluir sua conta? Isso apaga permanentemente '
-          'todos os pacientes, evoluções, lançamentos, agendamentos e anexos. '
-          'Essa ação não pode ser desfeita.',
+      'Isso apaga permanentemente todos os pacientes, prontuários, evoluções, '
+          'lançamentos, agendamentos e anexos, inclusive os já removidos da '
+          'lista. Não há como recuperar. Prontuários podem ter prazo legal de '
+          'guarda: ao continuar, você declara que já guardou uma cópia e que '
+          'assume a responsabilidade por essa guarda.',
     AppLanguage.english =>
-      'Are you sure you want to delete your account? This permanently erases '
-          'all patients, evolutions, entries, appointments and attachments. '
-          'This action cannot be undone.',
+      'This permanently erases all patients, medical records, evolutions, '
+          'entries, appointments and attachments, including those already '
+          'removed from the list. It cannot be recovered. Medical records may '
+          'have a legal retention period: by continuing, you declare that you '
+          'have kept a copy and take responsibility for that retention.',
     AppLanguage.spanish =>
-      '¿Seguro que deseas eliminar tu cuenta? Esto borra permanentemente '
-          'todos los pacientes, evoluciones, movimientos, citas y adjuntos. '
-          'Esta acción no se puede deshacer.',
+      'Esto borra permanentemente todos los pacientes, historias clínicas, '
+          'evoluciones, movimientos, citas y adjuntos, incluso los ya '
+          'eliminados de la lista. No se puede recuperar. Las historias '
+          'clínicas pueden tener un plazo legal de conservación: al continuar, '
+          'declaras que guardaste una copia y asumes la responsabilidad de '
+          'esa conservación.',
   };
 
   String get deleteAccountConfirmLabel => switch (language) {
