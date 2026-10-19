@@ -8,6 +8,8 @@
 -- registros (exportou ou assumiu a guarda por conta própria). A função NÃO decide a questão jurídica; ela só
 -- impede a perda acidental e deixa o ato registrado.
 --
+-- Atenção: evolution_entries usa physiotherapist_id (renomeada na 0011); patients e attachments mantêm fisioterapeuta_id.
+--
 -- ORDEM DE APLICAÇÃO: publicar primeiro a versão do app que chama confirm_clinical_data_custody(); só depois
 -- aplicar esta migration. Versões antigas do app passam a receber o erro 'custody_not_confirmed' (falha segura)
 -- ao tentar excluir a conta com registros clínicos.
@@ -59,7 +61,7 @@ begin
     raise exception 'not authenticated';
   end if;
   select exists (select 1 from public.patients where fisioterapeuta_id = auth.uid())
-      or exists (select 1 from public.evolution_entries where fisioterapeuta_id = auth.uid())
+      or exists (select 1 from public.evolution_entries where physiotherapist_id = auth.uid())
       or exists (select 1 from public.attachments where fisioterapeuta_id = auth.uid())
     into has_clinical;
   if not has_clinical then

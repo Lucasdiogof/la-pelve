@@ -17,7 +17,7 @@ language plpgsql as $$
 declare v_id uuid;
 begin
   insert into auth.users (id, email) values (gen_random_uuid(), gen_random_uuid() || '@teste.local') returning id into v_id;
-  insert into public.profiles (id, nome, crefito, telefone, email)
+  insert into public.profiles (id, name, crefito, phone, email)
   values (v_id, 'Teste', '0', '0', 'x@teste.local') on conflict (id) do nothing;
   return v_id;
 end $$;
@@ -46,7 +46,7 @@ begin
   perform pg_temp.check(not exists (select 1 from auth.users where id = vazia), 'usuário vazio removido');
 
   -- conta com paciente (inclusive soft-deleted) é bloqueada sem custódia
-  insert into public.patients (id, fisioterapeuta_id, nome, deleted_at)
+  insert into public.patients (id, fisioterapeuta_id, name, deleted_at)
   values ('p-teste-1', com_dados, 'Paciente Fictícia', now());
   perform pg_temp.act_as(com_dados);
   r := pg_temp.try_delete();
@@ -95,6 +95,21 @@ begin
   perform pg_temp.check(not has_function_privilege('anon', 'public.delete_own_account()', 'execute'), 'anon não executa delete_own_account');
   perform pg_temp.check(not has_function_privilege('anon', 'public.confirm_clinical_data_custody(text)', 'execute'), 'anon não executa confirm_clinical_data_custody');
   perform pg_temp.check(has_function_privilege('authenticated', 'public.delete_own_account()', 'execute'), 'authenticated executa delete_own_account');
+end $$;
+
+-- conta que só tem evolução (sem paciente próprio) também é protegida (coluna physiotherapist_id)
+do $$
+declare
+  u uuid := pg_temp.new_user();
+  outro uuid := pg_temp.new_user();
+  r text;
+begin
+  insert into public.patients (id, fisioterapeuta_id, name) values ('p-teste-2', outro, 'Outra Fictícia');
+  insert into public.evolution_entries (id, patient_id, physiotherapist_id, date, description)
+  values ('e-teste-1', 'p-teste-2', u, current_date, 'ficticio');
+  perform pg_temp.act_as(u);
+  r := pg_temp.try_delete();
+  perform pg_temp.check(r = 'custody_not_confirmed', 'só com evolução: bloqueia (' || r || ')');
 end $$;
 
 rollback;
