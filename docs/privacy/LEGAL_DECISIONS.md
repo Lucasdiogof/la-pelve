@@ -16,7 +16,7 @@ Rascunho técnico, não parecer. Cada item diz o que é **exigência legal efeti
 | 9 | Registro das operações (art. 37) | Exigência legal (simplificável para pequeno porte) | Modelo em `ROPA.md` | Controladora |
 | 10 | Política de privacidade: ajustes | Exigência legal | Ver `PRIVACY_POLICY_REVIEW.md` | Advogado |
 | 12 | Prazo de guarda do registro de auditoria da exclusão/exportação | Decisão do dono + advogado | Proposta em `ASSISTED_CLOSURE.md` | Advogado |
-| 13 | Canal de suporte para encerramento assistido (a mensagem do app cita "suporte do La Pelve" sem endereço) | Decisão do dono | Não definido no código | Dono |
+| 13 | Canal de suporte para encerramento assistido | Decisão do dono | **Definido: marketing@lucksrei.com** (canal único de suporte da marca); já citado nas mensagens do app | Dono |
 | 11 | Liberação para uso clínico real da versão Web | Decisão do dono | A web está publicada em `lapelve.lucksrei.com` desde 19/10/2026 por autorização do dono; **uso clínico real segue dependendo dos itens acima** | Dono |
 
 Fontes consultadas em 19/10/2026 (conferir no texto oficial): Res. COFFITO 414/2012 (normasbrasil.com.br), Lei 13.787/2018 (camara.leg.br), Res. CD/ANPD 15/2024 e 18/2024 (resumos secundários e DOU).

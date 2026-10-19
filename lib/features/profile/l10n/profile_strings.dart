@@ -291,15 +291,15 @@ class ProfileStrings {
     AppLanguage.portuguese =>
       'Não foi possível gerar um pacote completo e conferido, então nenhum '
           'arquivo foi salvo. Seus dados não foram alterados. Tente novamente '
-          'com boa conexão; se persistir, fale com o suporte.',
+          'com boa conexão; se persistir, fale com o suporte (marketing@lucksrei.com).',
     AppLanguage.english =>
       'We could not produce a complete, verified package, so no file was '
           'saved. Your data was not changed. Try again with a good connection; '
-          'if it persists, contact support.',
+          'if it persists, contact support (marketing@lucksrei.com).',
     AppLanguage.spanish =>
       'No se pudo generar un paquete completo y verificado, así que no se '
           'guardó ningún archivo. Tus datos no cambiaron. Inténtalo de nuevo '
-          'con buena conexión; si persiste, contacta al soporte.',
+          'con buena conexión; si persiste, contacta al soporte (marketing@lucksrei.com).',
   };
 
   String get deleteAccountConfirmLabel => switch (language) {

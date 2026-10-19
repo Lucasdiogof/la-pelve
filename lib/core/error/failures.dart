@@ -40,18 +40,19 @@ class AccountHasDataFailure extends Failure {
       'Sua conta ainda tem pacientes, prontuários ou outros registros que '
           'precisam ser preservados, por isso ela não pode ser excluída pelo '
           'aplicativo. Exporte seus dados em Perfil > Exportar meus dados e '
-          'fale com o suporte do La Pelve para o encerramento assistido. '
-          'Nada foi apagado.',
+          'fale com o suporte do La Pelve (marketing@lucksrei.com) para o '
+          'encerramento assistido. Nada foi apagado.',
     AppLanguage.english =>
       'Your account still has patients, medical records or other data that '
           'must be preserved, so it cannot be deleted from the app. Export '
           'your data in Profile > Export my data and contact La Pelve support '
-          'for assisted closure. Nothing was deleted.',
+          'for assisted closure: marketing@lucksrei.com. Nothing was deleted.',
     AppLanguage.spanish =>
       'Tu cuenta aún tiene pacientes, historias clínicas u otros registros '
           'que deben conservarse, por lo que no se puede eliminar desde la '
           'app. Exporta tus datos en Perfil > Exportar mis datos y contacta '
-          'al soporte de La Pelve para el cierre asistido. No se borró nada.',
+          'al soporte de La Pelve (marketing@lucksrei.com) para el cierre '
+          'asistido. No se borró nada.',
   };
 }
 
