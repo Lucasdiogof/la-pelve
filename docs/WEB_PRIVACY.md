@@ -40,3 +40,12 @@ Não é parecer jurídico: a base legal e o texto final da LGPD são do controla
 - `scripts/smoke-test.sh` passa a exigir o header CSP Report-Only.
 - Conferido ao vivo em 19/10: `la-pelve.lucasdiogo1234.workers.dev` segue com o build antigo, sem nenhum header de segurança e sem `noindex`. `lapelve.lucksrei.com` não responde (rota comentada). Nenhum deploy foi feito.
 - Não verificados nesta rodada (exigem o painel do Supabase/Cloudflare): Redirect URLs, SMTP, expiração de sessão, `Cache-Control` das URLs assinadas de anexos.
+
+## Atualização 2026-10-19 (noite): publicação em lapelve.lucksrei.com
+- **Autorizado pelo dono em 19/10/2026.** Deploy manual (workflow `deploy.yml`, run 39282123869): build, `check-bundle-secrets`, `wrangler deploy` e smoke test passaram. Rota `lapelve.lucksrei.com` ativa em `wrangler.toml` (commit 21909ed).
+- Conferido no domínio publicado: HSTS, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Cache-Control: no-cache`, `Content-Security-Policy-Report-Only` e `noindex` no HTML. `/privacy`, `/data-deletion` e `/whatsapp-connect` respondem 200.
+- `la-pelve.lucasdiogo1234.workers.dev` foi desativado pelo dono e responde 404 (item 6 dos riscos resolvido).
+- **Supabase Auth (painel, conferido por print):** Site URL `https://lapelve.lucksrei.com/`; Redirect URLs do domínio novo adicionadas pelo dono.
+- **SMTP (conferido por print):** SMTP próprio ativo, `smtp.resend.com:465`, remetente `marketing@lucksrei.com`, nome "La Pelve".
+- **Contato de privacidade:** `marketing@lucksrei.com`, mantido pelo dono. Continuam em aberto, e são do controlador: quem é o controlador dos dados, se há encarregado (DPO) e o registro das operações de tratamento.
+- **Ainda não testado:** fluxo autenticado com a CSP (Supabase, Realtime, anexos, avatar) e `Cache-Control` das URLs assinadas de anexos. A CSP segue só em Report-Only.
