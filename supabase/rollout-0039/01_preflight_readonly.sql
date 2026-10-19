@@ -17,6 +17,10 @@ with checks(item, esperado, atual) as (
     ('05 patients e attachments usam fisioterapeuta_id', '2',
       (select count(*) from information_schema.columns where table_schema='public'
          and table_name in ('patients','attachments') and column_name='fisioterapeuta_id')::text),
+    ('05b account_deletion_log ainda nao existe', 'false', (to_regclass('public.account_deletion_log') is not null)::text),
+    ('05c appointments e financial_entries usam fisioterapeuta_id', '2',
+      (select count(*) from information_schema.columns where table_schema='public'
+         and table_name in ('appointments','financial_entries') and column_name='fisioterapeuta_id')::text),
     ('06 profiles tem a linha de cada usuario (contagem so informativa, nao e PASS/FAIL)', 'info',
       'info')
 )

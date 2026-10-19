@@ -25,7 +25,27 @@ alter table public.profiles
   check (custody_confirmed_method is null
     or custody_confirmed_method in ('export_downloaded', 'declared_responsibility'));
 
--- Registra a custódia da própria conta. Só toca a linha de auth.uid().
+
+-- Registro do ato de exclusão. SEM foreign key para auth.users (senão o cascade o apagaria junto) e sem dado de saúde:
+-- só o hash do id (pseudonimizado), o horário, o método/horário da custódia e as CONTAGENS de registros apagados.
+-- Serve de evidência de que a profissional foi avisada e declarou a custódia. RLS ligado e sem policy: ninguém
+-- do app lê ou altera; só o dono do banco (service role / SQL) consulta. Prazo de guarda do log: ver DATA_RETENTION.md.
+create table if not exists public.account_deletion_log (
+  id bigint generated always as identity primary key,
+  user_hash text not null,
+  deleted_at timestamptz not null default now(),
+  custody_method text,
+  custody_confirmed_at timestamptz,
+  patients_count integer not null default 0,
+  evolutions_count integer not null default 0,
+  attachments_count integer not null default 0,
+  appointments_count integer not null default 0,
+  financial_count integer not null default 0
+);
+alter table public.account_deletion_log enable row level security;
+revoke all on table public.account_deletion_log from public, anon, authenticated;
+
+-- Registra a DECLARAÇÃO de custódia da própria conta (não é prova de exportação). Só toca a linha de auth.uid().
 create or replace function public.confirm_clinical_data_custody(p_method text)
 returns void
 language plpgsql
@@ -36,7 +56,12 @@ begin
   if auth.uid() is null then
     raise exception 'not authenticated';
   end if;
-  if p_method not in ('export_downloaded', 'declared_responsibility') then
+  if p_method = 'export_downloaded' then
+    -- Reservado: nao existe exportacao verificavel pelo servidor. Aceitar o valor seria registrar como
+    -- "comprovado" algo que e apenas escolhido pelo cliente. Habilitar quando a exportacao existir.
+    raise exception 'export_not_available';
+  end if;
+  if p_method is distinct from 'declared_responsibility' then
     raise exception 'invalid custody method';
   end if;
   update public.profiles
@@ -63,6 +88,8 @@ begin
   select exists (select 1 from public.patients where fisioterapeuta_id = auth.uid())
       or exists (select 1 from public.evolution_entries where physiotherapist_id = auth.uid())
       or exists (select 1 from public.attachments where fisioterapeuta_id = auth.uid())
+      or exists (select 1 from public.appointments where fisioterapeuta_id = auth.uid())
+      or exists (select 1 from public.financial_entries where fisioterapeuta_id = auth.uid())
     into has_clinical;
   if not has_clinical then
     return;
@@ -85,6 +112,17 @@ begin
     raise exception 'not authenticated';
   end if;
   perform public.check_account_deletion_allowed();
+  insert into public.account_deletion_log
+    (user_hash, custody_method, custody_confirmed_at,
+     patients_count, evolutions_count, attachments_count, appointments_count, financial_count)
+  select encode(sha256(convert_to(auth.uid()::text, 'utf8')), 'hex'),
+         p.custody_confirmed_method, p.custody_confirmed_at,
+         (select count(*) from public.patients where fisioterapeuta_id = auth.uid()),
+         (select count(*) from public.evolution_entries where physiotherapist_id = auth.uid()),
+         (select count(*) from public.attachments where fisioterapeuta_id = auth.uid()),
+         (select count(*) from public.appointments where fisioterapeuta_id = auth.uid()),
+         (select count(*) from public.financial_entries where fisioterapeuta_id = auth.uid())
+    from (select 1) d left join public.profiles p on p.id = auth.uid();
   delete from auth.users where id = auth.uid();
 end;
 $$;

@@ -62,6 +62,14 @@ begin
     perform pg_temp.check(sqlerrm = 'invalid custody method', 'método inválido é recusado');
   end;
 
+  -- export_downloaded fica reservado: o servidor não comprova exportação
+  begin
+    perform public.confirm_clinical_data_custody('export_downloaded');
+    perform pg_temp.check(false, 'export_downloaded deveria ser recusado');
+  exception when others then
+    perform pg_temp.check(sqlerrm = 'export_not_available', 'export_downloaded é recusado enquanto não há exportação');
+  end;
+
   -- custódia confirmada libera
   perform public.confirm_clinical_data_custody('declared_responsibility');
   perform pg_temp.check((select custody_confirmed_method from public.profiles where id = com_dados) = 'declared_responsibility', 'custódia registrada');
@@ -72,9 +80,21 @@ begin
   perform pg_temp.check(r = 'custody_not_confirmed', 'custódia com mais de 24 h bloqueia de novo');
 
   -- renovada, exclui
-  perform public.confirm_clinical_data_custody('export_downloaded');
+  perform public.confirm_clinical_data_custody('declared_responsibility');
   perform pg_temp.check(pg_temp.try_delete() = 'ok', 'com custódia recente a exclusão prossegue');
   perform pg_temp.check(not exists (select 1 from auth.users where id = com_dados), 'usuário removido após custódia');
+
+  -- a evidência sobrevive ao cascade: log sem FK, só hash e contagens
+  perform pg_temp.check(exists (
+    select 1 from public.account_deletion_log
+     where user_hash = encode(sha256(convert_to(com_dados::text, 'utf8')), 'hex')
+       and custody_method = 'declared_responsibility'
+       and custody_confirmed_at is not null
+       and patients_count = 1), 'log da exclusão sobrevive ao cascade com método e contagem');
+  perform pg_temp.check(not exists (select 1 from public.account_deletion_log where user_hash = com_dados::text),
+    'log não guarda o id em claro');
+  perform pg_temp.check(not exists (select 1 from public.account_deletion_log l, public.patients p where p.id = 'p-teste-1'),
+    'paciente apagado junto com a conta (comportamento atual, ver docs)');
 end $$;
 
 -- sem sessão, nada funciona
@@ -110,6 +130,14 @@ begin
   perform pg_temp.act_as(u);
   r := pg_temp.try_delete();
   perform pg_temp.check(r = 'custody_not_confirmed', 'só com evolução: bloqueia (' || r || ')');
+end $$;
+
+-- log não é acessível pelo app
+do $$
+begin
+  perform pg_temp.check(not has_table_privilege('authenticated', 'public.account_deletion_log', 'select'), 'authenticated não lê o log');
+  perform pg_temp.check(not has_table_privilege('anon', 'public.account_deletion_log', 'select'), 'anon não lê o log');
+  perform pg_temp.check(not has_table_privilege('authenticated', 'public.account_deletion_log', 'insert'), 'authenticated não escreve no log');
 end $$;
 
 rollback;

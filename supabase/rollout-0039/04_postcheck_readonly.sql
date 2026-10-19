@@ -17,6 +17,14 @@ with checks(item, esperado, atual) as (
     ('08 colunas de custodia criadas', '2',
       (select count(*) from information_schema.columns where table_schema='public' and table_name='profiles'
          and column_name in ('custody_confirmed_at','custody_confirmed_method'))::text),
+    ('10 account_deletion_log existe com RLS e sem acesso do app', 'true',
+      (to_regclass('public.account_deletion_log') is not null
+       and coalesce((select relrowsecurity from pg_class where oid = to_regclass('public.account_deletion_log')), false)
+       and not has_table_privilege('authenticated', 'public.account_deletion_log', 'select')
+       and not has_table_privilege('anon', 'public.account_deletion_log', 'select'))::text),
+    ('11 delete_own_account grava o log', 'true',
+      coalesce((select position('account_deletion_log' in pg_get_functiondef(p.oid)) > 0
+                from pg_proc p where p.oid = to_regprocedure('public.delete_own_account()')), false)::text),
     ('09 nenhuma custodia pre-preenchida (a migration nao altera dados)', '0',
       (select count(*) from public.profiles where custody_confirmed_at is not null)::text)
 )

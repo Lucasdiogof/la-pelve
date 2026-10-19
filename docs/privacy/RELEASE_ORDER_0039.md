@@ -8,7 +8,7 @@ A migration 0039 muda `delete_own_account()`: com registros clínicos, ele passa
 ## Passos
 **0. Revisão e merge do PR #14** **[AUTORIZAÇÃO]**
 - Conferir o diff: `supabase/migrations/0039_*.sql`, `lib/features/auth/data/auth_repository_impl.dart`, textos em `profile_strings.dart`, `web/_headers`, `.github/workflows/deploy.yml` (`--no-web-resources-cdn`), docs. CI já está verde (Flutter, Edge Functions e 282 testes SQL, incluindo 15 da 0039).
-- O merge não faz deploy (`AUTO_DEPLOY` não está definido).
+- O merge não faz deploy (`AUTO_DEPLOY` não está definido; reconfirmar em Settings > Variables do GitHub antes do merge).
 
 **1. Pré-flight (somente leitura)** — pode rodar a qualquer momento
 ```
@@ -51,8 +51,13 @@ Esperado: todas PASS.
 **8. Teste ponta a ponta com conta descartável** (opcional, **[AUTORIZAÇÃO]**)
 Criar uma conta de teste com dados fictícios, tentar excluir em um app antigo (deve falhar sem apagar) e no app novo (deve confirmar a custódia e excluir). Nunca usar dados reais de pacientes.
 
-## Rollback
-Se a trava bloquear algo legítimo: `supabase/rollout-0039/03_rollback.sql` restaura o `delete_own_account()` anterior e remove as duas funções novas. As colunas `profiles.custody_confirmed_*` ficam (aditivas, inofensivas). Reverter reabre o risco de exclusão em cascata sem trava. O rollback do front é o workflow `rollback-web.yml`.
+## Rollback / contingência
+**Padrão: `supabase/rollout-0039/03_rollback_keep_block.sql`.** Mantém `delete_own_account()` bloqueando contas com registros clínicos (`account_deletion_disabled`), libera só contas vazias, remove as duas RPCs de custódia e preserva colunas e `account_deletion_log`. Nada é apagado; o custo é que ninguém com dados exclui a conta até a correção. Recuperação: reaplicar a 0039 corrigida.
+
+`03b_rollback_UNGUARDED_DANGEROUS.sql` restaura o `delete_own_account()` antigo (cascade sem trava). Só com decisão expressa do dono. O rollback do front é o workflow `rollback-web.yml`.
+
+## Limites conhecidos desta liberação (ver `PR14_REVIEW.md`)
+A trava registra uma **declaração**, não prova que existe cópia dos dados. Enquanto não houver exportação, o PR **não resolve** o risco de perda de prontuário: reduz exclusão acidental e deixa evidência (`account_deletion_log`). Decisão do dono: aceitar esse limite conscientemente ou bloquear a exclusão de contas com dados até a exportação existir.
 
 ## O que continua pendente (não faz parte desta liberação)
 Exportação de dados no app, fluxo de "encerrar conta" separado de "excluir dados", decisões jurídicas de retenção, CSP bloqueante e coletor de relatórios. Ver `LEGAL_DECISIONS.md`, `ACCOUNT_DELETION_AUDIT.md` e `docs/security/CSP_PLAN.md`.
