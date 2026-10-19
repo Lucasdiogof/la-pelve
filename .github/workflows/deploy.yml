@@ -16,7 +16,7 @@ env:
   FLUTTER_VERSION: "3.47.4"        # pin to the version the app is developed with
   APP_DIR: "."                      # folder with pubspec.yaml and wrangler.jsonc (OrbiJob: app)
   FLUTTER_WEB_FLAGS: ""             # e.g. --no-web-resources-cdn
-  SMOKE_URLS: "https://la-pelve.lucasdiogo1234.workers.dev"  # public URLs checked after every deploy (space separated)
+  SMOKE_URLS: "https://lapelve.lucksrei.com"  # public URLs checked after every deploy (space separated)
 jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' || vars.AUTO_DEPLOY == 'true'

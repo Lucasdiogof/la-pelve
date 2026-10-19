@@ -5,7 +5,7 @@ compatibility_date = "2026-01-01"
 directory = "build/web"
 not_found_handling = "single-page-application"
 
-# Custom domain: DISABLED until the owner authorises DNS (lucksrei-web-template, docs/domains.md, docs/WEB_PRIVACY.md).
-# [[routes]]
-# pattern = "lapelve.lucksrei.com"
-# custom_domain = true
+# Custom domain authorised by the owner on 2026-10-19 (docs/WEB_PRIVACY.md).
+[[routes]]
+pattern = "lapelve.lucksrei.com"
+custom_domain = true
