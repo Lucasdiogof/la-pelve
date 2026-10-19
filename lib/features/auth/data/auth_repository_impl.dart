@@ -8,6 +8,7 @@ import 'package:la_pelve/core/error/network_errors.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
+import 'package:la_pelve/features/auth/data/account_deletion_coordinator.dart';
 import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 
@@ -135,30 +136,35 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  late final AccountDeletionCoordinator _deletion = AccountDeletionCoordinator(
+    _SupabaseDeletionGateway(_client, offline),
+  );
+
   @override
-  Future<Result<void>> deleteAccount() async {
+  Future<Result<void>> checkAccountDeletionAllowed() =>
+      _runDeletion(_deletion.checkOnly, 'checkAccountDeletionAllowed');
+
+  @override
+  Future<Result<void>> deleteAccount() =>
+      _runDeletion(_deletion.run, 'deleteAccount');
+
+  Future<Result<void>> _runDeletion(
+    Future<void> Function() body,
+    String label,
+  ) async {
     try {
-      final userId = _client.auth.currentUser?.id;
-      // A confirmação explícita já foi dada na tela; aqui só registra a custódia
-      // e valida no servidor ANTES de apagar qualquer arquivo, para uma falha
-      // não deixar a conta viva sem os anexos.
-      await _client.rpc<void>(
-        'confirm_clinical_data_custody',
-        params: {'p_method': 'declared_responsibility'},
-      );
-      await _client.rpc<void>('check_account_deletion_allowed');
-      if (userId != null) await _deleteAllUserFiles(userId);
-      await _client.rpc<void>('delete_own_account');
-      await _client.auth.signOut();
-      if (userId != null) await offline?.wipeUser(userId);
+      await body();
       return const Success(null);
-    } on PostgrestException catch (e, st) {
-      debugPrint(
-        '[AuthRepository.deleteAccount] code=${e.code} msg=${e.message}\n$st',
-      );
+    } on AccountHasDataFailure catch (f) {
+      return Error(f);
+    } on StorageException catch (e) {
+      debugPrint('[AuthRepository.$label] storage statusCode=${e.statusCode}');
       return Error(ServerFailure());
-    } catch (e, st) {
-      debugPrint('[AuthRepository.deleteAccount] $e\n$st');
+    } on PostgrestException catch (e) {
+      debugPrint('[AuthRepository.$label] code=${e.code}');
+      return Error(ServerFailure());
+    } catch (e) {
+      debugPrint('[AuthRepository.$label] ${e.runtimeType}');
       return Error(UnexpectedFailure());
     }
   }
@@ -216,45 +222,6 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e, st) {
       debugPrint('[AuthRepository.updatePassword] $e\n$st');
       return Error(UnexpectedFailure());
-    }
-  }
-
-  Future<void> _deleteAllUserFiles(String userId) async {
-    try {
-      final avatarFiles = await _client.storage
-          .from('avatars')
-          .list(path: userId);
-      if (avatarFiles.isNotEmpty) {
-        await _client.storage
-            .from('avatars')
-            .remove(avatarFiles.map((f) => '$userId/${f.name}').toList());
-      }
-    } catch (e, st) {
-      debugPrint(
-        '[AuthRepository.deleteAccount] avatar cleanup failed: $e\n$st',
-      );
-    }
-
-    try {
-      final patientFolders = await _client.storage
-          .from('patient-attachments')
-          .list(path: userId);
-      for (final folder in patientFolders) {
-        final files = await _client.storage
-            .from('patient-attachments')
-            .list(path: '$userId/${folder.name}');
-        if (files.isNotEmpty) {
-          await _client.storage
-              .from('patient-attachments')
-              .remove(
-                files.map((f) => '$userId/${folder.name}/${f.name}').toList(),
-              );
-        }
-      }
-    } catch (e, st) {
-      debugPrint(
-        '[AuthRepository.deleteAccount] attachment cleanup failed: $e\n$st',
-      );
     }
   }
 
@@ -330,5 +297,54 @@ class AuthRepositoryImpl implements AuthRepository {
       (_, AppLanguage.english) => 'Authentication error. Please try again.',
       (_, AppLanguage.spanish) => 'Error de autenticación. Inténtalo de nuevo.',
     };
+  }
+}
+
+class _SupabaseDeletionGateway implements AccountDeletionGateway {
+  _SupabaseDeletionGateway(this._client, this._offline);
+
+  final SupabaseClient _client;
+  final OfflineSession? _offline;
+
+  String? get _userId => _client.auth.currentUser?.id;
+
+  @override
+  Future<void> checkAllowed() async {
+    try {
+      await _client.rpc<void>('check_account_deletion_allowed');
+    } on PostgrestException catch (e) {
+      if (e.message.contains('account_has_data')) throw AccountHasDataFailure();
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> removeAvatars() async {
+    final userId = _userId;
+    if (userId == null) return;
+    final files = await _client.storage.from('avatars').list(path: userId);
+    if (files.isEmpty) return;
+    await _client.storage
+        .from('avatars')
+        .remove(files.map((f) => '$userId/${f.name}').toList());
+  }
+
+  @override
+  Future<void> deleteAccountOnServer() async {
+    try {
+      await _client.rpc<void>('delete_own_account');
+    } on PostgrestException catch (e) {
+      if (e.message.contains('account_has_data')) throw AccountHasDataFailure();
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> signOut() => _client.auth.signOut();
+
+  @override
+  Future<void> wipeLocalData() async {
+    final userId = _userId;
+    if (userId != null) await _offline?.wipeUser(userId);
   }
 }

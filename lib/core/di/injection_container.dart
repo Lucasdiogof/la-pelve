@@ -14,6 +14,9 @@ import 'package:la_pelve/features/agenda/data/agenda_repository_supabase.dart';
 import 'package:la_pelve/features/agenda/data/appointment_reminder_repository.dart';
 import 'package:la_pelve/features/agenda/domain/repositories/agenda_repository.dart';
 import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
+import 'package:la_pelve/features/profile/data/export/data_export_repository.dart';
+import 'package:la_pelve/features/profile/data/export/data_export_service.dart';
+import 'package:la_pelve/features/profile/data/export/supabase_export_data_source.dart';
 import 'package:la_pelve/features/auth/data/auth_repository_impl.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 import 'package:la_pelve/features/auth/presentation/cubit/auth_cubit.dart';
@@ -70,6 +73,18 @@ Future<void> initDependencies() async {
     () => AuthRepositoryImpl(sl(), offline: sl<OfflineSession>()),
   );
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl()));
+  sl.registerLazySingleton<DataExportRepository>(
+    () => DataExportRepository(
+      sl(),
+      DataExportService(
+        SupabaseExportDataSource(
+          sl(),
+          pendingLocalChanges: () async =>
+              sl<OfflineSession>().active?.store.counts().total ?? 0,
+        ),
+      ),
+    ),
+  );
 
   sl.registerLazySingleton<PatientRepository>(
     () => PatientRepositoryOffline(sl(), PatientRepositorySupabase(sl())),

@@ -17,6 +17,7 @@ import 'package:la_pelve/core/utils/app_loading.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 import 'package:la_pelve/features/patients/presentation/pages/image_viewer_page.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
+import 'package:la_pelve/features/profile/presentation/pages/profile_export_flow.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_state.dart';
 import 'package:la_pelve/features/profile/presentation/widgets/profile_avatar_section.dart';
@@ -129,6 +130,20 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _deleteAccount(BuildContext context) async {
     final t = ProfileStrings(context.read<LocaleCubit>().state);
+    // O servidor decide ANTES de qualquer confirmação destrutiva: conta com
+    // dados não pode ser excluída pelo app (encerramento assistido).
+    showAppLoading();
+    final check = await sl<AuthRepository>().checkAccountDeletionAllowed();
+    hideAppLoading();
+    if (!context.mounted) return;
+    if (check case Error(:final failure)) {
+      await AppInfoBottomSheet.showError(
+        context,
+        title: t.deleteAccountLabel,
+        description: failure.message,
+      );
+      return;
+    }
     final confirmed = await AppConfirmSheet.show(
       context,
       title: t.deleteAccountLabel,
@@ -361,6 +376,15 @@ class ProfilePage extends StatelessWidget {
                                     color: context.colors.textSecondary,
                                   ),
                                   onTap: () => context.push('/perfil/whatsapp'),
+                                ),
+                                ProfileRow(
+                                  icon: Icons.download_outlined,
+                                  label: t.exportRowLabel,
+                                  trailing: Icon(
+                                    Icons.chevron_right,
+                                    color: context.colors.textSecondary,
+                                  ),
+                                  onTap: () => runDataExportFlow(context, t),
                                 ),
                                 ProfileRow(
                                   icon: Icons.logout,

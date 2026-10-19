@@ -8,6 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_theme.dart';
@@ -265,6 +266,9 @@ void main() {
     'Excluir minha conta: confirma antes e só então chama deleteAccount',
     (tester) async {
       when(
+        () => auth.checkAccountDeletionAllowed(),
+      ).thenAnswer((_) async => const Success(null));
+      when(
         () => auth.deleteAccount(),
       ).thenAnswer((_) async => const Success(null));
       await pumpProfile(tester);
@@ -283,6 +287,28 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Excluir conta'));
       await tester.pumpAndSettle();
       verify(() => auth.deleteAccount()).called(1);
+    },
+  );
+
+  testWidgets(
+    'Excluir minha conta com dados: explica o bloqueio e NÃO chama deleteAccount',
+    (tester) async {
+      when(
+        () => auth.checkAccountDeletionAllowed(),
+      ).thenAnswer((_) async => Error(AccountHasDataFailure()));
+      await pumpProfile(tester);
+
+      final delete = find.widgetWithText(TextButton, 'Excluir minha conta');
+      await tester.ensureVisible(delete);
+      await tester.tap(delete);
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('encerramento assistido'), findsOneWidget);
+      expect(
+        find.widgetWithText(ElevatedButton, 'Excluir conta'),
+        findsNothing,
+      );
+      verifyNever(() => auth.deleteAccount());
     },
   );
 }

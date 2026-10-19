@@ -29,6 +29,32 @@ class ServerFailure extends Failure {
   };
 }
 
+/// A conta tem pacientes, prontuários ou outros registros cuja guarda precisa
+/// ser assegurada: o app não exclui; o encerramento é assistido.
+class AccountHasDataFailure extends Failure {
+  AccountHasDataFailure([String? message])
+    : super(message ?? _defaultMessage());
+
+  static String _defaultMessage() => switch (_currentLanguage()) {
+    AppLanguage.portuguese =>
+      'Sua conta ainda tem pacientes, prontuários ou outros registros que '
+          'precisam ser preservados, por isso ela não pode ser excluída pelo '
+          'aplicativo. Exporte seus dados em Perfil > Exportar meus dados e '
+          'fale com o suporte do La Pelve para o encerramento assistido. '
+          'Nada foi apagado.',
+    AppLanguage.english =>
+      'Your account still has patients, medical records or other data that '
+          'must be preserved, so it cannot be deleted from the app. Export '
+          'your data in Profile > Export my data and contact La Pelve support '
+          'for assisted closure. Nothing was deleted.',
+    AppLanguage.spanish =>
+      'Tu cuenta aún tiene pacientes, historias clínicas u otros registros '
+          'que deben conservarse, por lo que no se puede eliminar desde la '
+          'app. Exporta tus datos en Perfil > Exportar mis datos y contacta '
+          'al soporte de La Pelve para el cierre asistido. No se borró nada.',
+  };
+}
+
 class NetworkFailure extends Failure {
   NetworkFailure([String? message]) : super(message ?? _defaultMessage());
 

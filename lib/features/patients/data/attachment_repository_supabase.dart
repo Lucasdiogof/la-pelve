@@ -82,8 +82,17 @@ class AttachmentRepositorySupabase implements AttachmentRepository {
   @override
   Future<Result<void>> delete(Attachment attachment) async {
     try {
-      await _client.storage.from(_bucket).remove([attachment.storagePath]);
+      // Linha primeiro, arquivo depois: o Storage só deixa remover o arquivo
+      // quando nenhuma linha o referencia (migration 0040). Se a remoção do
+      // arquivo falhar, sobra um arquivo órfão (nunca uma linha sem arquivo).
       await _client.from('attachments').delete().eq('id', attachment.id);
+      try {
+        await _client.storage.from(_bucket).remove([attachment.storagePath]);
+      } catch (e) {
+        debugPrint(
+          '[AttachmentRepositorySupabase.delete] file removal failed (${e.runtimeType}); orphan left',
+        );
+      }
       return const Success(null);
     } on StorageException catch (e, st) {
       debugPrint(

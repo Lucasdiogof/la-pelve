@@ -1,4 +1,4 @@
--- PERIGO: esta reversao RECRIA o apagamento em cascata sem nenhuma trava. Prefira 03_rollback_keep_block.sql.
+-- PERIGO: esta reversao RECRIA o apagamento em cascata sem nenhuma trava. Prefira 03_rollback_0039_disable_deletion.sql.
 -- So use com decisao expressa do dono e depois de confirmar que ninguem com dados clinicos vai excluir a conta.
 -- ROLLBACK da 0039: volta delete_own_account() ao comportamento anterior (0009 + grants da 0031) e remove as funcoes novas.
 -- As colunas profiles.custody_confirmed_* PERMANECEM de proposito (sao aditivas e inofensivas; apagar coluna perderia o registro do ato).

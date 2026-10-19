@@ -58,6 +58,7 @@ dependencies:
   connectivity_plus: ^7.3.1 # Network interface changes (offline indicator + sync trigger)
   path_provider: ^2.1.6
   path: ^1.9.1
+  archive: ^4.0.9 # ZIP of the data export (already resolved transitively)
   crypto: ^3.0.7 # Hashes the user id into the local DB file name
 
 dev_dependencies:

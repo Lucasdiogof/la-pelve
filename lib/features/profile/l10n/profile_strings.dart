@@ -214,24 +214,92 @@ class ProfileStrings {
 
   String get deleteAccountConfirmDescription => switch (language) {
     AppLanguage.portuguese =>
-      'Isso apaga permanentemente todos os pacientes, prontuários, evoluções, '
-          'lançamentos, agendamentos e anexos, inclusive os já removidos da '
-          'lista. Não há como recuperar. Prontuários podem ter prazo legal de '
-          'guarda: ao continuar, você declara que já guardou uma cópia e que '
-          'assume a responsabilidade por essa guarda.',
+      'Sua conta não tem pacientes nem outros registros. Ao continuar, a conta '
+          'e o acesso ao aplicativo serão apagados definitivamente. Não há como '
+          'desfazer.',
     AppLanguage.english =>
-      'This permanently erases all patients, medical records, evolutions, '
-          'entries, appointments and attachments, including those already '
-          'removed from the list. It cannot be recovered. Medical records may '
-          'have a legal retention period: by continuing, you declare that you '
-          'have kept a copy and take responsibility for that retention.',
+      'Your account has no patients or other records. By continuing, the '
+          'account and app access will be permanently deleted. This cannot be '
+          'undone.',
     AppLanguage.spanish =>
-      'Esto borra permanentemente todos los pacientes, historias clínicas, '
-          'evoluciones, movimientos, citas y adjuntos, incluso los ya '
-          'eliminados de la lista. No se puede recuperar. Las historias '
-          'clínicas pueden tener un plazo legal de conservación: al continuar, '
-          'declaras que guardaste una copia y asumes la responsabilidad de '
-          'esa conservación.',
+      'Tu cuenta no tiene pacientes ni otros registros. Al continuar, la '
+          'cuenta y el acceso a la app se eliminarán definitivamente. No se '
+          'puede deshacer.',
+  };
+
+  String get exportRowLabel => switch (language) {
+    AppLanguage.portuguese => 'Exportar meus dados',
+    AppLanguage.english => 'Export my data',
+    AppLanguage.spanish => 'Exportar mis datos',
+  };
+
+  String get exportConfirmDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'Gera um pacote ZIP com pacientes, anamneses, evoluções, agenda, '
+          'financeiro, consentimentos e todos os anexos originais, com uma '
+          'lista de conferência. Pode demorar e usar bastante dados. O arquivo '
+          'contém dados sensíveis de saúde: guarde em local seguro.',
+    AppLanguage.english =>
+      'Creates a ZIP package with patients, medical histories, evolutions, '
+          'agenda, financial entries, consents and all original attachments, '
+          'with a checklist. It may take a while and use a lot of data. The '
+          'file holds sensitive health data: keep it somewhere safe.',
+    AppLanguage.spanish =>
+      'Genera un paquete ZIP con pacientes, anamnesis, evoluciones, agenda, '
+          'finanzas, consentimientos y todos los adjuntos originales, con una '
+          'lista de verificación. Puede tardar y usar muchos datos. El archivo '
+          'contiene datos sensibles de salud: guárdalo en un lugar seguro.',
+  };
+
+  String get exportConfirmLabel => switch (language) {
+    AppLanguage.portuguese => 'Exportar',
+    AppLanguage.english => 'Export',
+    AppLanguage.spanish => 'Exportar',
+  };
+
+  String get exportDoneDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'O pacote foi gerado, conferido e entregue ao sistema para salvar. '
+          'Confira que o arquivo está no local escolhido e guarde uma cópia '
+          'segura. Isso não substitui a orientação sobre a guarda legal dos '
+          'prontuários.',
+    AppLanguage.english =>
+      'The package was generated, verified and handed to the system to save. '
+          'Check that the file is where you chose and keep a safe copy. This '
+          'does not replace guidance on the legal retention of records.',
+    AppLanguage.spanish =>
+      'El paquete se generó, verificó y entregó al sistema para guardarlo. '
+          'Comprueba que el archivo está donde elegiste y guarda una copia '
+          'segura. Esto no sustituye la orientación sobre la conservación '
+          'legal de las historias clínicas.',
+  };
+
+  String get exportPendingSyncMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Há alterações neste aparelho que ainda não foram enviadas. Conecte-se '
+          'à internet, aguarde a sincronização terminar e tente de novo.',
+    AppLanguage.english =>
+      'There are changes on this device not yet uploaded. Connect to the '
+          'internet, wait for sync to finish and try again.',
+    AppLanguage.spanish =>
+      'Hay cambios en este dispositivo que aún no se enviaron. Conéctate a '
+          'internet, espera a que termine la sincronización e inténtalo de '
+          'nuevo.',
+  };
+
+  String get exportIncompleteMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível gerar um pacote completo e conferido, então nenhum '
+          'arquivo foi salvo. Seus dados não foram alterados. Tente novamente '
+          'com boa conexão; se persistir, fale com o suporte.',
+    AppLanguage.english =>
+      'We could not produce a complete, verified package, so no file was '
+          'saved. Your data was not changed. Try again with a good connection; '
+          'if it persists, contact support.',
+    AppLanguage.spanish =>
+      'No se pudo generar un paquete completo y verificado, así que no se '
+          'guardó ningún archivo. Tus datos no cambiaron. Inténtalo de nuevo '
+          'con buena conexión; si persiste, contacta al soporte.',
   };
 
   String get deleteAccountConfirmLabel => switch (language) {
