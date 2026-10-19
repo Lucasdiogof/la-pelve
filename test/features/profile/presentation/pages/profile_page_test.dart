@@ -13,6 +13,7 @@ import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_theme.dart';
 import 'package:la_pelve/core/theme/theme_cubit.dart';
+import 'package:la_pelve/features/auth/domain/entities/data_deletion_schedule.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 import 'package:la_pelve/features/profile/domain/entities/profile.dart';
 import 'package:la_pelve/features/profile/domain/repositories/profile_repository.dart';
@@ -290,25 +291,88 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Excluir minha conta com dados: explica o bloqueio e NÃO chama deleteAccount',
-    (tester) async {
+  group('Excluir minha conta com dados (30 dias para desistir)', () {
+    Future<void> openDialog(WidgetTester tester) async {
       when(
         () => auth.checkAccountDeletionAllowed(),
       ).thenAnswer((_) async => Error(AccountHasDataFailure()));
       await pumpProfile(tester);
-
       final delete = find.widgetWithText(TextButton, 'Excluir minha conta');
       await tester.ensureVisible(delete);
       await tester.tap(delete);
       await tester.pumpAndSettle();
+    }
 
-      expect(find.textContaining('encerramento assistido'), findsOneWidget);
-      expect(
-        find.widgetWithText(ElevatedButton, 'Excluir conta'),
-        findsNothing,
-      );
+    testWidgets('abre o aviso e nunca chama a exclusão imediata', (
+      tester,
+    ) async {
+      await openDialog(tester);
+      expect(find.text('Excluir todos os meus dados'), findsOneWidget);
+      expect(find.textContaining('30 dias'), findsWidgets);
       verifyNever(() => auth.deleteAccount());
-    },
-  );
+      verifyNever(() => auth.requestDataDeletion());
+    });
+
+    testWidgets('botão só habilita depois de digitar EXCLUIR', (tester) async {
+      await openDialog(tester);
+      final button = find.widgetWithText(
+        ElevatedButton,
+        'Excluir tudo em 30 dias',
+      );
+      expect(tester.widget<ElevatedButton>(button).onPressed, isNull);
+      await tester.enterText(find.byType(TextField), 'excluir');
+      await tester.pump();
+      expect(tester.widget<ElevatedButton>(button).onPressed, isNotNull);
+      await tester.enterText(find.byType(TextField), 'EXCLUI');
+      await tester.pump();
+      expect(tester.widget<ElevatedButton>(button).onPressed, isNull);
+    });
+
+    testWidgets('digitando a palavra, pede a exclusão agendada', (
+      tester,
+    ) async {
+      when(() => auth.requestDataDeletion()).thenAnswer(
+        (_) async => Success(
+          DataDeletionSchedule(
+            requestedAt: DateTime(2026, 10, 19),
+            purgeAfter: DateTime(2026, 11, 18),
+          ),
+        ),
+      );
+      await openDialog(tester);
+      await tester.enterText(find.byType(TextField), 'EXCLUIR');
+      await tester.pump();
+      await tester.tap(
+        find.widgetWithText(ElevatedButton, 'Excluir tudo em 30 dias'),
+      );
+      await tester.pumpAndSettle();
+      verify(() => auth.requestDataDeletion()).called(1);
+      verifyNever(() => auth.deleteAccount());
+      expect(find.textContaining('18/11/2026'), findsOneWidget);
+    });
+
+    testWidgets('falha do servidor: avisa que nada foi apagado', (
+      tester,
+    ) async {
+      when(
+        () => auth.requestDataDeletion(),
+      ).thenAnswer((_) async => Error(ServerFailure()));
+      await openDialog(tester);
+      await tester.enterText(find.byType(TextField), 'EXCLUIR');
+      await tester.pump();
+      await tester.tap(
+        find.widgetWithText(ElevatedButton, 'Excluir tudo em 30 dias'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Nada foi apagado'), findsOneWidget);
+    });
+
+    testWidgets('cancelar não pede nada', (tester) async {
+      await openDialog(tester);
+      await tester.tap(find.widgetWithText(TextButton, 'Cancelar'));
+      await tester.pumpAndSettle();
+      verifyNever(() => auth.requestDataDeletion());
+      verifyNever(() => auth.deleteAccount());
+    });
+  });
 }

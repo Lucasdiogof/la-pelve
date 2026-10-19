@@ -5,6 +5,7 @@ import 'package:la_pelve/core/offline/ui/sync_strings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
@@ -18,6 +19,7 @@ import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart'
 import 'package:la_pelve/features/patients/presentation/pages/image_viewer_page.dart';
 import 'package:la_pelve/features/profile/l10n/profile_strings.dart';
 import 'package:la_pelve/features/profile/presentation/pages/profile_export_flow.dart';
+import 'package:la_pelve/features/profile/presentation/widgets/data_deletion_dialog.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:la_pelve/features/profile/presentation/cubit/profile_state.dart';
 import 'package:la_pelve/features/profile/presentation/widgets/profile_avatar_section.dart';
@@ -128,6 +130,40 @@ class ProfilePage extends StatelessWidget {
     if (context.mounted) context.go('/');
   }
 
+  /// Conta com dados: não existe exclusão imediata. A pessoa pode exportar,
+  /// ou confirmar a exclusão de tudo com 30 dias para desistir.
+  Future<void> _dataDeletionFlow(BuildContext context, ProfileStrings t) async {
+    final choice = await DataDeletionDialog.show(context, t);
+    if (!context.mounted) return;
+    switch (choice) {
+      case DataDeletionChoice.cancel:
+        return;
+      case DataDeletionChoice.exportFirst:
+        await runDataExportFlow(context, t);
+        return;
+      case DataDeletionChoice.confirm:
+        break;
+    }
+    showAppLoading();
+    final result = await sl<AuthRepository>().requestDataDeletion();
+    hideAppLoading();
+    if (!context.mounted) return;
+    switch (result) {
+      case Success(:final data):
+        await AppInfoBottomSheet.showSuccess(
+          context,
+          title: t.dataDeletionTitle,
+          description: t.dataDeletionScheduledDone(data.purgeAfter),
+        );
+        if (context.mounted) context.go('/');
+      case Error():
+        await AppInfoBottomSheet.showError(
+          context,
+          description: t.dataDeletionFailedMessage,
+        );
+    }
+  }
+
   Future<void> _deleteAccount(BuildContext context) async {
     final t = ProfileStrings(context.read<LocaleCubit>().state);
     // O servidor decide ANTES de qualquer confirmação destrutiva: conta com
@@ -137,6 +173,10 @@ class ProfilePage extends StatelessWidget {
     hideAppLoading();
     if (!context.mounted) return;
     if (check case Error(:final failure)) {
+      if (failure is AccountHasDataFailure) {
+        await _dataDeletionFlow(context, t);
+        return;
+      }
       await AppInfoBottomSheet.showError(
         context,
         title: t.deleteAccountLabel,

@@ -198,7 +198,7 @@ begin
       'patients', 'evolution_entries', 'appointments', 'financial_entries', 'attachments',
       'patient_consents', 'whatsapp_messages',
       -- conta e configuração de integração (sem dado de paciente; metadados/credenciais removidos com a conta)
-      'profiles', 'whatsapp_connections', 'whatsapp_connect_attempts', 'whatsapp_inbound_messages',
+      'profiles', 'account_deletion_requests', 'whatsapp_connections', 'whatsapp_connect_attempts', 'whatsapp_inbound_messages',
       'whatsapp_connection_credentials', 'whatsapp_informative_gate', 'whatsapp_phone_registration_guard');
   perform pg_temp.check(desconhecidas is null,
     'toda tabela com FK para auth.users está classificada (novas: ' || coalesce(desconhecidas::text, '-') || ')');

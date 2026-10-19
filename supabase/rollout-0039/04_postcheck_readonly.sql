@@ -1,4 +1,4 @@
--- POS-CHECK da 0039 + 0040. SOMENTE LEITURA. Esperado: todas PASS (a linha 10 e informativa).
+-- POS-CHECK da 0039 + 0040 + 0041. SOMENTE LEITURA. Esperado: todas PASS (a linha 10 e informativa).
 --   npx.cmd supabase db query -f supabase/rollout-0039/04_postcheck_readonly.sql --linked --project-ref lchaboncmgcimafpupad
 with checks(item, esperado, atual) as (
   values
@@ -38,6 +38,24 @@ with checks(item, esperado, atual) as (
     ('09 nenhuma coluna de custodia criada em profiles (desenho antigo nao e usado)', '0',
       (select count(*) from information_schema.columns where table_schema='public' and table_name='profiles'
          and column_name like 'custody%')::text),
+    ('11 0041: funcoes do app para authenticated, nao anon', 'true',
+      (has_function_privilege('authenticated', 'public.request_account_data_deletion(text)', 'execute')
+       and has_function_privilege('authenticated', 'public.cancel_account_data_deletion()', 'execute')
+       and has_function_privilege('authenticated', 'public.get_account_deletion_status()', 'execute')
+       and not has_function_privilege('anon', 'public.request_account_data_deletion(text)', 'execute')
+       and not has_function_privilege('anon', 'public.cancel_account_data_deletion()', 'execute')
+       and not has_function_privilege('anon', 'public.get_account_deletion_status()', 'execute'))::text),
+    ('12 0041: purga so para service_role', 'true',
+      (has_function_privilege('service_role', 'public.finalize_account_deletion(uuid)', 'execute')
+       and has_function_privilege('service_role', 'public.list_due_account_deletions(integer)', 'execute')
+       and not has_function_privilege('authenticated', 'public.finalize_account_deletion(uuid)', 'execute')
+       and not has_function_privilege('anon', 'public.finalize_account_deletion(uuid)', 'execute')
+       and not has_function_privilege('authenticated', 'public.list_due_account_deletions(integer)', 'execute'))::text),
+    ('13 0041: tabela de pedidos com RLS e sem acesso do app', 'true',
+      (to_regclass('public.account_deletion_requests') is not null
+       and coalesce((select relrowsecurity from pg_class where oid = to_regclass('public.account_deletion_requests')), false)
+       and not has_table_privilege('authenticated', 'public.account_deletion_requests', 'select')
+       and not has_table_privilege('anon', 'public.account_deletion_requests', 'select'))::text),
     ('10 a migration nao alterou dados: log e recibos vazios antes do uso', 'info', 'info')
 )
 select item, esperado, atual,

@@ -1,4 +1,4 @@
--- PRE-FLIGHT das migrations 0039 + 0040. SOMENTE LEITURA.
+-- PRE-FLIGHT das migrations 0039 + 0040 + 0041. SOMENTE LEITURA.
 --   npx.cmd supabase db query -f supabase/rollout-0039/01_preflight_readonly.sql --linked --project-ref lchaboncmgcimafpupad
 -- Esperado: todas PASS (as linhas INFO so mostram numeros).
 with checks(item, esperado, atual) as (
@@ -10,7 +10,9 @@ with checks(item, esperado, atual) as (
        + (to_regprocedure('public.record_data_export(text, jsonb)') is not null)::int
        + (to_regclass('public.account_deletion_log') is not null)::int
        + (to_regclass('public.data_export_receipts') is not null)::int
-       + (to_regclass('public.attachments_storage_path_idx') is not null)::int)::text),
+       + (to_regclass('public.attachments_storage_path_idx') is not null)::int
+       + (to_regclass('public.account_deletion_requests') is not null)::int
+       + (to_regprocedure('public.request_account_data_deletion(text)') is not null)::int)::text),
     ('03 politica de Storage nova ainda nao existe', '0',
       (select count(*) from pg_policies where schemaname='storage' and tablename='objects'
          and policyname = 'Keep referenced attachment files')::text),

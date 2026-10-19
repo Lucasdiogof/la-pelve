@@ -10,6 +10,7 @@ import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/features/auth/data/account_deletion_coordinator.dart';
 import 'package:la_pelve/features/auth/domain/entities/app_user.dart';
+import 'package:la_pelve/features/auth/domain/entities/data_deletion_schedule.dart';
 import 'package:la_pelve/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -147,6 +148,63 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> deleteAccount() =>
       _runDeletion(_deletion.run, 'deleteAccount');
+
+  @override
+  Future<Result<DataDeletionSchedule?>> getDataDeletionSchedule() async {
+    try {
+      final data = await _client.rpc<dynamic>('get_account_deletion_status');
+      if (data is Map) {
+        return Success(
+          DataDeletionSchedule.fromJson(Map<String, dynamic>.from(data)),
+        );
+      }
+      return const Success(null);
+    } catch (e) {
+      debugPrint('[AuthRepository.getDataDeletionSchedule] ${e.runtimeType}');
+      return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Result<DataDeletionSchedule>> requestDataDeletion() async {
+    try {
+      final data = await _client.rpc<dynamic>(
+        'request_account_data_deletion',
+        params: {'p_confirmation': 'EXCLUIR_TODOS_OS_DADOS'},
+      );
+      final schedule = DataDeletionSchedule.fromJson(
+        Map<String, dynamic>.from(data as Map),
+      );
+      // Sai da conta e limpa o cache deste aparelho: os dados somem da tela
+      // na hora; para voltar, é só entrar de novo e restaurar dentro do prazo.
+      final userId = _client.auth.currentUser?.id;
+      try {
+        await _client.auth.signOut();
+        if (userId != null) await offline?.wipeUser(userId);
+      } catch (_) {}
+      return Success(schedule);
+    } on PostgrestException catch (e) {
+      debugPrint('[AuthRepository.requestDataDeletion] code=${e.code}');
+      return Error(ServerFailure());
+    } catch (e) {
+      debugPrint('[AuthRepository.requestDataDeletion] ${e.runtimeType}');
+      return Error(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Result<void>> cancelDataDeletion() async {
+    try {
+      await _client.rpc<void>('cancel_account_data_deletion');
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      debugPrint('[AuthRepository.cancelDataDeletion] code=${e.code}');
+      return Error(ServerFailure());
+    } catch (e) {
+      debugPrint('[AuthRepository.cancelDataDeletion] ${e.runtimeType}');
+      return Error(UnexpectedFailure());
+    }
+  }
 
   Future<Result<void>> _runDeletion(
     Future<void> Function() body,

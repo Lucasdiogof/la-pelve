@@ -5,7 +5,7 @@ Rascunho técnico. Decisões de prazo e de quem guarda são jurídicas (`LEGAL_D
 ## Dois atos diferentes
 1. **Encerrar acesso à plataforma:** a profissional deixa de usar o La Pelve (fim de contrato). Não apaga nada. Futuro: desativar login e envio de WhatsApp, manter os dados isolados.
 2. **Eliminar definitivamente os dados:** só depois de exportação conferida, transferência de custódia (ou decisão documentada) e atendimento do prazo aplicável. Registro mínimo em `account_deletion_log` (sem conteúdo clínico).
-Hoje o app só consegue o ato 2 para contas **vazias**. Não existe retenção automática: nada é guardado "por padrão" por 5 ou 20 anos sem decisão jurídica e contratual.
+Hoje o app faz o ato 2 assim: conta **vazia** exclui na hora; conta **com dados** pede a exclusão de tudo e tem **30 dias para desistir** (0041), depois a rotina `account-purge` apaga. Falta o ato 1 (encerrar sem apagar), a transferência de custódia e o aviso por e-mail perto do fim do prazo. Não existe retenção automática: nada é guardado "por padrão" por 5 ou 20 anos sem decisão jurídica e contratual.
 
 ## Situações que exigem tratamento assistido (manual, pelo dono)
 | Situação | Tratamento |

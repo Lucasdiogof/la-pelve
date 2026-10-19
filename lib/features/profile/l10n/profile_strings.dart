@@ -227,6 +227,137 @@ class ProfileStrings {
           'puede deshacer.',
   };
 
+  // ----- Exclusão definitiva de todos os dados (30 dias para desistir) -----
+  String get dataDeletionTitle => switch (language) {
+    AppLanguage.portuguese => 'Excluir todos os meus dados',
+    AppLanguage.english => 'Delete all my data',
+    AppLanguage.spanish => 'Eliminar todos mis datos',
+  };
+
+  String get dataDeletionDescription => switch (language) {
+    AppLanguage.portuguese =>
+      'Sua conta tem pacientes, prontuários e outros registros. Se continuar, '
+          'TUDO será apagado definitivamente: pacientes (inclusive os já '
+          'removidos da lista), anamneses, evoluções, agenda, financeiro, '
+          'consentimentos, fotos e documentos.\n\n'
+          'Você tem 30 dias para desistir: entre de novo no app e toque em '
+          'Restaurar. Depois disso não há como recuperar. Os lembretes de '
+          'WhatsApp são pausados agora.\n\n'
+          'Prontuários podem ter prazo legal de guarda. A responsabilidade por '
+          'guardar uma cópia é sua: exporte antes.',
+    AppLanguage.english =>
+      'Your account has patients, medical records and other data. If you '
+          'continue, EVERYTHING will be permanently erased: patients (including '
+          'those already removed from the list), medical histories, '
+          'evolutions, agenda, finances, consents, photos and documents.\n\n'
+          'You have 30 days to change your mind: sign in again and tap '
+          'Restore. After that it cannot be recovered. WhatsApp reminders are '
+          'paused now.\n\n'
+          'Medical records may have a legal retention period. Keeping a copy '
+          'is your responsibility: export first.',
+    AppLanguage.spanish =>
+      'Tu cuenta tiene pacientes, historias clínicas y otros registros. Si '
+          'continúas, TODO se borrará definitivamente: pacientes (incluso los '
+          'ya quitados de la lista), anamnesis, evoluciones, agenda, finanzas, '
+          'consentimientos, fotos y documentos.\n\n'
+          'Tienes 30 días para arrepentirte: entra de nuevo en la app y toca '
+          'Restaurar. Después no hay forma de recuperar. Los recordatorios de '
+          'WhatsApp se pausan ahora.\n\n'
+          'Las historias clínicas pueden tener un plazo legal de conservación. '
+          'Guardar una copia es responsabilidad tuya: exporta antes.',
+  };
+
+  String get dataDeletionTypeToConfirm => switch (language) {
+    AppLanguage.portuguese => 'Para confirmar, digite EXCLUIR',
+    AppLanguage.english => 'To confirm, type DELETE',
+    AppLanguage.spanish => 'Para confirmar, escribe ELIMINAR',
+  };
+
+  /// Palavra que a pessoa precisa digitar (sem diferenciar maiúsculas).
+  String get dataDeletionKeyword => switch (language) {
+    AppLanguage.portuguese => 'EXCLUIR',
+    AppLanguage.english => 'DELETE',
+    AppLanguage.spanish => 'ELIMINAR',
+  };
+
+  String get dataDeletionExportFirst => switch (language) {
+    AppLanguage.portuguese => 'Exportar meus dados primeiro',
+    AppLanguage.english => 'Export my data first',
+    AppLanguage.spanish => 'Exportar mis datos primero',
+  };
+
+  String get dataDeletionConfirmLabel => switch (language) {
+    AppLanguage.portuguese => 'Excluir tudo em 30 dias',
+    AppLanguage.english => 'Delete everything in 30 days',
+    AppLanguage.spanish => 'Eliminar todo en 30 días',
+  };
+
+  String dataDeletionScheduledDone(DateTime purgeAfter) => switch (language) {
+    AppLanguage.portuguese =>
+      'Exclusão agendada para ${formatDate(purgeAfter)}. Até lá você pode '
+          'entrar e restaurar a conta.',
+    AppLanguage.english =>
+      'Deletion scheduled for ${formatDate(purgeAfter)}. Until then you '
+          'can sign in and restore the account.',
+    AppLanguage.spanish =>
+      'Eliminación programada para ${formatDate(purgeAfter)}. Hasta '
+          'entonces puedes entrar y restaurar la cuenta.',
+  };
+
+  String get scheduledPageTitle => switch (language) {
+    AppLanguage.portuguese => 'Exclusão agendada',
+    AppLanguage.english => 'Deletion scheduled',
+    AppLanguage.spanish => 'Eliminación programada',
+  };
+
+  String scheduledPageBody(DateTime purgeAfter) => switch (language) {
+    AppLanguage.portuguese =>
+      'Todos os dados desta conta serão apagados definitivamente em '
+          '${formatDate(purgeAfter)}. Se foi engano, restaure agora: nada '
+          'será perdido. Os lembretes de WhatsApp foram pausados e podem '
+          'precisar ser reconectados.',
+    AppLanguage.english =>
+      'All data in this account will be permanently erased on '
+          '${formatDate(purgeAfter)}. If this was a mistake, restore now: '
+          'nothing will be lost. WhatsApp reminders were paused and may need '
+          'to be reconnected.',
+    AppLanguage.spanish =>
+      'Todos los datos de esta cuenta se borrarán definitivamente el '
+          '${formatDate(purgeAfter)}. Si fue un error, restaura ahora: no se '
+          'perderá nada. Los recordatorios de WhatsApp se pausaron y quizá '
+          'haya que reconectarlos.',
+  };
+
+  String get restoreAccountLabel => switch (language) {
+    AppLanguage.portuguese => 'Restaurar minha conta',
+    AppLanguage.english => 'Restore my account',
+    AppLanguage.spanish => 'Restaurar mi cuenta',
+  };
+
+  String get restoreFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível restaurar agora. Verifique a conexão e tente de novo.',
+    AppLanguage.english =>
+      'Could not restore right now. Check your connection and try again.',
+    AppLanguage.spanish =>
+      'No se pudo restaurar ahora. Revisa la conexión e inténtalo de nuevo.',
+  };
+
+  String get dataDeletionFailedMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível agendar a exclusão. Nada foi apagado. Tente de novo.',
+    AppLanguage.english =>
+      'Could not schedule the deletion. Nothing was deleted. Try again.',
+    AppLanguage.spanish =>
+      'No se pudo programar la eliminación. No se borró nada. Inténtalo de nuevo.',
+  };
+
+  static String formatDate(DateTime d) {
+    final l = d.toLocal();
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(l.day)}/${two(l.month)}/${l.year}';
+  }
+
   String get exportRowLabel => switch (language) {
     AppLanguage.portuguese => 'Exportar meus dados',
     AppLanguage.english => 'Export my data',

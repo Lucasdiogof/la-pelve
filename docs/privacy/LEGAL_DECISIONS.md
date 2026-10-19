@@ -17,6 +17,7 @@ Rascunho técnico, não parecer. Cada item diz o que é **exigência legal efeti
 | 10 | Política de privacidade: ajustes | Exigência legal | Ver `PRIVACY_POLICY_REVIEW.md` | Advogado |
 | 12 | Prazo de guarda do registro de auditoria da exclusão/exportação | Decisão do dono + advogado | Proposta em `ASSISTED_CLOSURE.md` | Advogado |
 | 13 | Canal de suporte para encerramento assistido | Decisão do dono | **Definido: marketing@lucksrei.com** (canal único de suporte da marca); já citado nas mensagens do app | Dono |
+| 14 | Reter dados de pacientes DEPOIS do pedido de exclusão, para consulta da empresa | **Decisão jurídica; não implementado** | Como operador, usar dado de saúde para finalidade própria exige base legal; os 30 dias existem só para a profissional desistir. Qualquer retenção adicional (defesa de direitos etc.) precisa de prazo, finalidade e acesso restrito definidos pelo advogado | Advogado + dono |
 | 11 | Liberação para uso clínico real da versão Web | Decisão do dono | A web está publicada em `lapelve.lucksrei.com` desde 19/10/2026 por autorização do dono; **uso clínico real segue dependendo dos itens acima** | Dono |
 
 Fontes consultadas em 19/10/2026 (conferir no texto oficial): Res. COFFITO 414/2012 (normasbrasil.com.br), Lei 13.787/2018 (camara.leg.br), Res. CD/ANPD 15/2024 e 18/2024 (resumos secundários e DOU).

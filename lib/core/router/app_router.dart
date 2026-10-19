@@ -12,6 +12,7 @@ import 'package:la_pelve/features/agenda/presentation/cubit/agenda_cubit.dart';
 import 'package:la_pelve/features/agenda/presentation/pages/agenda_form_page.dart';
 import 'package:la_pelve/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:la_pelve/features/auth/presentation/pages/login_page.dart';
+import 'package:la_pelve/features/auth/presentation/widgets/deletion_scheduled_gate.dart';
 import 'package:la_pelve/features/auth/presentation/pages/register_page.dart';
 import 'package:la_pelve/features/auth/presentation/pages/recovery_code_page.dart';
 import 'package:la_pelve/features/auth/presentation/pages/reset_password_page.dart';
@@ -103,16 +104,18 @@ final GoRouter appRouter = GoRouter(
       path: '/home',
       pageBuilder: (context, state) => appPage(
         state,
-        _authenticated(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider.value(value: sl<PatientsCubit>()),
-              BlocProvider.value(value: sl<FinancialCubit>()),
-              BlocProvider.value(value: sl<AgendaCubit>()),
-              BlocProvider.value(value: sl<ProfileCubit>()),
-              BlocProvider.value(value: sl<HomeFinancialVisibilityCubit>()),
-            ],
-            child: const HomeShellPage(),
+        DeletionScheduledGate(
+          child: _authenticated(
+            MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: sl<PatientsCubit>()),
+                BlocProvider.value(value: sl<FinancialCubit>()),
+                BlocProvider.value(value: sl<AgendaCubit>()),
+                BlocProvider.value(value: sl<ProfileCubit>()),
+                BlocProvider.value(value: sl<HomeFinancialVisibilityCubit>()),
+              ],
+              child: const HomeShellPage(),
+            ),
           ),
         ),
       ),

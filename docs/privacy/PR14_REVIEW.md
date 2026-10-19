@@ -24,3 +24,7 @@ Bloquear a exclusão de conta com dados até existir exportação e transferênc
 - Exportação em memória; sem assinatura; entrega ao sistema de arquivos não é verificável; não testada em dispositivo real nesta rodada.
 - `whatsapp_connections` e credenciais são removidas com a conta (configuração, sem dado de paciente); revogação do token na Meta não é feita pela exclusão.
 - Backups do Supabase e prazos jurídicos: pendentes.
+
+## Atualização: exclusão com 30 dias para desistir (0041)
+Pedido do dono: permitir "excluir todos os dados" de conta com dados. Implementado com prazo de arrependimento de 30 dias (decisão do dono), exportação oferecida antes, confirmação digitada, pausa dos lembretes de WhatsApp, tela de restaurar e purga por Edge Function com service_role que remove o Storage pela API, confere zero objetos e só então apaga a conta. Retenção para consulta da empresa NÃO foi implementada (decisão jurídica, item 14).
+Riscos novos: (1) a purga só roda com o cron agendado e a função deployada (nada disso feito); (2) restaurar não recria lembretes cancelados nem garante a conexão do WhatsApp se ela mudou nesse período; (3) quem deixa o prazo vencer perde tudo sem aviso por e-mail (pendente); (4) durante os 30 dias os dados continuam no banco e nos backups do Supabase (não verificados).
