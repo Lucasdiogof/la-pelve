@@ -45,6 +45,7 @@ attempt() { # runs all checks once; returns 0 when clean
   for k in x-content-type-options strict-transport-security x-frame-options referrer-policy; do
     grep -qi "^$k:" "$tmp/head_root" && ok "header $k" || bad "header $k missing"
   done
+  grep -qi "^content-security-policy-report-only:" "$tmp/head_root" && ok "header content-security-policy-report-only" || bad "header content-security-policy-report-only missing"
   cc="$(grep -i '^cache-control:' "$tmp/head_root" | tr -d '\r' | cut -d' ' -f2-)"; echo "info cache-control: ${cc:-none}"
   case "$HOST" in
     *.workers.dev) echo "info http->https redirect not enforced on workers.dev (HSTS header is checked instead)";;

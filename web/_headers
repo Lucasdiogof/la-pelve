@@ -5,6 +5,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Strict-Transport-Security: max-age=31536000
+  # CSP em modo Report-Only (nao bloqueia nada): serve para medir violacoes no console antes de ativar.
+  # CanvasKit exige wasm-unsafe-eval; CanvasKit/fontes padrao do Flutter vem de www.gstatic.com.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-LEIgqV9+9hWnNcFZ7vYClnAB0Fj6CI1idm4CgGmnQ5g=' 'sha256-Ol/TDVZL5HMcadtrjwdJZXECVzkJCKapJLpdrmH4QvI=' 'sha256-SME6zsNvdSc9Hk79ADFvZIFIPs5v+mPUFQKEwV1M3hA=' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://www.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.gstatic.com https://fonts.gstatic.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   # Revalidate by default (ETag): Flutter's entry files are NOT content-hashed,
   # so long caching would pin users to an old build. Cheap: asset requests are free.
   Cache-Control: no-cache
