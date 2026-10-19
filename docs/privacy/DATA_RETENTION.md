@@ -15,11 +15,13 @@ Nada aqui é parecer jurídico nem prazo definitivo do produto. Prazos marcados 
 | Consentimentos (incl. WhatsApp) | Enquanto durar o tratamento + prazo para defesa de direitos (A DEFINIR) | Exercício regular de direitos | Idem | DECISÃO PENDENTE |
 | Agenda e mensagens WhatsApp (log de status) | A DEFINIR | Execução do serviço/legítimo interesse (a avaliar) | Eliminação automática (não implementada) | NÃO IMPLEMENTADO |
 | Financeiro | A DEFINIR (obrigações fiscais/contábeis da profissional) | Obrigação legal | Idem | DECISÃO PENDENTE |
-| Conta e perfil da profissional | Enquanto a conta existir | Execução de contrato | Exclusão da conta com trava de custódia (migration 0039) | PARCIAL |
+| Conta e perfil da profissional | Enquanto a conta existir | Execução de contrato | Exclusão só de conta vazia; com dados, bloqueada no servidor (0039) | PARCIAL |
 | Logs técnicos (Cloudflare, Supabase, Edge Functions) | NÃO VERIFICADO (depende do plano) | Segurança | Retenção do fornecedor | NÃO VERIFICADO |
 | Backups do Supabase | NÃO VERIFICADO | Continuidade | Retenção do fornecedor | NÃO VERIFICADO |
 
 ## Regras técnicas propostas
 - Exclusão de paciente no app continua sendo **soft delete** (`deleted_at`); não é eliminação.
-- Exclusão de conta exige custódia confirmada (0039). Não implementar retenção indefinida automática: o prazo e o responsável pela guarda após o encerramento (profissional, clínica ou fornecedor sob contrato) são decisões pendentes.
+- Exclusão de conta com qualquer dado é bloqueada no servidor (0039) até existir transferência de custódia; declaração não libera. Não implementar retenção indefinida automática: o prazo e o responsável pela guarda após o encerramento (profissional, clínica ou fornecedor sob contrato) são decisões pendentes.
 - Eliminação após o prazo: procedimento manual documentado, com registro (quem, quando, o quê) e sem conteúdo clínico no registro.
+
+- Registro de auditoria (`account_deletion_log`, `data_export_receipts`): proposta de prazo em `ASSISTED_CLOSURE.md`, decisão pendente.

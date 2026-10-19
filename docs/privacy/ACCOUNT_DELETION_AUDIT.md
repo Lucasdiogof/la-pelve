@@ -28,18 +28,13 @@ Todas as tabelas clínicas referenciam `auth.users(id)` com `ON DELETE CASCADE`,
 4. **Sem registro do ato:** nada registra que a profissional foi avisada nem que assumiu a guarda.
 5. **Papel do fornecedor:** em regra a profissional é controladora dos dados dos pacientes; o fornecedor (operador) apagar tudo ao encerrar a conta sem etapa de custódia deixa a controladora sem os registros que ela mesma deve guardar.
 
-## O que foi implementado (branch `security/lgpd-web-hardening`, PR em rascunho)
-Status: **IMPLEMENTADO, PENDENTE DE VALIDAÇÃO** (testes SQL rodam no CI; migration NÃO aplicada em produção).
+## O que foi implementado (branch `security/lgpd-web-hardening`, PR #14 em rascunho; nada em produção)
+- **Exclusão só de conta vazia**, decidida no servidor (migration 0039): bloqueia se houver paciente (inclusive soft-deleted), evolução, agenda, financeiro, anexo, consentimento, mensagem WhatsApp ou **qualquer objeto** do bucket de anexos. Trava a linha do usuário antes de revalidar, para que dado criado durante a exclusão não seja levado pelo cascade.
+- **Sequência segura no app:** pré-checagem no servidor -> só o avatar é removido pelo cliente -> RPC. Anexos clínicos nunca são removidos pelo cliente (o risco 3 acima deixa de existir).
+- **0040:** o Storage recusa remover arquivo referenciado por anexo (protege contra o app antigo).
+- **Exportação ZIP verificada** (`DATA_EXPORT.md`), com recibo conferido pelo servidor.
+- **Log mínimo** sem FK (`account_deletion_log`), sobrevive ao cascade.
+- Texto do app em pt/en/es; a declaração de responsabilidade foi removida.
 
-- Migration `0039_account_deletion_custody_guard.sql` (aditiva e idempotente): colunas `custody_confirmed_at/method` em `profiles`; RPC `confirm_clinical_data_custody(method)`; RPC `check_account_deletion_allowed()`; `delete_own_account()` passa a exigir custódia confirmada nas últimas 24 h quando há pacientes, evoluções ou anexos (erro `custody_not_confirmed`). Não altera nenhum dado existente.
-- App: registra a custódia e valida no servidor **antes** de apagar arquivos; o texto de confirmação (pt/en/es) agora informa que prontuários podem ter prazo legal de guarda e que o ato é uma declaração de responsabilidade.
-- Teste SQL `supabase/tests/0039_account_deletion_custody_guard.test.sql`.
-
-**Ordem de aplicação:** publicar o app novo primeiro, depois aplicar a migration (apps antigos passam a falhar com segurança, sem apagar nada).
-
-## O que falta (decisão e trabalho)
-- **Exportação** (JSON/CSV/PDF com anexos) no app: BLOQUEADO por decisão de formato e por adicionar dependência de compartilhamento/salvamento de arquivo. Com ela, `export_downloaded` passa a ser o caminho principal e `declared_responsibility` o alternativo.
-- Fluxo "encerrar conta" separado de "excluir dados": desativar acesso e reter por prazo, com eliminação posterior documentada. Depende de decisão jurídica (`LEGAL_DECISIONS.md`).
-- Exclusão de dados de paciente a pedido do titular: é avaliada pela controladora (a profissional), respeitando a guarda. O app já usa soft delete.
-- Eliminação definitiva do Storage de arquivos de pacientes com soft delete: não implementada.
-- Conferir a política de backup do Supabase (não consultada).
+## O que falta
+Transferência de custódia, encerramento assistido e eliminação por estados (`ASSISTED_CLOSURE.md`), decisões jurídicas, política de backup do Supabase, limpeza de órfãos, tela de versão mínima.
