@@ -22,7 +22,7 @@ def main(path: str) -> int:
         bad = z.testzip()
         if bad:
             problems.append(f"entrada corrompida no ZIP: {bad}")
-        names = set(z.namelist())
+        names = {n for n in z.namelist() if not n.endswith("/")}  # ignora entradas de pasta
         manifest = json.loads(z.read("manifest.json"))
         expected = {"manifest.json", "LEIA-ME.txt"}
 
