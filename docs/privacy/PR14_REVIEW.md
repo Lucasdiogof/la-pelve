@@ -20,7 +20,7 @@ Bloquear a exclusão de conta com dados até existir exportação e transferênc
 ## Não resolvido
 - Custódia legal: exportar não é transferir custódia. Sem fluxo de encerramento, contas com dados ficam sem caminho de saída além do assistido manual.
 - App antigo em campo: perde só a capacidade de apagar anexos referenciados; apagar um anexo isolado nele deixa arquivo órfão.
-- Concorrência testada só por desenho (trava de linha); o teste SQL é de sessão única.
+- Concorrência: o teste SQL do CI é de sessão única. Foi verificada à mão, com duas conexões reais em Postgres 16.9 local (fora do CI): inserção concorrente durante a exclusão falha por FK sem criar paciente; exclusão concorrente com inserção pendente é recusada (`account_has_data`) e preserva usuário e paciente. Migrations 0039/0040 reaplicadas duas vezes sem erro; pré-flight, dry-run (nada persiste), pós-check e rollbacks 03/03a executados num banco descartável. Esse banco local não tinha Vault, então as migrations 0026+ foram puladas ali; o CI roda a cadeia completa.
 - Exportação em memória; sem assinatura; entrega ao sistema de arquivos não é verificável; não testada em dispositivo real nesta rodada.
 - `whatsapp_connections` e credenciais são removidas com a conta (configuração, sem dado de paciente); revogação do token na Meta não é feita pela exclusão.
 - Backups do Supabase e prazos jurídicos: pendentes.

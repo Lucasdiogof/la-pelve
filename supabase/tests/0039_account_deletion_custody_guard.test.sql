@@ -233,6 +233,8 @@ begin
 end $$;
 
 -- 7. Migration 0040: arquivo referenciado por anexo não é removível pelo usuário; órfão e avatar são.
+grant usage on schema storage to authenticated;
+grant execute on function storage.foldername(text) to authenticated;
 grant select, delete on storage.objects to authenticated;
 grant select on public.attachments to authenticated;
 
