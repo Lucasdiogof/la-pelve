@@ -13,7 +13,7 @@ class PatientPickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSheet(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
+        maxHeight: MediaQuery.sizeOf(context).height * 0.7,
       ),
       children: [
         Text(

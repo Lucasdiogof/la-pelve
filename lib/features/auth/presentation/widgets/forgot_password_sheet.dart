@@ -81,7 +81,7 @@ class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
       child: BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
         builder: (context, formState) => Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
           ),
           child: AppSheet(
             children: [

@@ -51,7 +51,7 @@ class _DischargeSheetState extends State<_DischargeSheet> {
       child: BlocBuilder<DischargeSheetCubit, DischargeSheetState>(
         builder: (context, formState) => Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
           ),
           child: AppSheet(
             children: [
