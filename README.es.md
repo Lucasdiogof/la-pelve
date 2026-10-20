@@ -68,7 +68,7 @@ La Pelve es una herramienta para **fisioterapeutas** que trabajan con salud pél
 - Perfil profesional con foto y número de registro profesional (Crefito).
 - Cambio de contraseña, idioma y tema.
 - Bloqueo de la app con biometría en el móvil.
-- Eliminación de la cuenta por la propia profesional, que borra los datos y archivos de la cuenta.
+- Exportación de datos (ZIP con historias y adjuntos) y eliminación por la propia profesional: la cuenta vacía se elimina al instante; la cuenta con datos se borra tras 30 días, plazo en el que puede restaurarse.
 
 **En desarrollo: recordatorios de citas por WhatsApp**
 - La base para recordatorios opcionales de citas mediante la cuenta de WhatsApp Business de cada profesional ya existe: registro del consentimiento por paciente y pantalla de conexión en el perfil. El envío de recordatorios todavía no está activo. Los recordatorios están pensados para incluir solo los datos de la cita, nunca información clínica.
@@ -82,7 +82,7 @@ La Pelve maneja información sensible de salud, por lo que el acceso a los datos
 - **Control de acceso por fila.** Cada tabla con datos de pacientes o clínicos (pacientes, evoluciones, citas, adjuntos y registros financieros) está protegida con Row Level Security en PostgreSQL: cada profesional solo puede leer y escribir sus propios registros.
 - **Archivos en almacenamiento privado.** Los adjuntos y fotos de perfil están en buckets privados y se entregan mediante URLs firmadas de corta duración.
 - **Datos mínimos en los recordatorios.** Los recordatorios de WhatsApp previstos se limitan a los datos de la cita, se envían solo a pacientes que dieron su consentimiento y el historial de consentimiento queda registrado.
-- **La eliminación de la cuenta** borra los datos y archivos de la profesional.
+- **La eliminación de la cuenta** solo es inmediata para cuentas vacías; con datos, queda programada por 30 días (con opción de restaurar) y luego una rutina diaria en el servidor la borra.
 - La app es una herramienta de registro y organización. No diagnostica, no prescribe tratamientos y no reemplaza el criterio clínico de la profesional.
 
 No aparece ningún dato real de pacientes en este repositorio ni en las pantallas.

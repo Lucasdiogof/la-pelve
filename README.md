@@ -68,7 +68,7 @@ La Pelve is a tool for **physiotherapists** who work with pelvic health. It repl
 - Professional profile with photo and Crefito (professional license) number.
 - Password change, language and theme settings.
 - Biometric app lock on mobile.
-- Self-service account deletion, removing the account data and stored files.
+- Data export (ZIP with records and attachments) and self-service deletion: empty accounts are deleted at once; accounts with data are erased after a 30-day period in which they can be restored.
 
 **In development: WhatsApp appointment reminders**
 - The groundwork for optional appointment reminders through each professional's own WhatsApp Business account is in place: per-patient consent capture and a connection screen in the profile. Sending reminders is not active yet. Reminders are designed to carry only appointment details, never clinical information.
@@ -82,7 +82,7 @@ La Pelve handles sensitive health information, so data access is restricted by d
 - **Row-level access control.** Every table with patient or clinical data (patients, progress notes, appointments, attachments and financial entries) is protected by PostgreSQL Row Level Security, so each professional can only read and write their own records.
 - **Private file storage.** Attachments and profile photos live in private storage buckets and are delivered through short-lived signed URLs.
 - **Minimal data in reminders.** The planned WhatsApp reminders are limited to appointment details, sent only to patients who have given consent, with consent history kept on record.
-- **Account deletion** removes the professional's data and files.
+- **Account deletion** is immediate only for empty accounts; with data, it is scheduled for 30 days (restorable) and then a daily server routine erases it.
 - The app is a record-keeping tool. It does not provide diagnoses, does not prescribe treatment and does not replace the professional's clinical judgment.
 
 No real patient data appears in this repository or in the screenshots.

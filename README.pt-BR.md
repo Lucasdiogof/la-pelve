@@ -68,7 +68,7 @@ O La Pelve é uma ferramenta para **fisioterapeutas** que atuam com saúde pélv
 - Perfil profissional com foto e número do Crefito.
 - Troca de senha, idioma e tema.
 - Bloqueio do app por biometria no celular.
-- Exclusão de conta pela própria profissional, removendo os dados e os arquivos da conta.
+- Exportação dos dados (ZIP com prontuários e anexos) e exclusão pela própria profissional: conta vazia é excluída na hora; conta com dados é apagada após 30 dias, período em que pode ser restaurada.
 
 **Em desenvolvimento: lembretes de consulta pelo WhatsApp**
 - A base para lembretes opcionais de consulta pelo WhatsApp Business de cada profissional já existe: registro de consentimento por paciente e tela de conexão no perfil. O envio dos lembretes ainda não está ativo. Os lembretes foram pensados para levar só os dados do atendimento, nunca informação clínica.
@@ -82,7 +82,7 @@ O La Pelve lida com informação sensível de saúde, então o acesso aos dados 
 - **Controle de acesso por linha.** Toda tabela com dado de paciente ou clínico (pacientes, evoluções, atendimentos, anexos e lançamentos financeiros) é protegida por Row Level Security no PostgreSQL: cada profissional só lê e grava os próprios registros.
 - **Arquivos em storage privado.** Anexos e fotos de perfil ficam em buckets privados e são entregues por URLs assinadas de curta duração.
 - **Mínimo de dados nos lembretes.** Os lembretes de WhatsApp planejados se limitam aos dados do atendimento, vão só para pacientes que deram consentimento, e o histórico de consentimento fica registrado.
-- **Exclusão de conta** remove os dados e os arquivos da profissional.
+- **Exclusão de conta** só é imediata para conta vazia; com dados, fica agendada por 30 dias (com opção de restaurar) e depois uma rotina diária no servidor apaga.
 - O app é uma ferramenta de registro e organização. Não faz diagnóstico, não prescreve tratamento e não substitui o julgamento clínico da profissional.
 
 Nenhum dado real de paciente aparece neste repositório ou nas telas.
