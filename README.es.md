@@ -29,7 +29,8 @@ La Pelve es una herramienta para **fisioterapeutas** que trabajan con salud pél
 <a href="https://apps.apple.com/br/app/la-pelve/id6811234099"><img src="https://img.shields.io/badge/Disponible_en-App_Store-000000?logo=apple&logoColor=white" alt="Disponible en la App Store"></a>
 
 - **iOS**: publicada en la App Store.
-- **Android** y **Web (PWA instalable)**: generadas a partir del mismo código.
+- **Web (PWA instalable)**: [lapelve.lucksrei.com](https://lapelve.lucksrei.com).
+- **Android**: generada a partir del mismo código, todavía no está en Google Play.
 - **Idiomas**: portugués (Brasil), inglés y español.
 - **Temas**: claro y oscuro.
 
