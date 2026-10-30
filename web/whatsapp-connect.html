@@ -35,9 +35,9 @@
   'use strict';
   var FUNCTION_URL = 'https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-connect';
   var T = {
-    pt: { title: 'Conectar WhatsApp Business', intro: 'Você será levada ao fluxo oficial da Meta para autorizar o seu número. O La Pelve nunca vê a sua senha.', go: 'Continuar com a Meta', loading: 'Preparando…', expired: 'Este link expirou. Volte ao La Pelve e toque em Conectar novamente.', working: 'Finalizando a conexão…', ok: 'Conexão concluída. Pode voltar ao La Pelve.', pending: 'Número conectado. Estamos aguardando a aprovação das mensagens pela Meta; volte ao La Pelve para acompanhar.', cancelled: 'A conexão foi cancelada. Você pode tentar de novo.', failed: 'Não foi possível concluir a conexão. Volte ao La Pelve e tente novamente.', inuse: 'Este número já está conectado a outra conta.', active: 'Já existe um número conectado. Desconecte-o no La Pelve antes de trocar.' },
-    en: { title: 'Connect WhatsApp Business', intro: 'You will be taken to Meta’s official flow to authorize your number. La Pelve never sees your password.', go: 'Continue with Meta', loading: 'Preparing…', expired: 'This link has expired. Go back to La Pelve and tap Connect again.', working: 'Finishing the connection…', ok: 'Connection complete. You can return to La Pelve.', pending: 'Number connected. We are waiting for Meta to approve the messages; return to La Pelve to follow progress.', cancelled: 'The connection was cancelled. You can try again.', failed: 'We could not complete the connection. Go back to La Pelve and try again.', inuse: 'This number is already connected to another account.', active: 'A number is already connected. Disconnect it in La Pelve before switching.' },
-    es: { title: 'Conectar WhatsApp Business', intro: 'Serás llevada al flujo oficial de Meta para autorizar tu número. La Pelve nunca ve tu contraseña.', go: 'Continuar con Meta', loading: 'Preparando…', expired: 'Este enlace expiró. Vuelve a La Pelve y toca Conectar de nuevo.', working: 'Finalizando la conexión…', ok: 'Conexión completada. Puedes volver a La Pelve.', pending: 'Número conectado. Esperamos la aprobación de los mensajes por Meta; vuelve a La Pelve para seguir el avance.', cancelled: 'La conexión fue cancelada. Puedes intentarlo de nuevo.', failed: 'No se pudo completar la conexión. Vuelve a La Pelve e inténtalo de nuevo.', inuse: 'Este número ya está conectado a otra cuenta.', active: 'Ya hay un número conectado. Desconéctalo en La Pelve antes de cambiarlo.' }
+    pt: { title: 'Conectar WhatsApp Business', intro: 'Você será levada ao fluxo oficial da Meta para autorizar o seu número. O La Pelve nunca vê a sua senha.', go: 'Continuar com a Meta', loading: 'Preparando…', expired: 'Este link expirou. Volte ao La Pelve e toque em Conectar novamente.', working: 'Finalizando a conexão…', ok: 'Conexão concluída. Pode voltar ao La Pelve.', pending: 'Número conectado. Estamos aguardando a aprovação das mensagens pela Meta; volte ao La Pelve para acompanhar.', cancelled: 'A conexão foi cancelada. Você pode tentar de novo.', failed: 'Não foi possível concluir a conexão. Volte ao La Pelve e tente novamente.', inuse: 'Este número já está conectado a outra conta.', nosession: 'A Meta não informou qual número conectar. Toque de novo e, na tela da Meta, escolha "Editar configurações" para selecionar a conta e o número.', active: 'Já existe um número conectado. Desconecte-o no La Pelve antes de trocar.' },
+    en: { title: 'Connect WhatsApp Business', intro: 'You will be taken to Meta’s official flow to authorize your number. La Pelve never sees your password.', go: 'Continue with Meta', loading: 'Preparing…', expired: 'This link has expired. Go back to La Pelve and tap Connect again.', working: 'Finishing the connection…', ok: 'Connection complete. You can return to La Pelve.', pending: 'Number connected. We are waiting for Meta to approve the messages; return to La Pelve to follow progress.', cancelled: 'The connection was cancelled. You can try again.', failed: 'We could not complete the connection. Go back to La Pelve and try again.', inuse: 'This number is already connected to another account.', nosession: 'Meta did not say which number to connect. Tap again and, on Meta’s screen, choose "Edit settings" to select the account and number.', active: 'A number is already connected. Disconnect it in La Pelve before switching.' },
+    es: { title: 'Conectar WhatsApp Business', intro: 'Serás llevada al flujo oficial de Meta para autorizar tu número. La Pelve nunca ve tu contraseña.', go: 'Continuar con Meta', loading: 'Preparando…', expired: 'Este enlace expiró. Vuelve a La Pelve y toca Conectar de nuevo.', working: 'Finalizando la conexión…', ok: 'Conexión completada. Puedes volver a La Pelve.', pending: 'Número conectado. Esperamos la aprobación de los mensajes por Meta; vuelve a La Pelve para seguir el avance.', cancelled: 'La conexión fue cancelada. Puedes intentarlo de nuevo.', failed: 'No se pudo completar la conexión. Vuelve a La Pelve e inténtalo de nuevo.', inuse: 'Este número ya está conectado a otra cuenta.', nosession: 'Meta no indicó qué número conectar. Toca de nuevo y, en la pantalla de Meta, elige "Editar configuración" para seleccionar la cuenta y el número.', active: 'Ya hay un número conectado. Desconéctalo en La Pelve antes de cambiarlo.' }
   };
   var lang = (navigator.language || 'pt').slice(0, 2);
   var t = T[lang] || T.pt;
@@ -118,10 +118,33 @@
 
     el('go').addEventListener('click', function () {
       el('go').disabled = true;
+      // Se a janela da Meta fechar sem resposta (navegador embutido), destrava.
+      var away = false;
+      var watchdog = setInterval(function () {
+        if (finished || session || authCode) { clearInterval(watchdog); return; }
+        var here = document.visibilityState === 'visible' && document.hasFocus();
+        if (!here) { away = true; return; }
+        if (away) {
+          clearInterval(watchdog);
+          setTimeout(function () {
+            if (finished || session || authCode) return;
+            say(t.nosession, true);
+            el('go').disabled = false;
+          }, 8000);
+        }
+      }, 1000);
       FB.login(function (response) {
         if (response.authResponse && response.authResponse.code) {
           authCode = response.authResponse.code;
           maybeComplete();
+          // Autorização reaproveitada ("continuar com as configurações anteriores")
+          // não manda WA_EMBEDDED_SIGNUP: sem conta/número não há o que concluir.
+          setTimeout(function () {
+            if (finished || session) return;
+            authCode = null;
+            say(t.nosession, true);
+            el('go').disabled = false;
+          }, 5000);
         } else if (!session) {
           say(t.cancelled, true);
           el('go').disabled = false;

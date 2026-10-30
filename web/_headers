@@ -18,4 +18,4 @@
   Cache-Control: public, max-age=86400
 /whatsapp-connect*
   ! Content-Security-Policy-Report-Only
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'sha256-SME6zsNvdSc9Hk79ADFvZIFIPs5v+mPUFQKEwV1M3hA=' https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.facebook.com; connect-src 'self' https://lchaboncmgcimafpupad.supabase.co https://www.facebook.com https://graph.facebook.com; frame-src https://www.facebook.com https://web.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'sha256-reKghnJ5yvEq3zjNkI5fJRlzjhbOJvdLKkkwvkjU+ZY=' https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.facebook.com; connect-src 'self' https://lchaboncmgcimafpupad.supabase.co https://www.facebook.com https://graph.facebook.com; frame-src https://www.facebook.com https://web.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
