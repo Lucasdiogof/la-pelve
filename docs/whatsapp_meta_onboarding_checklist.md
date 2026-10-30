@@ -4,11 +4,17 @@ Estado em 2026-10-12. Só afirma o que foi **verificado** (código, produção o
 documentação não diz está marcado **NÃO CONFIRMADO**. Nada aqui afirma que uma permissão foi aprovada: isso só se vê no
 painel da Meta.
 
+## 0. Atualização 2026-10-29 (Etapa 1: domínio e OAuth)
+
+- Domínio oficial: `https://lapelve.lucksrei.com` (Worker `la-pelve`, rota em `wrangler.toml`). O `workers.dev` foi desativado e responde 404.
+- `WHATSAPP_CONNECT_PAGE_URL` ainda aponta para o `workers.dev` (conferido pelo hash do secret) e **precisa** passar a `https://lapelve.lucksrei.com/whatsapp-connect` antes de ligar o onboarding.
+- Página `/whatsapp-connect` no ar (200, título conferido), SDK `connect.facebook.net` acessível, CSP da página bate com o script em produção, `postMessage` só aceita `facebook.com`/`*.facebook.com`, tokens só no servidor, `META_APP_ID` = 2811023262627717 (hash conferido). Onboarding segue DESLIGADO.
+
 ## 1. Concluído e verificado
 
 | Item | Evidência |
 |---|---|
-| Página pública do onboarding | `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect` responde 200 com o título "La Pelve · Conectar WhatsApp" (o site é SPA: outras rotas inexistentes também devolvem 200, por isso conferi o título) |
+| Página pública do onboarding | `https://lapelve.lucksrei.com/whatsapp-connect` responde 200 com o título "La Pelve · Conectar WhatsApp" (o site é SPA: outras rotas inexistentes também devolvem 200, por isso conferi o título) |
 | Configuração do JavaScript SDK | `web/whatsapp-connect.html` segue o exemplo oficial: `FB.init({appId, version})` com versão da Graph vinda do servidor (`v25.0`) e `FB.login` com `config_id`, `response_type: 'code'`, `override_default_response_type: true`, `extras: {setup: {}}` |
 | Tratamento do retorno do popup | ouve `message` só de `*.facebook.com`, `type = WA_EMBEDDED_SIGNUP`; trata `FINISH`, `FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING` e `CANCEL`; o `state` vai no fragmento da URL (não vai ao servidor nem ao Referer) |
 | Troca do code | `GET /oauth/access_token` com `client_id`, `client_secret`, `code`, sem `redirect_uri`, igual à documentação; só no servidor, em até 30 s (validade do code) |
@@ -22,15 +28,15 @@ painel da Meta.
 | Validade do token | `debug_token` na abertura da tela: inválido -> `error`/`token_invalid` com botão Reconectar; vencendo em <= 7 dias -> aviso com a data; validade conhecida é mostrada. O envio com erro 190 também marca a conexão (atômico e vinculado ao hash do token usado, migration 0035). Indisponibilidade da Meta nunca marca |
 | Segredos no Supabase | presentes: `META_APP_ID`, `META_ES_CONFIG_ID`, `WHATSAPP_CONNECT_PAGE_URL`, `WHATSAPP_GRAPH_API_VERSION`, `WHATSAPP_TEMPLATE_LANGUAGE`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_DISPATCHER_TOKEN`, `WHATSAPP_TEMPLATE_APPOINTMENT_12H` |
 | Onboarding desligado | `WHATSAPP_SELF_CONNECT_ENABLED` ausente: `start` responde 503 `not_configured` e o app não mostra o botão |
-| Política de privacidade e exclusão de dados | `https://la-pelve.lucasdiogo1234.workers.dev/privacy` e `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion` servem o próprio HTML (títulos e seções pt/en/es conferidos em produção; rotas inexistentes seguem caindo no app). Texto conferido contra o comportamento real (exclusão de conta em cascata + limpeza best-effort de arquivos, desconexão do WhatsApp, cópias de segurança e Meta fora do nosso controle). Contato público: `marketing@lucksrei.com` (MX do domínio aponta ao Cloudflare Email Routing e o endereço é o contato do site lucksrei.com; **entrega de e-mail não testada por mim**) |
+| Política de privacidade e exclusão de dados | `https://lapelve.lucksrei.com/privacy` e `https://lapelve.lucksrei.com/data-deletion` servem o próprio HTML (títulos e seções pt/en/es conferidos em produção; rotas inexistentes seguem caindo no app). Texto conferido contra o comportamento real (exclusão de conta em cascata + limpeza best-effort de arquivos, desconexão do WhatsApp, cópias de segurança e Meta fora do nosso controle). Contato público: `marketing@lucksrei.com` (MX do domínio aponta ao Cloudflare Email Routing e o endereço é o contato do site lucksrei.com; **entrega de e-mail não testada por mim**) |
 | Saúde | `supabase/ops/whatsapp_health.sql` (migration 0036) resume falhas, fila, conexões, cron e consentimento sem dados de paciente |
 
 ## 2. Ações manuais restantes no painel da Meta (nada abaixo foi verificado por mim: não tenho acesso ao painel)
 
 URLs públicas a usar:
-- Política de privacidade: `https://la-pelve.lucasdiogo1234.workers.dev/privacy`
-- Exclusão de dados: `https://la-pelve.lucasdiogo1234.workers.dev/data-deletion`
-- Página do Embedded Signup (Allowed domains e Valid OAuth redirect URIs): `https://la-pelve.lucasdiogo1234.workers.dev/whatsapp-connect`
+- Política de privacidade: `https://lapelve.lucksrei.com/privacy`
+- Exclusão de dados: `https://lapelve.lucksrei.com/data-deletion`
+- Página do Embedded Signup (Allowed domains e Valid OAuth redirect URIs): `https://lapelve.lucksrei.com/whatsapp-connect`
 - Callback do webhook: `https://lchaboncmgcimafpupad.supabase.co/functions/v1/whatsapp-webhook` (verify token = secret `WHATSAPP_VERIFY_TOKEN`)
 
 1. **App settings → Basic:** colar as URLs de privacidade e de exclusão de dados; conferir ícone, categoria e e-mail de contato.
