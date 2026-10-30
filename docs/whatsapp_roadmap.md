@@ -18,7 +18,7 @@
 ### 1. Gravar os vídeos (dono)
 - **Vídeo 1 — whatsapp_business_messaging:** tela WhatsApp do app "Conectado" → consulta criada → lembrete chega no WhatsApp → tocar em Confirmar → consulta vira "Confirmado" → bloco "Lembretes pelo WhatsApp" com Entregue/Lido.
 - **Vídeo 2 — whatsapp_business_management:** tela WhatsApp do app (número, status, Atualizar status) → WhatsApp Manager com os dois modelos aprovados.
-- Lembrete só sai 12 h antes da consulta e nunca entre 22:00 e 06:59.
+- Lembrete só sai 12 h antes da consulta e nunca entre 22:00 e 06:59. Para o vídeo: criar a consulta de dia, para 14 h 30 depois da criação (ex.: criada 08:00 → consulta 22:30 → lembrete 10:30).
 
 ### 2. Conferir e preparar o envio (Claude)
 - Conferir no banco: mensagem `sent → delivered → read` e consulta `confirmed`.
@@ -33,6 +33,7 @@
 - Decidir se a conexão de teste continua ou é substituída por um número real da clínica.
 
 ### 5. Depois do go-live (melhorias)
+- **BUG:** o lembrete de 12 h é descartado ("too_close_to_immediate_message") quando o aviso imediato cai a menos de 2 h dele, mesmo se o template do aviso imediato não estiver configurado (então nada sai). Ex.: consulta criada às 00:11 → aviso e lembrete adiados para 07:00 → lembrete descartado. Corrigir: só aplicar a regra dos 2 h se o tipo imediato tiver template ativo; e não materializar tipos sem template.
 - Reconexão a cada 60 dias (token do Embedded Signup); o app já mostra validade e "Reconectar".
 - Avaliar o template de aviso de agendamento imediato (`appointment_confirmation`), hoje não configurado no envio.
 - Revisar a página `/terms` se a Meta exigir Termos de Serviço próprios (hoje aponta para `/privacy`).
