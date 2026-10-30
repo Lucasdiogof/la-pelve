@@ -1025,10 +1025,10 @@ test("flag desligada: conexão pendente não é reavaliada (nada de webhook, reg
   assert.equal(h.upserts.length, upsertsBefore);
 });
 
-test("flag desligada: iniciar, concluir, configurar e desconectar continuam bloqueados (503)", async () => {
+test("flag desligada: iniciar, concluir e configurar continuam bloqueados (503)", async () => {
   const h = build();
   await h.call(complete(await startFor(h, "Bearer jwt-a")));
-  for (const action of ["start", "config", "complete", "disconnect"]) {
+  for (const action of ["start", "config", "complete"]) {
     assert.equal((await h.callOff({ action }, "Bearer jwt-a")).status, 503, action);
   }
   assert.equal(h.connections.get("user-a")!.status, "connected");
@@ -1048,4 +1048,22 @@ test("flag desligada com outro segredo ausente: status também responde 503 (sem
   });
   const res = await handler(new Request("https://x.test", { method: "POST", headers: { authorization: "x" }, body: JSON.stringify({ action: "status" }) }));
   assert.equal(res.status, 503);
+});
+
+test("desconectar funciona com o onboarding desligado (chave geral off)", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  const offEnv = { ...env, WHATSAPP_SELF_CONNECT_ENABLED: "false" };
+  const off = createConnectHandler({
+    config: readConnectConfig((n) => offEnv[n]),
+    store: h.store,
+    meta: () => h.meta,
+    authenticate: async (auth) => (auth ? "user-a" : null),
+    log: () => {},
+  });
+  const res = await off(new Request("https://x.test", { method: "POST", headers: { authorization: "Bearer jwt-a" }, body: JSON.stringify({ action: "disconnect" }) }));
+  assert.equal(res.status, 200);
+  assert.equal(h.connections.get("user-a")!.status, "disconnected");
+  const start = await off(new Request("https://x.test", { method: "POST", headers: { authorization: "Bearer jwt-a" }, body: JSON.stringify({ action: "start" }) }));
+  assert.equal(start.status, 503, "iniciar continua bloqueado");
 });

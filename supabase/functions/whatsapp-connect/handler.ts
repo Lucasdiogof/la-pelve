@@ -295,6 +295,10 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
         if (!userId) return fail(401, "unauthorized");
         return await refreshStatus(userId, deps.meta(deps.config.readOnly), { readOnly: true });
       }
+      // Desconectar nunca depende da chave geral: a dona sempre pode sair.
+      if (input.action === "disconnect") {
+        return await disconnect(req, deps.config.readOnly ? deps.meta(deps.config.readOnly) : null);
+      }
       // Só NOMES das variáveis ausentes/inválidas, nunca valores.
       log("whatsapp_connect_not_configured", { action: String(input.action ?? ""), missing: deps.config.missing });
       return fail(503, "not_configured");
@@ -337,31 +341,34 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
         return await refreshStatus(userId, meta);
       }
 
-      case "disconnect": {
-        const userId = await deps.authenticate(req.headers.get("authorization"));
-        if (!userId) return fail(401, "unauthorized");
-        const connection = await deps.store.getConnection(userId);
-        if (!connection) return json(200, { ok: true });
-        // A inscrição de webhook é por WABA: só sai quando nenhuma outra
-        // profissional (outro número da mesma WABA) ainda depende dela.
-        // Melhor esforço, ANTES de apagar o token.
-        let unsubscribed = false;
-        let sharedWaba = false;
-        const token = await deps.store.getAccessToken(userId);
-        if (token && connection.wabaId) {
-          const others = await deps.store.countOtherConnectionsOnWaba(userId, connection.wabaId);
-          sharedWaba = others !== 0; // inclui falha na contagem (-1): na dúvida, mantém
-          if (!sharedWaba) unsubscribed = (await meta.unsubscribeApp(token, connection.wabaId)).ok;
-        }
-        if (!(await deps.store.disconnect(userId))) return fail(500, "internal");
-        log("whatsapp_connect_disconnected", { unsubscribed, sharedWaba });
-        return json(200, { ok: true, unsubscribed, shared_waba: sharedWaba });
-      }
+      case "disconnect":
+        return await disconnect(req, meta);
 
       default:
         return fail(400, "unknown_action");
     }
   };
+
+  async function disconnect(req: Request, meta: MetaOnboarding | null): Promise<Response> {
+    const userId = await deps.authenticate(req.headers.get("authorization"));
+    if (!userId) return fail(401, "unauthorized");
+    const connection = await deps.store.getConnection(userId);
+    if (!connection) return json(200, { ok: true });
+    // A inscrição de webhook é por WABA: só sai quando nenhuma outra
+    // profissional (outro número da mesma WABA) ainda depende dela.
+    // Melhor esforço, ANTES de apagar o token; sem config da Meta, só local.
+    let unsubscribed = false;
+    let sharedWaba = false;
+    const token = meta ? await deps.store.getAccessToken(userId) : null;
+    if (meta && token && connection.wabaId) {
+      const others = await deps.store.countOtherConnectionsOnWaba(userId, connection.wabaId);
+      sharedWaba = others !== 0; // inclui falha na contagem (-1): na dúvida, mantém
+      if (!sharedWaba) unsubscribed = (await meta.unsubscribeApp(token, connection.wabaId)).ok;
+    }
+    if (!(await deps.store.disconnect(userId))) return fail(500, "internal");
+    log("whatsapp_connect_disconnected", { unsubscribed, sharedWaba });
+    return json(200, { ok: true, unsubscribed, shared_waba: sharedWaba });
+  }
 
   async function complete(
     input: Record<string, unknown>,
