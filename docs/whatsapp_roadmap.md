@@ -7,11 +7,16 @@
 - A página orienta a profissional a **não compartilhar o histórico** (a escolha é feita no app WhatsApp Business; recusar gera o evento 2593109 no webhook e não impede o FINISH).
 - BSUID: 0044 aplicada e webhook publicado (respostas sem telefone só valem citando um lembrete nosso).
 
+## Homologação (16/11, noite)
+- Webhooks `history`, `smb_app_state_sync` e `smb_message_echoes` assinados (v27.0). Teste do painel chegou em produção: 200, log só com contagens.
+- Piloto conferido: modo `pilot`, só o dono; uma conexão (a de teste, `connected`).
+- App (Perfil → WhatsApp) com a conta do dono: conectado, modelos aprovados, interruptores, Atualizar status e Desconectar OK.
+- Tech Provider: a aba "Integração de Provedor de Tecnologia" abre em branco no navegador embutido (2ª tentativa). Status **não confirmado**.
+
 ## Pendências (dono)
-1. Painel da Meta → Webhooks: assinar `history`, `smb_app_state_sync` e `smb_message_echoes` (exigido pela Meta para coexistência; o La Pelve descarta).
-2. Confirmar no painel o status de **Tech Provider** (exigido para coexistência) e o **Access Verification**.
-3. Login no La Pelve (navegador embutido) para validar Perfil → WhatsApp no piloto.
-4. Autorizar explicitamente qualquer conexão de número real.
+1. Abrir a aba "Integração de Provedor de Tecnologia" num navegador comum e conferir Tech Provider / Access Verification.
+2. Na página de conexão, clicar "Continuar com a Meta" e parar na tela de escolha (número novo × WhatsApp Business existente).
+3. Autorizar explicitamente qualquer conexão de número real.
 
 # Atualização 16/11/2026 — pós-aprovação da Meta
 
