@@ -3,6 +3,11 @@ import 'package:la_pelve/shared/utils/enum_from_name.dart';
 
 enum WhatsappConnectionStatus { pending, connected, disconnected, error }
 
+enum WhatsappTemplateState { approved, pending, problem }
+
+/// Os dois modelos de mensagem que o La Pelve usa.
+const kWhatsappTemplateNames = ['appointment_confirmation', 'appointment_12h'];
+
 /// Quais avisos automáticos a profissional quer enviar (profiles, migration 0043).
 class WhatsappMessagePreferences extends Equatable {
   const WhatsappMessagePreferences({
@@ -36,6 +41,7 @@ class WhatsappConnection extends Equatable {
     this.connectedAt,
     this.disconnectedAt,
     this.lastError,
+    this.setupState,
   });
 
   final String id;
@@ -47,6 +53,9 @@ class WhatsappConnection extends Equatable {
   final DateTime? connectedAt;
   final DateTime? disconnectedAt;
   final Map<String, dynamic>? lastError;
+
+  /// Progresso do onboarding gravado pelo servidor (sem segredos).
+  final Map<String, dynamic>? setupState;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -67,6 +76,7 @@ class WhatsappConnection extends Equatable {
             ? null
             : DateTime.parse(json['disconnected_at'] as String),
         lastError: json['last_error'] as Map<String, dynamic>?,
+        setupState: json['setup_state'] as Map<String, dynamic>?,
         createdAt: DateTime.parse(json['created_at'] as String),
         updatedAt: DateTime.parse(json['updated_at'] as String),
       );
@@ -82,9 +92,36 @@ class WhatsappConnection extends Equatable {
     connectedAt,
     disconnectedAt,
     lastError,
+    setupState,
     createdAt,
     updatedAt,
   ];
+
+  /// Situação de cada modelo, a partir dos avisos da Meta (`setup_state.templates`,
+  /// chave `nome:idioma`). Sem aviso registrado: conectada = verificada na conexão.
+  WhatsappTemplateState templateState(String name) {
+    final raw = setupState?['templates'];
+    if (raw is Map) {
+      final event = raw.entries
+          .where(
+            (e) => e.key is String && (e.key as String).startsWith('$name:'),
+          )
+          .map((e) => e.value is Map ? (e.value as Map)['event'] : null)
+          .whereType<String>()
+          .map((e) => e.toUpperCase())
+          .firstOrNull;
+      if (event != null) {
+        if (event == 'APPROVED') return WhatsappTemplateState.approved;
+        if (event == 'REJECTED' || event == 'DISABLED' || event == 'PAUSED') {
+          return WhatsappTemplateState.problem;
+        }
+        return WhatsappTemplateState.pending;
+      }
+    }
+    return status == WhatsappConnectionStatus.connected
+        ? WhatsappTemplateState.approved
+        : WhatsappTemplateState.pending;
+  }
 }
 
 /// Resposta da ação `status` do `whatsapp-connect`: só o que a tela precisa

@@ -1001,6 +1001,42 @@ class ProfileStrings {
           'interrumpir los recordatorios.',
   };
 
+  String get whatsappTemplatesTitle => switch (language) {
+    AppLanguage.portuguese => 'Modelos de mensagem',
+    AppLanguage.english => 'Message templates',
+    AppLanguage.spanish => 'Plantillas de mensaje',
+  };
+
+  String get whatsappTemplateBookingName => switch (language) {
+    AppLanguage.portuguese => 'Aviso de agendamento',
+    AppLanguage.english => 'Booking notice',
+    AppLanguage.spanish => 'Aviso de agendamiento',
+  };
+
+  String get whatsappTemplateReminderName => switch (language) {
+    AppLanguage.portuguese => 'Lembrete com confirmação',
+    AppLanguage.english => 'Reminder with confirmation',
+    AppLanguage.spanish => 'Recordatorio con confirmación',
+  };
+
+  String get whatsappTemplateApproved => switch (language) {
+    AppLanguage.portuguese => 'Aprovado',
+    AppLanguage.english => 'Approved',
+    AppLanguage.spanish => 'Aprobada',
+  };
+
+  String get whatsappTemplatePending => switch (language) {
+    AppLanguage.portuguese => 'Em análise na Meta',
+    AppLanguage.english => 'Under Meta review',
+    AppLanguage.spanish => 'En revisión de Meta',
+  };
+
+  String get whatsappTemplateProblem => switch (language) {
+    AppLanguage.portuguese => 'Recusado ou pausado',
+    AppLanguage.english => 'Rejected or paused',
+    AppLanguage.spanish => 'Rechazada o pausada',
+  };
+
   String get whatsappPrefsTitle => switch (language) {
     AppLanguage.portuguese => 'Avisos automáticos',
     AppLanguage.english => 'Automatic messages',
@@ -1068,13 +1104,16 @@ class ProfileStrings {
 
   String get whatsappBillingNote => switch (language) {
     AppLanguage.portuguese =>
-      'Confirme a forma de pagamento no WhatsApp Manager para que as '
+      'A Meta cobra as mensagens direto da sua conta WhatsApp Business. '
+          'Confirme a forma de pagamento no WhatsApp Manager para que as '
           'mensagens sejam entregues.',
     AppLanguage.english =>
-      'Confirm your payment method in WhatsApp Manager so messages can be '
-          'delivered.',
+      'Meta bills messages directly to your WhatsApp Business account. '
+          'Confirm your payment method in WhatsApp Manager so messages can '
+          'be delivered.',
     AppLanguage.spanish =>
-      'Confirma el método de pago en WhatsApp Manager para que los mensajes '
-          'se entreguen.',
+      'Meta cobra los mensajes directamente a tu cuenta de WhatsApp '
+          'Business. Confirma el método de pago en WhatsApp Manager para '
+          'que los mensajes se entreguen.',
   };
 }

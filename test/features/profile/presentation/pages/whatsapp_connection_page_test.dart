@@ -271,11 +271,16 @@ void main() {
     when(
       () => repository.setMessagePreferences(any()),
     ).thenAnswer((_) async => const Success(null));
-    await pumpWhatsappPage(tester);
+    await pumpWhatsappPage(tester, size: const Size(390, 1800));
     await tester.pump();
 
-    expect(find.text('Aviso de agendamento'), findsOneWidget);
-    await tester.tap(find.text('Aviso de agendamento'));
+    expect(
+      find.widgetWithText(SwitchListTile, 'Aviso de agendamento'),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.widgetWithText(SwitchListTile, 'Aviso de agendamento'),
+    );
     await tester.pump();
     verify(
       () => repository.setMessagePreferences(
@@ -526,7 +531,7 @@ void main() {
       when(
         () => repository.disconnect(),
       ).thenAnswer((_) async => const Success(null));
-      await pumpWhatsappPage(tester, size: const Size(390, 1000));
+      await pumpWhatsappPage(tester, size: const Size(390, 1800));
 
       await tester.tap(find.text('Desconectar'));
       await tester.pumpAndSettle();
@@ -562,7 +567,7 @@ void main() {
       when(
         () => repository.disconnect(),
       ).thenAnswer((_) async => Error(ServerFailure()));
-      await pumpWhatsappPage(tester, size: const Size(390, 1000));
+      await pumpWhatsappPage(tester, size: const Size(390, 1800));
       await tester.tap(find.text('Desconectar'));
       await tester.pumpAndSettle();
       await tester.tap(

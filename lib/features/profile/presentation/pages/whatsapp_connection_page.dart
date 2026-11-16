@@ -404,6 +404,8 @@ class _StatusArea extends StatelessWidget {
             const SizedBox(height: AppSpacing.s12),
             Text(t.whatsappBillingNote, style: secondary),
             const SizedBox(height: AppSpacing.s16),
+            _TemplatesCard(connection: connection, t: t),
+            const SizedBox(height: AppSpacing.s16),
             const _PreferencesCard(),
             if (disconnectFailed) ...[
               const SizedBox(height: AppSpacing.s12),
@@ -506,6 +508,58 @@ class _ConnectArea extends StatelessWidget {
   }
 }
 
+/// Situação de cada modelo de mensagem (aprovado pela Meta ou não).
+class _TemplatesCard extends StatelessWidget {
+  const _TemplatesCard({required this.connection, required this.t});
+
+  final WhatsappConnection connection;
+  final ProfileStrings t;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = [
+      (kWhatsappTemplateNames[0], t.whatsappTemplateBookingName),
+      (kWhatsappTemplateNames[1], t.whatsappTemplateReminderName),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.whatsappTemplatesTitle,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: AppSpacing.s8),
+        for (final (key, label) in rows)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.s4),
+            child: Wrap(
+              spacing: AppSpacing.s8,
+              runSpacing: AppSpacing.s4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(label),
+                switch (connection.templateState(key)) {
+                  WhatsappTemplateState.approved => AppStatusBadge(
+                    label: t.whatsappTemplateApproved,
+                    tone: AppStatusTone.success,
+                  ),
+                  WhatsappTemplateState.pending => AppStatusBadge(
+                    label: t.whatsappTemplatePending,
+                    tone: AppStatusTone.primary,
+                  ),
+                  WhatsappTemplateState.problem => AppStatusBadge(
+                    label: t.whatsappTemplateProblem,
+                    tone: AppStatusTone.danger,
+                  ),
+                },
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// Quais avisos automáticos enviar. Desligar cancela os ainda não enviados (trigger 0043).
 class _PreferencesCard extends StatefulWidget {
   const _PreferencesCard();
@@ -565,9 +619,9 @@ class _PreferencesCardState extends State<_PreferencesCard> {
     final t = ProfileStrings(context.watch<LocaleCubit>().state);
     final prefs = _prefs;
     if (prefs == null) return const SizedBox.shrink();
-    final secondary = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: context.colors.textSecondary,
-    );
+    final secondary = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: context.colors.textSecondary);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
