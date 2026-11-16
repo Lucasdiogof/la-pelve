@@ -11,12 +11,17 @@
 - Webhooks `history`, `smb_app_state_sync` e `smb_message_echoes` assinados (v27.0). Teste do painel chegou em produção: 200, log só com contagens.
 - Piloto conferido: modo `pilot`, só o dono; uma conexão (a de teste, `connected`).
 - App (Perfil → WhatsApp) com a conta do dono: conectado, modelos aprovados, interruptores, Atualizar status e Desconectar OK.
-- Tech Provider: a aba "Integração de Provedor de Tecnologia" abre em branco no navegador embutido (2ª tentativa). Status **não confirmado**.
+- **Tech Provider / Access Verification: VERIFICADO.** Business Suite → Configurações → Informações da empresa (portfólio 4371966796448884): "Access verification status: Verificado — Sua empresa foi verificada como Provedor de Tecnologia." (lido em 16/11). Alerta do app de 04/10: verificação de acesso enviada.
+- Business Verification: Verificada (04/10/2026), com aviso **"WhatsApp needs more information"** sem detalhe clicável no painel. Causa desconhecida; não bloqueou App Review nem Access Verification.
+- Aba "Integração de Provedor de Tecnologia" em branco (também no Chrome do dono): o servidor da Meta responde **erro 1007** em `DeveloperAppDashboardContentPagelet` (view `onboard`). Falha da Meta, não do navegador; o status foi lido pela rota acima.
+- App: Ações necessárias = nenhuma; publicado; 0% do limite de volume.
+- "Contact book for WhatsApp" do portfólio está **ligado** (a Meta guarda telefone/BSUID dos contatos do portfólio Lucksrei). Não alterado; decisão do dono.
 
-## Pendências (dono)
-1. Abrir a aba "Integração de Provedor de Tecnologia" num navegador comum e conferir Tech Provider / Access Verification.
-2. Na página de conexão, clicar "Continuar com a Meta" e parar na tela de escolha (número novo × WhatsApp Business existente).
-3. Autorizar explicitamente qualquer conexão de número real.
+## Pendências
+1. Dono: clicar "Continuar com a Meta" (o navegador bloqueia popup aberto por automação) e parar na escolha número novo × WhatsApp Business existente. A opção existente aparecer prova o fluxo, não todas as verificações.
+2. Dono: abrir chamado na Meta só se o aviso "WhatsApp needs more information" passar a bloquear algo.
+3. Dono: autorizar explicitamente a conexão de um número real (exige desconectar antes a de teste: WA007).
+4. Com número real: sync de 24 h, templates na WABA da profissional, cobrança dela, envio autorizado, confirmação, reconexão, isolamento.
 
 # Atualização 16/11/2026 — pós-aprovação da Meta
 
