@@ -88,7 +88,7 @@ test("registerPhone expõe só o código numérico do erro (ex.: 133016)", async
 test("token só no header Authorization, nunca na URL", async () => {
   const f = fakeFetch(() => jsonRes({ data: [{ id: "222222222222" }] }));
   const r = await createMetaOnboarding({ config, fetchFn: f.fn }).phoneBelongsToWaba(TOKEN, "111111111111", "222222222222");
-  assert.deepEqual(r, { ok: true, belongs: true });
+  assert.deepEqual(r, { ok: true, belongs: true, ids: ["222222222222"] });
   assert.ok(!f.calls[0].url.includes("TOKEN"));
   assert.equal((f.calls[0].init.headers as Record<string, string>).authorization, `Bearer ${TOKEN}`);
 });
@@ -103,14 +103,14 @@ test("phoneBelongsToWaba segue a paginação (número na 2ª página)", async ()
         }),
   );
   const r = await createMetaOnboarding({ config, fetchFn: f.fn }).phoneBelongsToWaba(TOKEN, "111111111111", "222222222222");
-  assert.deepEqual(r, { ok: true, belongs: true });
+  assert.deepEqual(r, { ok: true, belongs: true, ids: ["999", "222222222222"] });
   assert.equal(f.calls.length, 2);
 });
 
 test("paginação: ignora next fora de graph.facebook.com e falha se o limite de páginas estoura", async () => {
   const evil = fakeFetch(() => jsonRes({ data: [{ id: "1" }], paging: { next: "https://evil.example/steal" } }));
   const r1 = await createMetaOnboarding({ config, fetchFn: evil.fn }).phoneBelongsToWaba(TOKEN, "1", "222222222222");
-  assert.deepEqual(r1, { ok: true, belongs: false });
+  assert.deepEqual(r1, { ok: true, belongs: false, ids: ["1"] });
   assert.equal(evil.calls.length, 1, "não seguiu a URL estranha");
 
   const endless = fakeFetch(() =>

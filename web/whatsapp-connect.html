@@ -93,7 +93,7 @@
     if (!data || data.type !== 'WA_EMBEDDED_SIGNUP') return;
     if (data.event === 'CANCEL') { say(t.cancelled, true); el('go').disabled = false; return; }
     if (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
-      session = { event: data.event, waba_id: String(data.data.waba_id), phone_number_id: String(data.data.phone_number_id) };
+      session = { event: data.event, waba_id: String(data.data.waba_id), phone_number_id: data.data.phone_number_id ? String(data.data.phone_number_id) : '' };
       maybeComplete();
     } else {
       say(t.failed, true);

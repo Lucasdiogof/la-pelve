@@ -195,6 +195,7 @@ interface MetaScript {
   health: AccountHealth;
   subscribeOk: boolean;
   belongs: boolean;
+  phoneIds?: string[];
   exchangeOk: boolean;
   tokenValid: boolean;
   tokenExpiresAt: Date | null;
@@ -228,7 +229,7 @@ function makeMeta(events: string[]) {
     },
     async phoneBelongsToWaba() {
       events.push("meta:ownership");
-      return { ok: true, belongs: script.belongs };
+      return { ok: true, belongs: script.belongs, ids: script.phoneIds ?? ["222222222222"] };
     },
     async subscribeApp() {
       events.push("meta:subscribe");
@@ -1107,4 +1108,36 @@ test("piloto: rollback (tirar da lista) fecha também um state já emitido", asy
   assert.equal((await h.callOff(complete(state))).status, 503);
   assert.equal(mutations(h).length, 0);
   assert.equal(h.connections.size, 0);
+});
+
+test("coexistência sem phone_number_id: descobre o único número da WABA", async () => {
+  const h = build();
+  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "CONNECTED", isPinEnabled: null };
+  const res = await body(await h.call(complete(await startFor(h, "Bearer jwt-a"), {
+    event: "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+    phone_number_id: "",
+  })));
+  assert.equal(res.status, "connected");
+  assert.equal(h.connections.get("user-a")!.phoneNumberId, "222222222222");
+  assert.equal(h.connections.get("user-a")!.setupState.mode, "coexistence");
+  assert.ok(!h.events.includes("meta:register"));
+});
+
+test("coexistência com vários números na WABA: 409 sem efeito algum (nunca escolhe)", async () => {
+  const h = build();
+  h.script.phoneIds = ["222222222222", "333333333333"];
+  const res = await h.call(complete(await startFor(h, "Bearer jwt-a"), {
+    event: "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+    phone_number_id: "",
+  }));
+  assert.equal(res.status, 409);
+  assert.equal((await body(res)).error, "phone_ambiguous");
+  assert.deepEqual(mutations(h), []);
+  assert.equal(h.connections.has("user-a"), false);
+});
+
+test("fluxo Cloud API continua exigindo phone_number_id", async () => {
+  const h = build();
+  const res = await h.call(complete(await startFor(h, "Bearer jwt-a"), { phone_number_id: "" }));
+  assert.equal(res.status, 400);
 });

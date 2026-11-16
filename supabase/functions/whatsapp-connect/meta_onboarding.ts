@@ -44,7 +44,7 @@ export const META_REGISTRATION_RATE_LIMIT = 133016;
 export interface MetaOnboarding {
   exchangeCode(code: string): Promise<Ok<{ accessToken: string }> | Fail>;
   getPhoneInfo(token: string, phoneNumberId: string): Promise<Ok<{ info: PhoneInfo }> | Fail>;
-  phoneBelongsToWaba(token: string, wabaId: string, phoneNumberId: string): Promise<Ok<{ belongs: boolean }> | Fail>;
+  phoneBelongsToWaba(token: string, wabaId: string, phoneNumberId: string): Promise<Ok<{ belongs: boolean; ids: string[] }> | Fail>;
   subscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   unsubscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   registerPhone(token: string, phoneNumberId: string, pin: string): Promise<Ok<unknown> | Fail>;
@@ -275,7 +275,8 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
     async phoneBelongsToWaba(token, wabaId, phoneNumberId) {
       const listed = await listAll(`/${wabaId}/phone_numbers?fields=id&limit=100`, token);
       if (!listed.ok) return listed;
-      return { ok: true, belongs: listed.rows.some((row) => (row as { id?: unknown })?.id === phoneNumberId) };
+      const ids = listed.rows.map((row) => (row as { id?: unknown })?.id).filter((id): id is string => typeof id === "string");
+      return { ok: true, belongs: ids.includes(phoneNumberId), ids };
     },
 
     async subscribeApp(token, wabaId) {

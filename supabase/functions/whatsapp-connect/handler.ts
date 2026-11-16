@@ -405,11 +405,15 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     const state = String(input.state ?? "");
     const code = typeof input.code === "string" ? input.code : "";
     const wabaId = String(input.waba_id ?? "");
-    const phoneNumberId = String(input.phone_number_id ?? "");
+    let phoneNumberId = String(input.phone_number_id ?? "");
     const event = String(input.event ?? "FINISH");
+    // Coexistência: a Meta só devolve waba_id; o número é descoberto abaixo.
+    const discoverPhone = event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING" && phoneNumberId === "";
     if (!STATE_RE.test(state)) return fail(400, "invalid_state");
     if (!code || code.length > 1024) return fail(400, "invalid_code");
-    if (!NUMERIC_ID_RE.test(wabaId) || !NUMERIC_ID_RE.test(phoneNumberId)) return fail(400, "invalid_ids");
+    if (!NUMERIC_ID_RE.test(wabaId) || (!discoverPhone && !NUMERIC_ID_RE.test(phoneNumberId))) {
+      return fail(400, "invalid_ids");
+    }
     if (!SUPPORTED_EVENTS.has(event)) return fail(400, "unsupported_event");
 
     // O code da Meta vive 30 s: consome o state e troca imediatamente.
@@ -426,7 +430,14 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     // Só leitura na Meta: os ids vieram do navegador e só valem se o token
     // recém-obtido enxerga o número DENTRO dessa WABA.
     const belongs = await meta.phoneBelongsToWaba(token, wabaId, phoneNumberId);
-    if (!belongs.ok || !belongs.belongs) {
+    if (discoverPhone && belongs.ok) {
+      // Só um número na WABA é inequívoco; nunca escolhe entre vários.
+      if (belongs.ids.length !== 1) {
+        log("whatsapp_connect_failed", { step: "phone_discovery", count: belongs.ids.length });
+        return fail(409, "phone_ambiguous");
+      }
+      phoneNumberId = belongs.ids[0];
+    } else if (!belongs.ok || !belongs.belongs) {
       log("whatsapp_connect_failed", { step: "ownership" });
       return fail(403, "phone_not_in_waba");
     }
