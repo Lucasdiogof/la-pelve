@@ -10,12 +10,20 @@
 - 9de75ce: tipo de mensagem sem template ativo não é materializado e não entra na regra dos 2 h (corrige o lembrete de 12 h descartado).
 - ff50200: liberação por banco `whatsapp_rollout` (off | pilot | all). Piloto: `update whatsapp_rollout set mode='pilot', pilot_user_ids=array['<uuid>']::uuid[]`. Rollback: `set mode='off'` (fecha também states já emitidos). Conexões existentes não são afetadas.
 
-## Pendências
-1. Deploy do dispatcher com 9de75ce (CLI daqui dá 403 nesse projeto; usar MCP com bundle esbuild de uma peça).
-2. Dono: confirmar Access Verification no painel; autorizar o piloto (informar o e-mail/uuid da conta); escolher fluxo (coexistence recomendado para quem usa o app WhatsApp Business).
-3. Aviso imediato (`appointment_confirmation`): falta preferência por profissional + configurar o nome no dispatcher.
-4. UX do Perfil → WhatsApp (estados, cobrança, templates), i18n, Android/iOS via navegador externo: não iniciados.
-5. Homologação real (número real, 2 contas fictícias, eventos duplicados): não feita.
+## Atualização (sprint 2, 16/11)
+- Migration 0043 aplicada: preferências por profissional (`profiles.whatsapp_notify_on_booking`, `whatsapp_reminder_12h`, padrão ligado). Desligar cancela as mensagens ainda `scheduled` do tipo (trigger); religar não reenvia o passado (cancelled é definitivo).
+- Dispatcher v21 publicado (a576ce2): materializa só tipos com template ativo E preferência ligada; `appointment_confirmation` agora tem nome padrão no dispatcher (`appointment_confirmation`); `appointment_rescheduled` segue sem template (não enviado).
+- Trava contra mensagens antigas: `whatsapp_informative_gate` (enabled_after 11/10, max_lateness 30 min) impede aviso informativo atrasado; o envio só sai com conexão `connected` e consentimento ativo.
+- App: Perfil → WhatsApp (conectada) tem os dois interruptores de avisos; tela sem conexão tem o aviso de coexistência (sem prometer: a Meta decide na hora). Conectar, Reconectar, Atualizar status, validade e Desconectar já existiam.
+- Mobile: o app abre a página de conexão no navegador do sistema (`LaunchMode.externalApplication`), sem WebView; ao voltar, a tela relê o estado no servidor (a fonte da verdade). Não testado em aparelho/emulador.
+- RLS conferida em produção: todas as tabelas `whatsapp_*` com RLS; só `whatsapp_connections` e `whatsapp_messages` têm política (SELECT da própria dona); nenhuma escrita para `authenticated`/`anon`; credenciais só no Vault.
+- Piloto: `whatsapp_rollout.mode='off'`. Nada liberado.
+
+## Pendências (dono)
+1. Confirmar Access Verification no painel da Meta (não consegui: login necessário).
+2. Autorizar o piloto para uma conta (candidata: a única com conexão de teste e 6 pacientes).
+3. Conectar um WhatsApp Business real (escolha do fluxo na tela da Meta) e homologar com paciente fictício e destinatário autorizado.
+4. Cobrança: cada profissional cadastra a própria forma de pagamento no WhatsApp Manager (Tech Provider).
 
 # Roadmap WhatsApp — La Pelve (estado em 30/10/2026)
 
