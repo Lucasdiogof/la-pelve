@@ -19,6 +19,14 @@
 - RLS conferida em produção: todas as tabelas `whatsapp_*` com RLS; só `whatsapp_connections` e `whatsapp_messages` têm política (SELECT da própria dona); nenhuma escrita para `authenticated`/`anon`; credenciais só no Vault.
 - Piloto: `whatsapp_rollout.mode='off'`. Nada liberado.
 
+## Verificação no painel da Meta (16/11)
+- Business Verification da Lucksrei (4371966796448884): Verificada (04/10/2026). No app, Analisar → Verificação mostra "Verificado".
+- Access Verification: não aparece em nenhuma tela do app nem do Centro de Segurança; não é pré-requisito do piloto (só eleva o limite de onboarding).
+- Permissões aprovadas (envio de 15/11): whatsapp_business_management, whatsapp_business_messaging, public_profile. Ações necessárias: nenhuma. App publicado, 0% do limite de volume.
+- Aba "Integração de Provedor de Tecnologia" do caso de uso não renderizou no painel embutido; status de Tech Provider ainda sem leitura direta.
+- WhatsApp Manager: só a conta de teste (Test Number +1 555-637-7568, 0 enviadas, 1/5 destinatários). Nenhum número real. Cobrança: cada clínica paga pela própria conta; nada configurado.
+- Risco a tratar: a Meta anuncia nomes de usuário do WhatsApp com BSUID; respostas de pacientes poderão chegar sem telefone. O casamento de respostas por telefone (_shared/inbound) precisará de fallback.
+
 ## Piloto ativo (16/11, 11:2x UTC)
 - `whatsapp_rollout`: mode `pilot`, só o UUID do dono (e-mail conferido). `whatsapp_self_connect_allowed` = true só para ele; as outras 7 contas (incluindo a da Samara) = false. Rollback: `update whatsapp_rollout set mode='off'`.
 - A conexão de teste segue `connected`; para conectar um número real o dono precisa antes desconectar a de teste (o banco recusa 2ª conexão ativa, WA007).
