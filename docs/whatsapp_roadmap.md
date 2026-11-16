@@ -19,6 +19,13 @@
 - RLS conferida em produção: todas as tabelas `whatsapp_*` com RLS; só `whatsapp_connections` e `whatsapp_messages` têm política (SELECT da própria dona); nenhuma escrita para `authenticated`/`anon`; credenciais só no Vault.
 - Piloto: `whatsapp_rollout.mode='off'`. Nada liberado.
 
+## Piloto ativo (16/11, 11:2x UTC)
+- `whatsapp_rollout`: mode `pilot`, só o UUID do dono (e-mail conferido). `whatsapp_self_connect_allowed` = true só para ele; as outras 7 contas (incluindo a da Samara) = false. Rollback: `update whatsapp_rollout set mode='off'`.
+- A conexão de teste segue `connected`; para conectar um número real o dono precisa antes desconectar a de teste (o banco recusa 2ª conexão ativa, WA007).
+- Cron 11:30 com o dispatcher v21: sucesso, 0 erros (leitura das novas colunas de `profiles` OK).
+- App: status individual dos modelos (aprovado / em análise / recusado ou pausado) na tela conectada; nota de cobrança da Meta atualizada.
+- Reconexão: o botão Reconectar refaz o fluxo oficial; token com aviso 7 dias antes de vencer. Preferências exigem internet (gravação direta); falha reverte o interruptor e avisa.
+
 ## Pendências (dono)
 1. Confirmar Access Verification no painel da Meta (não consegui: login necessário).
 2. Autorizar o piloto para uma conta (candidata: a única com conexão de teste e 6 pacientes).
