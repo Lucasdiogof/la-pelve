@@ -124,6 +124,10 @@ const store: ConnectStore = {
     if (error) return "error";
     return data === "flagged" || data === "stale" || data === "skipped" ? data : "error";
   },
+  async selfConnectAllowed(userId) {
+    const { data, error } = await admin.rpc("whatsapp_self_connect_allowed", { p_user_id: userId });
+    return !error && data === true;
+  },
   async markPhoneRegistrationRateLimited(userId, phoneNumberId) {
     const { data, error } = await admin.rpc("mark_whatsapp_phone_registration_limited", {
       p_fisioterapeuta_id: userId,

@@ -60,6 +60,7 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
     failFlag: false,
   };
   const upserts: Array<Parameters<ConnectStore["upsertConnection"]>[0]> = [];
+  const allowed = new Set<string>();
   let pinSeq = 0;
   let seq = 0;
   const store: ConnectStore = {
@@ -170,6 +171,9 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
       c.lastError = { code: "token_invalid" };
       return "flagged";
     },
+    async selfConnectAllowed(user) {
+      return allowed.has(user);
+    },
     async markPhoneRegistrationRateLimited(user, phone) {
       events.push("store:mark_limited");
       const g = guards.get(phone);
@@ -179,7 +183,7 @@ function makeStore(events: string[], clock: () => Date = () => NOW) {
       return true;
     },
   };
-  return { store, attempts, connections, guards, flags, upserts };
+  return { store, attempts, connections, guards, flags, upserts, allowed };
 }
 
 interface MetaScript {
@@ -1066,4 +1070,41 @@ test("desconectar funciona com o onboarding desligado (chave geral off)", async 
   assert.equal(h.connections.get("user-a")!.status, "disconnected");
   const start = await off(new Request("https://x.test", { method: "POST", headers: { authorization: "Bearer jwt-a" }, body: JSON.stringify({ action: "start" }) }));
   assert.equal(start.status, 503, "iniciar continua bloqueado");
+});
+
+// --------------------------------------------------------------------------
+// Piloto: chave geral desligada, liberação pelo banco (whatsapp_rollout)
+// --------------------------------------------------------------------------
+
+test("piloto: só quem o banco liberou inicia e conclui; os demais seguem em not_configured", async () => {
+  const h = build();
+  const me = await h.callOff({ action: "start" }, "Bearer jwt-a");
+  assert.equal(me.status, 503);
+  assert.deepEqual(await body(await h.callOff({ action: "availability" }, "Bearer jwt-a")), { ok: true, enabled: false });
+
+  h.allowed.add("user-a");
+  assert.deepEqual(await body(await h.callOff({ action: "availability" }, "Bearer jwt-a")), { ok: true, enabled: true });
+  const started = await h.callOff({ action: "start" }, "Bearer jwt-a");
+  assert.equal(started.status, 200);
+  const state = new URL(((await started.json()) as { connect_url: string }).connect_url).hash.replace("#state=", "");
+  assert.equal((await h.callOff({ action: "config", state })).status, 200);
+  assert.equal((await h.callOff(complete(state))).status, 200);
+  assert.equal(h.connections.get("user-a")?.status, "connected");
+
+  // Outra profissional (não liberada) continua fora.
+  assert.equal((await h.callOff({ action: "start" }, "Bearer jwt-b")).status, 503);
+});
+
+test("piloto: rollback (tirar da lista) fecha também um state já emitido", async () => {
+  const h = build();
+  h.allowed.add("user-a");
+  const state = await (async () => {
+    const res = await h.callOff({ action: "start" }, "Bearer jwt-a");
+    return new URL(((await res.json()) as { connect_url: string }).connect_url).hash.replace("#state=", "");
+  })();
+  h.allowed.clear();
+  assert.equal((await h.callOff({ action: "config", state })).status, 503);
+  assert.equal((await h.callOff(complete(state))).status, 503);
+  assert.equal(mutations(h).length, 0);
+  assert.equal(h.connections.size, 0);
 });

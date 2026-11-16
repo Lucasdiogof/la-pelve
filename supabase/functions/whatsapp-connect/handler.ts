@@ -106,6 +106,11 @@ export interface ConnectStore {
    * 'skipped' = sem conexão/desconectada/em erro por outro motivo.
    */
   flagTokenInvalid(userId: string, tokenSha256: string): Promise<"flagged" | "stale" | "skipped" | "error">;
+  /**
+   * Liberação do onboarding PELO BANCO (whatsapp_rollout: off | pilot | all), usada quando a
+   * chave geral do ambiente está desligada. Falha ou dúvida = false (fechado).
+   */
+  selfConnectAllowed(userId: string): Promise<boolean>;
 }
 
 export interface ConnectHandlerDeps {
@@ -283,10 +288,19 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     if (input.action === "availability") {
       const userId = await deps.authenticate(req.headers.get("authorization"));
       if (!userId) return fail(401, "unauthorized");
-      return json(200, { ok: true, enabled: deps.config.enabled });
+      const open = deps.config.enabled || (deps.config.readOnly ? await deps.store.selfConnectAllowed(userId) : false);
+      return json(200, { ok: true, enabled: open });
     }
 
     if (!deps.config.enabled) {
+      // Piloto/liberação gradual: só com todo o resto configurado (readOnly) e só para quem o
+      // banco liberou. O dono de um state (config/complete) é quem o criou no `start`.
+      if (deps.config.readOnly && ["start", "config", "complete", "status"].includes(String(input.action))) {
+        const owner = await gateOwner(req, input);
+        if (owner && (await deps.store.selfConnectAllowed(owner))) {
+          return await route(input, req, deps.config.readOnly);
+        }
+      }
       // Chave geral desligada: o dono autenticado ainda consulta o status da conexão que
       // já existe, em modo SOMENTE LEITURA (sem inscrever webhook, registrar número nem
       // criar templates). Nada de iniciar ou concluir conexões.
@@ -303,7 +317,20 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       log("whatsapp_connect_not_configured", { action: String(input.action ?? ""), missing: deps.config.missing });
       return fail(503, "not_configured");
     }
-    const config = deps.config.config;
+    return await route(input, req, deps.config.config);
+  };
+
+  async function gateOwner(req: Request, input: Record<string, unknown>): Promise<string | null> {
+    if (input.action === "start" || input.action === "status") return await deps.authenticate(req.headers.get("authorization"));
+    const state = String(input.state ?? "");
+    return STATE_RE.test(state) ? await deps.store.peekAttempt(await sha256Hex(state)) : null;
+  }
+
+  async function route(
+    input: Record<string, unknown>,
+    req: Request,
+    config: Extract<ConnectConfigResult, { enabled: true }>["config"],
+  ): Promise<Response> {
     const meta = deps.meta(config);
 
     switch (input.action) {
@@ -347,7 +374,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       default:
         return fail(400, "unknown_action");
     }
-  };
+  }
 
   async function disconnect(req: Request, meta: MetaOnboarding | null): Promise<Response> {
     const userId = await deps.authenticate(req.headers.get("authorization"));
