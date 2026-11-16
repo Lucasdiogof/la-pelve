@@ -184,3 +184,11 @@ test("dado inconsistente num agendamento não impede os demais", async () => {
   }
   assert.deepEqual(inserted.map((m) => m.appointmentId), ["appt-1"]);
 });
+
+test("typesForProfile: respeita preferências e templates ativos", async () => {
+  const { typesForProfile } = await import("./run_materialization.ts");
+  assert.deepEqual(typesForProfile({}), ["appointment_confirmation", "appointment_12h", "appointment_rescheduled"]);
+  assert.deepEqual(typesForProfile({ whatsapp_notify_on_booking: false }), ["appointment_12h"]);
+  assert.deepEqual(typesForProfile({ whatsapp_reminder_12h: false }, ["appointment_confirmation", "appointment_12h"]), ["appointment_confirmation"]);
+  assert.deepEqual(typesForProfile({}, []), []);
+});

@@ -16,6 +16,13 @@
 import { isValidGraphApiVersion } from "../_shared/dispatch/meta_provider.ts";
 import type { TemplateConfig } from "../_shared/dispatch/types.ts";
 
+// Nomes aprovados nas WABAs (o connect cria/confere os mesmos). O envio só acontece com a
+// conexão pronta e a preferência ligada; reagendamento segue sem template.
+const DEFAULT_TEMPLATES = {
+  appointment_confirmation: "appointment_confirmation",
+  appointment_12h: "appointment_12h",
+} as Partial<Record<string, string>>;
+
 const TEMPLATE_NAME_RE = /^[a-z0-9_]{1,512}$/;
 const LANGUAGE_RE = /^[a-z]{2,3}(_[A-Z]{2})?$/;
 
@@ -43,8 +50,8 @@ export function readDispatcherConfig(env: (name: string) => string | undefined):
     appointment_rescheduled: "WHATSAPP_TEMPLATE_APPOINTMENT_RESCHEDULED",
   } as const;
   for (const [type, variable] of Object.entries(templateVars)) {
-    const value = env(variable);
-    if (value === undefined || value === "") continue;
+    const value = env(variable) || DEFAULT_TEMPLATES[type as keyof typeof templateVars];
+    if (!value) continue;
     if (!TEMPLATE_NAME_RE.test(value)) problems.push(variable);
     else names[type as keyof typeof templateVars] = value;
   }

@@ -45,6 +45,20 @@ function isoDate(date: Date, offsetDays: number): string {
   return new Date(date.getTime() + offsetDays * 86_400_000).toISOString().slice(0, 10);
 }
 
+const ALL_TYPES: readonly MessageType[] = ["appointment_confirmation", "appointment_12h", "appointment_rescheduled"];
+
+/** Tipos com template ativo no envio E ligados nas preferências da profissional. */
+export function typesForProfile(
+  profile: { whatsapp_notify_on_booking?: boolean; whatsapp_reminder_12h?: boolean },
+  enabledTypes: readonly MessageType[] = ALL_TYPES,
+): MessageType[] {
+  return enabledTypes.filter((type) =>
+    type === "appointment_12h"
+      ? profile.whatsapp_reminder_12h !== false
+      : profile.whatsapp_notify_on_booking !== false,
+  );
+}
+
 export async function materializeDueMessages(
   data: SchedulerDataPort,
   port: MaterializationPort,
@@ -93,7 +107,7 @@ export async function materializeDueMessages(
         consent: toConsentForEligibility(consentRow),
         timeZone: profile.timezone,
         now,
-        enabledTypes,
+        enabledTypes: typesForProfile(profile, enabledTypes),
       });
 
       for (const decision of decisions) {

@@ -25,12 +25,12 @@ function post(auth?: string) {
   return new Request(URL_BASE, { method: "POST", headers: auth ? { authorization: auth } : {} });
 }
 
-test("config: lê templates configurados; tipo sem template fica de fora", () => {
+test("config: lê templates configurados; env sobrescreve; rescheduled segue sem template", () => {
   const result = readDispatcherConfig((n) => env[n]);
   assert.ok(result.ok);
   assert.deepEqual(result.ok && result.config.templates, {
     languageCode: "pt_BR",
-    names: { appointment_12h: "la_pelve_confirmacao" },
+    names: { appointment_confirmation: "appointment_confirmation", appointment_12h: "la_pelve_confirmacao" },
   });
 });
 

@@ -34,6 +34,9 @@ export interface ConsentRow {
 export interface ProfileRow {
   id: string;
   timezone: string;
+  /** Preferências da 0043; ausente = ligado. */
+  whatsapp_notify_on_booking?: boolean;
+  whatsapp_reminder_12h?: boolean;
 }
 
 export interface ConnectionRow {

@@ -21,7 +21,7 @@ const APPOINTMENT_COLUMNS =
   "id, fisioterapeuta_id, date, time, status, patient_id, schedule_revision, schedule_revision_at";
 const PATIENT_COLUMNS = "id, fisioterapeuta_id, phone_e164, deleted_at";
 const CONSENT_COLUMNS = "id, patient_id, fisioterapeuta_id, channel, purpose, contact_value, granted_at, revoked_at";
-const PROFILE_COLUMNS = "id, timezone";
+const PROFILE_COLUMNS = "id, timezone, whatsapp_notify_on_booking, whatsapp_reminder_12h";
 const CONNECTION_COLUMNS = "fisioterapeuta_id, status, phone_number_id";
 
 export function createSupabaseSchedulerDataPort(client: SupabaseClient): SchedulerDataPort {
