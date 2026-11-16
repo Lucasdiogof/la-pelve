@@ -1,3 +1,8 @@
+# Atualização 16/11/2026 (noite, 2) — Teste com outra conta do Facebook
+
+- Embedded Signup v5 (config 4693096200923752) chamado direto pelo SDK em página estática do domínio, com uma conta do Facebook que **não** administra a Lucksrei (login feito pelo dono). Resultado: **"Lucksrei não pode integrar clientes no momento"**, igual à conta do dono. Session ID: `01a1e492-ca80-73de-9c0c-b32929baec65`. Nada gravado; "compartilhar contato" não clicado.
+- Conclusão: a hipótese de autointegração (admin do próprio Tech Provider) está **refutada**. O bloqueio é do lado da Meta para a Lucksrei/app, coerente com a Access Verification ainda "Em análise" na página dedicada. Aguardando o chamado 29569203806031459.
+
 # Atualização 16/11/2026 (noite) — Investigação do bloqueio do Embedded Signup
 
 ## Achado principal
