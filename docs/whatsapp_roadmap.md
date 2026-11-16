@@ -1,3 +1,22 @@
+# Atualização 16/11/2026 — pós-aprovação da Meta
+
+## Estado real
+- Meta (confirmado pelo dono no painel): empresa verificada, App Review aprovado (messaging, management, public_profile), app publicado. NÃO confirmado por mim: Access Verification / Tech Provider (exige o painel do dono).
+- Doc oficial (Embedded Signup): Tech Provider usa token de negócio obtido no servidor; o cliente cadastra a PRÓPRIA forma de pagamento na conta dele (o custo não cai na Lucksrei). Limite de 10 novos clientes / 7 dias, sobe para 200 com Business Verification + Access Verification. Coexistence (WhatsApp Business app) é suportado, sem registro do número.
+- Preços: cobrança por mensagem entregue, por categoria e país; desde 01/10/2026 mensagens utility dentro da janela de 24 h deixam de ser gratuitas. Valores do Brasil: consultar a tabela oficial (BRL).
+- Produção: connect v21 (com piloto), dispatcher v20 (SEM a correção abaixo, ver pendências), webhook v35, cron `*/30`. Migration 0042 aplicada.
+
+## Feito hoje (main)
+- 9de75ce: tipo de mensagem sem template ativo não é materializado e não entra na regra dos 2 h (corrige o lembrete de 12 h descartado).
+- ff50200: liberação por banco `whatsapp_rollout` (off | pilot | all). Piloto: `update whatsapp_rollout set mode='pilot', pilot_user_ids=array['<uuid>']::uuid[]`. Rollback: `set mode='off'` (fecha também states já emitidos). Conexões existentes não são afetadas.
+
+## Pendências
+1. Deploy do dispatcher com 9de75ce (CLI daqui dá 403 nesse projeto; usar MCP com bundle esbuild de uma peça).
+2. Dono: confirmar Access Verification no painel; autorizar o piloto (informar o e-mail/uuid da conta); escolher fluxo (coexistence recomendado para quem usa o app WhatsApp Business).
+3. Aviso imediato (`appointment_confirmation`): falta preferência por profissional + configurar o nome no dispatcher.
+4. UX do Perfil → WhatsApp (estados, cobrança, templates), i18n, Android/iOS via navegador externo: não iniciados.
+5. Homologação real (número real, 2 contas fictícias, eventos duplicados): não feita.
+
 # Roadmap WhatsApp — La Pelve (estado em 30/10/2026)
 
 ## Onde estamos
