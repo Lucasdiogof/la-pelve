@@ -17,8 +17,13 @@
 - App: Ações necessárias = nenhuma; publicado; 0% do limite de volume.
 - "Contact book for WhatsApp" do portfólio está **ligado** (a Meta guarda telefone/BSUID dos contatos do portfólio Lucksrei). Não alterado; decisão do dono.
 
+- Permissões (Casos de uso → Permissões e recursos): `whatsapp_business_management` e `whatsapp_business_messaging` com acesso avançado (menu oferece "Reduzir o acesso").
+- **Embedded Signup v5 testado com a conta do dono (16/11):** "Você vinculou La Pelve anteriormente" → Editar configurações → **"Lucksrei não pode integrar clientes no momento"** (oferece compartilhar contato; não compartilhado; fechado). A escolha número novo × existente **não apareceu**. Nada gravado no banco (1 conexão, a de teste).
+- Hipótese principal (relato da comunidade, sem confirmação da Meta): a conta do Facebook do dono é admin do próprio portfólio do parceiro (Lucksrei); a Meta não deixa o parceiro integrar a si mesmo. Outras causas possíveis: passos da aba "Integração de Provedor de Tecnologia" (que dá erro 1007) incompletos, ou o aviso "WhatsApp needs more information".
+
 ## Pendências
-1. Dono: clicar "Continuar com a Meta" (o navegador bloqueia popup aberto por automação) e parar na escolha número novo × WhatsApp Business existente. A opção existente aparecer prova o fluxo, não todas as verificações.
+1. Testar o Embedded Signup com uma conta do Facebook que **não** seja admin do portfólio Lucksrei (uma profissional piloto com portfólio próprio). Não usar a conta da Samara sem autorização.
+1b. Se também falhar: chamado no Suporte ao Desenvolvedor da Meta (WhatsApp Business Platform) citando o erro 1007 da aba onboard, o bloqueio "não pode integrar clientes" e o Session ID da tela.
 2. Dono: abrir chamado na Meta só se o aviso "WhatsApp needs more information" passar a bloquear algo.
 3. Dono: autorizar explicitamente a conexão de um número real (exige desconectar antes a de teste: WA007).
 4. Com número real: sync de 24 h, templates na WABA da profissional, cobrança dela, envio autorizado, confirmação, reconexão, isolamento.
