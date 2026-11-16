@@ -1,3 +1,25 @@
+# Atualização 16/11/2026 (noite) — Investigação do bloqueio do Embedded Signup
+
+## Achado principal
+- A página dedicada https://developers.facebook.com/4371966796448884/access-verification/ mostra **"Em análise"** (enviada em 04/10/2026 13:19; texto "entraremos em contato em 5 dias"), com o aviso de que **2 apps (La Pelve e Beard System, `whatsapp_business_management`) precisam concluí-la até 15/01/2027**. Isso **contradiz** a linha "Verificado — Provedor de Tecnologia" de Business Suite → Informações da empresa. O status "Verificado" registrado acima não é confiável: tratar Access Verification como NÃO CONFIRMADA até a Meta esclarecer.
+- Hipótese de trabalho (não comprovada): a Meta ainda não tem a Lucksrei como Tech Provider efetivo → "não pode integrar clientes", aba "Integração de Provedor de Tecnologia" em branco (1007) e o aviso "WhatsApp needs more information" podem ter a mesma origem.
+- Sem pista de autointegração na documentação oficial; relatos da comunidade são inconclusivos (nenhuma resposta da Meta).
+
+## Verificado no painel (leitura)
+- Business Support Home: sem restrições; WABA de teste sem problemas; Parceiros: nenhum.
+- Central de Segurança: verificação da empresa "Verificada"; só 1 administrador (Lucas); o aviso "WhatsApp needs more information" não tem detalhe clicável (o "Ver detalhes" leva à Central de Segurança, sem texto sobre WhatsApp).
+- App: publicado há poucas horas; alertas sem pendência; Login do Facebook para Empresas: OAuth, domínio e redirect corretos.
+
+## Chamado na Meta (aberto com autorização do dono)
+- Suporte direto, tópico "Dev: Onboarding", tipo "Troubleshoot Meta Business Verification". **Protocolo/caso 29569203806031459** (16/11/2026 10:33).
+- URL: https://business.facebook.com/direct-support/case-detail/29569203806031459/?business_id=4371966796448884
+- Sem anexos, sem credenciais, sem dados clínicos.
+
+## Pendências
+1. Responder ao chamado / chat do agente quando a Meta responder.
+2. Teste com outra conta do Facebook que não administre a Lucksrei (precisa de login do dono nessa conta; só liberar UUID temporário no piloto e remover depois; não concluir vinculação).
+3. Depois do desbloqueio: homologação v5/coexistence com número real (autorização específica).
+
 # Atualização 16/11/2026 (tarde) — Coexistence
 
 - Embedded Signup **v5** na página (`extras: { setup: {}, version: 'v5' }`): a Meta mostra as duas opções (número novo ou WhatsApp Business existente). A página aceita `messaging_account_ids` (v5) e `waba_id` (v4).
