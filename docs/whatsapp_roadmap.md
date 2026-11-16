@@ -1,3 +1,6 @@
+# Atualização 16/11/2026 (noite, 3) — Chamado escalado
+- Caso 29569203806031459: o 1º retorno foi de agente de IA (confirmou a inconsistência Access Verification, sem solução). O chat informa que o caso foi **encaminhado a um especialista**, que responderá **por e-mail** (marketing@lucksrei.com), e pede para **não enviar mais detalhes até ser contatado**. Aguardar.
+
 # Atualização 16/11/2026 (noite, 2) — Teste com outra conta do Facebook
 
 - Embedded Signup v5 (config 4693096200923752) chamado direto pelo SDK em página estática do domínio, com uma conta do Facebook que **não** administra a Lucksrei (login feito pelo dono). Resultado: **"Lucksrei não pode integrar clientes no momento"**, igual à conta do dono. Session ID: `01a1e492-ca80-73de-9c0c-b32929baec65`. Nada gravado; "compartilhar contato" não clicado.
