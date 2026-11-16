@@ -48,6 +48,8 @@ export interface MetaOnboarding {
   subscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   unsubscribeApp(token: string, wabaId: string): Promise<Ok<unknown> | Fail>;
   registerPhone(token: string, phoneNumberId: string, pin: string): Promise<Ok<unknown> | Fail>;
+  /** Coexistência: pede a sincronização (só gera webhooks; nada é devolvido aqui). */
+  requestSmbSync(token: string, phoneNumberId: string, syncType: "smb_app_state_sync" | "history"): Promise<Ok<unknown> | Fail>;
   ensureTemplates(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
   /** Só LEITURA: estado dos templates na WABA, sem criar nada (ausente = "missing"). */
   getTemplatesReport(token: string, wabaId: string): Promise<Ok<{ report: TemplatesReport }> | Fail>;
@@ -287,6 +289,14 @@ export function createMetaOnboarding(options: Options): MetaOnboarding {
 
     async unsubscribeApp(token, wabaId) {
       const result = await call("DELETE", `/${wabaId}/subscribed_apps`, { token });
+      return result.ok ? { ok: true } : result;
+    },
+
+    async requestSmbSync(token, phoneNumberId, syncType) {
+      const result = await call("POST", `/${phoneNumberId}/smb_app_data`, {
+        token,
+        json: { messaging_product: "whatsapp", sync_type: syncType },
+      });
       return result.ok ? { ok: true } : result;
     },
 

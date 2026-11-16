@@ -1,3 +1,18 @@
+# Atualização 16/11/2026 (tarde) — Coexistence
+
+- Embedded Signup **v5** na página (`extras: { setup: {}, version: 'v5' }`): a Meta mostra as duas opções (número novo ou WhatsApp Business existente). A página aceita `messaging_account_ids` (v5) e `waba_id` (v4).
+- Coexistência: a Meta devolve só a WABA → o servidor descobre o número; só segue com **exatamente um** número na WABA (vários = 409 `phone_ambiguous`, sem efeito).
+- Regra da Meta: pedir UMA vez, em até 24 h, `POST /{phone}/smb_app_data` (`smb_app_state_sync` e `history`). Feito no `complete`; falha é repetida no "Atualizar status" (pendente/erro). Estado em `setup_state.smb_sync`.
+- Privacidade: `history`, `smb_app_state_sync` e `smb_message_echoes` são aceitos (200) e **descartados**: nada gravado, nenhum contato vira paciente, nenhuma mídia baixada, nada de conteúdo em log. "Sim" vindo do histórico nunca confirma consulta. Mensagens comuns em `messages` só agem se forem confirmação de um lembrete nosso (nada é armazenado além do resultado).
+- A página orienta a profissional a **não compartilhar o histórico** (a escolha é feita no app WhatsApp Business; recusar gera o evento 2593109 no webhook e não impede o FINISH).
+- BSUID: 0044 aplicada e webhook publicado (respostas sem telefone só valem citando um lembrete nosso).
+
+## Pendências (dono)
+1. Painel da Meta → Webhooks: assinar `history`, `smb_app_state_sync` e `smb_message_echoes` (exigido pela Meta para coexistência; o La Pelve descarta).
+2. Confirmar no painel o status de **Tech Provider** (exigido para coexistência) e o **Access Verification**.
+3. Login no La Pelve (navegador embutido) para validar Perfil → WhatsApp no piloto.
+4. Autorizar explicitamente qualquer conexão de número real.
+
 # Atualização 16/11/2026 — pós-aprovação da Meta
 
 ## Estado real

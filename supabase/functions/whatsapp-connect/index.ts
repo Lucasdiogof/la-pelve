@@ -22,6 +22,7 @@ function normalizeSetup(value: unknown): SetupState {
       ? v.register_attempts.filter((t): t is string => typeof t === "string").slice(-20)
       : [],
     ...(typeof v.rate_limited_until === "string" ? { rate_limited_until: v.rate_limited_until } : {}),
+    ...(typeof v.smb_sync === "object" && v.smb_sync !== null ? { smb_sync: v.smb_sync } : {}),
   };
 }
 

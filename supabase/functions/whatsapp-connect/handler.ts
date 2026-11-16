@@ -32,6 +32,12 @@ export interface SetupState {
   register_attempts: string[];
   rate_limited_until?: string;
   /**
+   * Coexistência: a Meta exige pedir UMA vez, em até 24 h, a sincronização de
+   * contatos e de histórico (POST /{phone}/smb_app_data). O La Pelve pede só
+   * para cumprir a regra; os webhooks resultantes são descartados sem gravar.
+   */
+  smb_sync?: { smb_app_state_sync?: "requested" | "failed"; history?: "requested" | "failed" };
+  /**
    * Só ENTRADA do upsert (migration 0034): início da avaliação que está sendo
    * gravada. O banco usa para recusar 'connected' se um evento negativo de
    * template chegou depois e não grava o campo. `templates` e
@@ -168,6 +174,22 @@ export function readinessFrom(report: TemplatesReport): {
 
 /** Código da Meta para PIN de verificação em duas etapas incorreto. */
 const META_PIN_MISMATCH = 133005;
+
+/** Pede (uma vez cada) a sincronização exigida pela Meta na coexistência. */
+async function ensureSmbSync(
+  meta: MetaOnboarding,
+  token: string,
+  phoneNumberId: string,
+  setup: SetupState,
+): Promise<SetupState> {
+  if (setup.mode !== "coexistence") return setup;
+  const sync = { ...(setup.smb_sync ?? {}) };
+  for (const type of ["smb_app_state_sync", "history"] as const) {
+    if (sync[type] === "requested") continue;
+    sync[type] = (await meta.requestSmbSync(token, phoneNumberId, type)).ok ? "requested" : "failed";
+  }
+  return { ...setup, smb_sync: sync };
+}
 
 export function emptySetup(mode: SetupState["mode"] = "cloud"): SetupState {
   return { mode, register_attempts: [] };
@@ -475,6 +497,7 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
     }
 
     const evaluatedAt = (deps.now ?? (() => new Date()))();
+    setup = await ensureSmbSync(meta, token, phoneNumberId, setup);
     const evaluated = await evaluateReadiness(meta, deps.store, { userId, token, wabaId, phoneNumberId, setup });
     if (evaluated.reason === "token_invalid") return await markTokenInvalid(userId, token);
     setup = evaluated.setup;
@@ -606,12 +629,15 @@ export function createConnectHandler(deps: ConnectHandlerDeps): (req: Request) =
       return json(200, { ok: true, status: connection.status, reason: "credential_missing" });
     }
     const evaluatedAt = (deps.now ?? (() => new Date()))();
+    // shortcut: só reaproveita pendente/erro para repetir a sincronização que falhou;
+    // conexão já conectada não repete (raro: falha da Meta logo após o cadastro).
+    const setup = await ensureSmbSync(meta, token, connection.phoneNumberId, connection.setupState);
     const evaluated = await evaluateReadiness(meta, deps.store, {
       userId,
       token,
       wabaId: connection.wabaId,
       phoneNumberId: connection.phoneNumberId,
-      setup: connection.setupState,
+      setup,
     });
     if (evaluated.reason === "token_invalid") return await markTokenInvalid(userId, token);
     const persisted = await persistEvaluation(

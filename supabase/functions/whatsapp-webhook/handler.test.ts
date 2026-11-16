@@ -672,3 +672,69 @@ test("readBodyLimited: sem corpo = vazio; parseMaxBodyBytes valida (inválido/fo
   assert.equal(parseMaxBodyBytes("2048"), 2048);
   assert.equal(parseMaxBodyBytes("10485760"), 10485760);
 });
+
+// --------------------------------------------------------------------------
+// Coexistência: history / smb_app_state_sync / smb_message_echoes são
+// descartados (o La Pelve não guarda conversas, contatos nem mídias).
+// --------------------------------------------------------------------------
+
+const SECRET_TEXT = "Dor pélvica forte desde ontem";
+const coexBody = (field: string, value: Record<string, unknown>) => ({
+  object: "whatsapp_business_account",
+  entry: [{ id: "102290129340398", changes: [{ field, value }] }],
+});
+const coexPayloads = [
+  coexBody("history", {
+    messaging_product: "whatsapp",
+    metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+    history: [{
+      metadata: { phase: 0, chunk_order: 1, progress: 10 },
+      threads: [{ id: "5562911110001", messages: [{ from: "5562911110001", id: "wamid.H", timestamp: TS, type: "text", text: { body: SECRET_TEXT } }] }],
+    }],
+  }),
+  coexBody("history", {
+    messaging_product: "whatsapp",
+    metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+    history: [{ errors: [{ code: 2593109, title: "History sync is turned off by the business from the WhatsApp Business App" }] }],
+  }),
+  coexBody("smb_app_state_sync", {
+    messaging_product: "whatsapp",
+    metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+    state_sync: [{ type: "contact", contact: { full_name: "Paciente Secreta", phone_number: "5562911110001" }, action: "add" }],
+  }),
+  coexBody("smb_message_echoes", {
+    messaging_product: "whatsapp",
+    metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+    message_echoes: [{ from: "556230000000", to: "5562911110001", id: "wamid.E", timestamp: TS, type: "text", text: { body: SECRET_TEXT } }],
+  }),
+];
+
+test("coexistência: history/contatos/ecos são aceitos (200) e descartados sem tocar em nada", async () => {
+  for (const payload of coexPayloads) {
+    const reply = fakePort();
+    const status = fakeStatusPort();
+    const template = fakeTemplatePort();
+    const { handler, logs } = statusSetup(status.port, template.port, reply.port);
+    const res = await handler(await signedPost(payload));
+    assert.equal(res.status, 200);
+    assert.deepEqual(reply.calls, [], "eco do próprio negócio nunca vira confirmação");
+    assert.deepEqual(status.applied, []);
+    assert.deepEqual(template.applied, []);
+    const text = JSON.stringify(logs);
+    for (const secret of [SECRET_TEXT, "5562911110001", "Paciente Secreta", "wamid.H", "wamid.E", PNID]) {
+      assert.ok(!text.includes(secret), `log vazou ${secret}`);
+    }
+  }
+});
+
+test("coexistência: 'Sim' no histórico importado NÃO confirma consulta (só messages ao vivo)", async () => {
+  const reply = fakePort();
+  const { handler } = statusSetup(fakeStatusPort().port, fakeTemplatePort().port, reply.port);
+  const old = coexBody("history", {
+    messaging_product: "whatsapp",
+    metadata: { display_phone_number: "556230000000", phone_number_id: PNID },
+    history: [{ threads: [{ id: "5562911110001", messages: [{ from: "5562911110001", id: "wamid.old", timestamp: TS, type: "text", text: { body: "Sim, confirmo!" } }] }] }],
+  });
+  assert.equal((await handler(await signedPost(old))).status, 200);
+  assert.deepEqual(reply.calls, []);
+});

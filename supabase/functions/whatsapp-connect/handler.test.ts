@@ -196,6 +196,7 @@ interface MetaScript {
   subscribeOk: boolean;
   belongs: boolean;
   phoneIds?: string[];
+  smbSyncOk?: boolean;
   exchangeOk: boolean;
   tokenValid: boolean;
   tokenExpiresAt: Date | null;
@@ -238,6 +239,10 @@ function makeMeta(events: string[]) {
     async unsubscribeApp() {
       events.push("meta:unsubscribe");
       return { ok: true };
+    },
+    async requestSmbSync(_t, _p, type) {
+      events.push(`meta:smb_sync:${type}`);
+      return script.smbSyncOk === false ? { ok: false, code: "meta_rejected" } : { ok: true };
     },
     async registerPhone(_t, _p, pin) {
       events.push("meta:register");
@@ -1140,4 +1145,39 @@ test("fluxo Cloud API continua exigindo phone_number_id", async () => {
   const h = build();
   const res = await h.call(complete(await startFor(h, "Bearer jwt-a"), { phone_number_id: "" }));
   assert.equal(res.status, 400);
+});
+
+const COEX = { event: "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING", phone_number_id: "" };
+
+test("coexistência: pede contatos e histórico UMA vez (regra das 24 h da Meta)", async () => {
+  const h = build();
+  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "CONNECTED", isPinEnabled: null };
+  h.script.report = { confirmation: "approved", reminder: "pending" };
+  await h.call(complete(await startFor(h, "Bearer jwt-a"), COEX));
+  assert.deepEqual(h.events.filter((e) => e.startsWith("meta:smb_sync")), [
+    "meta:smb_sync:smb_app_state_sync",
+    "meta:smb_sync:history",
+  ]);
+  assert.deepEqual(h.connections.get("user-a")!.setupState.smb_sync, { smb_app_state_sync: "requested", history: "requested" });
+  h.events.length = 0;
+  await h.call({ action: "status" }, "Bearer jwt-a");
+  assert.ok(!h.events.some((e) => e.startsWith("meta:smb_sync")), "nunca repete (a Meta só aceita uma vez)");
+});
+
+test("coexistência: falha na sincronização é repetida no Atualizar status", async () => {
+  const h = build();
+  h.script.phone = { displayPhoneNumber: "+55 62 1", status: "CONNECTED", isPinEnabled: null };
+  h.script.report = { confirmation: "approved", reminder: "pending" };
+  h.script.smbSyncOk = false;
+  await h.call(complete(await startFor(h, "Bearer jwt-a"), COEX));
+  assert.equal(h.connections.get("user-a")!.setupState.smb_sync?.history, "failed");
+  h.script.smbSyncOk = true;
+  await h.call({ action: "status" }, "Bearer jwt-a");
+  assert.deepEqual(h.connections.get("user-a")!.setupState.smb_sync, { smb_app_state_sync: "requested", history: "requested" });
+});
+
+test("número novo (Cloud API) nunca pede sincronização de app", async () => {
+  const h = build();
+  await h.call(complete(await startFor(h, "Bearer jwt-a")));
+  assert.ok(!h.events.some((e) => e.startsWith("meta:smb_sync")));
 });
