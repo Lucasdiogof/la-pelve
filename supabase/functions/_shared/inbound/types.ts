@@ -15,8 +15,8 @@ export interface InboundMessage {
   wamid: string;
   /** value.metadata.phone_number_id: o número do profissional que recebeu. */
   phoneNumberId: string;
-  /** messages[].from (wa_id, só dígitos, sem "+"). */
-  fromWaId: string;
+  /** messages[].from (wa_id, só dígitos, sem "+"); null quando vem BSUID em vez de telefone. */
+  fromWaId: string | null;
   /** messages[].timestamp convertido para ISO 8601 UTC. */
   receivedAt: string;
   type: InboundMessageType;
@@ -52,7 +52,8 @@ export interface ConfirmationReplyInput {
   wamid: string;
   phoneNumberId: string;
   /** 1 ou 2 formas E.164 do MESMO remetente (ver phone.ts). */
-  fromE164Candidates: string[];
+  /** null = remetente sem telefone (BSUID): a correlação é só pelo context.id. */
+  fromE164Candidates: string[] | null;
   receivedAt: string;
   messageType: InboundMessageType;
   contextWamid: string | null;

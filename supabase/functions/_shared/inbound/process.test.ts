@@ -67,3 +67,14 @@ test("erro da porta é contado, sem interromper as demais mensagens", async () =
   assert.equal(summary.errors, 1);
   assert.deepEqual(summary.results, { confirmed: 1 });
 });
+
+test("BSUID: sem telefone, só passa se citar a nossa mensagem", async () => {
+  const { port, calls } = recordingPort();
+  const quoted = { ...text("w1", "sim", "BR.13491208655302741918"), context: { id: "wamid.OURS" } };
+  const unquoted = text("w2", "sim", "BR.13491208655302741918");
+  const summary = await processInboundWebhook(payload([quoted, unquoted]), port);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].fromE164Candidates, null);
+  assert.equal(calls[0].contextWamid, "wamid.OURS");
+  assert.equal(summary.ignoredMessages, 1);
+});

@@ -85,10 +85,15 @@ export function parseWebhookPayload(body: unknown): ParsedWebhook {
       for (const raw of rawMessages) {
         const msg = asRecord(raw);
         const wamid = asId(msg?.id);
+        // BSUID: quando a paciente usa nome de usuário, `from` pode não ser um
+        // telefone. Sem telefone, só vale a resposta que cita a NOSSA mensagem.
         const fromWaId = typeof msg?.from === "string" && WA_ID_RE.test(msg.from) ? msg.from : null;
+        const contextWamid = asId(asRecord(msg?.context)?.id);
         const receivedAt = toIsoFromUnixSeconds(msg?.timestamp);
         const content = msg ? readContent(msg) : null;
-        if (!msg || !wamid || !phoneNumberId || !fromWaId || !receivedAt || !content) {
+        if (
+          !msg || !wamid || !phoneNumberId || (!fromWaId && !contextWamid) || !receivedAt || !content
+        ) {
           parsed.ignoredMessages++;
           continue;
         }
@@ -100,7 +105,7 @@ export function parseWebhookPayload(body: unknown): ParsedWebhook {
           type: content.type,
           text: content.text,
           buttonPayload: content.buttonPayload,
-          contextWamid: asId(asRecord(msg.context)?.id),
+          contextWamid,
         });
       }
     }

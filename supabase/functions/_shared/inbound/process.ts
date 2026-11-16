@@ -28,8 +28,9 @@ export async function processInboundWebhook(
       summary.notConfirmation++;
       continue;
     }
-    const fromE164Candidates = senderE164Candidates(message.fromWaId);
-    if (!fromE164Candidates) {
+    const fromE164Candidates = message.fromWaId ? senderE164Candidates(message.fromWaId) : null;
+    // Sem telefone, só aceita citação da nossa mensagem (o banco confere o dono).
+    if (!fromE164Candidates && !message.contextWamid) {
       summary.ignoredMessages++;
       continue;
     }
