@@ -32,7 +32,8 @@ export type SchedulerReason =
   | "less_than_or_equal_12h_notice"
   | "too_close_to_immediate_message"
   | "not_applicable_for_this_revision"
-  | "stale_schedule_revision";
+  | "stale_schedule_revision"
+  | "template_not_configured";
 
 export interface SchedulerDecision {
   eligible: boolean;
@@ -75,6 +76,11 @@ export interface SchedulingInput {
   timeZone: string;
   /** "agora", injetado (nunca lido internamente) para testes deterministas. */
   now: Date;
+  /**
+   * Tipos com template ativo no envio. Ausente = todos (dry-run). Tipo fora da lista
+   * nunca é materializado e, se for o aviso imediato, não entra na regra dos 2h.
+   */
+  enabledTypes?: readonly MessageType[];
 }
 
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
@@ -237,13 +243,20 @@ export function decideMessagesForAppointment(input: SchedulingInput): SchedulerD
     return blockAllWith(appointment, "appointment_already_occurred");
   }
 
-  const immediate = computeImmediateMessageDecision(appointment, appointmentStart, timeZone);
-  const reminder12h = computeAppointment12hDecision(
+  const enabled = (type: MessageType) => !input.enabledTypes || input.enabledTypes.includes(type);
+  let immediate = computeImmediateMessageDecision(appointment, appointmentStart, timeZone);
+  if (!enabled(immediate.messageType)) {
+    immediate = decision(appointment, immediate.messageType, false, null, "template_not_configured");
+  }
+  let reminder12h = computeAppointment12hDecision(
     appointment,
     appointmentStart,
     timeZone,
     immediate.eligible ? new Date(immediate.scheduledFor!) : null,
   );
+  if (!enabled("appointment_12h")) {
+    reminder12h = decision(appointment, "appointment_12h", false, null, "template_not_configured");
+  }
 
   return [immediate, reminder12h];
 }

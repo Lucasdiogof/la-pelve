@@ -391,3 +391,40 @@ test("extra: hasAppointmentAlreadyOccurred", () => {
   assert.equal(hasAppointmentAlreadyOccurred(start, new Date("2026-10-10T16:59:59Z")), false);
   assert.equal(hasAppointmentAlreadyOccurred(start, new Date("2026-10-10T17:00:00Z")), true);
 });
+
+// ---------------------------------------------------------------------
+// enabledTypes: tipo sem template ativo nunca entra na fila nem na regra dos 2h.
+// ---------------------------------------------------------------------
+
+test("enabledTypes sem a imediata: lembrete de 12h NÃO é suprimido pela regra dos 2h", () => {
+  const a = appt({
+    date: "2026-10-10",
+    time: "09:00:00",
+    scheduleRevisionAt: localIso(2026, 10, 9, 20, 30),
+  });
+  const decisions = decideMessagesForAppointment({
+    appointment: a,
+    patient: eligiblePatient,
+    consent: activeConsent,
+    timeZone: TZ,
+    now: new Date("2026-10-01T00:00:00Z"),
+    enabledTypes: ["appointment_12h"],
+  });
+  const immediate = byType(decisions, "appointment_confirmation");
+  assert.equal(immediate.eligible, false);
+  assert.equal(immediate.reason, "template_not_configured");
+  assert.equal(byType(decisions, "appointment_12h").eligible, true);
+});
+
+test("enabledTypes sem o 12h: lembrete não é elegível; imediata segue", () => {
+  const decisions = decideMessagesForAppointment({
+    appointment: appt({}),
+    patient: eligiblePatient,
+    consent: activeConsent,
+    timeZone: TZ,
+    now: new Date("2026-10-01T00:00:00Z"),
+    enabledTypes: ["appointment_confirmation"],
+  });
+  assert.equal(byType(decisions, "appointment_12h").reason, "template_not_configured");
+  assert.equal(byType(decisions, "appointment_confirmation").eligible, true);
+});

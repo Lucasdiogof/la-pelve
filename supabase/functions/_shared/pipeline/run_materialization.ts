@@ -17,7 +17,7 @@
 import { materializeAll } from "../materialization/materialize.ts";
 import { buildMaterializableMessage } from "../materialization/builder.ts";
 import type { MaterializableMessage, MaterializationPort, MaterializationSummary } from "../materialization/types.ts";
-import { decideMessagesForAppointment } from "../scheduler/decision.ts";
+import { decideMessagesForAppointment, type MessageType } from "../scheduler/decision.ts";
 import {
   computeConnectionDiagnostics,
   isValidIanaTimeZone,
@@ -49,6 +49,7 @@ export async function materializeDueMessages(
   data: SchedulerDataPort,
   port: MaterializationPort,
   now: Date,
+  enabledTypes?: readonly MessageType[],
 ): Promise<MaterializationRunSummary> {
   const appointments = await data.listCandidateAppointments({
     fromDate: isoDate(now, -WINDOW_PAST_DAYS),
@@ -92,6 +93,7 @@ export async function materializeDueMessages(
         consent: toConsentForEligibility(consentRow),
         timeZone: profile.timezone,
         now,
+        enabledTypes,
       });
 
       for (const decision of decisions) {

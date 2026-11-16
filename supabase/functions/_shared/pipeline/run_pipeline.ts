@@ -9,7 +9,7 @@ import { reconcileAll } from "../reconciliation/reconcile.ts";
 import type { ReconciliationPort, ReconciliationSummary } from "../reconciliation/types.ts";
 import type { MaterializationPort } from "../materialization/types.ts";
 import type { SchedulerDataPort } from "../../whatsapp-scheduler-dry-run/types.ts";
-import { dispatchPendingWhatsappMessages, type DispatchDeps } from "../dispatch/dispatch.ts";
+import { configuredTypes, dispatchPendingWhatsappMessages, type DispatchDeps } from "../dispatch/dispatch.ts";
 import type { DispatchSummary } from "../dispatch/types.ts";
 import { materializeDueMessages, type MaterializationRunSummary } from "./run_materialization.ts";
 import { loadReconciliationInputs, type ReconciliationDataPort } from "./reconciliation_inputs.ts";
@@ -32,7 +32,7 @@ export interface PipelineSummary {
 export async function runWhatsappPipeline(deps: PipelineDeps): Promise<PipelineSummary> {
   let materialization: PipelineSummary["materialization"];
   try {
-    materialization = await materializeDueMessages(deps.schedulerData, deps.materialization, deps.now());
+    materialization = await materializeDueMessages(deps.schedulerData, deps.materialization, deps.now(), configuredTypes(deps.dispatch.templates));
   } catch {
     materialization = { error: true };
   }
