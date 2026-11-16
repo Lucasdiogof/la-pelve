@@ -18,6 +18,9 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
   }
 
   final WhatsappConnectionRepository _repository;
+
+  /// Para widgets que só precisam de leitura/escrita simples (preferências).
+  WhatsappConnectionRepository get repository => _repository;
   final WhatsappUrlLauncher _launcher;
 
   /// Também serve como retry: tanto o botão de "atualizar status" quanto o

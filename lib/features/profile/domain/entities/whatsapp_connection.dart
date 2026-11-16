@@ -3,6 +3,20 @@ import 'package:la_pelve/shared/utils/enum_from_name.dart';
 
 enum WhatsappConnectionStatus { pending, connected, disconnected, error }
 
+/// Quais avisos automáticos a profissional quer enviar (profiles, migration 0043).
+class WhatsappMessagePreferences extends Equatable {
+  const WhatsappMessagePreferences({
+    this.bookingNotice = true,
+    this.reminder12h = true,
+  });
+
+  final bool bookingNotice;
+  final bool reminder12h;
+
+  @override
+  List<Object?> get props => [bookingNotice, reminder12h];
+}
+
 /// Conexão do WhatsApp Business do profissional autenticado
 /// (`whatsapp_connections`, uma linha por `fisioterapeuta_id`).
 ///

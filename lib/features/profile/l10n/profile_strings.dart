@@ -1001,6 +1001,71 @@ class ProfileStrings {
           'interrumpir los recordatorios.',
   };
 
+  String get whatsappPrefsTitle => switch (language) {
+    AppLanguage.portuguese => 'Avisos automáticos',
+    AppLanguage.english => 'Automatic messages',
+    AppLanguage.spanish => 'Avisos automáticos',
+  };
+
+  String get whatsappPrefBookingTitle => switch (language) {
+    AppLanguage.portuguese => 'Aviso de agendamento',
+    AppLanguage.english => 'Booking notice',
+    AppLanguage.spanish => 'Aviso de agendamiento',
+  };
+
+  String get whatsappPrefBookingSubtitle => switch (language) {
+    AppLanguage.portuguese =>
+      'Envia a data e o horário assim que a consulta é marcada ou remarcada. '
+          'Desligar cancela os avisos ainda não enviados.',
+    AppLanguage.english =>
+      'Sends the date and time as soon as an appointment is booked or '
+          'rescheduled. Turning it off cancels notices not sent yet.',
+    AppLanguage.spanish =>
+      'Envía la fecha y la hora en cuanto se agenda o reprograma la cita. '
+          'Desactivarlo cancela los avisos aún no enviados.',
+  };
+
+  String get whatsappPrefReminderTitle => switch (language) {
+    AppLanguage.portuguese => 'Lembrete antes da consulta',
+    AppLanguage.english => 'Reminder before the appointment',
+    AppLanguage.spanish => 'Recordatorio antes de la cita',
+  };
+
+  String get whatsappPrefReminderSubtitle => switch (language) {
+    AppLanguage.portuguese =>
+      'Cerca de 12 horas antes, com botão para a paciente confirmar. '
+          'Nunca entre 22h e 6h59.',
+    AppLanguage.english =>
+      'About 12 hours before, with a button for the patient to confirm. '
+          'Never between 10 pm and 6:59 am.',
+    AppLanguage.spanish =>
+      'Unas 12 horas antes, con un botón para que la paciente confirme. '
+          'Nunca entre las 22:00 y las 6:59.',
+  };
+
+  String get whatsappPrefsSaveFailed => switch (language) {
+    AppLanguage.portuguese =>
+      'Não foi possível salvar agora. Tente de novo em instantes.',
+    AppLanguage.english => "Couldn't save right now. Please try again shortly.",
+    AppLanguage.spanish =>
+      'No se pudo guardar ahora. Inténtalo de nuevo en unos instantes.',
+  };
+
+  String get whatsappCoexistenceNote => switch (language) {
+    AppLanguage.portuguese =>
+      'Já usa o aplicativo WhatsApp Business? Durante a conexão, a Meta mostra '
+          'se o número pode continuar no aplicativo. Leia os avisos dela antes '
+          'de confirmar, para não perder conversas.',
+    AppLanguage.english =>
+      'Already using the WhatsApp Business app? During setup, Meta shows '
+          'whether the number can stay in the app. Read its warnings before '
+          'confirming so you do not lose conversations.',
+    AppLanguage.spanish =>
+      '¿Ya usas la aplicación WhatsApp Business? Durante la conexión, Meta '
+          'indica si el número puede seguir en la aplicación. Lee sus avisos '
+          'antes de confirmar para no perder conversaciones.',
+  };
+
   String get whatsappBillingNote => switch (language) {
     AppLanguage.portuguese =>
       'Confirme a forma de pagamento no WhatsApp Manager para que as '

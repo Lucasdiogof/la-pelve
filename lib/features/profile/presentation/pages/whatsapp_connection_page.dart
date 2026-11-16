@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
+import 'package:la_pelve/core/error/result.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
@@ -402,6 +403,8 @@ class _StatusArea extends StatelessWidget {
             ],
             const SizedBox(height: AppSpacing.s12),
             Text(t.whatsappBillingNote, style: secondary),
+            const SizedBox(height: AppSpacing.s16),
+            const _PreferencesCard(),
             if (disconnectFailed) ...[
               const SizedBox(height: AppSpacing.s12),
               Text(
@@ -466,6 +469,13 @@ class _ConnectArea extends StatelessWidget {
             const SizedBox(height: AppSpacing.s12),
           ],
           _ConnectButton(label: t.connectWhatsappButtonLabel),
+          const SizedBox(height: AppSpacing.s12),
+          Text(
+            t.whatsappCoexistenceNote,
+            style: textTheme.bodySmall?.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
         ],
       );
     }
@@ -491,6 +501,105 @@ class _ConnectArea extends StatelessWidget {
             color: context.colors.textSecondary,
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Quais avisos automáticos enviar. Desligar cancela os ainda não enviados (trigger 0043).
+class _PreferencesCard extends StatefulWidget {
+  const _PreferencesCard();
+
+  @override
+  State<_PreferencesCard> createState() => _PreferencesCardState();
+}
+
+class _PreferencesCardState extends State<_PreferencesCard> {
+  WhatsappMessagePreferences? _prefs;
+  bool _failed = false;
+
+  WhatsappConnectionRepository get _repo =>
+      context.read<WhatsappConnectionCubit>().repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final result = await _repo.getMessagePreferences();
+      if (!mounted) return;
+      setState(() {
+        if (result case Success(:final data)) {
+          _prefs = data;
+        } else {
+          _failed = true;
+        }
+      });
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  Future<void> _save(WhatsappMessagePreferences next) async {
+    final previous = _prefs;
+    setState(() {
+      _prefs = next;
+      _failed = false;
+    });
+    var ok = false;
+    try {
+      ok = await _repo.setMessagePreferences(next) is Success<void>;
+    } catch (_) {}
+    if (!mounted || ok) return;
+    setState(() {
+      _prefs = previous;
+      _failed = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = ProfileStrings(context.watch<LocaleCubit>().state);
+    final prefs = _prefs;
+    if (prefs == null) return const SizedBox.shrink();
+    final secondary = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: context.colors.textSecondary,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.whatsappPrefsTitle,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.whatsappPrefBookingTitle),
+          subtitle: Text(t.whatsappPrefBookingSubtitle),
+          value: prefs.bookingNotice,
+          onChanged: (v) => _save(
+            WhatsappMessagePreferences(
+              bookingNotice: v,
+              reminder12h: prefs.reminder12h,
+            ),
+          ),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.whatsappPrefReminderTitle),
+          subtitle: Text(t.whatsappPrefReminderSubtitle),
+          value: prefs.reminder12h,
+          onChanged: (v) => _save(
+            WhatsappMessagePreferences(
+              bookingNotice: prefs.bookingNotice,
+              reminder12h: v,
+            ),
+          ),
+        ),
+        if (_failed) Text(t.whatsappPrefsSaveFailed, style: secondary),
       ],
     );
   }

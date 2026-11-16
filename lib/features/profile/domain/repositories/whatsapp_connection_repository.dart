@@ -20,6 +20,11 @@ abstract class WhatsappConnectionRepository {
   /// O chamador relê a conexão em seguida; o retorno só traz avisos extras.
   Future<Result<WhatsappRemoteStatus>> refreshRemoteStatus();
 
+  /// Preferências de avisos da profissional autenticada (RLS: só a própria linha).
+  Future<Result<WhatsappMessagePreferences>> getMessagePreferences();
+
+  Future<Result<void>> setMessagePreferences(WhatsappMessagePreferences value);
+
   /// Tira a inscrição do webhook, apaga o token e marca como desconectada.
   Future<Result<void>> disconnect();
 }

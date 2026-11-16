@@ -115,6 +115,8 @@ void main() {
     await _pumpPastLoading(tester);
   }
 
+  setUpAll(() => registerFallbackValue(const WhatsappMessagePreferences()));
+
   setUp(() {
     repository = _MockWhatsappConnectionRepository();
     if (sl.isRegistered<WhatsappConnectionRepository>()) {
@@ -255,6 +257,44 @@ void main() {
     expect(find.text('+55 62 99999-9999'), findsOneWidget);
     expect(find.text('Conectado desde 15/01/2026'), findsOneWidget);
     expect(find.text('Desconectar'), findsOneWidget);
+  });
+
+  testWidgets('conectado: preferências de avisos salvam e voltam se falhar', (
+    tester,
+  ) async {
+    when(() => repository.getCurrentConnection()).thenAnswer(
+      (_) async => Success(connectionWith(WhatsappConnectionStatus.connected)),
+    );
+    when(
+      () => repository.getMessagePreferences(),
+    ).thenAnswer((_) async => const Success(WhatsappMessagePreferences()));
+    when(
+      () => repository.setMessagePreferences(any()),
+    ).thenAnswer((_) async => const Success(null));
+    await pumpWhatsappPage(tester);
+    await tester.pump();
+
+    expect(find.text('Aviso de agendamento'), findsOneWidget);
+    await tester.tap(find.text('Aviso de agendamento'));
+    await tester.pump();
+    verify(
+      () => repository.setMessagePreferences(
+        const WhatsappMessagePreferences(bookingNotice: false),
+      ),
+    ).called(1);
+
+    when(
+      () => repository.setMessagePreferences(any()),
+    ).thenAnswer((_) async => Error(ServerFailure()));
+    await tester.ensureVisible(find.text('Lembrete antes da consulta'));
+    await tester.pump();
+    await tester.tap(find.text('Lembrete antes da consulta'));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.textContaining('Não foi possível salvar', skipOffstage: false),
+      findsOneWidget,
+    );
   });
 
   testWidgets('desconectado: status, data e a área de preparação', (

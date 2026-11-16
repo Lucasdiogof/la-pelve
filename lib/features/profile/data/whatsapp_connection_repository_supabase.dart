@@ -112,6 +112,35 @@ class WhatsappConnectionRepositorySupabase
       });
 
   @override
+  Future<Result<WhatsappMessagePreferences>> getMessagePreferences() =>
+      _guarded('getMessagePreferences', () async {
+        final row = await _client
+            .from('profiles')
+            .select('whatsapp_notify_on_booking, whatsapp_reminder_12h')
+            .eq('id', _client.auth.currentUser!.id)
+            .single()
+            .timeout(_kWhatsappConnectionQueryTimeout);
+        return WhatsappMessagePreferences(
+          bookingNotice: row['whatsapp_notify_on_booking'] != false,
+          reminder12h: row['whatsapp_reminder_12h'] != false,
+        );
+      });
+
+  @override
+  Future<Result<void>> setMessagePreferences(
+    WhatsappMessagePreferences value,
+  ) => _guarded('setMessagePreferences', () async {
+    await _client
+        .from('profiles')
+        .update({
+          'whatsapp_notify_on_booking': value.bookingNotice,
+          'whatsapp_reminder_12h': value.reminder12h,
+        })
+        .eq('id', _client.auth.currentUser!.id)
+        .timeout(_kWhatsappConnectionQueryTimeout);
+  });
+
+  @override
   Future<Result<void>> disconnect() =>
       _guarded('disconnect', () => _invoke('disconnect'));
 }
