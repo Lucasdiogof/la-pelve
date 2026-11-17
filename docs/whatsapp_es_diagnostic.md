@@ -58,3 +58,16 @@ Não desconectar a conexão de teste, não escolher/registrar número, não envi
 - Mesmo bloqueio em todos os ambientes → causa fora do cliente (Meta). Enviar relatório de bug com a matriz.
 - Bloqueio só em um ambiente → investigar esse ambiente (popup/cookies de terceiros/versão do navegador).
 - Tela de escolha (número novo × existente) em algum ambiente → o bloqueio depende do ambiente/conta; rever hipóteses.
+
+## Resultados (17/11/2026)
+| Ambiente | Resultado | Session ID |
+|---|---|---|
+| E1 Chromium automatizado | bloqueio | 01a1e474-aa97-70b4-aef2-fde3ebb24b7b, 01a1e492-ca80-73de-9c0c-b32929baec65 |
+| Teste A (sem `version`, navegador embutido) | bloqueio | não capturado |
+| Teste B (Chrome desktop Windows, Graph v25.0) | bloqueio | 01a1eb89-06a8-7166-b389-e964ae752d08 |
+| Teste C (Safari iPhone físico, app em produção, conta do dono) | bloqueio | não capturado |
+| Teste C (Safari iPhone, conta de terceira pessoa) | bloqueio | não capturado |
+| Teste D (app nativo) | não executado; abre a mesma página no navegador do sistema | — |
+
+- Falha de abertura no Safari iOS (nada abria, tela "Conectando"): **corrigida** em `5e6b850` (abertura no toque explícito). O bloqueio de onboarding **permanece**.
+- Leitura: mesmo bloqueio em navegador, dispositivo, parâmetros do SDK e contas diferentes. Favorece restrição do lado da Meta; a causa exata **não está confirmada** (só a Meta pode confirmar).

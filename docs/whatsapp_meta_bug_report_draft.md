@@ -19,11 +19,11 @@ Reproduced (17/11/2026), same result every time, before any callback reaches our
 1. Minimal static page on our domain: only FB.init + FB.login (config_id, response_type=code, override_default_response_type, extras.setup) , in an automated Chromium.
 2. Same page, with extras.version removed.
 3. Real desktop Chrome on Windows (Graph v25.0), owner account. Session ID 01a1eb89-06a8-7166-b389-e964ae752d08
-4. Real iPhone, Safari, through our production app.
+4. Real iPhone, Safari, through our production app (after fixing our own popup handling, the Meta dialog opens and shows the same block).
 5. Owner account, a Facebook account that does not administer the business, and a third person's account.
 Other session IDs: 01a1e474-aa97-70b4-aef2-fde3ebb24b7b, 01a1e492-ca80-73de-9c0c-b32929baec65
 
-Because the same block appears across browsers, devices, SDK parameters and accounts, we believe it is a restriction on the business/app (likely the pending Access Verification) rather than a client issue.
+Because the same block appears across browsers, devices, SDK parameters and accounts, the exact cause is NOT confirmed by us. The evidence points to a restriction on the business/app (possibly the pending Access Verification) rather than a client issue, but only Meta can confirm.
 
 Expected: Embedded Signup opens normally. Request: please tell us what is blocking onboarding and what we must do to lift it.
 Previous support cases (closed by automation, no human review): 29569203806031459, 29067602789565652.
