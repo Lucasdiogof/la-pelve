@@ -1,3 +1,9 @@
+# Atualização 17/11/2026 — Novo chamado na Meta
+- Caso anterior 29569203806031459: encerrado sem solução (só resposta do Meta AI Agent; não reabre).
+- **Novo caso 29067602789565652** (17/11/2026 17:13, Suporte direto, Dev: Onboarding / Onboarding Status Pending), pedindo análise humana de Tech Provider / Access Verification / Embedded Signup, com a contradição das duas telas, os 2 Session IDs, erro 1007 e o alerta "WhatsApp needs more information". Sem anexos (o painel não opera o seletor de arquivos). Status na criação: Open; o chat do caso é automático (Meta AI), ainda processando.
+- URL: https://business.facebook.com/direct-support/case-detail/29067602789565652/?business_id=4371966796448884
+- Se for encerrado de novo sem humano: relatório de bug em https://developers.facebook.com/support/bugs/ e post no fórum https://developers.facebook.com/community (há relatos de tickets auto-encerrados pela IA).
+
 # Atualização 16/11/2026 (noite, 3) — Chamado escalado
 - Caso 29569203806031459: o 1º retorno foi de agente de IA (confirmou a inconsistência Access Verification, sem solução). O chat informa que o caso foi **encaminhado a um especialista**, que responderá **por e-mail** (marketing@lucksrei.com), e pede para **não enviar mais detalhes até ser contatado**. Aguardar.
 
