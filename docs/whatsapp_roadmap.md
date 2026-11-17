@@ -1,3 +1,7 @@
+# Atualização 17/11/2026 (4) — Teste B: Chrome desktop real, mesmo bloqueio
+- Chrome normal do Windows (fora do navegador embutido), conta do dono, página mínima via console em `lapelve.lucksrei.com/privacy`, Graph v25.0, sem `version` em `extras`. Popup abriu normalmente (`facebook.com/v25.0/dialog/oauth`) e mostrou direto **"Lucksrei não pode integrar clientes no momento"**. Session ID `01a1eb89-06a8-7166-b389-e964ae752d08`. "Compartilhar contato" não clicado; nada gravado.
+- Matriz: E1 Chromium automatizado, Teste A (embutido) e E2 Chrome desktop real = mesmo bloqueio. Faltam C (celular) e D (app).
+
 # Atualização 17/11/2026 (3) — Teste A: sem `version:'v5'` o bloqueio persiste
 - Página mínima injetada na origem `lapelve.lucksrei.com` (navegador embutido, conta do dono): só `FB.init` + `FB.login` com `config_id` 4693096200923752, `response_type:'code'`, `override_default_response_type`, `extras:{setup:{}}` (**sem** `version`). Fluxo: "Você vinculou La Pelve anteriormente" → Editar configurações → **"Lucksrei não pode integrar clientes no momento"**. Session ID não capturado (não visível no print). "Compartilhar contato" não clicado; nada gravado.
 - Conclusão: `extras.version:'v5'` descartado como causa. Sobram `config_id` e o estado do app/portfólio na Meta (Access Verification "Em análise", erro 1007).
