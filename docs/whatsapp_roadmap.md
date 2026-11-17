@@ -1,3 +1,8 @@
+# Atualização 17/11/2026 (5) — Teste C (iPhone/Safari) e correção da abertura no web
+- Causa do "nada abre" no Safari iOS: `window.open` após `await` (gesto perdido) + `url_launcher_web` 2.4.3 abre com `noopener` e sempre devolve `true` (a tela mostrava "Conectando" sem janela). Correção `5e6b850`: no web o app guarda a URL e abre só no toque em "Abrir página de conexão" (nativo inalterado). Frontend publicado por deploy manual.
+- Retestado no iPhone físico (Safari), conta do dono: a página abriu e a Meta mostrou o mesmo **"Lucksrei não pode integrar clientes no momento"**. Repetido com a conta do Facebook de uma terceira pessoa (sem relação com a Lucksrei): mesmo erro. Session IDs não capturados. Nada gravado; "compartilhar contato" não clicado.
+- Matriz: Chromium automatizado, Teste A, Chrome desktop real, Safari iOS real e 2 contas externas = **mesmo bloqueio em todos**. Evidência forte de restrição do lado da Meta (config/app/portfólio), não do cliente. Teste D (app nativo) dispensável: abre a mesma página.
+
 # Atualização 17/11/2026 (4) — Teste B: Chrome desktop real, mesmo bloqueio
 - Chrome normal do Windows (fora do navegador embutido), conta do dono, página mínima via console em `lapelve.lucksrei.com/privacy`, Graph v25.0, sem `version` em `extras`. Popup abriu normalmente (`facebook.com/v25.0/dialog/oauth`) e mostrou direto **"Lucksrei não pode integrar clientes no momento"**. Session ID `01a1eb89-06a8-7166-b389-e964ae752d08`. "Compartilhar contato" não clicado; nada gravado.
 - Matriz: E1 Chromium automatizado, Teste A (embutido) e E2 Chrome desktop real = mesmo bloqueio. Faltam C (celular) e D (app).
