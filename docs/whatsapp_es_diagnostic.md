@@ -46,8 +46,10 @@ Mesmos passos 1, 3 e 4, abrindo `https://lapelve.lucksrei.com` no navegador do c
 ### Teste D — App Flutter nativo
 Abrir o app, Perfil → WhatsApp → Conectar. O app abre o navegador do sistema; seguir 3 e 4. Voltar ao app e anotar o que a tela do La Pelve mostra (deve reler o estado: continua "conectado" com a conexão de teste).
 
-### Teste A — sem `version:'v5'` (opcional, eu faço no PC)
-Página estática do domínio com `extras:{setup:{}}` apenas. Se o bloqueio persistir, `version:'v5'` está descartado como causa.
+### Teste A — sem `version:'v5'` — FEITO (17/11): bloqueio persiste; `version:'v5'` descartado.
+
+### Teste B alternativo (Chrome normal, sem passar pelo app)
+Em `https://lapelve.lucksrei.com/privacy`, F12 → Console, colar `document.body.innerHTML='<button id=t style=font-size:24px;padding:20px>TESTE</button>';window.fbAsyncInit=()=>FB.init({appId:'2811023262627717',xfbml:false,version:'v25.0'});var s=document.createElement('script');s.src='https://connect.facebook.net/en_US/sdk.js';document.head.appendChild(s);t.onclick=()=>FB.login(r=>console.log('cb',r&&r.status),{config_id:'4693096200923752',response_type:'code',override_default_response_type:true,extras:{setup:{}}})` e clicar no botão. Só funciona no desktop (celular não tem console).
 
 ## O que NÃO fazer em nenhum teste
 Não desconectar a conexão de teste, não escolher/registrar número, não enviar mensagem, não clicar em "Sim, compartilhar minhas informações de contato", não usar a conta da Samara.

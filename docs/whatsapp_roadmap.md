@@ -1,3 +1,8 @@
+# Atualização 17/11/2026 (3) — Teste A: sem `version:'v5'` o bloqueio persiste
+- Página mínima injetada na origem `lapelve.lucksrei.com` (navegador embutido, conta do dono): só `FB.init` + `FB.login` com `config_id` 4693096200923752, `response_type:'code'`, `override_default_response_type`, `extras:{setup:{}}` (**sem** `version`). Fluxo: "Você vinculou La Pelve anteriormente" → Editar configurações → **"Lucksrei não pode integrar clientes no momento"**. Session ID não capturado (não visível no print). "Compartilhar contato" não clicado; nada gravado.
+- Conclusão: `extras.version:'v5'` descartado como causa. Sobram `config_id` e o estado do app/portfólio na Meta (Access Verification "Em análise", erro 1007).
+- Pendentes: B (Chrome desktop normal), C (Chrome Android / Safari iOS), D (app Flutter; o APK debug local é de 17/10, desatualizado). Procedimento em `whatsapp_es_diagnostic.md`.
+
 # Atualização 17/11/2026 (2) — Novo caso encerrado, sem mudança
 - Caso 29067602789565652: **Closed**; o chat automático respondeu só para postar no fórum de desenvolvedores. Nenhuma pessoa respondeu.
 - Reconferido: Access Verification continua "Em análise" (histórico só com o envio de 04/10), Informações da empresa continua "Verificado" + "WhatsApp needs more information"; alertas do app sem novidade.
