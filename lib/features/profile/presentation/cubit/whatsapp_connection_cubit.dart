@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:la_pelve/core/error/result.dart';
@@ -12,8 +13,17 @@ Future<bool> _launchExternal(Uri url) =>
     launchUrl(url, mode: LaunchMode.externalApplication);
 
 class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
-  WhatsappConnectionCubit(this._repository, {this._launcher = _launchExternal})
-    : super(const WhatsappConnectionLoading()) {
+  /// [openOnStart]: abrir a Meta logo após o servidor devolver a URL. No web é
+  /// falso: o `window.open` depois do `await` perde o gesto do usuário e o
+  /// Safari (iOS) o bloqueia sem avisar, e o url_launcher_web sempre devolve
+  /// `true` (abre com `noopener`). Lá o app guarda a URL e pede um toque
+  /// explícito ("Abrir página de conexão"), que abre de forma síncrona.
+  WhatsappConnectionCubit(
+    this._repository, {
+    this._launcher = _launchExternal,
+    bool? openOnStart,
+  }) : _openOnStart = openOnStart ?? !kIsWeb,
+       super(const WhatsappConnectionLoading()) {
     load();
   }
 
@@ -22,6 +32,7 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
   /// Para widgets que só precisam de leitura/escrita simples (preferências).
   WhatsappConnectionRepository get repository => _repository;
   final WhatsappUrlLauncher _launcher;
+  final bool _openOnStart;
 
   /// Também serve como retry: tanto o botão de "atualizar status" quanto o
   /// de "tentar novamente" (após falha de consulta) chamam este mesmo
@@ -96,6 +107,10 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
     if (isClosed) return;
     switch (started) {
       case Success(:final data):
+        if (!_openOnStart) {
+          emit(WhatsappConnectionReadyToOpen(data));
+          return;
+        }
         final opened = await _launcher(data);
         if (isClosed) return;
         if (opened) {
@@ -115,6 +130,20 @@ class WhatsappConnectionCubit extends Cubit<WhatsappConnectionState> {
           await load(startFailed: true);
         }
     }
+  }
+
+  /// Toque explícito no web: a chamada ao launcher acontece de forma síncrona
+  /// dentro do gesto (nenhum `await` antes), então o Safari permite a aba.
+  /// Falha de abertura volta ao estado com aviso; a URL de uso único nunca é
+  /// registrada em log.
+  Future<void> openReady() async {
+    final current = state;
+    if (current is! WhatsappConnectionReadyToOpen) return;
+    final opening = _launcher(current.url);
+    emit(const WhatsappConnectionConnecting());
+    final opened = await opening;
+    if (isClosed || opened) return;
+    await load(startFailed: true);
   }
 
   Future<void> disconnect() async {

@@ -191,6 +191,7 @@ void main() {
     Future<WhatsappConnectionCubit> loaded({
       bool available = true,
       Future<bool> Function(Uri)? launcher,
+      bool openOnStart = true,
       WhatsappConnection? connection,
     }) async {
       when(
@@ -202,6 +203,7 @@ void main() {
       final cubit = WhatsappConnectionCubit(
         repository,
         launcher: launcher ?? (_) async => true,
+        openOnStart: openOnStart,
       );
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
@@ -256,6 +258,64 @@ void main() {
         await cubit.close();
       },
     );
+
+    test(
+      'web: connect não abre nada após o await e espera o toque explícito',
+      () async {
+        var launched = 0;
+        when(
+          () => repository.startConnection(),
+        ).thenAnswer((_) async => Success(url));
+        final cubit = await loaded(
+          openOnStart: false,
+          launcher: (_) async {
+            launched++;
+            return true;
+          },
+        );
+        await cubit.connect();
+        expect(launched, 0);
+        expect(cubit.state, WhatsappConnectionReadyToOpen(url));
+        await cubit.openReady();
+        expect(launched, 1);
+        expect(cubit.state, const WhatsappConnectionConnecting());
+        await cubit.openReady(); // fora do estado "pronto": ignorado
+        expect(launched, 1);
+        await cubit.close();
+      },
+    );
+
+    test('web: falha ao abrir no toque explícito volta com aviso', () async {
+      when(
+        () => repository.startConnection(),
+      ).thenAnswer((_) async => Success(url));
+      final cubit = await loaded(
+        openOnStart: false,
+        launcher: (_) async => false,
+      );
+      await cubit.connect();
+      await cubit.openReady();
+      expect(
+        cubit.state,
+        const WhatsappConnectionNotConnected(
+          selfConnectAvailable: true,
+          startFailed: true,
+        ),
+      );
+      await cubit.close();
+    });
+
+    test('connect: toque duplo não inicia duas conexões', () async {
+      var calls = 0;
+      when(() => repository.startConnection()).thenAnswer((_) async {
+        calls++;
+        return Success(url);
+      });
+      final cubit = await loaded(openOnStart: false);
+      await Future.wait([cubit.connect(), cubit.connect()]);
+      expect(calls, 1);
+      await cubit.close();
+    });
 
     test(
       'connect: falha do servidor não abre nada nem finge conexão',

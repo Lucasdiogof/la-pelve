@@ -160,7 +160,9 @@ class _WhatsappPanel extends StatelessWidget {
     ProfileStrings t,
   ) {
     return switch (state) {
-      WhatsappConnectionLoading() || WhatsappConnectionLoadFailure() => null,
+      WhatsappConnectionLoading() ||
+      WhatsappConnectionLoadFailure() ||
+      WhatsappConnectionReadyToOpen() => null,
       WhatsappConnectionConnecting() => AppStatusBadge(
         label: t.whatsappStatusConnecting,
         tone: AppStatusTone.primary,
@@ -270,6 +272,32 @@ class _StatusArea extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.s12),
           Expanded(child: Text(t.whatsappCheckingStatus, style: secondary)),
+        ],
+      ),
+      WhatsappConnectionReadyToOpen() => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            t.whatsappReadyTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: AppSpacing.s4),
+          Text(
+            t.whatsappReadyMessage,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          PrimaryButton(
+            label: t.whatsappOpenPageButtonLabel,
+            onPressed: () =>
+                context.read<WhatsappConnectionCubit>().openReady(),
+          ),
+          const SizedBox(height: AppSpacing.s8),
+          _ConnectButton(label: t.whatsappNewLinkButtonLabel, primary: false),
         ],
       ),
       WhatsappConnectionConnecting() => _MessageWithAction(

@@ -771,6 +771,36 @@ class ProfileStrings {
           'toca "Actualizar estado".',
   };
 
+  String get whatsappReadyTitle => switch (language) {
+    AppLanguage.portuguese => 'Link de conexão pronto',
+    AppLanguage.english => 'Connection link ready',
+    AppLanguage.spanish => 'Enlace de conexión listo',
+  };
+
+  String get whatsappReadyMessage => switch (language) {
+    AppLanguage.portuguese =>
+      'Toque em "Abrir página de conexão" para continuar na Meta. O link vale '
+          'por poucos minutos; se expirar, gere outro.',
+    AppLanguage.english =>
+      'Tap "Open connection page" to continue on Meta. The link is valid for '
+          'a few minutes; if it expires, generate a new one.',
+    AppLanguage.spanish =>
+      'Toca "Abrir página de conexión" para continuar en Meta. El enlace '
+          'vale por pocos minutos; si expira, genera otro.',
+  };
+
+  String get whatsappOpenPageButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Abrir página de conexão',
+    AppLanguage.english => 'Open connection page',
+    AppLanguage.spanish => 'Abrir página de conexión',
+  };
+
+  String get whatsappNewLinkButtonLabel => switch (language) {
+    AppLanguage.portuguese => 'Gerar novo link',
+    AppLanguage.english => 'Generate new link',
+    AppLanguage.spanish => 'Generar nuevo enlace',
+  };
+
   String get whatsappStatusConnecting => switch (language) {
     AppLanguage.portuguese => 'Conectando',
     AppLanguage.english => 'Connecting',

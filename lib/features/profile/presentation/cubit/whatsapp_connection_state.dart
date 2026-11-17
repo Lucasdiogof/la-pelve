@@ -37,6 +37,17 @@ class WhatsappConnectionConnecting extends WhatsappConnectionState {
   const WhatsappConnectionConnecting();
 }
 
+/// Web: a URL de uso único já foi gerada e espera o toque do usuário para
+/// abrir a Meta (abrir após o `await` é bloqueado pelo Safari iOS).
+class WhatsappConnectionReadyToOpen extends WhatsappConnectionState {
+  const WhatsappConnectionReadyToOpen(this.url);
+
+  final Uri url;
+
+  @override
+  List<Object?> get props => [url];
+}
+
 class WhatsappConnectionPending extends WhatsappConnectionState {
   const WhatsappConnectionPending(this.connection, {this.statusStale = false});
 
