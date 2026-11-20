@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:la_pelve/core/theme/app_tokens.dart';
 
 /// Abas da tela: texto + sublinhado de 2px em primary (via `tabBarTheme`),

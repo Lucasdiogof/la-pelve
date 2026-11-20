@@ -11,9 +11,8 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -246,7 +245,7 @@ void main() {
   Future<GoRouter> pumpDetail(
     WidgetTester tester,
     Patient patient, {
-    Size size = const Size(390, 20000),
+    Size size = const Size(390, 16000),
     double textScale = 1,
     bool deleteFails = false,
   }) async {
@@ -312,10 +311,8 @@ void main() {
           theme: AppTheme.light,
           locale: const Locale('pt', 'BR'),
           supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+          localizationsDelegates: [
+            ...GlobalMaterialLocalizations.delegates,
           ],
           routerConfig: router,
           builder: (context, child) => MediaQuery(

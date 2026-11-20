@@ -8,11 +8,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -146,10 +145,8 @@ void main() {
           theme: dark ? AppTheme.dark : AppTheme.light,
           locale: const Locale('pt', 'BR'),
           supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+          localizationsDelegates: [
+            ...GlobalMaterialLocalizations.delegates,
           ],
           routerConfig: router,
           builder: (context, child) => MediaQuery(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show TimeOfDay;
+import 'package:material_ui/material_ui.dart' show TimeOfDay;
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 
 DateTime dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);

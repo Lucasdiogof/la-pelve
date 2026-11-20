@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart' show TimeOfDay;
+import 'package:material_ui/material_ui.dart' show TimeOfDay;
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';
 import 'package:la_pelve/shared/utils/date_only.dart';
 import 'package:la_pelve/shared/utils/enum_from_name.dart';

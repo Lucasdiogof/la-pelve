@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:la_pelve/core/error/failures.dart';
 import 'package:la_pelve/core/offline/offline_session.dart';
 import 'package:la_pelve/core/offline/ui/save_feedback.dart';

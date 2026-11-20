@@ -1,5 +1,5 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/utils/app_loading.dart';
 import 'package:la_pelve/features/profile/data/export/data_export_repository.dart';
@@ -45,12 +45,11 @@ Future<void> runDataExportFlow(BuildContext context, ProfileStrings t) async {
   }
 
   try {
-    await FilePicker.platform.saveFile(
+    await FilePicker.saveFile(
       dialogTitle: t.exportRowLabel,
       fileName: prepared.package.fileName,
       bytes: prepared.package.bytes,
-      type: FileType.custom,
-      allowedExtensions: const ['zip'],
+      mimeType: 'application/zip',
     );
   } catch (e) {
     debugPrint('[runDataExportFlow] save failed: ${e.runtimeType}');

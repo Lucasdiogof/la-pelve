@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Botão primário. Herda forma, cor e tipografia do `elevatedButtonTheme`.
 class PrimaryButton extends StatelessWidget {

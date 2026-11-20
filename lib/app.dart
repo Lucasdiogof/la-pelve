@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
@@ -36,10 +35,8 @@ class App extends StatelessWidget {
                 darkTheme: AppTheme.dark,
                 themeMode: themeMode,
                 locale: language.locale,
-                localizationsDelegates: const [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
+                localizationsDelegates: [
+                  ...GlobalMaterialLocalizations.delegates,
                 ],
                 supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
                 routerConfig: appRouter,

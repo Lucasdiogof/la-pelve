@@ -37,30 +37,31 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
 
   # Clean Architecture stack
   flutter_bloc: ^9.1.1 # State management (Bloc/Cubit)
-  equatable: ^2.0.8 # Value equality for entities, states and failures
-  get_it: ^8.0.3 # Dependency injection / service locator
+  equatable: ^3.0.0 # Value equality for entities, states and failures
+  get_it: ^9.3.0 # Dependency injection / service locator
   supabase_flutter: ^2.9.0 # Supabase client (auth + database)
   http: ^1.6.0 # Custom logging client wrapped around Supabase's requests
-  go_router: ^15.1.2 # Declarative routing
-  google_fonts: ^6.2.1 # App typography
+  go_router: ^18.1.4 # Declarative routing
+  google_fonts: ^9.0.0 # App typography
   loader_overlay: ^5.0.0 # Global blocking loading overlay (showAppLoading/hideAppLoading)
   image_picker: ^1.1.2 # Camera/gallery capture for patient attachments
-  file_picker: ^10.3.10 # Pick PDF/other files for patient attachments
+  file_picker: ^13.4.0 # Pick PDF/other files for patient attachments
   url_launcher: ^6.3.1 # Opens PDFs externally in the device's own viewer
-  local_auth: ^2.3.0 # Biometric authentication (Perfil toggle + app lock)
+  local_auth: ^3.0.2 # Biometric authentication (Perfil toggle + app lock)
   shared_preferences: ^2.3.3 # Persists the device-local biometria preference
   sqlite3: ^3.7.1 # Local offline store (SQLite3 Multiple Ciphers, encrypted at rest)
-  flutter_secure_storage: ^10.3.4 # Keychain/Keystore holder of the local DB key
+  flutter_secure_storage: ^11.2.0 # Keychain/Keystore holder of the local DB key
   connectivity_plus: ^7.3.1 # Network interface changes (offline indicator + sync trigger)
   path_provider: ^2.1.6
   path: ^1.9.1
   archive: ^4.0.9 # ZIP of the data export (already resolved transitively)
   crypto: ^3.0.7 # Hashes the user id into the local DB file name
 
+  material_ui: ^1.11.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +77,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.3
 
+  shared_preferences_platform_interface: ^2.4.1
 hooks:
   user_defines:
     sqlite3:

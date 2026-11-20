@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:la_pelve/core/di/injection_container.dart';
 import 'package:la_pelve/core/offline/sync/sync_status_cubit.dart';

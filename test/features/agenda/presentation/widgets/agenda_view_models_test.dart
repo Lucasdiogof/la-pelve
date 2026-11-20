@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show TimeOfDay;
+import 'package:material_ui/material_ui.dart' show TimeOfDay;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/presentation/widgets/agenda_view_models.dart';

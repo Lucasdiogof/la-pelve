@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class PulsingLogo extends StatefulWidget {
   const PulsingLogo({super.key, this.size = 72, this.animate = true});

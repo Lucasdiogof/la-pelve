@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:la_pelve/core/l10n/locale_cubit.dart';
@@ -59,15 +59,14 @@ Future<PickedAttachmentFile?> pickAttachment(BuildContext context) async {
         contentType: _mimeFromName(photo.name),
       );
     case _PickSource.file:
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withData: true,
       );
-      final picked = result?.files.firstOrNull;
-      if (picked?.bytes == null) return null;
+      final picked = result.firstOrNull;
+      if (picked == null) return null;
       return PickedAttachmentFile(
-        bytes: picked!.bytes!,
+        bytes: await picked.readAsBytes(),
         fileName: picked.name,
         contentType: 'application/pdf',
       );

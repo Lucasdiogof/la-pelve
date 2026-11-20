@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:la_pelve/core/l10n/app_language.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment.dart';
 import 'package:la_pelve/features/agenda/domain/entities/appointment_status.dart';

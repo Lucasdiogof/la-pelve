@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:la_pelve/core/session/session_data_controller.dart';
 import 'package:la_pelve/core/theme/app_colors.dart';
 import 'package:la_pelve/shared/l10n/app_strings.dart';
