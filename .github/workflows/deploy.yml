@@ -13,7 +13,7 @@ concurrency:
   group: deploy-web
   cancel-in-progress: true
 env:
-  FLUTTER_VERSION: "3.47.4"        # pin to the version the app is developed with
+  FLUTTER_VERSION: "3.50.1"        # pin to the version the app is developed with
   APP_DIR: "."                      # folder with pubspec.yaml and wrangler.jsonc (OrbiJob: app)
   FLUTTER_WEB_FLAGS: "--no-web-resources-cdn"  # CanvasKit e fontes no proprio dominio (permite CSP sem gstatic)
   SMOKE_URLS: "https://lapelve.lucksrei.com"  # public URLs checked after every deploy (space separated)
